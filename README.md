@@ -1,6 +1,8 @@
 # Sveltish
 
-An experiment in applying the design principles from [Svelte](svelte.dev) to native Fable. It's very much a work-in-progress. The code is changing very rapidly. I've no idea if it will work, but it's looking promising.
+An experiment in applying the design principles from [Svelte](svelte.dev) to native Fable. Svelte is impressive in its own right, but I can't help thinking that Fable is a compiler that's already in our toolchain, and is able to do what Svelte does with respect to generating boilerplate. 
+
+It's all very much a work-in-progress. The code is changing very rapidly; I've no idea if it will work, but it's looking promising.
 
 Some aspects that are working or in progress
 

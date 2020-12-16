@@ -1,8 +1,8 @@
 # Sveltish
 
-An experiment in applying the design principles to native Fable. It's very much a work-in-progress. The code is changing very rapidly. I've no idea if it will work.
+An experiment in applying the design principles from [Svelte](svelte.dev) to native Fable. It's very much a work-in-progress. The code is changing very rapidly. I've no idea if it will work, but it's looking promising.
 
-Features:
+Some aspects that are working or in progress
 
 *DOM builder*
 Crude and minimal. It's Feliz-styled, but builds direct into DOM. If this project proceeds it would be good to layer on top of Feliz.
@@ -57,7 +57,43 @@ It's ugly, but with Fable's help that can be made to look this:
 ```
 
 *Styling*
-Working like Svelt. Example coming
 
+Working like Svelte. Here's how the Svelte `animation` example is coming along with respect to the styling.
+
+```
+let styleSheet = [
+    rule ".new-todo" [
+        fontSize "1.4em"
+        width "100%"
+        margin "2em 0 1em 0"
+    ]
+
+    rule ".board" [
+        maxWidth "36em"
+        margin "0 auto"
+    ]
+
+    rule ".left, .right" [
+        ``float`` "left"
+        width "50%"
+        padding "0 1em 0 0"
+        boxSizing "border-box"
+    ]
+    
+    // ...
+]
+
+let view =
+    style styleSheet <| div [
+        className "board"
+        input [
+            className "new-todo"
+            placeholder "what needs to be done?"
+        ]
+
+        todosList "left" "todo" (fun t -> not t.Done) |> bind todos
+        todosList "right" "done" (fun t -> t.Done) |> bind todos
+    ]
+```
 
 

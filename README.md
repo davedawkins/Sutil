@@ -5,8 +5,8 @@ An experiment in applying the design principles from [Svelte](svelte.dev) to nat
 It's all very much a work-in-progress. The code is changing very rapidly; I've no idea if it will work, but it's looking promising.
 
 Some aspects that are working or in progress
-
-*DOM builder*
+ 
+## DOM builder
 Crude and minimal. It's Feliz-styled, but builds direct into DOM. If this project proceeds it would be good to layer on top of Feliz.
 
 ```
@@ -16,7 +16,7 @@ Crude and minimal. It's Feliz-styled, but builds direct into DOM. If this projec
     ]
 ```
 
-*Stores*
+## Stores
 
 Similar to Svelte stores, using the same API
 
@@ -29,7 +29,7 @@ Similar to Svelte stores, using the same API
     ]
 ```
 
-*Bindings*
+## Bindings
 
 The intention is to have Fable or a Fable plugin analyze the AST and produce bindings automatically. F# even in my inexperienced hands does an amazing job of reducing boilerplate to a minimum, but it's still boiler plate.
 
@@ -58,7 +58,7 @@ It's ugly, but with Fable's help that can be made to look this:
     ]
 ```
 
-*Styling*
+## Styling
 
 Working like Svelte. Here's how the Svelte `animation` example is coming along with respect to the styling.
 
@@ -97,5 +97,9 @@ let view =
         todosList "right" "done" (fun t -> t.Done) |> bind todos
     ]
 ```
+
+## Transitions
+
+Working on these right now. The key is being notified of a change in an element's visibility. The DOM intends to listen to a visibility expression (a `Store<bool>`) and then update style `display: none|<not-none>;`. Like a call to `$.show()` in you-know-what.
 
 

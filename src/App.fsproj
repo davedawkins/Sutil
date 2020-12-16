@@ -5,6 +5,7 @@
   <ItemGroup>
     <Compile Include="Fvelize.fs" />
     <Compile Include="Sveltish.fs" />
+    <Compile Include="Todos.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>

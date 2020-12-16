@@ -14,21 +14,14 @@ type Subscriber<'T> = {
     Id : int
     Set : ('T -> unit)
 }
-let mutable nextSubId = 0
-let newSubId() =
-    let r = nextSubId
-    nextSubId <- nextSubId + 1
-    r
 
-let makeStore<'T> (v : 'T) =
-    // Storage is separated from Store<T> so that it doesn't leak
-    // through the abstraction.
-    let mutable value = v
+let newSubId = Fvelize.makeIdGenerator()
+
+let makeGetSetStore<'T> (get : unit -> 'T) (set : 'T -> unit) =
     let mutable subscribers : Subscriber<'T> list = []
-    let get() = value
     {
         Value = get
-        Set  = fun (v : 'T) -> value <- v; for s in subscribers do s.Set(v)
+        Set  = fun (v : 'T) -> set(v); for s in subscribers do s.Set(v)
         Subscribe = (fun notify ->
             let id = newSubId()
             let unsub = (fun () ->
@@ -40,11 +33,48 @@ let makeStore<'T> (v : 'T) =
         )
     }
 
+let makeStore<'T> (v : 'T) =
+    // Storage is separated from Store<T> so that it doesn't leak
+    // through the abstraction.
+    let mutable value = v
+    let get() = value
+    let set(v) = value <- v
+    makeGetSetStore get set
+
+open Fable.Core
+
+type Lens<'T> = {
+        Get : unit -> 'T
+        Set : 'T -> unit
+    }
+
+[<Emit("() => ($0).$1")>]
+let getter obj name = jsNative
+
+[<Emit("value => ($0).$1 = value")>]
+let setter obj name = jsNative
+
+let makeLens obj name : Lens<obj> =
+    {
+        Get = getter obj name
+        Set = setter obj name
+    }
+
+let makePropertyStore obj name =
+    let get = getter obj name
+    let set = setter obj name
+    makeGetSetStore get set
+
 // Dependency here on the DOM builder
-let bind<'T> (e : (unit -> Fvelize.ElementChild)) (store : Store<'T>) =
-    Fvelize.BoundNode (
+let bind<'T> (store : Store<'T>) (e : unit -> Fvelize.ElementChild) =
+    Fvelize.Binding (
             e,
             (fun callback ->
                 store.Subscribe( fun newValue -> callback() )
                 |> ignore)
     )
+
+let bindAttr (store : Store<obj>) attrName =
+    Fvelize.BindingAttribute (attrName,
+        store.Subscribe,
+        store.Set )

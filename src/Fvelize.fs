@@ -7,23 +7,46 @@ module Fvelize
 
 open Browser.Dom
 open Browser.Types
+open System
 
 let idSelector = sprintf "#%s"
 let classSelector = sprintf ".%s"
 let findElement selector = document.querySelector(selector)
 
-type Subscription = (unit -> unit) -> unit
+type SubscriptionCallback = (unit -> unit) -> unit
+type SubscriptionGet<'T> = ('T -> unit) -> unit -> unit
+
 type Fn<'T> = (unit -> 'T)
+
+type StyleRule = {
+        Selector : string
+        Style : (string*obj) list
+    }
+
+type StyleSheet = StyleRule list
+
+let rule name style = {
+    Selector = name
+    Style = style
+}
 
 type ElementChild =
     | Event of string * (Event -> unit)
     | Attribute of string * obj
-    | ChildElement of HTMLElement
-    | ChildNode of Node
-    | BoundNode of (Fn<ElementChild>) * Subscription
-    | Styled of styles : ((string*obj) list) * children: ElementChild list
+    | BindingAttribute of string * SubscriptionGet<obj> * (obj -> unit)
+    | Element of string*ElementChild list
+    | Text of string
+    | Binding of (unit -> ElementChild) * SubscriptionCallback
+    | Styled of (StyleSheet * ElementChild)
 
-type Attr = string * string
+//type Attr = string * string
+let makeIdGenerator() =
+    let mutable id = 0
+    fun () ->
+        let r = id
+        id <- id+1
+        r
+
 
 let childrenOf (e:HTMLElement) =
     let rec toList (n:Node) =
@@ -38,91 +61,132 @@ let newStyleElement =
     head.appendChild(style :> Node) |> ignore
     style
 
-let mutable nextStyleId = 0
+let splitMapJoin (delim:char) (f : string -> string) (s:string) =
+    s.Split([| delim |], StringSplitOptions.RemoveEmptyEntries)
+        |> Array.map f
+        |> fun values -> String.Join(string delim, values)
 
-let makeStyleSheet (styles : (string*obj) list) =
+let isPseudo s =
+    s = "hover" || s = "active" || s = "visited" || s = "link" || s = "before" || s = "after" || s = "checked"
+
+let isGlobal s = s = "body" || s = "html"
+
+
+let specifySelector (styleName : string) (selectors : string) =
+    let trans s = if isPseudo s || isGlobal s then s else sprintf "%s.%s" s styleName  // button -> button.styleA
+    splitMapJoin ',' (splitMapJoin ' ' (splitMapJoin ':' trans)) selectors
+
+let addStyleSheet styleName (styleSheet : StyleSheet) =
     let style = newStyleElement
-    let styleId = sprintf "style-%d" nextStyleId
-    nextStyleId <- nextStyleId + 1
-    let styleText = System.String.Join ("", styles |> Seq.map (fun (nm,v) -> sprintf "\n\t%s: %A;" nm v))
-    [ "."; styleId; ", ."; styleId; " * {\n"; styleText; "\n}\n" ] |> String.concat "" |> document.createTextNode |> style.appendChild |> ignore
-    styleId
+    for rule in styleSheet do
+        let styleText = String.Join ("", rule.Style |> Seq.map (fun (nm,v) -> sprintf "%s: %A;" nm v))
+        [ specifySelector styleName rule.Selector; " {"; styleText; "}" ] |> String.concat "" |> document.createTextNode |> style.appendChild |> ignore
 
-let appendAttribute (e:HTMLElement) attrName attrValue =
-    let currentValue = e.getAttribute(attrName)
-    e.setAttribute(attrName, if ((isNull currentValue) || currentValue = "") then attrValue else (sprintf "%s %s" currentValue attrValue))
+let appendAttribute (e:Element) attrName attrValue =
+    if (attrValue <> "") then
+        let currentValue = e.getAttribute(attrName)
+        e.setAttribute(attrName,
+            if ((isNull currentValue) || currentValue = "")
+                then attrValue
+                else (sprintf "%s %s" currentValue attrValue))
 
-let rec topElements (e : ElementChild) =
-    seq {
-        match e with
-            | ChildElement ce -> yield ce
-            | Styled (_, styled) ->
-                for child in styled do
-                    yield! topElements child
-            | _ -> ()
+type BuildContext = {
+    StyleName : string
+    AppendChild : (Element -> Node -> unit)
+    MakeName : (string -> string)
+}
+
+let makeContext =
+    let gen = makeIdGenerator()
+    {
+        StyleName = ""
+        AppendChild = fun parent child -> parent.appendChild(child) |> ignore
+        MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
     }
 
-let rec applyStyle styles styledNodes =
-    let styleId = makeStyleSheet styles
-    for n in styledNodes do
-        for root in topElements n do
-            appendAttribute root "class" styleId
+let rec build context (parent : Element) (child : ElementChild) =
+    match child with
+    | Event (name,f) -> parent.addEventListener( name, f, true)
 
-let el name (children : ElementChild list) =
-    let rec build (parent : HTMLElement) child =
-        match child with
-        | Event (name,f) -> parent.addEventListener(name, f, true)
-        | Attribute (name,value) ->
-            parent.setAttribute(name,sprintf "%A" value)
+    | Attribute (name,value) ->
+        parent.setAttribute(name,sprintf "%A" value)
+        |> ignore
+
+    | BindingAttribute (name,sub,set) ->
+        let input = parent :?> HTMLInputElement
+        parent.addEventListener("change", (fun e ->
+            //console.log(sprintf "Changed %A" input.``checked``)
+            set(input.``checked``)) )
+        sub( fun value ->
+            input.``checked`` <- (string value = "true")
+        )
+        |> ignore
+
+    | Text s ->
+        context.AppendChild parent (document.createTextNode(s) :> Node)
+        |> ignore
+
+    | Element (tag,children) ->
+        let e = document.createElement(tag)
+
+        context.AppendChild parent (e :> Node)
+
+        for c in children do
+            build context e c
+
+        if context.StyleName <> "" then
+            appendAttribute e "class" context.StyleName
+
+        |> ignore
+
+    | Binding (expr,sub) ->
+        let mutable (current:Node)  = null
+
+        let appendChild (p:Element) (node:Node) =
+            let old = current
+
+            if (not (isNull old)) && old.parentElement.isSameNode(p) then
+                p.replaceChild(node,old)
+            else
+                p.appendChild node
             |> ignore
 
-        | ChildNode n -> parent.appendChild n |> ignore
-        | ChildElement e -> parent.appendChild e |> ignore
+            if p.isSameNode(parent) then
+                current <- node
+            |> ignore
 
-        | Styled (styles, styledNodes) ->
-            applyStyle styles styledNodes
-            for n in styledNodes do
-                build parent n
+        sub( fun () ->
+            build { context with AppendChild = appendChild } parent <| expr()
+        )
 
-        | BoundNode (n,sub) ->
-            let mutable (current:Node)  = null
-            sub( fun () ->
-                match n() with
-                | ChildNode node ->
-                    let old = current
-                    current <- node
-                    if isNull old then
-                        parent.appendChild current
-                    else
-                        parent.replaceChild(current,old)
-                    |> ignore
-                | _ -> invalidArg "Expected a node" |> ignore
-                ()
-            )
-    let e = document.createElement name
-    for child in children do build e child
-    e |> ChildElement
+    | Styled (styleSheet,element) ->
+        let name = context.MakeName "sveltish"
+        addStyleSheet name styleSheet
+        build { context with StyleName = name } parent element
 
+let el name (children : ElementChild list) =
+    Element (name,children)
 
+// Elements
 let div children  = el "div" children
 let p children = el "p" children
+let label children = el "label" children
+let h2 children = el "h2" children
+let input children = el "input" children
 let button children = el "button" children
-let str text = (text |> document.createTextNode) :> Node |> ChildNode
+
+// Nodes
+let str text = text |> Text
+
+// Attributes
 let className name = Attribute ("class",name)
 
-let rec mount selector app  =
-    match app with
-    | Styled (styles, styledNodes) ->
-            applyStyle styles styledNodes
-            for node in styledNodes do
-                mount selector node
-    | ChildElement appNode ->  (idSelector selector |> findElement).appendChild(appNode) |> ignore
-    | _ -> invalidArg "Expected a node" |> ignore
+// Event listeners
+let on name f = Event(name,f)
+let onClick = on "click"
+let onKeyDown = on "keydown"
 
-let style (styles:(string*obj) list) (children:ElementChild list) =
-    Styled (styles, children)
-let onClick f = Event ("click",f)
-
+// Styles
 let margin (n:obj) = "margin",n
 let marginTop (n:obj) = "margin-top",n
 let marginLeft (n:obj) = "margin-left",n
@@ -154,3 +218,20 @@ let lineHeight     (n:obj) = "line-height",n
 let position       (n:obj) = "position",n
 let verticalAlign  (n:obj) = "vertical-align",n
 let fontWeight     (n:obj) = "font-height",n
+let ``float``      (n:obj) = "float",n
+let padding        (n:obj) = "padding",n
+let boxSizing      (n:obj) = "box-sizing",n
+let userSelect     (n:obj) = "user-select",n
+let top            (n:obj) = "top",n
+let left           (n:obj) = "left",n
+let opacity        (n:obj) = "opacity",n
+let transition     (n:obj) = "transition",n
+
+let rec mount selector app  =
+    let context = makeContext
+    let host = idSelector selector |> findElement
+    build context host app
+
+let style (styleSheet : StyleSheet) element=
+    Styled (styleSheet, element)
+

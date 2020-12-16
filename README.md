@@ -102,4 +102,4 @@ let view =
 
 Working on these right now. The key is being notified of a change in an element's visibility. The DOM intends to listen to a visibility expression (a `Store<bool>`) and then update style `display: none|<not-none>;`. Like a call to `$.show()` in you-know-what.
 
-![Todos Progress](images/todos.png)
+<img alt="Todos Progress" width="400" src="images/todos.png">

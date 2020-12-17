@@ -74,6 +74,12 @@ module Counter =
                 onClick (fun _ -> 0 |> count.Set)
                 str "Reset"
             ]
+
+            (div [ str "Click button to start counting" ])
+            |> transition
+                    (InOut (Transition.slide, Transition.fade))
+                    (count |~> exprStore (fun () -> count.Value() = 0))  // Visible if 'count = 0'
+
         ]
 
 let view =
@@ -88,13 +94,12 @@ let view =
 
             Counter.Counter []
 
-            p [ str "Here's a second counter "]
-
-            Counter.Counter []
+            //p [ str "Here's a second counter "]
+            //Counter.Counter []
 
             p [ str "Here's the Svelte TODOs demo, which also has its own stylesheet"]
 
-            Todos.view
+            //Todos.view
         ]
 
 mount "fvelte-main-app" view

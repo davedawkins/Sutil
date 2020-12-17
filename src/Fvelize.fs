@@ -6,8 +6,10 @@
 module Fvelize
 
 open Browser.Dom
+open Browser.CssExtensions
 open Browser.Types
 open System
+open Transition
 
 let idSelector = sprintf "#%s"
 let classSelector = sprintf ".%s"
@@ -17,6 +19,8 @@ type SubscriptionCallback = (unit -> unit) -> unit
 type SubscriptionGet<'T> = ('T -> unit) -> unit -> unit
 
 type Fn<'T> = (unit -> 'T)
+
+
 
 type StyleRule = {
         Selector : string
@@ -30,14 +34,23 @@ let rule name style = {
     Style = style
 }
 
+type TransitionFactory = HTMLElement -> (TransitionProp list) -> Transition
+
+type TransitionAttribute =
+    | Both of TransitionFactory
+    | In of TransitionFactory
+    | Out of TransitionFactory
+    | InOut of (TransitionFactory * TransitionFactory)
+
 type ElementChild =
     | Event of string * (Event -> unit)
     | Attribute of string * obj
-    | BindingAttribute of string * SubscriptionGet<obj> * (obj -> unit)
     | Element of string*ElementChild list
     | Text of string
-    | Binding of (unit -> ElementChild) * SubscriptionCallback
     | Styled of (StyleSheet * ElementChild)
+    | BindingAttribute of string * SubscriptionGet<obj> * (obj -> unit)
+    | BindingVisibility of ElementChild * SubscriptionGet<bool> * TransitionAttribute option
+    | Binding of (unit -> ElementChild) * SubscriptionCallback
 
 //type Attr = string * string
 let makeIdGenerator() =
@@ -46,7 +59,6 @@ let makeIdGenerator() =
         let r = id
         id <- id+1
         r
-
 
 let childrenOf (e:HTMLElement) =
     let rec toList (n:Node) =
@@ -104,6 +116,36 @@ let makeContext =
         MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
     }
 
+let parseStyleAttr (style : string) =
+    style.Split([|';'|], StringSplitOptions.RemoveEmptyEntries)
+        |> Array.collect (fun entry ->
+                        entry.Split([|':'|],2)
+                        |> Array.chunkBySize 2
+                        |> Array.map (fun pair -> pair.[0].Trim(), pair.[1].Trim()))
+
+let emitStyleAttr (keyValues : (string * string) array) =
+    keyValues
+        |> Array.map (fun (k,v) -> sprintf "%s:%s;" k v )
+        |> String.concat ""
+
+let filterStyleAttr name style =
+    parseStyleAttr style
+        |> Array.filter (fun (k,v) -> console.log(sprintf "%s=%s %A %s" k v (k <> name) name); k <> name)
+        |> emitStyleAttr
+
+let getStyleAttr (el : HTMLElement) =
+    match el.getAttribute("style") with
+    | null -> ""
+    | s -> s
+
+let addStyleAttr (el : HTMLElement) name value =
+    let style = getStyleAttr el |> filterStyleAttr name
+    el.setAttribute( "style", sprintf "%s%s:%s;" style name value )
+
+let removeStyleAttr (el : HTMLElement) name =
+    console.log( sprintf "filter by %s: %A -> %A" name (getStyleAttr el) (getStyleAttr el |> filterStyleAttr name) )
+    el.setAttribute( "style", getStyleAttr el |> filterStyleAttr name )
+
 let rec build context (parent : Element) (child : ElementChild) =
     match child with
     | Event (name,f) -> parent.addEventListener( name, f, true)
@@ -112,15 +154,6 @@ let rec build context (parent : Element) (child : ElementChild) =
         parent.setAttribute(name,sprintf "%A" value)
         |> ignore
 
-    | BindingAttribute (name,sub,set) ->
-        let input = parent :?> HTMLInputElement
-        parent.addEventListener("change", (fun e ->
-            //console.log(sprintf "Changed %A" input.``checked``)
-            set(input.``checked``)) )
-        sub( fun value ->
-            input.``checked`` <- (string value = "true")
-        )
-        |> ignore
 
     | Text s ->
         context.AppendChild parent (document.createTextNode(s) :> Node)
@@ -138,6 +171,11 @@ let rec build context (parent : Element) (child : ElementChild) =
             appendAttribute e "class" context.StyleName
 
         |> ignore
+
+    | Styled (styleSheet,element) ->
+        let name = context.MakeName "sveltish"
+        addStyleSheet name styleSheet
+        build { context with StyleName = name } parent element
 
     | Binding (expr,sub) ->
         let mutable (current:Node)  = null
@@ -159,10 +197,73 @@ let rec build context (parent : Element) (child : ElementChild) =
             build { context with AppendChild = appendChild } parent <| expr()
         )
 
-    | Styled (styleSheet,element) ->
-        let name = context.MakeName "sveltish"
-        addStyleSheet name styleSheet
-        build { context with StyleName = name } parent element
+    | BindingVisibility (elem,sub,ta) ->
+        let mutable target : Node = null
+
+        let getRef p c =
+            if (parent.isSameNode(p)) then
+                console.log("Captured reference")
+                target <- c
+            context.AppendChild p c
+
+        console.log("Subscribing to visibility")
+
+        sub( fun isVisible ->
+            if isNull target then
+                console.log("Building and waiting for reference")
+                build { context with AppendChild = getRef } parent <| elem
+            else
+                console.log(sprintf "Visibility = %A" isVisible)
+                let el = target :?> HTMLElement
+
+                let rec hide = fun _ ->
+                    addStyleAttr el "display" "none"
+                    //el.hidden <- true
+                    removeStyleAttr el "animation"
+                    el.removeEventListener( "animationend", hide )
+
+                let rec show = fun _ ->
+                    removeStyleAttr el "display"
+                    //el.hidden <- false
+                    removeStyleAttr el "animation"
+                    el.removeEventListener( "animationend", show )
+
+                let isIn = isVisible
+                let tr = ta |> Option.bind (fun x ->
+                    match x with
+                    | Both t -> Some t
+                    | In t -> if isIn then Some t else None
+                    | Out t -> if isIn then None else Some t
+                    | InOut (tin,tout) -> if isIn then Some tin else Some tout
+                    )
+
+                match tr with
+                | None ->
+                    if isIn then
+                        removeStyleAttr el "display"
+                    else
+                        addStyleAttr el "display" "none"
+                | Some tr ->
+                    if isVisible then
+                        el.addEventListener( "animationend", show )
+                        removeStyleAttr el "display"
+                        Transition.createRule el 0.0 1.0 (tr el []) 314 |> ignore
+                        //el.hidden <- false
+                    else
+                        el.addEventListener( "animationend", hide )
+                        Transition.createRule el 1.0 0.0 (tr el []) 314 |> ignore
+
+        ) |> ignore // the unsubscription
+        ()
+    | BindingAttribute (name,sub,set) ->
+        let input = parent :?> HTMLInputElement
+        parent.addEventListener("change", (fun e ->
+            //console.log(sprintf "Changed %A" input.``checked``)
+            set(input.``checked``)) )
+        sub( fun value ->
+            input.``checked`` <- (string value = "true")
+        )
+        |> ignore
 
 let el name (children : ElementChild list) =
     Element (name,children)
@@ -174,6 +275,7 @@ let label children = el "label" children
 let h2 children = el "h2" children
 let input children = el "input" children
 let button children = el "button" children
+let span children = el "span" children
 
 // Nodes
 let str text = text |> Text

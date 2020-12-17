@@ -141,11 +141,21 @@ let todosList cls title filter () =
 
                 input [
                     Attribute ("type","checkbox")
+
+                    //Property ("checked", "{todo.Done}")
+
+                    // -- This should be generated ----------------------------------------
                     bindAttr
-                        (makeGetSetStore
-                            (fun () -> todo.Done :> obj)
-                            (fun z -> todo.Done <- toBool z; todos.Value() |> todos.Set ))
+                        ((makePropertyStore todo "Done") |> propagateNotifications todos)
+
+                        // More type-checked alternative
+                        //
+                        //(makeGetSetStore
+                        //    (fun () -> todo.Done :> obj)
+                        //    (fun z -> todo.Done <- toBool z; todos.Value() |> todos.Set ))
                         "checked"
+                    // --------------------------------------------------------------------
+
                 ]
                 str " "
                 str todo.Description

@@ -111,33 +111,33 @@ Here's the code for this component:
 
 ```fsharp
 
-    let Counter attrs =
-        let count = Sveltish.makeStore 0
-        div [
-            button [
-                className "button"
-                onClick (fun _ ->
-                    console.log("click")
-                    count.Value() + 1 |> count.Set)
+let Counter attrs =
+    let count = Sveltish.makeStore 0
+    div [
+        button [
+            className "button"
+            onClick (fun _ ->
+                console.log("click")
+                count.Value() + 1 |> count.Set)
 
-                (fun () ->
-                    str <| if count.Value() = 0 then "Click Me" else count.Value() |> sprintf "You clicked: %i time(s)"
-                ) |> bind count
-            ]
-
-            button [
-                className "button"
-                Attribute ("style", "margin-left: 12px;" )
-                onClick (fun _ -> 0 |> count.Set)
-                str "Reset"
-            ]
-
-            (div [ str "Click button to start counting" ])
-            |> transition
-                    (InOut (Transition.slide, Transition.fade))
-                    (count |~> exprStore (fun () -> count.Value() = 0))  // Visible if 'count = 0'
-
+            (fun () ->
+                str <| if count.Value() = 0 then "Click Me" else count.Value() |> sprintf "You clicked: %i time(s)"
+            ) |> bind count
         ]
+
+        button [
+            className "button"
+            Attribute ("style", "margin-left: 12px;" )
+            onClick (fun _ -> 0 |> count.Set)
+            str "Reset"
+        ]
+
+        (div [ str "Click button to start counting" ])
+        |> transition
+                (InOut (Transition.slide, Transition.fade))
+                (count |~> exprStore (fun () -> count.Value() = 0))  // Visible if 'count = 0'
+
+    ]
 ```
 The `transition` wrapper manages visibility of the contained element, according to the expression. It then uses
 the specified transitions to handle entry and exit of the element from the DOM.

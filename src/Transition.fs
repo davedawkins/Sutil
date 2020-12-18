@@ -1,4 +1,5 @@
 namespace Sveltish
+open System.Collections.Generic
 module Transition =
     open Browser.Dom
     open Browser.CssExtensions
@@ -58,6 +59,21 @@ module Transition =
     // You know, this is a port from svelte/index.js. I could just import it :-/
     // That's still an option for doing a complete implementation.
 
+    //let mutable rules : string list = []
+
+    let ruleIndexes = Dictionary<string,float>()
+
+    let getSveltishStylesheet =
+        let mutable e = document.querySelector("head style")
+        if (isNull e) then
+            e <- element("style")
+            document.head.appendChild(e) |> ignore
+        e |> dotSheet
+
+    let deleteRule ruleName =
+        let s = getSveltishStylesheet
+        s.deleteRule( ruleIndexes.[ruleName] )
+
     let createRule (node : HTMLElement) (a:float) (b:float) (tr : Transition) (uid:int) =
         let step = 16.666 / tr.Duration
         let mutable keyframes = [ "{\n" ];
@@ -69,14 +85,12 @@ module Transition =
         let rule = keyframes @ [ sprintf "100%% {%s}\n" (tr.Css b (1.0 - b)) ] |> String.concat ""
 
         let name = sprintf "__sveltish_%d" uid
-        let doc = node.ownerDocument
 
-        let styleElement = element("style")
-        doc.head.appendChild(styleElement) |> ignore
-        let stylesheet = styleElement |> dotSheet
-        stylesheet.insertRule( (sprintf "@keyframes %s %s" name rule), stylesheet.cssRules.length) |> ignore
+        let stylesheet = getSveltishStylesheet
+        let ruleIndex = stylesheet.insertRule( (sprintf "@keyframes %s %s" name rule), stylesheet.cssRules.length)
 
         node.style.animation <- sprintf "%s %fms linear %fms 1 both" name tr.Duration tr.Delay
+        ruleIndexes.[name] <- ruleIndex
         name
 
     let fade (node : Element) (props : TransitionProp list) =

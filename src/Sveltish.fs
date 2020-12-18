@@ -349,17 +349,24 @@ module Bindings =
     //            store.Subscribe,
     //            Some trans )
 
+    let nextRuleId = CodeGeneration.makeIdGenerator()
+
+
     let transitionNode (el : HTMLElement) (trans : TransitionAttribute option) (isVisible :bool) (complete: HTMLElement -> unit)=
+        let mutable ruleName = ""
+
         let rec hide = fun _ ->
             addStyleAttr el "display" "none"
             removeStyleAttr el "animation"
             el.removeEventListener( "animationend", hide )
+            //Transition.deleteRule ruleName
             complete el
 
         let rec show = fun _ ->
             removeStyleAttr el "display"
             removeStyleAttr el "animation"
             el.removeEventListener( "animationend", show )
+            //Transition.deleteRule ruleName
             complete el
 
         let tr = trans |> Option.bind (fun x ->
@@ -381,10 +388,10 @@ module Bindings =
             if isVisible then
                 el.addEventListener( "animationend", show )
                 removeStyleAttr el "display"
-                Transition.createRule el 0.0 1.0 (tr el []) 314 |> ignore
+                ruleName <- Transition.createRule el 0.0 1.0 (tr el []) (nextRuleId())
             else
                 el.addEventListener( "animationend", hide )
-                Transition.createRule el 1.0 0.0 (tr el []) 314 |> ignore
+                ruleName <- Transition.createRule el 1.0 0.0 (tr el []) (nextRuleId())
 
     let transitionOpt<'T> (trans : TransitionAttribute option) (store : Store<bool>) (element: NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable target : Node = null
@@ -432,7 +439,6 @@ module Bindings =
                 let newItems = items.Value() |> List.filter filter
                 let mutable newState  = [ ]
                 let mutable enteringNodes = []
-                let mutable exitingNodes = []
 
                 let blockPrevNode = // First node before this collection
                     match state with
@@ -458,25 +464,21 @@ module Bindings =
                 for oldItem in state do
                     if not (newState |> List.exists (fun x -> x.Key = oldItem.Key)) then
                         transitionNode (oldItem.Node :?> HTMLElement) (Some trans) false
-                            (fun e -> oldItem.Node.parentNode.removeChild( oldItem.Node ) |> ignore)
-                        //exitingNodes <- oldItem.Node :: exitingNodes
+                            (fun e -> parent.removeChild( oldItem.Node ) |> ignore)
 
                 // Existence is now synced. Now to reorder
 
                 let mutable last = blockPrevNode
                 newState |> List.mapi (fun pos ki ->
-                    if pos <> ki.Position then
-                        parent.removeChild(ki.Node) |> ignore
-                        parent.insertBefore(ki.Node, last.nextSibling) |> ignore
+                    //if pos <> ki.Position then
+                    //    parent.removeChild(ki.Node) |> ignore
+                    //    parent.insertBefore(ki.Node, last.nextSibling) |> ignore
                     last <- ki.Node
                     ()
                 ) |> ignore
 
                 for n in enteringNodes do
                     transitionNode (n :?> HTMLElement) (Some trans) true ignore
-
-                //for n in exitingNodes do
-                //    transitionNode (n :?> HTMLElement) (Some trans) false
 
                 state <- newState
             )

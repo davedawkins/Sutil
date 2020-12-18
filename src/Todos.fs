@@ -112,7 +112,7 @@ let toBool obj =
 
 open Sveltish.Bindings
 
-let todosList cls title filter () =
+let todosList cls title filter =
     Html.div [
         className cls
         Html.h2 [ text title ]
@@ -152,6 +152,6 @@ let view : NodeFactory =
             )
         ]
 
-        todosList "left" "todo" (fun t -> not t.Done)()// |> bind todos
-        todosList "right" "done" (fun t -> t.Done)()// |> bind todos
+        todosList "left" "todo" (fun t -> not t.Done)
+        todosList "right" "done" (fun t -> t.Done)
     ]

@@ -1,9 +1,21 @@
 module App
 
-open Fvelize
+open System
 open Sveltish
 
+open Sveltish.Attr
+open Sveltish.DOM
+open Sveltish.Transition
+
+open Browser.Types
+open Browser.Dom
+
+let log s = console.log(s)
+
+
 module BulmaStyling =
+    open Styling
+
     let bulmaStyleSheet = [
         rule ".button" [
             alignItems "center"
@@ -48,58 +60,54 @@ module BulmaStyling =
         ]
     ]
 
-open BulmaStyling
-open Browser.Dom
-
-
 module Counter =
 
+    open Stores
+    open Bindings
+
     let Counter attrs =
-        let count = Sveltish.makeStore 0
-        div [
-            button [
+        let count = makeStore 0
+        Html.div [
+            Html.button [
                 className "button"
-                onClick (fun _ ->
+                on "click" (fun _ ->
                     console.log("click")
                     count.Value() + 1 |> count.Set)
 
                 (fun () ->
-                    str <| if count.Value() = 0 then "Click Me" else count.Value() |> sprintf "You clicked: %i time(s)"
-                ) |> bind count
+                    text <| if count.Value() = 0 then "Click Me" else count.Value() |> sprintf "You clicked: %i time(s)"
+                ) |> Bindings.bind count
             ]
 
-            button [
+            Html.button [
                 className "button"
-                Attribute ("style", "margin-left: 12px;" )
-                onClick (fun _ -> 0 |> count.Set)
-                str "Reset"
+                attr ("style","margin-left: 12px;")
+                on "click" (fun _ -> 0 |> count.Set)
+                text "Reset"
             ]
 
-            (div [ str "Click button to start counting" ])
+            (Html.div [ text "Click button to start counting" ])
             |> transition
                     (InOut (Transition.slide, Transition.fade))
                     (count |~> exprStore (fun () -> count.Value() = 0))  // Visible if 'count = 0'
-
         ]
 
-let view =
-        style bulmaStyleSheet <| div [
+
+module App =
+    open Bindings
+    open BulmaStyling
+    open Stores
+
+    let count = Stores.makeStore 0
+
+    let testApp : NodeFactory =
+        Styling.style bulmaStyleSheet <| Html.div [
             className "container"
-
-            p [ str "This component has its own style sheet"]
-
-            p [ str "Fable is running" ]
-
-            p [ str "You can click on this button:" ]
-
+            Html.p [ text "Sveltish is running" ]
+            Html.p [ text "Counter" ]
             Counter.Counter []
-
-            //p [ str "Here's a second counter "]
-            //Counter.Counter []
-
-            p [ str "Here's the Svelte TODOs demo, which also has its own stylesheet"]
-
-            //Todos.view
+            Html.p [ text "Todos" ]
+            Todos.view
         ]
 
-mount "fvelte-main-app" view
+Sveltish.DOM.mountElement "fvelte-main-app" App.testApp

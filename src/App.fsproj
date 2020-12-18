@@ -4,7 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Transition.fs" />
-    <Compile Include="Fvelize.fs" />
     <Compile Include="Sveltish.fs" />
     <Compile Include="Todos.fs" />
     <Compile Include="App.fs" />

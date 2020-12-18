@@ -1,30 +1,11 @@
 module Todos
 
 open Sveltish
-open Fvelize
 open Browser.Dom
-
-(*
-	import { quintOut } from 'svelte/easing';
-	import { crossfade } from 'svelte/transition';
-	import { flip } from 'svelte/animate';
-
-	const [send, receive] = crossfade({
-		fallback(node, params) {
-			const style = getComputedStyle(node);
-			const transform = style.transform === 'none' ? '' : style.transform;
-
-			return {
-				duration: 600,
-				easing: quintOut,
-				css: t => `
-					transform: ${transform} scale(${t});
-					opacity: ${t}
-				`
-			};
-		}
-	});
-*)
+open Sveltish.Stores
+open Sveltish.Styling
+open Sveltish.Attr
+open Sveltish.DOM
 
 type Todo = {
         Id : int
@@ -32,7 +13,7 @@ type Todo = {
         Description: string
     }
 
-let todos = Sveltish.makeStore [
+let todos = makeStore [
     { Id = 1; Done = false; Description = "write some docs" }
     { Id = 2; Done = false; Description = "start writing JSConf talk" }
     { Id = 3; Done =  true;  Description = "buy some milk" }
@@ -40,7 +21,7 @@ let todos = Sveltish.makeStore [
     { Id = 5; Done = false; Description = "feed the turtle" }
     { Id = 6; Done = false; Description = "fix some bugs" } ]
 
-let newUid = Fvelize.makeIdGenerator()
+let newUid = CodeGeneration.makeIdGenerator()
 
 let add(desc) =
     let todo = {
@@ -129,55 +110,48 @@ let toBool obj =
     | "yes" -> true
     | _ -> false
 
+open Sveltish.Bindings
+
 let todosList cls title filter () =
-    div [
+    Html.div [
         className cls
-        h2 [ str title ]
-        for todo in todos.Value() |> List.filter filter do
-            label [
+        Html.h2 [ text title ]
+        Bindings.each todos (fun (x:Todo) -> x.Id) filter (Both (Transition.fade)) (fun todo ->
+            Html.label [
                 //in:receive="{{key: todo.id}}"
                 //out:send="{{key: todo.id}}"
                 //animate:flip
 
-                input [
-                    Attribute ("type","checkbox")
-
-                    //Property ("checked", "{todo.Done}")
+                Html.input [
+                    attr ("type","checkbox")
 
                     // -- This should be generated ----------------------------------------
-                    bindAttr
-                        ((makePropertyStore todo "Done") |> propagateNotifications todos)
-
-                        // More type-checked alternative
-                        //
-                        //(makeGetSetStore
-                        //    (fun () -> todo.Done :> obj)
-                        //    (fun z -> todo.Done <- toBool z; todos.Value() |> todos.Set ))
-                        "checked"
-                    // --------------------------------------------------------------------
+                    Bindings.bindAttr "checked"
+                        ((makePropertyStore todo "Done") <~| todos)
 
                 ]
-                str " "
-                str todo.Description
-                button [
-                    onClick (fun _ -> remove(todo))
-                    str "x"
+                text " "
+                text todo.Description
+                Html.button [
+                    on "click" (fun _ -> remove(todo))
+                    text "x"
                 ]
             ]
+        )
     ]
 
-let view =
-        style styleSheet <| div [
-            className "board"
-            input [
-                className "new-todo"
-                Attribute ("placeholder","what needs to be done?")
-                onKeyDown (fun e ->
-                    let key = (e :?> Browser.Types.KeyboardEvent).key
-                    if key = "Enter" then add( (e.currentTarget :?> Browser.Types.HTMLInputElement).value )
-                )
-            ]
-
-            todosList "left" "todo" (fun t -> not t.Done) |> bind todos
-            todosList "right" "done" (fun t -> t.Done) |> bind todos
+let view : NodeFactory =
+    style styleSheet <| Html.div [
+        className "board"
+        Html.input [
+            className "new-todo"
+            attr ("placeholder","what needs to be done?")
+            on "keydown" (fun e ->
+                let key = (e :?> Browser.Types.KeyboardEvent).key
+                if key = "Enter" then add( (e.currentTarget :?> Browser.Types.HTMLInputElement).value )
+            )
         ]
+
+        todosList "left" "todo" (fun t -> not t.Done)()// |> bind todos
+        todosList "right" "done" (fun t -> t.Done)()// |> bind todos
+    ]

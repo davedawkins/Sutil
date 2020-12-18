@@ -1,0 +1,4 @@
+{
+    "FSharp.simplifyNameAnalyzer": false,
+    "FSharp.lineLens.enabled": "never",
+}

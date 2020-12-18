@@ -63,6 +63,8 @@ It's ugly, but with Fable's help that can be made to look this:
 
 Working like Svelte. Here's how the Svelte `animation` example is coming along with respect to the styling.
 
+<img alt="Todos Progress" width="400" src="images/todos.png">
+
 ```fsharp
 let styleSheet = [
     rule ".new-todo" [
@@ -145,4 +147,4 @@ The `transition` wrapper manages visibility of the contained element, according 
 the specified transitions to handle entry and exit of the element from the DOM.
 
 Next is to make the transitions work for the control construct used to render the todos list
-<img alt="Todos Progress" width="400" src="images/todos.png">
+

@@ -60,38 +60,6 @@ module BulmaStyling =
         ]
     ]
 
-module Counter =
-
-    open Stores
-    open Bindings
-
-    let Counter attrs =
-        let count = makeStore 0
-        Html.div [
-            Html.button [
-                className "button"
-                on "click" (fun _ ->
-                    console.log("click")
-                    count.Value() + 1 |> count.Set)
-
-                (fun () ->
-                    text <| if count.Value() = 0 then "Click Me" else count.Value() |> sprintf "You clicked: %i time(s)"
-                ) |> Bindings.bind count
-            ]
-
-            Html.button [
-                className "button"
-                attr ("style","margin-left: 12px;")
-                on "click" (fun _ -> 0 |> count.Set)
-                text "Reset"
-            ]
-
-            (Html.div [ text "Click button to start counting" ])
-            |> transition
-                    (InOut (Transition.slide, Transition.fade))
-                    (count |~> exprStore (fun () -> count.Value() = 0))  // Visible if 'count = 0'
-        ]
-
 
 module App =
     open Bindings
@@ -105,9 +73,10 @@ module App =
             className "container"
             Html.p [ text "Sveltish is running" ]
             Html.p [ text "Counter" ]
-            Counter.Counter []
+            Counter.Counter { InitialCounter = 0; Label = "Click Me"; ShowHint = true }
             Html.p [ text "Todos" ]
             Todos.view
         ]
 
-Sveltish.DOM.mountElement "fvelte-main-app" App.testApp
+Sveltish.DOM.mountElement "sveltish-app"
+    <| Counter.Counter { InitialCounter = 0; Label = "Click Me"; ShowHint = true }

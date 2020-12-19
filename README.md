@@ -105,8 +105,6 @@ let view =
 
 Working on these right now. The key is being notified of a change in an element's visibility. The DOM intends to listen to a visibility expression (a `Store<bool>`) and then update style `display: none|<not-none>;`. Like a call to `$.show()` in you-know-what.
 
-Here is today's progress:
-
 <img alt="Transitions Progress" width="400" src="images/transition.gif">
 
 Here's the code for this component:
@@ -146,5 +144,46 @@ let Counter attrs =
 The `transition` wrapper manages visibility of the contained element, according to the expression. It then uses
 the specified transitions to handle entry and exit of the element from the DOM.
 
-Next is to make the transitions work for the control construct used to render the todos list
+We now have `fade`, `fly` and `slide` transitions
+
+<img src="images/fly.gif" width="400">
+
+```fsharp
+(Html.div [ className "hint"; text "Click button to start counting" ])
+|> Bindings.transition
+        (Both (Transition.fly [ X 100.0; Y 100.0; ]))
+        (count |~> exprStore (fun () -> count.Value() = 0 && props.ShowHint))  // Visible if 'count = 0'
+```
+
+We also have an `each` control that manages lists. Items that appear in, disappear from and move around in the list
+can be transitioned:
+
+<img src="images/transfade.gif" width="400">
+
+```fsharp
+let todosList cls title filter =
+    Html.div [
+        className cls
+        Html.h2 [ text title ]
+
+        Bindings.each todos (fun (x:Todo) -> x.Id) filter (Both (Transition.fade [])) (fun todo ->
+            Html.label [
+                Html.input [
+                    attr ("type","checkbox")
+                    Bindings.bindAttr "checked"
+                        ((makePropertyStore todo "Done") <~| todos)
+                ]
+                text " "
+                text todo.Description
+                Html.button [
+                    on "click" (fun _ -> remove(todo))
+                    text "x"
+                ]
+            ]
+        )
+        
+    ]
+```
+
+I'm looking forward to seeing how much boilerplate we can remove with a compiler plugin. 
 

@@ -14,13 +14,13 @@ type Todo = {
     }
 
 let todos = makeStore [
-    { Id = 1; Done = false; Description = "write some docs" }
-    { Id = 2; Done = false; Description = "start writing JSConf talk" }
-    { Id = 3; Done =  true;  Description = "buy some milk" }
-    { Id = 4; Done = false; Description = "mow the lawn" }
-    { Id = 5; Done = false; Description = "feed the turtle" }
-    { Id = 6; Done = false; Description = "fix some bugs" } ]
-
+    { Id = 1; Done = false; Description = "1:write some docs" }
+    { Id = 2; Done = false; Description = "2:start writing JSConf talk" }
+    { Id = 3; Done =  true;  Description = "3:buy some milk" }
+    { Id = 4; Done = false; Description = "4:mow the lawn" }
+    { Id = 5; Done = false; Description = "5:feed the turtle" }
+    { Id = 6; Done = false; Description = "6:fix some bugs" }
+]
 let newUid = CodeGeneration.makeIdGenerator()
 
 let add(desc) =
@@ -29,8 +29,6 @@ let add(desc) =
         Done = false
         Description = desc
     }
-
-    console.log(sprintf "Adding %s" desc)
 
     todos.Set( todo :: todos.Value() )
 
@@ -112,23 +110,18 @@ let toBool obj =
 
 open Sveltish.Bindings
 
-let todosList cls title filter =
+let todosList cls title filter tin tout =
+
     Html.div [
         className cls
         Html.h2 [ text title ]
-        Bindings.each todos (fun (x:Todo) -> x.Id) filter (Both (Transition.fade [])) (fun todo ->
-            Html.label [
-                //in:receive="{{key: todo.id}}"
-                //out:send="{{key: todo.id}}"
-                //animate:flip
 
+        Bindings.each todos (fun (x:Todo) -> x.Id) filter (InOut (tin,tout) ) (fun todo ->
+            Html.label [
                 Html.input [
                     attr ("type","checkbox")
-
-                    // -- This should be generated ----------------------------------------
                     Bindings.bindAttr "checked"
                         ((makePropertyStore todo "Done") <~| todos)
-
                 ]
                 text " "
                 text todo.Description
@@ -141,6 +134,10 @@ let todosList cls title filter =
     ]
 
 let view : NodeFactory =
+    let (send,recv) = Transition.crossfade [ ]
+    let tsend = send, []
+    let trecv = recv, []
+
     style styleSheet <| Html.div [
         className "board"
         Html.input [
@@ -152,6 +149,7 @@ let view : NodeFactory =
             )
         ]
 
-        todosList "left" "todo" (fun t -> not t.Done)
-        todosList "right" "done" (fun t -> t.Done)
+
+        todosList "left" "todo" (fun t -> not t.Done) trecv tsend
+        todosList "right" "done" (fun t -> t.Done) trecv tsend
     ]

@@ -291,3 +291,4 @@ __pycache__/
 .fable
 .ionide
 src/Scratch.txt
+.DS_Store

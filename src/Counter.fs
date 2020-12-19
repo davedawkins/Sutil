@@ -63,6 +63,8 @@ let private counterStyle = [
     ]
 ]
 
+open Sveltish.Transition
+
 //
 // Add this to a document with
 // mountElement Counter.Counter { .. props .. }
@@ -88,6 +90,6 @@ let Counter props =
 
         (Html.div [ className "hint"; text "Click button to start counting" ])
         |> Bindings.transition
-                (Both (Transition.fade))
+                (Both (Transition.fly [ X 100.0; Y 100.0; ]))
                 (count |~> exprStore (fun () -> count.Value() = 0 && props.ShowHint))  // Visible if 'count = 0'
     ]

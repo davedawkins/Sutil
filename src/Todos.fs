@@ -116,7 +116,7 @@ let todosList cls title filter =
     Html.div [
         className cls
         Html.h2 [ text title ]
-        Bindings.each todos (fun (x:Todo) -> x.Id) filter (Both (Transition.fade)) (fun todo ->
+        Bindings.each todos (fun (x:Todo) -> x.Id) filter (Both (Transition.fade [])) (fun todo ->
             Html.label [
                 //in:receive="{{key: todo.id}}"
                 //out:send="{{key: todo.id}}"

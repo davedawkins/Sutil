@@ -319,7 +319,7 @@ module Bindings =
     open Stores
     open Styling
     open Sveltish.Transition
-    type TransitionFactory = HTMLElement -> (TransitionProp list) -> Transition
+    type TransitionFactory = HTMLElement -> Transition
 
     type TransitionAttribute =
         | Both of TransitionFactory
@@ -359,14 +359,14 @@ module Bindings =
             addStyleAttr el "display" "none"
             removeStyleAttr el "animation"
             el.removeEventListener( "animationend", hide )
-            //Transition.deleteRule ruleName
+            Transition.deleteRule ruleName
             complete el
 
         let rec show = fun _ ->
             removeStyleAttr el "display"
             removeStyleAttr el "animation"
             el.removeEventListener( "animationend", show )
-            //Transition.deleteRule ruleName
+            Transition.deleteRule ruleName
             complete el
 
         let tr = trans |> Option.bind (fun x ->
@@ -388,10 +388,10 @@ module Bindings =
             if isVisible then
                 el.addEventListener( "animationend", show )
                 removeStyleAttr el "display"
-                ruleName <- Transition.createRule el 0.0 1.0 (tr el []) (nextRuleId())
+                ruleName <- Transition.createRule el 0.0 1.0 (tr el) (nextRuleId())
             else
                 el.addEventListener( "animationend", hide )
-                ruleName <- Transition.createRule el 1.0 0.0 (tr el []) (nextRuleId())
+                ruleName <- Transition.createRule el 1.0 0.0 (tr el) (nextRuleId())
 
     let transitionOpt<'T> (trans : TransitionAttribute option) (store : Store<bool>) (element: NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable target : Node = null

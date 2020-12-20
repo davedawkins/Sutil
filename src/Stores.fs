@@ -1,7 +1,4 @@
-namespace Sveltish
-
-module Stores =
-
+module Sveltish.Stores
     let newStoreId = CodeGeneration.makeIdGenerator()
 
     let log = Logging.log "store"

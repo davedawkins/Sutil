@@ -3,7 +3,6 @@ module App
 open Sveltish
 open Sveltish.Attr
 open Sveltish.DOM
-open Browser.Dom
 
 module BulmaStyling =
     open Styling
@@ -39,8 +38,6 @@ module App =
             Html.p [ text "Todos" ]
             Todos.view
         ]
-
-//Logging.init
 
 Sveltish.DOM.mountElement "sveltish-app"
     <| App.testApp()

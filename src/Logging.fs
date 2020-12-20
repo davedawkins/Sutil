@@ -1,10 +1,7 @@
-namespace Sveltish
-module Logging =
+module Sveltish.Logging
 
     open System.Collections.Generic
     open Browser.Dom
-    open System
-    open Browser.Types
 
     let enabled = Dictionary<string,bool>()
 

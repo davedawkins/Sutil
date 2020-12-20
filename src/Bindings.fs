@@ -1,5 +1,4 @@
-namespace Sveltish
-module Bindings =
+module Sveltish.Bindings
 
     open Stores
     open Styling

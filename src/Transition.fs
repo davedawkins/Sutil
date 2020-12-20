@@ -1,5 +1,4 @@
-namespace Sveltish
-module Transition =
+module Sveltish.Transition
 // Adapted from svelte/transitions/index.js
 
     open Browser.Dom

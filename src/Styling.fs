@@ -1,5 +1,4 @@
-namespace Sveltish
-module Styling =
+module Sveltish.Styling
 
     open System
     open Browser.Types

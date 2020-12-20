@@ -5,7 +5,9 @@ An experiment in applying the design principles from [Svelte](svelte.dev) to nat
 It's all very much a work-in-progress, and I'm exploring what's possible, so the code is a sprawling mess. If this
 is worth pursuing, then it will need refactoring and organizing.
 
-Some aspects that are working or in progress
+Some aspects that are working or in progress.
+
+Check the end of this README to see news on progress.
 
 ## DOM builder
 Crude and minimal. It's Feliz-styled, but builds direct into DOM. If this project proceeds it would be good to layer on top of Feliz.
@@ -186,4 +188,10 @@ let todosList cls title filter =
 ```
 
 I'm looking forward to seeing how much boilerplate we can remove with a compiler plugin. 
+
+Crossfade is now working. This animation is deliberately set to run slowly so that I could
+check the behaviour. The final part of this example is the `animate:flip` directive.
+
+<img src="images/crossfade.gif" width="400">
+
 

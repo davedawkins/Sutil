@@ -4,12 +4,26 @@ open Browser.Types
 
 let log = Logging.log "dom"
 
+
+//
+// Required to inflate a NodeFactory into a real DOM element
+//
+// StyleName. If <> "" then a class will be added to each element that keys
+//            a set of CSS rules. See the `style` function
+// MakeName.  A helper that can generate unique names given base name
+//
+// AppendChild/ReplaceChild/SetAttribute
+//            Abstractions on the equivalent document methods. Defaults
+//            are set to the document methods, but particular NodeFactory
+//            functions may override these in the context they pass to their
+//            children so that behaviour can be customized.
+//
 type BuildContext = {
+    MakeName : (string -> string)
     StyleName : string
     AppendChild: (Node -> Node -> Node)
     ReplaceChild: (Node -> Node -> Node -> Node)
     SetAttribute: (Element->string->string->unit)
-    MakeName : (string -> string)
 }
 
 let makeContext =
@@ -22,7 +36,14 @@ let makeContext =
         MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
     }
 
-type NodeFactory = (BuildContext * HTMLElement) -> Node
+//
+// Basic building block for documents
+// The arguments to the factory are a context and the element's parent. If the
+// factory makes an element, then this will be the return value. If the factory
+// operates on the parent node, then the parent node is returned. For example, setting
+// attribute.
+//
+type NodeFactory = (BuildContext * Node) -> Node
 
 let appendAttribute (e:Element) attrName attrValue =
     if (attrValue <> "") then
@@ -35,7 +56,7 @@ let appendAttribute (e:Element) attrName attrValue =
 let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
     let e  = document.createElement tag
 
-    ctx.AppendChild (parent:>Node) (e:>Node) |> ignore
+    ctx.AppendChild parent (e:>Node) |> ignore
 
     for x in xs do x(ctx,e) |> ignore
 
@@ -44,19 +65,22 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
 
     e :> Node
 
-let inline castNodeToElement (node : Node) : Element = node :?> Element
-
-let attr (name,value) : NodeFactory = fun (ctx,e) ->
-    ctx.SetAttribute (castNodeToElement e) name value
-    e :> Node
+let inline attr (name,value:obj) : NodeFactory = fun (ctx,e) ->
+    try
+        ctx.SetAttribute (e :?> Element) name (string value) // Cannot type test on Element
+    with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A" name e)
+    e
 
 let text value : NodeFactory =
-    fun (ctx,e) -> ctx.AppendChild (e:>Node) (document.createTextNode(value) :> Node)
+    fun (ctx,e) -> ctx.AppendChild e (document.createTextNode(value) :> Node)
 
 let idSelector = sprintf "#%s"
 let classSelector = sprintf ".%s"
 let findElement selector = document.querySelector(selector)
 
+//
+// Mount a top-level application NodeFactory into an existing document
+//
 let rec mountElement selector (app : NodeFactory)  =
     let host = idSelector selector |> findElement :?> HTMLElement
     (app (makeContext,host)) |> ignore

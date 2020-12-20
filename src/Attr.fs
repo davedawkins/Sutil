@@ -3,49 +3,64 @@ module Sveltish.Attr
 open DOM
 open Browser.Types
 
-let makeAttr = id
-let className n = attr ("class",n)
+
+// Attributes
+let className n         = attr ("class",n)
+let placeholder n       = attr("placeholder",n)
+
+let class' = className
+
 let on event fn : NodeFactory = fun (_,el) ->
     el.addEventListener(event, fn)
-    el :> Node
-// Styles
-let margin (n:obj)         = makeAttr("margin",n)
-let marginTop (n:obj)      = makeAttr("margin-top",n)
-let marginLeft (n:obj)     = makeAttr("margin-left",n)
-let marginBottom (n:obj)   = makeAttr("margin-bottom",n)
-let marginRight (n:obj)    = makeAttr("margin-right",n)
-let backgroundColor(n:obj) = makeAttr("background-color",n)
-let borderColor (n:obj)    = makeAttr("border-color",n)
-let borderWidth (n:obj)    = makeAttr("border-width",n)
-let color (n:obj)          = makeAttr("color",n)
-let cursor (n:obj)         = makeAttr("cursor",n)
-let justifyContent (n:obj) = makeAttr("justify-content",n)
-let paddingBottom (n:obj)  = makeAttr("padding-bottom",n)
-let paddingLeft (n:obj)    = makeAttr("padding-left",n)
-let paddingRight (n:obj)   = makeAttr("padding-right",n)
-let paddingTop (n:obj)     = makeAttr("padding-top",n)
-let textAlign (n:obj)      = makeAttr("text-align",n)
-let whiteSpace (n:obj    ) = makeAttr("white-space",n)
-let alignItems     (n:obj) = makeAttr("align-items",n)
-let border         (n:obj) = makeAttr("border",n)
-let borderRadius   (n:obj) = makeAttr("border-radius",n)
-let boxShadow      (n:obj) = makeAttr("box-shadow",n)
-let display        (n:obj) = makeAttr("display",n)
-let fontSize       (n:obj) = makeAttr("font-size",n)
-let fontFamily     (n:obj) = makeAttr("font-family",n)
-let width          (n:obj) = makeAttr("width",n)
-let maxWidth       (n:obj) = makeAttr("max-width",n)
-let height         (n:obj) = makeAttr("height",n)
-let lineHeight     (n:obj) = makeAttr("line-height",n)
-let position       (n:obj) = makeAttr("position",n)
-let verticalAlign  (n:obj) = makeAttr("vertical-align",n)
-let fontWeight     (n:obj) = makeAttr("font-height",n)
-let ``float``      (n:obj) = makeAttr("float",n)
-let padding        (n:obj) = makeAttr("padding",n)
-let boxSizing      (n:obj) = makeAttr("box-sizing",n)
-let userSelect     (n:obj) = makeAttr("user-select",n)
-let top            (n:obj) = makeAttr("top",n)
-let left           (n:obj) = makeAttr("left",n)
-let opacity        (n:obj) = makeAttr("opacity",n)
-let transition     (n:obj) = makeAttr("transition",n)
+    el
 
+let onKeyboard event (fn : KeyboardEvent -> unit) : NodeFactory = fun (_,el) ->
+    el.addEventListener(event, unbox fn )
+    el
+
+let onClick fn = on "click" fn
+
+let onKeyDown (fn : (KeyboardEvent -> unit)) = onKeyboard "keydown" fn
+
+let cssAttr = id
+
+// Styles
+let margin (n:obj)         = cssAttr("margin",n)
+let marginTop (n:obj)      = cssAttr("margin-top",n)
+let marginLeft (n:obj)     = cssAttr("margin-left",n)
+let marginBottom (n:obj)   = cssAttr("margin-bottom",n)
+let marginRight (n:obj)    = cssAttr("margin-right",n)
+let backgroundColor(n:obj) = cssAttr("background-color",n)
+let borderColor (n:obj)    = cssAttr("border-color",n)
+let borderWidth (n:obj)    = cssAttr("border-width",n)
+let color (n:obj)          = cssAttr("color",n)
+let cursor (n:obj)         = cssAttr("cursor",n)
+let justifyContent (n:obj) = cssAttr("justify-content",n)
+let paddingBottom (n:obj)  = cssAttr("padding-bottom",n)
+let paddingLeft (n:obj)    = cssAttr("padding-left",n)
+let paddingRight (n:obj)   = cssAttr("padding-right",n)
+let paddingTop (n:obj)     = cssAttr("padding-top",n)
+let textAlign (n:obj)      = cssAttr("text-align",n)
+let whiteSpace (n:obj    ) = cssAttr("white-space",n)
+let alignItems     (n:obj) = cssAttr("align-items",n)
+let border         (n:obj) = cssAttr("border",n)
+let borderRadius   (n:obj) = cssAttr("border-radius",n)
+let boxShadow      (n:obj) = cssAttr("box-shadow",n)
+let display        (n:obj) = cssAttr("display",n)
+let fontSize       (n:obj) = cssAttr("font-size",n)
+let fontFamily     (n:obj) = cssAttr("font-family",n)
+let width          (n:obj) = cssAttr("width",n)
+let maxWidth       (n:obj) = cssAttr("max-width",n)
+let height         (n:obj) = cssAttr("height",n)
+let lineHeight     (n:obj) = cssAttr("line-height",n)
+let position       (n:obj) = cssAttr("position",n)
+let verticalAlign  (n:obj) = cssAttr("vertical-align",n)
+let fontWeight     (n:obj) = cssAttr("font-height",n)
+let float'         (n:obj) = cssAttr("float",n)
+let padding        (n:obj) = cssAttr("padding",n)
+let boxSizing      (n:obj) = cssAttr("box-sizing",n)
+let userSelect     (n:obj) = cssAttr("user-select",n)
+let top            (n:obj) = cssAttr("top",n)
+let left           (n:obj) = cssAttr("left",n)
+let opacity        (n:obj) = cssAttr("opacity",n)
+let transition     (n:obj) = cssAttr("transition",n)

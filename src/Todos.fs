@@ -50,7 +50,7 @@ let styleSheet = [
     ]
 
     rule ".left, .right" [
-        ``float`` "left"
+        float' "left"
         width "50%"
         padding "0 1em 0 0"
         boxSizing "border-box"
@@ -82,7 +82,7 @@ let styleSheet = [
     ]
 
     rule "button" [
-        ``float`` "right"
+        float' "right"
         height "1em"
         boxSizing "border-box"
         padding "0 0.5em"
@@ -109,11 +109,12 @@ let toBool obj =
     | _ -> false
 
 open Sveltish.Bindings
+open Browser.Types
 
 let todosList cls title filter tin tout =
 
     Html.div [
-        className cls
+        class' cls
         Html.h2 [ text title ]
 
         Bindings.each todos (fun (x:Todo) -> x.Id) filter (InOut (tin,tout) ) (fun todo ->
@@ -139,16 +140,14 @@ let view : NodeFactory =
     let trecv = recv, []
 
     style styleSheet <| Html.div [
-        className "board"
+        class' "board"
         Html.input [
-            className "new-todo"
-            attr ("placeholder","what needs to be done?")
-            on "keydown" (fun e ->
-                let key = (e :?> Browser.Types.KeyboardEvent).key
-                if key = "Enter" then add( (e.currentTarget :?> Browser.Types.HTMLInputElement).value )
+            class' "new-todo"
+            placeholder "what needs to be done?"
+            onKeyDown (fun e ->
+                if e.key = "Enter" then add( (e.currentTarget :?> HTMLInputElement).value )
             )
         ]
-
 
         todosList "left" "todo" (fun t -> not t.Done) trecv tsend
         todosList "right" "done" (fun t -> t.Done) trecv tsend

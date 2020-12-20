@@ -77,7 +77,7 @@ let Counter props =
 
     style counterStyle <| Html.div [
         Html.button [
-            on "click" (fun _ -> count.Value() + 1 |> count.Set)
+            onClick (fun _ -> count.Value() + 1 |> count.Set)
 
             (fun () ->
                 text <| if count.Value() = 0 then props.Label else count.Value() |> sprintf "You clicked: %i time(s)"
@@ -85,12 +85,12 @@ let Counter props =
         ]
 
         Html.button [
-            className "reset"
+            class' "reset"
             on "click" (fun _ -> 0 |> count.Set)
             text "Reset"
         ]
 
-        (Html.div [ className "hint"; text "Click button to start counting" ])
+        (Html.div [ class' "hint"; text "Click button to start counting" ])
         |> Bindings.transition
                 (Both (Transition.fly,[ X 100.0; Y 100.0; ]))
                 (count |~> exprStore (fun () -> count.Value() = 0 && props.ShowHint))  // Visible if 'count = 0'

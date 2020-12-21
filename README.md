@@ -183,15 +183,172 @@ let todosList cls title filter =
                 ]
             ]
         )
-        
+
     ]
 ```
 
-I'm looking forward to seeing how much boilerplate we can remove with a compiler plugin. 
+I'm looking forward to seeing how much boilerplate we can remove with a compiler plugin.
 
 Crossfade is now working. This animation is deliberately set to run slowly so that I could
 check the behaviour. The final part of this example is the `animate:flip` directive.
 
 <img src="images/crossfade.gif" width="400">
 
+Crossfade with animate:flip is now working, although I have a bug with initialization.
 
+## Model-View-Update support
+
+Experimenting with a slightly modified form, where the model mutates. There's still value in organizing
+the program into view and update functions. The view function exists naturally in Sveltish, and
+the dispatch->update separation means that all updates to the model can be made in the update function,
+with the view only issuing dispatched messages.
+
+The view has bindings to derivations of the model's store and so updates in response to changes made
+by the update function.
+
+Of course, you can mutate the model directly in the event handlers, but if you like the organization
+that Elmish/MVU brings, this is still an option.
+
+A few bugs still with glitches in the transitions, and data propagation between derived stores. Fixing those
+next.
+
+Main app that sets up the application main view including the Todos comnponent
+
+```fsharp
+let init() = Todos.init()
+let update = Todos.update
+
+let app model dispatch =
+    Styling.style bulmaStyleSheet <| Html.div [
+        class' "container"
+        Html.h1 [ text "Sveltish Todos" ]
+        Html.div [ Todos.view model dispatch ]
+    ]
+
+Sveltish.Program.makeProgram "sveltish-app" init update app
+```
+
+The Todos component
+
+```fsharp
+type Todo = {
+        Id : int
+        mutable Done: bool
+        Description: string
+    }
+
+type Model = {
+    Todos : Store<List<Todo>>
+}
+
+type Message =
+    |AddTodo of desc:string
+    |ToggleTodo of id:int
+    |DeleteTodo of id:int
+    |CompleteAll
+
+let styleSheet = [
+    rule ".new-todo" [
+        fontSize "1.4em"
+        width "100%"
+        margin "2em 0 1em 0"
+    ]
+    //...
+]
+
+let init() = { Todos = makeExampleTodos() }
+
+//
+// All model mutation happens here
+//
+let update (message : Message) (model : Model) : unit =
+
+    match message with
+    | AddTodo desc ->
+        let todo = {
+            Id = newUid() + 10
+            Done = false
+            Description = desc
+        }
+        model.Todos <~ (model.Todos |-> (fun x -> x @ [ todo ])) // Mutation of model
+    | ToggleTodo id ->
+        match (storeFetchByKey todoKey id model.Todos) with
+        |None -> ()
+        |Some todo ->
+            todo.Done <- not todo.Done
+            forceNotify model.Todos // People will forget to do this
+    | DeleteTodo id ->
+        model.Todos <~ (model.Todos |-> List.filter (fun t -> t.Id <> id) )
+    | CompleteAll ->
+        model.Todos <~ (model.Todos |-> List.map (fun t -> { t with Done = true }) )
+
+let fader  x = transition <| Both (Transition.fade,[ Duration 2000.0 ]) <| x
+let slider x = transition <| Both (Transition.slide,[ Duration 2000.0 ])  <| x
+
+let todosList cls title filter tin tout model dispatch =
+
+    Html.div [
+        class' cls
+        Html.h2 [ text title ]
+
+        Bindings.each model.Todos (fun (x:Todo) -> x.Id) filter (InOut (tin,tout) ) (fun todo ->
+            Html.label [
+                Html.input [
+                    attr ("type","checkbox")
+
+                    // Dispatch outwards
+                    on "change" (fun e -> todo.Id |> ToggleTodo |> dispatch)
+
+                    // Binding todo.Done to checked. Still working on making these cleaner
+                    bindAttrIn "checked" (model.Todos |~> (makePropertyStore todo "Done"))
+                ]
+                text " "
+                text todo.Description
+                Html.button [
+                    on "click" (fun _ -> todo.Id |> DeleteTodo |> dispatch)
+                    text "x"
+                ]
+            ]
+        )
+    ]
+
+let view (model : Model) dispatch : NodeFactory =
+    let (send,recv) = Transition.crossfade [ ]
+    let tsend = send, []
+    let trecv = recv, []
+
+    // Stores that derive from the model store. Updates from the store propagate to these stores
+    let completed = model.Todos |%> List.filter isDone
+    let lotsDone  = completed |%> fun x -> (x |> List.length >= 3)
+
+    style styleSheet <| Html.div [
+        class' "board"
+        Html.input [
+            class' "new-todo"
+            placeholder "what needs to be done?"
+            onKeyDown (fun e ->
+                if e.key = "Enter" then (e.currentTarget :?> HTMLInputElement).value |> AddTodo |> dispatch
+            )
+        ]
+
+        Html.div [
+            class' "row"
+            todosList "left" "todo" (fun t -> not t.Done) trecv tsend model dispatch
+            todosList "right" "done" (fun t -> t.Done) trecv tsend model dispatch
+        ]
+
+        Html.div [
+            Html.button [
+                class' "complete-all"
+                text "Complete All"
+                on "click" (fun _ -> dispatch CompleteAll)
+            ]
+        ]
+
+        Html.div [
+            class' "welldone"
+            text <| (completed |-> (fun x -> sprintf "%d tasks completed! Good job!" x.Length))
+        ] |> fader lotsDone // Fade-in when user has completed more than 2 tasks
+    ]
+
+```

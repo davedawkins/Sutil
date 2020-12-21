@@ -79,8 +79,8 @@ let Counter props =
         Html.button [
             onClick (fun _ -> count.Value() + 1 |> count.Set)
 
-            (fun () ->
-                text <| if count.Value() = 0 then props.Label else count.Value() |> sprintf "You clicked: %i time(s)"
+            (fun n ->
+                text <| if n = 0 then props.Label else n |> sprintf "You clicked: %i time(s)"
             ) |> Bindings.bind count
         ]
 

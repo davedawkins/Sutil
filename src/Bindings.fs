@@ -22,7 +22,7 @@ module Sveltish.Bindings
 
     let log s = Logging.log "bind" s
 
-    let bind<'T>  (store : Store<'T>)  (element: unit -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
+    let bind<'T>  (store : Store<'T>)  (element: 'T -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable current : Node = null
 
         let addReplaceChild p c =
@@ -33,7 +33,7 @@ module Sveltish.Bindings
             c
 
         let unsub = store.Subscribe( fun t ->
-            current <- element()( { ctx with AppendChild = addReplaceChild }, parent)
+            current <- element(t)( { ctx with AppendChild = addReplaceChild }, parent)
         )
         current
 
@@ -59,13 +59,13 @@ module Sveltish.Bindings
 
         let hide() =
             showEl el false
-            Transition.deleteRule el ruleName
             complete el
+            Transition.deleteRule el ruleName
 
         let rec show() =
             showEl el true
-            Transition.deleteRule el ruleName
             complete el
+            Transition.deleteRule el ruleName
 
         let tr = trans |> Option.bind (fun x ->
             match x with
@@ -175,10 +175,6 @@ module Sveltish.Bindings
                     | Some ki ->
                         let r = (ki.Node :?> HTMLElement).getBoundingClientRect()
                         newState <- newState @ [ { ki with Position = itemIndex } ]
-                        log(sprintf "%f,%f -> %f,%f  %s"
-                                ki.Rect.left ki.Rect.top
-                                r.left r.top
-                                (ki.Node :?> HTMLElement).innerText)
                 ) |> ignore
 
                 // Remove old items
@@ -204,7 +200,10 @@ module Sveltish.Bindings
                 //for n in enteringNodes do
                 //    transitionNode (n :?> HTMLElement) (Some trans) [ Key (fun () -> ) ] true ignore
 
-                state <- newState |> List.map (fun ki -> { ki with Rect = clientRect ki.Node })
+                state <- newState
+                waitEndAnimations <| fun _ ->
+                    log "Caching rects"
+                    state <- state |> List.map (fun ki -> { ki with Rect = clientRect ki.Node })
             )
             parent :> Node
 

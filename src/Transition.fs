@@ -82,7 +82,13 @@ module Sveltish.Transition
 
     let private applyProps (props : TransitionProp list) (tr:Transition) = props |> List.fold applyProp tr
 
-    let private computedStyleOpacity e = float (window.getComputedStyle(e).opacity)
+    let private computedStyleOpacity e =
+        try
+            float (window.getComputedStyle(e).opacity)
+        with
+        | _ ->
+            log(sprintf "parse error: '%A'" (window.getComputedStyle(e).opacity))
+            1.0
 
     let element tag = document.createElement(tag)
 
@@ -93,6 +99,18 @@ module Sveltish.Transition
     // That's still an option for doing a complete implementation.
 
     let mutable numActiveAnimations = 0
+    let mutable tasks : (unit -> unit) list = []
+
+    let waitEndAnimations f =
+        if numActiveAnimations = 0
+            then f()
+            else tasks <- f :: tasks
+
+    let runTasks() =
+        log("run tasks")
+        if numActiveAnimations = 0 then
+            for f in tasks do f()
+            tasks <- []
 
     let getSveltishStyleElement (doc : Document) =
         let mutable e = doc.querySelector("head style#__sveltish_keyframes")
@@ -150,6 +168,7 @@ module Sveltish.Transition
                 for i in [(int stylesheet.cssRules.length-1) .. -1 .. 0] do
                     //log <| sprintf "deleting rule %d" i
                     stylesheet.deleteRule( float i )
+                runTasks()
                 //doc.__svelte_rules = {};
             //active_docs.clear();
         ) |> ignore

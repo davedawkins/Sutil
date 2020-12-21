@@ -21,6 +21,7 @@ let listCount f list = list |> List.filter f |> List.length
 
 // Todo helpers
 let isDone t = t.Done
+let isPending = isDone >> not
 let todoKey r = r.Id
 
 type Model = {
@@ -56,7 +57,7 @@ let styleSheet = [
         margin "0 auto"
     ]
 
-    rule ".left, .right" [
+    rule ".todo, .done" [
         //float' "left"
         width "50%"
         padding "0 1em 0 0"
@@ -84,7 +85,7 @@ let styleSheet = [
 
     rule "input" [  margin "0" ]
 
-    rule ".right label" [
+    rule ".done label" [
         backgroundColor "rgb(180,240,100)"
     ]
 
@@ -161,22 +162,21 @@ let update (message : Message) (model : Model) : unit =
         model.Todos <~ (model.Todos |-> List.map (fun t -> { t with Done = true }) )
 
 
-let fader  x = transition <| Both (Transition.fade,[ Duration 2000.0 ]) <| x
-let slider x = transition <| Both (Transition.slide,[ Duration 2000.0 ])  <| x
+let fader  x = transition <| Both (fade,[ Duration 300.0 ]) <| x
+let slider x = transition <| Both (slide,[ Duration 300.0 ])  <| x
 
-let todosList cls title filter tin tout model dispatch =
+let todosList title filter tin tout model dispatch =
 
     Html.div [
-        class' cls
+        class' title
         Html.h2 [ text title ]
 
-        Bindings.each model.Todos (fun (x:Todo) -> x.Id) filter (InOut (tin,tout) ) (fun todo ->
+        each model.Todos todoKey filter (InOut (tin,tout) ) (fun todo ->
             Html.label [
                 Html.input [
                     attr ("type","checkbox")
                     on "change" (fun e -> todo.Id |> ToggleTodo |> dispatch)
                     bindAttrIn "checked" (model.Todos |~> (makePropertyStore todo "Done"))
-                    //Bindings.bindAttr "checked" ((makePropertyStore todo "Done") <~| model.Todos)
                 ]
                 text " "
                 text todo.Description
@@ -209,8 +209,8 @@ let view (model : Model) dispatch : NodeFactory =
 
         Html.div [
             class' "row"
-            todosList "left" "todo" (fun t -> not t.Done) trecv tsend model dispatch
-            todosList "right" "done" (fun t -> t.Done) trecv tsend model dispatch
+            todosList "todo" isPending trecv tsend model dispatch
+            todosList "done" isDone trecv tsend model dispatch
         ]
 
         Html.div [
@@ -223,6 +223,6 @@ let view (model : Model) dispatch : NodeFactory =
 
         Html.div [
             class' "welldone"
-            text <| (completed |-> (fun x -> sprintf "%d tasks completed! Good job!" x.Length))
+            bind completed (fun x -> text <| sprintf "%d tasks completed! Good job!" x.Length)
         ] |> fader lotsDone
     ]

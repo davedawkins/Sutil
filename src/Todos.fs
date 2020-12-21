@@ -137,6 +137,8 @@ let styleSheet = [
     ]
 ]
 
+let init() = { Todos = makeExampleTodos() }
+
 let update (message : Message) (model : Model) : unit =
 
     match message with
@@ -159,11 +161,8 @@ let update (message : Message) (model : Model) : unit =
         model.Todos <~ (model.Todos |-> List.map (fun t -> { t with Done = true }) )
 
 
-let lotsDone model = model.Todos |%>  (fun x -> x |> (listCount isDone) >= 3)
-
 let fader  x = transition <| Both (Transition.fade,[ Duration 2000.0 ]) <| x
 let slider x = transition <| Both (Transition.slide,[ Duration 2000.0 ])  <| x
-
 
 let todosList cls title filter tin tout model dispatch =
 
@@ -189,12 +188,13 @@ let todosList cls title filter tin tout model dispatch =
         )
     ]
 
-let init() = { Todos = makeExampleTodos() }
-
 let view (model : Model) dispatch : NodeFactory =
     let (send,recv) = Transition.crossfade [ ]
     let tsend = send, []
     let trecv = recv, []
+
+    let completed = model.Todos |%> List.filter isDone
+    let lotsDone  = completed |%> fun x -> (x |> List.length >= 3)
 
     style styleSheet <| Html.div [
         class' "board"
@@ -223,6 +223,6 @@ let view (model : Model) dispatch : NodeFactory =
 
         Html.div [
             class' "welldone"
-            text <| (model.Todos |-> (fun x -> sprintf "%d tasks completed! Good job!" x.Length))
-        ] |> fader (model |> lotsDone)
+            text <| (completed |-> (fun x -> sprintf "%d tasks completed! Good job!" x.Length))
+        ] |> fader lotsDone
     ]

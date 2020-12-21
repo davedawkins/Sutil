@@ -150,6 +150,8 @@ module Sveltish.Bindings
             let mutable state : KeyedItem<'T,'K> list = []
             let unsub = items.Subscribe( fun value ->
 
+                state <- state |> List.map (fun ki -> { ki with Rect = clientRect ki.Node })
+
                 let newItems = items.Value() |> List.filter filter
                 let mutable newState  = [ ]
                 let mutable enteringNodes = []
@@ -197,13 +199,7 @@ module Sveltish.Bindings
                     ()
                 ) |> ignore
 
-                //for n in enteringNodes do
-                //    transitionNode (n :?> HTMLElement) (Some trans) [ Key (fun () -> ) ] true ignore
-
                 state <- newState
-                waitEndAnimations <| fun _ ->
-                    log "Caching rects"
-                    state <- state |> List.map (fun ki -> { ki with Rect = clientRect ki.Node })
             )
             parent :> Node
 

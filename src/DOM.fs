@@ -111,4 +111,6 @@ let asEl (node : Node) = (node :?> HTMLElement)
 
 let clientRect el = (asEl el).getBoundingClientRect()
 
-let removeNode (node:#Node) = node.parentNode.removeChild( node ) |> ignore
+let removeNode (node:#Node) =
+    log <| sprintf "removing node %A" node.textContent
+    node.parentNode.removeChild( node ) |> ignore

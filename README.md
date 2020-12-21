@@ -7,7 +7,10 @@ is worth pursuing, then it will need refactoring and organizing.
 
 Some aspects that are working or in progress.
 
-Check the end of this README to see news on progress.
+Here's how the Sveltish Todos app looks. This is an augmented port of the [Svelte animate example](https://svelte.dev/examples#animate)
+
+<img src="images/todosGoodJob.gif" width="400">
+
 
 ## DOM builder
 Crude and minimal. It's Feliz-styled, but builds direct into DOM. If this project proceeds it would be good to layer on top of Feliz.
@@ -194,7 +197,7 @@ check the behaviour. The final part of this example is the `animate:flip` direct
 
 <img src="images/crossfade.gif" width="400">
 
-Crossfade with animate:flip is now working, although I have a bug with initialization.
+Crossfade with animate:flip is now working
 
 ## Model-View-Update support
 
@@ -208,9 +211,6 @@ by the update function.
 
 Of course, you can mutate the model directly in the event handlers, but if you like the organization
 that Elmish/MVU brings, this is still an option.
-
-A few bugs still with glitches in the transitions, and data propagation between derived stores. Fixing those
-next.
 
 Main app that sets up the application main view including the Todos comnponent
 
@@ -282,24 +282,20 @@ let update (message : Message) (model : Model) : unit =
     | CompleteAll ->
         model.Todos <~ (model.Todos |-> List.map (fun t -> { t with Done = true }) )
 
-let fader  x = transition <| Both (Transition.fade,[ Duration 2000.0 ]) <| x
-let slider x = transition <| Both (Transition.slide,[ Duration 2000.0 ])  <| x
+let fader  x = transition <| Both (Transition.fade,[ Duration 200.0 ]) <| x
+let slider x = transition <| Both (Transition.slide,[ Duration 200.0 ])  <| x
 
-let todosList cls title filter tin tout model dispatch =
 
+let todosList title filter tin tout model dispatch =
     Html.div [
-        class' cls
+        class' title
         Html.h2 [ text title ]
 
-        Bindings.each model.Todos (fun (x:Todo) -> x.Id) filter (InOut (tin,tout) ) (fun todo ->
+        each model.Todos todoKey filter (InOut (tin,tout) ) (fun todo ->
             Html.label [
                 Html.input [
                     attr ("type","checkbox")
-
-                    // Dispatch outwards
                     on "change" (fun e -> todo.Id |> ToggleTodo |> dispatch)
-
-                    // Binding todo.Done to checked. Still working on making these cleaner
                     bindAttrIn "checked" (model.Todos |~> (makePropertyStore todo "Done"))
                 ]
                 text " "
@@ -317,12 +313,14 @@ let view (model : Model) dispatch : NodeFactory =
     let tsend = send, []
     let trecv = recv, []
 
-    // Stores that derive from the model store. Updates from the store propagate to these stores
     let completed = model.Todos |%> List.filter isDone
     let lotsDone  = completed |%> fun x -> (x |> List.length >= 3)
 
     style styleSheet <| Html.div [
         class' "board"
+
+        Html.h1 [ text "Sveltish Todos" ]
+
         Html.input [
             class' "new-todo"
             placeholder "what needs to be done?"
@@ -332,23 +330,24 @@ let view (model : Model) dispatch : NodeFactory =
         ]
 
         Html.div [
-            class' "row"
-            todosList "left" "todo" (fun t -> not t.Done) trecv tsend model dispatch
-            todosList "right" "done" (fun t -> t.Done) trecv tsend model dispatch
-        ]
-
-        Html.div [
-            Html.button [
-                class' "complete-all"
-                text "Complete All"
-                on "click" (fun _ -> dispatch CompleteAll)
+            class' "complete-all-container"
+            Html.a [
+                href "#"
+                text "complete all"
+                on "click" (fun e -> e.preventDefault();dispatch CompleteAll)
             ]
         ]
 
         Html.div [
             class' "welldone"
-            text <| (completed |-> (fun x -> sprintf "%d tasks completed! Good job!" x.Length))
-        ] |> fader lotsDone // Fade-in when user has completed more than 2 tasks
+            bind completed (fun x -> text <| sprintf "%d tasks completed! Good job!" x.Length)
+        ] |> fader lotsDone
+
+        Html.div [
+            class' "row"
+            todosList "todo" isPending trecv tsend model dispatch
+            todosList "done" isDone trecv tsend model dispatch
+        ]
     ]
 
 ```

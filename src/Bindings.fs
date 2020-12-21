@@ -80,6 +80,7 @@ module Sveltish.Bindings
             showEl el isVisible
             complete el
         | Some (tr,trProps) ->
+            deleteRule el ""
             if isVisible then
                 let trans = (tr (transProps @ trProps) el)
                 Stores.waitEndNotify <| fun () ->
@@ -87,7 +88,6 @@ module Sveltish.Bindings
                     showEl el true
                     ruleName <- Transition.createRule el 0.0 1.0 trans 0
             else
-                fixPosition el
                 let trans = (tr transProps el)
                 Stores.waitEndNotify <| fun () ->
                     waitAnimationEnd el hide
@@ -95,11 +95,15 @@ module Sveltish.Bindings
 
     let transitionOpt<'T> (trans : TransitionAttribute option) (store : Store<bool>) (element: NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable target : Node = null
+        let mutable cache = false
         let unsub = store.Subscribe( fun isVisible ->
             if isNull target then
                 target <- element(ctx,parent)
+                cache <- not isVisible
 
-            transitionNode (target :?> HTMLElement) trans [] isVisible ignore
+            if cache <> isVisible then
+                cache <- isVisible
+                transitionNode (target :?> HTMLElement) trans [] isVisible ignore
         )
         target
 
@@ -182,7 +186,8 @@ module Sveltish.Bindings
                 // Remove old items
                 for oldItem in state do
                     if not (newState |> List.exists (fun x -> x.Key = oldItem.Key)) then
-                        transitionNode (oldItem.Node :?> HTMLElement) (Some trans) [Key (string oldItem.Key)] false
+                        fixPosition (asEl oldItem.Node)
+                        transitionNode (asEl oldItem.Node) (Some trans) [Key (string oldItem.Key)] false
                             removeNode
 
                 // Existence is now synced. Now to reorder

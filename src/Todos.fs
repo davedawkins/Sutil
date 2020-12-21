@@ -49,7 +49,7 @@ let styleSheet = [
     rule ".new-todo" [
         fontSize "1.4em"
         width "100%"
-        margin "2em 0 1em 0"
+        //margin "2em 0 1em 0"
     ]
 
     rule ".board" [
@@ -111,30 +111,26 @@ let styleSheet = [
     ]
 
     rule ".welldone" [
-        marginTop "12px"
-        marginBottom "12px"
+        marginTop "4px"
+        marginBottom "4px"
+        fontSize "80%"
+        color "#aaa"
     ]
 
-    rule ".complete-all" [
-        border "1px solid transparent"
-        borderRadius "4px"
-        boxShadow "none"
-        fontSize "1rem"
-        height "2.5em"
-        position "relative"
-        verticalAlign "top"
+    rule "div.complete-all-container" [
+        marginTop "4px"
+    ]
 
-        backgroundColor "#fff"
-        borderColor "#dbdbdb"
-        borderWidth "1px"
-        color "#363636"
+    rule ".complete-all-container a" [
         cursor "pointer"
-        paddingBottom "calc(.5em - 1px)"
-        paddingLeft "1em"
-        paddingRight "1em"
-        paddingTop "calc(.5em - 1px)"
-        textAlign "center"
-        whiteSpace "nowrap"
+        textDecoration "none"
+
+        fontSize "80%"
+        color "#888"
+    ]
+
+    rule ".complete-all-container a:hover" [
+        textDecoration "underline"
     ]
 ]
 
@@ -166,7 +162,6 @@ let fader  x = transition <| Both (fade,[ Duration 300.0 ]) <| x
 let slider x = transition <| Both (slide,[ Duration 300.0 ])  <| x
 
 let todosList title filter tin tout model dispatch =
-
     Html.div [
         class' title
         Html.h2 [ text title ]
@@ -198,7 +193,9 @@ let view (model : Model) dispatch : NodeFactory =
 
     style styleSheet <| Html.div [
         class' "board"
-        Html.p [ text "Note: initial transitions are weird, but subsequent ones are fine. Initialization bug, I'm on it" ]
+
+        Html.h1 [ text "Sveltish Todos" ]
+
         Html.input [
             class' "new-todo"
             placeholder "what needs to be done?"
@@ -208,16 +205,11 @@ let view (model : Model) dispatch : NodeFactory =
         ]
 
         Html.div [
-            class' "row"
-            todosList "todo" isPending trecv tsend model dispatch
-            todosList "done" isDone trecv tsend model dispatch
-        ]
-
-        Html.div [
-            Html.button [
-                class' "complete-all"
-                text "Complete All"
-                on "click" (fun _ -> dispatch CompleteAll)
+            class' "complete-all-container"
+            Html.a [
+                href "#"
+                text "complete all"
+                on "click" (fun e -> e.preventDefault();dispatch CompleteAll)
             ]
         ]
 
@@ -225,4 +217,12 @@ let view (model : Model) dispatch : NodeFactory =
             class' "welldone"
             bind completed (fun x -> text <| sprintf "%d tasks completed! Good job!" x.Length)
         ] |> fader lotsDone
+
+        Html.div [
+            class' "row"
+            todosList "todo" isPending trecv tsend model dispatch
+            todosList "done" isDone trecv tsend model dispatch
+        ]
+
+
     ]

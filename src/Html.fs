@@ -16,3 +16,4 @@ let span xs = el "span" xs
 let button  xs = el "button" xs
 let input  xs = el "input" xs
 let label  xs = el "label" xs
+let a  xs = el "a" xs

@@ -5,8 +5,10 @@ open Browser.Types
 
 
 // Attributes
-let className n         = attr ("class",n)
+let className n         = attr("class",n)
 let placeholder n       = attr("placeholder",n)
+let href n              = attr("href",n)
+let src n               = attr("src",n)
 
 let class' = className
 
@@ -64,3 +66,4 @@ let top            (n:obj) = cssAttr("top",n)
 let left           (n:obj) = cssAttr("left",n)
 let opacity        (n:obj) = cssAttr("opacity",n)
 let transition     (n:obj) = cssAttr("transition",n)
+let textDecoration (n:obj) = cssAttr("text-decoration",n)

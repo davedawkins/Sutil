@@ -36,7 +36,14 @@ module App =
             Html.p [ text "Counter" ]
             Counter.Counter { InitialCounter = 0; Label = "Click Me"; ShowHint = true }
             Html.p [ text "Todos" ]
-            Todos.view
+            Html.div [ Todos.view ]
+
+            Html.pre [
+                text """
+
+
+                """
+            ]
         ]
 
 Sveltish.DOM.mountElement "sveltish-app"

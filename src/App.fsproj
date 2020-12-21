@@ -4,9 +4,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Logging.fs" />
-    <Compile Include="Transition.fs" />
     <Compile Include="CodeGeneration.fs" />
     <Compile Include="DOM.fs" />
+    <Compile Include="Transition.fs" />
     <Compile Include="Html.fs" />
     <Compile Include="Attr.fs" />
     <Compile Include="Stores.fs" />

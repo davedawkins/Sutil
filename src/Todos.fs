@@ -50,7 +50,7 @@ let styleSheet = [
     ]
 
     rule ".left, .right" [
-        float' "left"
+        //float' "left"
         width "50%"
         padding "0 1em 0 0"
         boxSizing "border-box"
@@ -97,6 +97,10 @@ let styleSheet = [
     rule "label:hover button" [
         opacity "1"
     ]
+
+    rule ".row" [
+        display "flex"
+    ]
 ]
 
 let toBool obj =
@@ -111,6 +115,16 @@ let toBool obj =
 open Sveltish.Bindings
 open Browser.Types
 
+module FRP =
+    let listenAttr attrName : NodeFactory = fun (ctx,parent) ->
+        parent // todo
+
+    let setProperty (item:obj) (name:string) (value) =
+        ()
+
+    let notify target source =
+        propagateNotifications source target
+
 let todosList cls title filter tin tout =
 
     Html.div [
@@ -121,8 +135,11 @@ let todosList cls title filter tin tout =
             Html.label [
                 Html.input [
                     attr ("type","checkbox")
-                    Bindings.bindAttr "checked"
-                        ((makePropertyStore todo "Done") <~| todos)
+
+                    // Something like this:
+                    //FRP.listenAttr "checked" |> FRP.setProperty todo "Done" |> FRP.notify todos
+                    // Instead of
+                    Bindings.bindAttr "checked" ((makePropertyStore todo "Done") <~| todos)
                 ]
                 text " "
                 text todo.Description
@@ -141,6 +158,7 @@ let view : NodeFactory =
 
     style styleSheet <| Html.div [
         class' "board"
+        Html.p [ text "Note: initial transitions are weird, but subsequent ones are fine. Initialization bug, I'm on it" ]
         Html.input [
             class' "new-todo"
             placeholder "what needs to be done?"
@@ -149,6 +167,9 @@ let view : NodeFactory =
             )
         ]
 
-        todosList "left" "todo" (fun t -> not t.Done) trecv tsend
-        todosList "right" "done" (fun t -> t.Done) trecv tsend
+        Html.div [
+            class' "row"
+            todosList "left" "todo" (fun t -> not t.Done) trecv tsend
+            todosList "right" "done" (fun t -> t.Done) trecv tsend
+        ]
     ]

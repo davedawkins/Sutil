@@ -79,3 +79,9 @@ module Sveltish.Styling
         Selector = name
         Style = style
     }
+
+    let showEl el isVisible =
+        if isVisible then
+            removeStyleAttr el "display"
+        else
+            addStyleAttr el "display" "none"

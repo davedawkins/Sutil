@@ -4,6 +4,7 @@ module Sveltish.Transition
     open Browser.Dom
     open Browser.CssExtensions
     open Browser.Types
+    open Sveltish.CodeGeneration
     open Fable.Core.Util
     open Fable.Core
     open System.Collections.Generic
@@ -28,6 +29,7 @@ module Sveltish.Transition
         | Opacity of float
         | Delay of float
         | Duration of float
+        | DurationFn of (float -> float) option
         | Ease of (float -> float)
         | Css of (float -> float -> string )
         | Tick of (float -> float -> unit)
@@ -43,6 +45,7 @@ module Sveltish.Transition
             Opacity : float
             Delay : float
             Duration : float
+            DurationFn : (float->float) option
             Speed : float
             Ease : (float -> float)
             Css : (float -> float -> string )
@@ -56,15 +59,18 @@ module Sveltish.Transition
             Delay = 0.0
             Opacity = 0.0
             Duration = 0.0
+            DurationFn = None
             Speed = 0.0
             Ease = Easing.linear
             Css = fun a b -> ""
             Tick = fun a b -> () }
 
+
     let private applyProp (r:Transition) (prop : TransitionProp) =
         match prop with
         | Delay d -> { r with Delay = d }
-        | Duration d -> { r with Duration = d }
+        | Duration d -> { r with Duration = d; DurationFn = None }
+        | DurationFn fo -> { r with DurationFn = fo; Duration = 0.0 }
         | Ease f -> { r with Ease = f }
         | Css f -> { r with Css = f }
         | Tick f -> { r with Tick = f }
@@ -86,30 +92,32 @@ module Sveltish.Transition
     // You know, this is a port from svelte/index.js. I could just import it :-/
     // That's still an option for doing a complete implementation.
 
-    //let mutable rules : string list = []
+    let mutable numActiveAnimations = 0
 
-    let ruleIndexes = Dictionary<string,float>()
-
-    let getSveltishStyleElement() =
-        let mutable e = document.querySelector("head style")
+    let getSveltishStyleElement (doc : Document) =
+        let mutable e = doc.querySelector("head style#__sveltish_keyframes")
         if (isNull e) then
-            log "creating style sheet for transitions"
             e <- element("style")
-            document.head.appendChild(e) |> ignore
+            e.setAttribute("id", "__sveltish_keyframes")
+            doc.head.appendChild(e) |> ignore
         e
 
-    let getSveltishStylesheet() =
-        getSveltishStyleElement() |> dotSheet
+    let getSveltishStylesheet (doc : Document) =
+        getSveltishStyleElement doc |> dotSheet
 
-    let deleteRule ruleName =
-        //let s = getSveltishStylesheet
-        //s.deleteRule( ruleIndexes.[ruleName] )
-        ()
+    let nextRuleId = CodeGeneration.makeIdGenerator()
+
+    let toEmptyStr s = if System.String.IsNullOrEmpty(s) then "" else s
 
     let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transition) (uid:int) =
-        log "Creating rule"
         let tr = trfn()
-        let step = 16.666 / tr.Duration
+
+        let durn =
+            match tr.DurationFn with
+            | Some f -> f(a)
+            | None -> tr.Duration
+
+        let step = 16.666 / durn
         let mutable keyframes = [ "{\n" ];
 
         for p in [0.0 ..step.. 1.0] do
@@ -118,15 +126,47 @@ module Sveltish.Transition
 
         let rule = keyframes @ [ sprintf "100%% {%s}\n" (tr.Css b (1.0 - b)) ] |> String.concat ""
 
-        let name = sprintf "__sveltish_%d" uid
+        let name = sprintf "__sveltish_%d" (if uid = 0 then nextRuleId() else uid)
         let keyframeText = sprintf "@keyframes %s %s" name rule
+        //log <| sprintf "keyframe: %s" (keyframes |> List.skip (keyframes.Length / 2) |> List.head)
 
-        let stylesheet = getSveltishStylesheet()
-        let ruleIndex = stylesheet.insertRule( keyframeText, stylesheet.cssRules.length)
+        let stylesheet = getSveltishStylesheet document
+        stylesheet.insertRule( keyframeText, stylesheet.cssRules.length) |> ignore
 
-        node.style.animation <- sprintf "%s %fms linear %fms 1 both" name tr.Duration tr.Delay
-        ruleIndexes.[name] <- ruleIndex
+        let animations =
+            if System.String.IsNullOrEmpty(node.style.animation) then [] else [ node.style.animation ]
+            @ [ sprintf "%s %fms linear %fms 1 both" name tr.Duration tr.Delay ]
+
+        node.style.animation <- animations |> String.concat ", "
+        numActiveAnimations <- numActiveAnimations + 1
         name
+
+    let clearRules() =
+        window.requestAnimationFrame( fun _ ->
+            if (numActiveAnimations = 0) then
+                let doc = document  // Svelte supports multiple active documents
+                let stylesheet = getSveltishStylesheet doc
+                log <| sprintf "clearing %d rules" (int stylesheet.cssRules.length)
+                for i in [(int stylesheet.cssRules.length-1) .. -1 .. 0] do
+                    //log <| sprintf "deleting rule %d" i
+                    stylesheet.deleteRule( float i )
+                //doc.__svelte_rules = {};
+            //active_docs.clear();
+        ) |> ignore
+
+    let deleteRule (node:HTMLElement) (name:string) =
+        let previous = (toEmptyStr node.style.animation).Split( ',' )
+        let next =
+            previous |> Array.filter
+                (if System.String.IsNullOrEmpty(name)
+                    then (fun anim -> anim.IndexOf(name) < 0) // remove specific animation
+                    else (fun anim -> anim.IndexOf("__sveltish") < 0)) // remove all Svelte animations
+        let deleted = previous.Length - next.Length
+        if (deleted > 0) then
+            //log <| sprintf "Deleted rule(s) %s (%d removed)" name deleted
+            node.style.animation <- next |> Array.map (fun s -> s.Trim()) |> String.concat ", "
+            numActiveAnimations <- numActiveAnimations - deleted
+            if (numActiveAnimations = 0) then clearRules()
 
     let fade (props : TransitionProp list) (node : Element) =
         let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.linear }
@@ -212,20 +252,27 @@ module Sveltish.Transition
         let toReceive = Dictionary<string,ClientRect>()
         let toSend = Dictionary<string,ClientRect>()
 
-        let crossfadeInner ( from : ClientRect, node : Element, props) =
-            let tr = applyProps props { Transition.Default with Ease = Easing.cubicOut; Duration = 2000.0 }
-            //let { delay = 0, duration = d -> Math.sqrt(d) * 30, easing: easing$1 = easing.cubicOut } = internal.assign(internal.assign({}, defaults), params)
+        let crossfadeInner ( from : ClientRect, node : Element, props, intro) =
+            let tr = applyProps props { Transition.Default with Ease = Easing.cubicOut; DurationFn = Some (fun d -> System.Math.Sqrt(d) * 30.0) }
+
             let tgt = node.getBoundingClientRect() // was "to"
             let dx = from.left - tgt.left
             let dy = from.top - tgt.top
             let dw = from.width / tgt.width
             let dh = from.height / tgt.height
+            if (intro) then
+                log(sprintf "crossfade from %f,%f -> %f,%f" from.left from.top tgt.left tgt.top)
             let d = System.Math.Sqrt(dx * dx + dy * dy)
             let style = window.getComputedStyle(node)
             let transform = if style.transform = "none" then "" else style.transform
             let opacity = computedStyleOpacity node
+            let duration = match tr.DurationFn with
+                            | Some f -> f(d)
+                            | None -> tr.Duration
             {
                 tr with
+                    DurationFn = None
+                    Duration = duration
                     Css = fun t u ->
                         sprintf """
                           opacity: %f;
@@ -243,27 +290,19 @@ module Sveltish.Transition
             fun (props : TransitionProp list) (node : Element) ->
                 let propsRec = applyProps props commonTr
                 let key = propsRec.Key
-                let side = if intro then "right" else "left"
                 let r = node.getBoundingClientRect()
                 items.[ key ] <- r
-                log(sprintf "%s: received %A" side key)
-                let dump() =
-                    log (sprintf "%s: items: %s" side (System.String.Join(", ", items.Keys)) )
-                    log (sprintf "%s: cpart: %s" side (System.String.Join(", ", counterparts.Keys)) )
+
                 let trfac()  =
                     if (counterparts.ContainsKey(key)) then
                         let rect = counterparts.[key]
                         counterparts.Remove(key) |> ignore
-                        log(sprintf "%s: crossfading %A %f,%f %s" side key rect.left rect.top node.innerHTML)
-                        dump()
-                        crossfadeInner(rect, node, props)
+                        crossfadeInner(rect, node, props, intro)
                     else
                         // if the node is disappearing altogether
                         // (i.e. wasn't claimed by the other list)
                         // then we need to supply an outro
-                        log(sprintf "%s: falling back for %A" side key)
                         //items.Remove(key) |> ignore
-                        dump()
                         (fade props node)()
                         //fallback && fallback(node, props, intro);
                 trfac
@@ -271,3 +310,56 @@ module Sveltish.Transition
             transition(toSend, toReceive, false),
             transition(toReceive, toSend, true)
         )
+
+    type Animation = {
+        From: ClientRect
+        To: ClientRect
+    }
+
+    let flip (node:Element) (animation:Animation) props =
+        let tr = applyProps props  {
+                Transition.Default with
+                    Delay = 0.0
+                    DurationFn = Some (fun d -> System.Math.Sqrt(d) * 120.0)
+                    Ease = Easing.cubicOut }
+        let style = window.getComputedStyle(node)
+        let transform = if style.transform = "none" then "" else style.transform
+        let scaleX = animation.From.width / node.clientWidth
+        let scaleY = animation.From.height / node.clientHeight
+        let dx = (animation.From.left - animation.To.left) / scaleX
+        let dy = (animation.From.top - animation.To.top) / scaleY
+        let d = System.Math.Sqrt(dx * dx + dy * dy)
+        {
+            tr with
+                Duration = match tr.DurationFn with
+                            | None -> tr.Duration //
+                            | Some f -> f(d) // Use user's function or our default
+                DurationFn = None  // Original converts any function into a scalar value
+                Css = fun _t u -> sprintf "transform: %s translate(%fpx, %fpx);`" transform (u * dx) (u * dy)
+        }
+
+    let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element -> Animation -> TransitionProp list -> Transition) props =
+        //if (!from)
+        //    return noop;
+        let tgt (* to *) = node.getBoundingClientRect()
+
+        //log( sprintf "from=%f,%f to=%f,%f" from.left from.top tgt.left tgt.top)
+        let shouldCreate = not (isNull from) && not (from.left = tgt.left && from.right = tgt.right && from.top = tgt.top && from.bottom = tgt.bottom)
+        //    return noop;
+
+        //let { delay = 0, duration = 300, easing = identity,
+        //        start: start_time = exports.now() + delay,
+        //        end = start_time + duration, tick = noop, css } = fn(node, { From = from; To = tgt }, props);
+
+        // TODO : Tick loop
+
+        let a = animateFn node { From = from; To = tgt } props
+        let r = { a with Duration = if (a.Duration = 0.0 && a.DurationFn.IsNone) then 300.0 else a.Duration }
+
+        if (shouldCreate)
+            then
+                //log(sprintf "Creating animation for %s" node.innerText)
+                createRule node 0.0 1.0 (fun () -> r) 0
+            else
+                //log(sprintf "No animation for %s" node.innerText)
+                ""

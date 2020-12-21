@@ -1,4 +1,5 @@
 module Sveltish.Stores
+
     let newStoreId = CodeGeneration.makeIdGenerator()
 
     let log = Logging.log "store"
@@ -21,15 +22,18 @@ module Sveltish.Stores
 
     let newSubId = CodeGeneration.makeIdGenerator()
 
+    //
+    // For a given triggering event (eg user checks a box) store subscriptions may want
+    // to defer side effects until all subscriptions have been notified
+    //
+
     let mutable notifyLevel = 0
     let mutable waiting = []
     let startNotify() =
         notifyLevel <- notifyLevel + 1
-        log(sprintf "notify: %d" notifyLevel)
 
     let endNotify() =
         notifyLevel <- notifyLevel - 1
-        log(sprintf "notify: %d" notifyLevel)
         if (notifyLevel = 0) then
             let rec n w =
                 match w with
@@ -79,22 +83,11 @@ module Sveltish.Stores
 
     open Fable.Core
 
-    type Lens<'T> = {
-            Get : unit -> 'T
-            Set : 'T -> unit
-        }
-
     [<Emit("() => ($0)[$1]")>]
     let getter obj name = jsNative
 
     [<Emit("value => { ($0)[$1] = value; }")>]
     let setter obj name = jsNative
-
-    let makeLens obj name : Lens<obj> =
-        {
-            Get = getter obj name
-            Set = setter obj name
-        }
 
     let makePropertyStore obj name =
         let get = getter obj name
@@ -106,10 +99,16 @@ module Sveltish.Stores
         makeGetSetStore
             (fun () -> cache)
 
-            // This setter will be called by forceNotify. We don't about the incoming
+            // This setter will be called by forceNotify. We don't care about the incoming
             // value (which will have been from our getter() anyway), and so we use
             // this opportunity to recache the expression value.
-            (fun v -> cache <- expr())
+            //
+            // Code smell, since caller will be surprised that their supplied value was
+            // silently ignored.
+            // Ideally, the getter wants to know whether the expression has changed value
+            // since it was last cached, which can be implemented by having a notification
+            // when its dependencies have changed.
+            (fun _ -> cache <- expr())
 
     let exprStore = makeExpressionStore
 
@@ -124,5 +123,8 @@ module Sveltish.Stores
     let (<~|) a b = propagateNotifications a b |> ignore; a
 
     // Subscribe wants a setter (T->unit), this converts that into a notifier (unit -> unit)
+    // This allows us to know what something changed, ignoring the type and the value. It's a
+    // sign though that we intend to do a general re-evaluation to bring things back in
+    // sync, so perhaps a code smell for notifications not being as fine grained as they could be
     let makeNotifier store = (fun callback -> store.Subscribe( fun _ -> callback() )  |> ignore)
 

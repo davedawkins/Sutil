@@ -1,6 +1,8 @@
 module Sveltish.DOM
+
 open Browser.Dom
 open Browser.Types
+open Browser.CssExtensions
 
 let log = Logging.log "dom"
 
@@ -84,3 +86,29 @@ let findElement selector = document.querySelector(selector)
 let rec mountElement selector (app : NodeFactory)  =
     let host = idSelector selector |> findElement :?> HTMLElement
     (app (makeContext,host)) |> ignore
+
+
+let addTransform (node:HTMLElement) (a : ClientRect) =
+    let b = node.getBoundingClientRect()
+    if (a.left <> b.left || a.top <> b.top) then
+        let s = window.getComputedStyle(node)
+        let transform = if s.transform = "none" then "" else s.transform
+        node.style.transform <- sprintf "%s translate(%fpx, %fpx)" "" (a.left - b.left) (a.top - b.top)
+        log node.style.transform
+
+let fixPosition (node:HTMLElement) =
+    let s = window.getComputedStyle(node)
+    if (s.position <> "absolute" && s.position <> "fixed") then
+        let width  = s.width
+        let height = s.height
+        let a = node.getBoundingClientRect()
+        node.style.position <- "absolute"
+        node.style.width <- width
+        node.style.height <- height
+        addTransform node a
+
+let asEl (node : Node) = (node :?> HTMLElement)
+
+let clientRect el = (asEl el).getBoundingClientRect()
+
+let removeNode (node:#Node) = node.parentNode.removeChild( node ) |> ignore

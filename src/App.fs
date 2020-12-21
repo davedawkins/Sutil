@@ -22,21 +22,23 @@ module BulmaStyling =
             width "auto"
             maxWidth "960px"
         ]
+
+
     ]
 
 module App =
     open BulmaStyling
 
-    let count = Stores.makeStore 0
+    //let count = Stores.makeStore 0
 
-    let testApp() : NodeFactory =
+    let testApp model dispatch : NodeFactory =
         Styling.style bulmaStyleSheet <| Html.div [
             className "container"
-            Html.p [ text "Sveltish is running" ]
-            Html.p [ text "Counter" ]
-            Counter.Counter { InitialCounter = 0; Label = "Click Me"; ShowHint = true }
-            Html.p [ text "Todos" ]
-            Html.div [ Todos.view ]
+            //Html.p [ text "Sveltish is running" ]
+            //Html.p [ text "Counter" ]
+            //Counter.Counter { InitialCounter = 0; Label = "Click Me"; ShowHint = true }
+            Html.h1 [ text "Sveltish Todos" ]
+            Html.div [ Todos.view model dispatch ]
 
             Html.pre [
                 text """
@@ -46,6 +48,4 @@ module App =
             ]
         ]
 
-Sveltish.DOM.mountElement "sveltish-app"
-    <| App.testApp()
-//    <| Counter.Counter { InitialCounter = 0; Label = "Click Me"; ShowHint = true }
+Sveltish.Program.makeProgram "sveltish-app" Todos.init Todos.update App.testApp

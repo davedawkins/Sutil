@@ -1,11 +1,14 @@
 module Todos
 
 open Sveltish
-open Browser.Dom
 open Sveltish.Stores
 open Sveltish.Styling
 open Sveltish.Attr
 open Sveltish.DOM
+open Sveltish.Bindings
+open Browser.Types
+
+open Sveltish.Transition
 
 type Todo = {
         Id : int
@@ -13,29 +16,33 @@ type Todo = {
         Description: string
     }
 
-let todos = makeStore [
+// List helpers
+let listCount f list = list |> List.filter f |> List.length
+
+// Todo helpers
+let isDone t = t.Done
+let todoKey r = r.Id
+
+type Model = {
+    Todos : Store<List<Todo>>
+}
+
+type Message =
+    |AddTodo of desc:string
+    |ToggleTodo of id:int
+    |DeleteTodo of id:int
+    |CompleteAll
+
+let makeExampleTodos() = makeStore [
     { Id = 1; Done = false; Description = "1:write some docs" }
     { Id = 2; Done = false; Description = "2:start writing JSConf talk" }
-    { Id = 3; Done =  true;  Description = "3:buy some milk" }
+    { Id = 3; Done =  true; Description = "3:buy some milk" }
     { Id = 4; Done = false; Description = "4:mow the lawn" }
     { Id = 5; Done = false; Description = "5:feed the turtle" }
     { Id = 6; Done = false; Description = "6:fix some bugs" }
 ]
-let newUid = CodeGeneration.makeIdGenerator()
 
-let add(desc) =
-    let todo = {
-        Id = newUid()
-        Done = false
-        Description = desc
-    }
-
-    todos.Set( todo :: todos.Value() )
-
-    //input.value =
-
-let remove(todo) =
-    todos.Set( todos.Value() |> List.filter (fun t -> t <> todo) )
+let newUid = CodeGeneration.makeIdGeneratorFrom(7)
 
 let styleSheet = [
     rule ".new-todo" [
@@ -81,7 +88,7 @@ let styleSheet = [
         backgroundColor "rgb(180,240,100)"
     ]
 
-    rule "button" [
+    rule "label>button" [
         float' "right"
         height "1em"
         boxSizing "border-box"
@@ -91,7 +98,7 @@ let styleSheet = [
         border "none"
         color "rgb(170,30,30)"
         opacity "0"
-        transition "opacity 0.2s"
+        Attr.transition "opacity 0.2s"
     ]
 
     rule "label:hover button" [
@@ -101,57 +108,90 @@ let styleSheet = [
     rule ".row" [
         display "flex"
     ]
+
+    rule ".welldone" [
+        marginTop "12px"
+        marginBottom "12px"
+    ]
+
+    rule ".complete-all" [
+        border "1px solid transparent"
+        borderRadius "4px"
+        boxShadow "none"
+        fontSize "1rem"
+        height "2.5em"
+        position "relative"
+        verticalAlign "top"
+
+        backgroundColor "#fff"
+        borderColor "#dbdbdb"
+        borderWidth "1px"
+        color "#363636"
+        cursor "pointer"
+        paddingBottom "calc(.5em - 1px)"
+        paddingLeft "1em"
+        paddingRight "1em"
+        paddingTop "calc(.5em - 1px)"
+        textAlign "center"
+        whiteSpace "nowrap"
+    ]
 ]
 
-let toBool obj =
-    match string obj with
-    | "1" -> true
-    | "1.0" -> true
-    | "on" -> true
-    | "true" -> true
-    | "yes" -> true
-    | _ -> false
+let update (message : Message) (model : Model) : unit =
 
-open Sveltish.Bindings
-open Browser.Types
+    match message with
+    | AddTodo desc ->
+        let todo = {
+            Id = newUid() + 10
+            Done = false
+            Description = desc
+        }
+        model.Todos <~ (model.Todos |-> (fun x -> x @ [ todo ])) // Mutation of model
+    | ToggleTodo id ->
+        match (storeFetchByKey todoKey id model.Todos) with
+        |None -> ()
+        |Some todo ->
+            todo.Done <- not todo.Done
+            forceNotify model.Todos // People will forget to do this
+    | DeleteTodo id ->
+        model.Todos <~ (model.Todos |-> List.filter (fun t -> t.Id <> id) )
+    | CompleteAll ->
+        model.Todos <~ (model.Todos |-> List.map (fun t -> { t with Done = true }) )
 
-module FRP =
-    let listenAttr attrName : NodeFactory = fun (ctx,parent) ->
-        parent // todo
 
-    let setProperty (item:obj) (name:string) (value) =
-        ()
+let lotsDone model = model.Todos |%>  (fun x -> x |> (listCount isDone) >= 3)
 
-    let notify target source =
-        propagateNotifications source target
+let fader  x = transition <| Both (Transition.fade,[ Duration 2000.0 ]) <| x
+let slider x = transition <| Both (Transition.slide,[ Duration 2000.0 ])  <| x
 
-let todosList cls title filter tin tout =
+
+let todosList cls title filter tin tout model dispatch =
 
     Html.div [
         class' cls
         Html.h2 [ text title ]
 
-        Bindings.each todos (fun (x:Todo) -> x.Id) filter (InOut (tin,tout) ) (fun todo ->
+        Bindings.each model.Todos (fun (x:Todo) -> x.Id) filter (InOut (tin,tout) ) (fun todo ->
             Html.label [
                 Html.input [
                     attr ("type","checkbox")
-
-                    // Something like this:
-                    //FRP.listenAttr "checked" |> FRP.setProperty todo "Done" |> FRP.notify todos
-                    // Instead of
-                    Bindings.bindAttr "checked" ((makePropertyStore todo "Done") <~| todos)
+                    on "change" (fun e -> todo.Id |> ToggleTodo |> dispatch)
+                    bindAttrIn "checked" (model.Todos |~> (makePropertyStore todo "Done"))
+                    //Bindings.bindAttr "checked" ((makePropertyStore todo "Done") <~| model.Todos)
                 ]
                 text " "
                 text todo.Description
                 Html.button [
-                    on "click" (fun _ -> remove(todo))
+                    on "click" (fun _ -> todo.Id |> DeleteTodo |> dispatch)
                     text "x"
                 ]
             ]
         )
     ]
 
-let view : NodeFactory =
+let init() = { Todos = makeExampleTodos() }
+
+let view (model : Model) dispatch : NodeFactory =
     let (send,recv) = Transition.crossfade [ ]
     let tsend = send, []
     let trecv = recv, []
@@ -163,13 +203,26 @@ let view : NodeFactory =
             class' "new-todo"
             placeholder "what needs to be done?"
             onKeyDown (fun e ->
-                if e.key = "Enter" then add( (e.currentTarget :?> HTMLInputElement).value )
+                if e.key = "Enter" then (e.currentTarget :?> HTMLInputElement).value |> AddTodo |> dispatch
             )
         ]
 
         Html.div [
             class' "row"
-            todosList "left" "todo" (fun t -> not t.Done) trecv tsend
-            todosList "right" "done" (fun t -> t.Done) trecv tsend
+            todosList "left" "todo" (fun t -> not t.Done) trecv tsend model dispatch
+            todosList "right" "done" (fun t -> t.Done) trecv tsend model dispatch
         ]
+
+        Html.div [
+            Html.button [
+                class' "complete-all"
+                text "Complete All"
+                on "click" (fun _ -> dispatch CompleteAll)
+            ]
+        ]
+
+        Html.div [
+            class' "welldone"
+            text <| (model.Todos |-> (fun x -> sprintf "%d tasks completed! Good job!" x.Length))
+        ] |> fader (model |> lotsDone)
     ]

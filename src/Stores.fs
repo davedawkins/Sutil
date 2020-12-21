@@ -119,12 +119,58 @@ module Sveltish.Stores
             ) |> ignore
         toStore
 
-    let (|~>) a b = propagateNotifications a b |> ignore; b
-    let (<~|) a b = propagateNotifications a b |> ignore; a
-
     // Subscribe wants a setter (T->unit), this converts that into a notifier (unit -> unit)
     // This allows us to know what something changed, ignoring the type and the value. It's a
     // sign though that we intend to do a general re-evaluation to bring things back in
     // sync, so perhaps a code smell for notifications not being as fine grained as they could be
     let makeNotifier store = (fun callback -> store.Subscribe( fun _ -> callback() )  |> ignore)
 
+    let (|~>) a b = propagateNotifications a b |> ignore; b
+    let (<~|) a b = propagateNotifications a b |> ignore; a
+
+    // ----------------------------------------------------------------------------
+    // Store bind/map
+    // These can move to Sveltish.Stores
+
+    //
+    // Map the wrapped value. For a List<T> (instead of a Store<T>) this might be
+    // called foldMap
+    //
+    let storeGetMap f s =
+        s.Value() |> f
+
+    //
+    // Map f onto s, to produce a new store. The new store will be updated whenever
+    // the source store changes
+    //
+    let storeMap f s =
+        let get() = s.Value() |> f
+        s |~> makeGetSetStore get ignore
+
+    //
+    // Monadic bind. Since f already produces a store, all we need to do
+    // is propagate notifications from the source store s.
+    //
+    let storeBind<'A,'B> (f : ('A -> Store<'B>)) (s : Store<'A>)=
+        s |~> (s.Value() |> f)
+
+
+    let (|%>) s f = storeMap f s
+    let (>%>) s f = storeBind f s
+    let (|->) s f = storeGetMap f s
+
+    let (<~) (s : Store<'T>) v =
+        s.Set(v)
+
+    // Helpers for list stores
+    let storeFetch pred (store:Store<List<'T>>) =
+        store |-> (List.tryFind pred)
+
+    let storeFetchByKey kf key (store:Store<List<'T>>) =
+        let pred r = kf(r) = key
+        storeFetch pred store
+
+    // Study in how the expressions compose
+    //let lotsDone'Form1 = storeMap (fun x -> x |> (listCount isDone) >= 3) todos
+    //let lotsDone'Form2 = todos |>  storeMap (fun x -> x |> (listCount isDone) >= 3)
+    //let lotsDone'Form3 = todos |%>  (fun x -> x |> (listCount isDone) >= 3)

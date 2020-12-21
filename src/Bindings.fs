@@ -81,7 +81,7 @@ module Sveltish.Bindings
             complete el
         | Some (tr,trProps) ->
             if isVisible then
-                let trans = (tr transProps el)
+                let trans = (tr (transProps @ trProps) el)
                 Stores.waitEndNotify <| fun () ->
                     waitAnimationEnd el show
                     showEl el true
@@ -115,7 +115,15 @@ module Sveltish.Bindings
     [<Emit("$0[$1] = $2")>]
     let jsSet obj name value = jsNative
 
-    let bindAttr attrName (store : Store<obj>) = fun (ctx,parent:Node) ->
+    let bindAttrIn attrName (store : Store<obj>) = fun (ctx,parent:Node) ->
+        // Fixme:
+        // Can't assume what element type or attribute is being bound
+        //
+        let input = parent :?> HTMLInputElement
+        let unsub = store.Subscribe( fun value -> jsSet input attrName value )
+        parent
+
+    let bindAttrBoth attrName (store : Store<obj>) = fun (ctx,parent:Node) ->
         // Fixme:
         // Can't assume what element type or attribute is being bound
         //

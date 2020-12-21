@@ -12,6 +12,7 @@
     <Compile Include="Stores.fs" />
     <Compile Include="Styling.fs" />
     <Compile Include="Bindings.fs" />
+    <Compile Include="Program.fs" />
     <Compile Include="Todos.fs" />
     <Compile Include="Counter.fs" />
     <Compile Include="App.fs" />

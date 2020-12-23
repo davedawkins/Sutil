@@ -12,6 +12,8 @@ open Sveltish.Bindings
 let counter _ _  = Counter.Counter ()
 let helloWorld _ _ = HelloWorld.helloWorld()
 
+let minion _ _ = DynamicAttributes.view()
+
 type Model = {
     Demo : Store<string>
     TodosModel : Todos.Model
@@ -33,9 +35,10 @@ type Demo = {
     Source : string
 } with
     static member All = [
-        { Title = "Hello World"; Category = "Introduction"; Create = helloWorld ; Source = "HelloWorld.fs"}
-        { Title = "Reactive Assignments"; Category = "Reactivity"; Create = counter ; Source = "Counter.fs"}
-        { Title = "The animate directive"; Category = "Animations"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Source = "Todos.fs" }
+        { Category = "Introduction";Title = "Hello World";  Create = helloWorld ; Source = "HelloWorld.fs"}
+        { Category = "Introduction";Title = "Dynamic attributes";  Create = minion ; Source = "DynamicAttributes.fs"}
+        { Category = "Reactivity";Title = "Reactive Assignments";  Create = counter ; Source = "Counter.fs"}
+        { Category = "Animations"; Title = "The animate directive"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Source = "Todos.fs" }
     ]
 
 let init() =

@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DynamicAttributes.fs" />
     <Compile Include="HelloWorld.fs" />
     <Compile Include="Todos.fs" />
     <Compile Include="Counter.fs" />

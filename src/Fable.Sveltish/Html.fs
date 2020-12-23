@@ -19,4 +19,5 @@ let label  xs = el "label" xs
 let a  xs = el "a" xs
 let ul  xs = el "ul" xs
 let li xs = el "li" xs
+let img xs = el "img" xs
 

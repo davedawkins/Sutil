@@ -9,6 +9,7 @@ let className n         = attr("class",n)
 let placeholder n       = attr("placeholder",n)
 let href n              = attr("href",n)
 let src n               = attr("src",n)
+let alt n               = attr("alt",n)
 
 let class' = className
 

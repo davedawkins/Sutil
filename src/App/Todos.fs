@@ -203,6 +203,7 @@ let view (model : Model) dispatch : NodeFactory =
             class' "new-todo"
             placeholder "what needs to be done?"
             onKeyDown (fun e ->
+                // This isn't the right test for mobile users
                 if e.key = "Enter" then (e.currentTarget :?> HTMLInputElement).value |> AddTodo |> dispatch
             )
         ]

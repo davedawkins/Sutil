@@ -36,7 +36,8 @@ type Demo = {
     static member All = [
         { Category = "Introduction";Title = "Hello World";  Create = helloWorld ; Source = "HelloWorld.fs"}
         { Category = "Introduction";Title = "Dynamic attributes";  Create = minion ; Source = "DynamicAttributes.fs"}
-        { Category = "Introduction";Title = "Styling";  Create = (fun _ _ -> Styling.view()) ; Source = "Styling.fs"}
+        { Category = "Introduction";Title = "Styling";  Create = (fun _ _ -> StylingExample.view()) ; Source = "Styling.fs"}
+        { Category = "Introduction";Title = "Nested components";  Create = (fun _ _ -> NestedComponents.view()) ; Source = "NestedComponents.fs"}
         { Category = "Reactivity";Title = "Reactive Assignments";  Create = counter ; Source = "Counter.fs"}
         { Category = "Animations"; Title = "The animate directive"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Source = "Todos.fs" }
     ]

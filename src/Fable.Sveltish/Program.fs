@@ -1,5 +1,10 @@
 module Sveltish.Program
 
+    open Sveltish.DOM
+
+    //let makeComponent name (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
+    //    element( { ctx with StyleName = "" }, parent )
+
     //
     // Sveltish Elmish
     // The model mutates in Sveltish, so the function signatures are slightly different to Elmish.

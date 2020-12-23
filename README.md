@@ -1,19 +1,17 @@
 # Sveltish
 
-An experiment in applying the design principles from [Svelte](https://svelte.dev/) to native Fable. Svelte is impressive in its own right, but I can't help thinking that Fable is a compiler that's already in our toolchain, and is able to do what Svelte does with respect to generating boilerplate.
+An experiment in applying the design principles from [Svelte](https://svelte.dev/) to native Fable. At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself. 
 
-It's all very much a work-in-progress, and I'm exploring what's possible, so the code is a sprawling mess. If this
-is worth pursuing, then it will need refactoring and organizing.
-
-Some aspects that are working or in progress.
+See the [Sveltish website](https://davedawkins.github.io/Fable.Sveltish/) for demos. 
 
 Here's how the Sveltish Todos app looks. This is an augmented port of the [Svelte animate example](https://svelte.dev/examples#animate)
 
 <img src="images/todosGoodJob.gif" width="400">
 
+Some aspects that are working or in progress:
 
 ## DOM builder
-Crude and minimal. It's Feliz-styled, but builds direct into DOM. If this project proceeds it would be good to layer on top of Feliz.
+Crude and minimal. It's Feliz-styled, but builds direct into DOM. 
 
 ```fsharp
     div [
@@ -31,38 +29,73 @@ Similar to Svelte stores, using the same API
     button [
       class' "button"
       onClick (fun _ -> count.Value() + 1 |> count.Set)
-      count.Value() |> sprintf "You clicked: %i time(s)" |> text
+      text "Click Me"
     ]
 ```
 
 ## Bindings
 
-The intention is to have Fable or a Fable plugin analyze the AST and produce bindings automatically. F# even in my inexperienced hands does an amazing job of reducing boilerplate to a minimum, but it's still boiler plate.
-
-The button example above won't yet update on button clicks. Here's how we make that happen:
+We can react to count being updated:
 
 ```fsharp
     let count = Sveltish.makeStore 0
     button [
       class' "button"
       onClick (fun _ -> count.Value() + 1 |> count.Set)
-      count.Value() |> sprintf "You clicked: %i time(s)" |> text
+      (fun n -> sprintf "You clicked: %i time(s)" n |> text)
+          |> bind count
     ]
 
-    (fun () -> count.Value() |> sprintf "You clicked: %i time(s)" |> text)
-       |> bind count
 ```
 
-It's ugly, but with Fable's help that can be made to look this:
+## Operators
+
+Instead of using the `bind` function, we can use the `|=>` operator.
 
 ```fsharp
     let count = Sveltish.makeStore 0
     button [
       class' "button"
-      onClick (fun _ -> count + 1 |> count.Set)
-      count |> sprintf "You clicked: %i time(s)" |> text
+      onClick (fun _ -> count.Value() + 1 |> count.Set)
+      count |=> (fun n -> sprintf "You clicked: %i time(s)" n |> text)
     ]
 ```
+
+Instead of calling `count.Set` we can use the `<~` operator:
+
+```fsharp
+    let count = Sveltish.makeStore 0
+    button [
+      class' "button"
+      onClick (fun _ -> count <~ count.Value() + 1)
+      count |=> (fun n -> sprintf "You clicked: %i time(s)" n |> text)
+    ]
+```
+
+Finally for this example, instead of accessing count.Value(), we can use the `|->` operator
+
+```fsharp
+    let count = Sveltish.makeStore 0
+    button [
+      class' "button"
+      onClick (fun _ -> count <~ count |-> (fun n -> n + 1))
+      count |=> (fun n -> sprintf "You clicked: %i time(s)" n |> text)
+    ]
+```
+
+The operators may change in their spelling as the project develops. Here are the current set of operators
+
+```fsharp
+    let (|%>) s f = storeMap f s     // Store<a> -> (a -> b) -> Store<b>
+    let (>%>) s f = storeBind f s    // Store<a> -> (a -> Store<b>) -> Store<b>
+    let (|->) s f = storeGetMap f s  // Store<a> -> (a -> b) -> b
+
+    let (<~) (s : Store<'T>) v = s.Set(v)
+    
+    let (|=>) a b = bind a b // 
+```
+
+I don't see a use for storeBind (m-----ic bind) yet, but was interested to see how it would be implemented.
 
 ## Styling
 
@@ -108,7 +141,10 @@ let view =
 
 ## Transitions
 
-Working on these right now. The key is being notified of a change in an element's visibility. The DOM intends to listen to a visibility expression (a `Store<bool>`) and then update style `display: none|<not-none>;`. Like a call to `$.show()` in you-know-what.
+Transitions can be specified with the `transition` binding function. This is an extended form of the `show` binding which 
+just shows or hides an element according to a given `Store<bool>`.
+
+TODO All examples from here on need updating
 
 <img alt="Transitions Progress" width="400" src="images/transition.gif">
 

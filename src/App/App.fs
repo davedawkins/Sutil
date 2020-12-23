@@ -27,7 +27,6 @@ type Message =
     | TodosMsg of Todos.Message
     | ToggleSource
 
-
 type Demo = {
     Title : string
     Category : string

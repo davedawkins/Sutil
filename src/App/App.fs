@@ -121,8 +121,6 @@ let currentDemo model dispatch =
         class' "column app-demo"
         for d in Demo.All do
             d.Create model dispatch |> Bindings.show (model.Demo |%> (fun demo -> demo = d.Title))
-        //Todos.view model.TodosModel (dispatch<<TodosMsg) |> Bindings.show (model.Demo |%> (fun d -> d = Todos))
-        //Html.div [ text "Hello World" ]      |> Bindings.show (model.Demo |%> (fun d -> d = HelloWorld))
     ]
 
 let Section (name:string) model dispatch = [

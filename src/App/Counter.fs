@@ -73,25 +73,24 @@ open Browser.Dom
 //
 let Counter props =
     let count = makeStore props.InitialCounter
-
+    let inc n = n + 1
 
     style counterStyle <| Html.div [
         Html.button [
-            onClick (fun _ -> count.Value() + 1 |> count.Set)
+            onClick (fun _ -> count <~ (count |-> inc))
 
-            (fun n ->
+            count |=> fun n ->
                 text <| if n = 0 then props.Label else n |> sprintf "You clicked: %i time(s)"
-            ) |> Bindings.bind count
         ]
 
         Html.button [
             class' "reset"
-            on "click" (fun _ -> 0 |> count.Set)
+            on "click" (fun _ -> count <~ 0)
             text "Reset"
         ]
 
         (Html.div [ class' "hint"; text "Click button to start counting" ])
         |> Bindings.transition
-                (Both (Transition.fly,[ X 100.0; Y 100.0; ]))
-                (count |~> exprStore (fun () -> count.Value() = 0 && props.ShowHint))  // Visible if 'count = 0'
+                (Both (Transition.fly,[ X 100.0; Y 0.0; ]))
+                (count |%> fun n -> n = 0 && props.ShowHint)  // Visible if 'count = 0'
     ]

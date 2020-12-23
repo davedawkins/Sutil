@@ -14,6 +14,8 @@ let helloWorld _ _ = HelloWorld.helloWorld()
 
 let minion _ _ = DynamicAttributes.view()
 
+let make v = fun _ _ -> v()
+
 type Model = {
     Demo : Store<string>
     TodosModel : Todos.Model
@@ -36,8 +38,10 @@ type Demo = {
     static member All = [
         { Category = "Introduction";Title = "Hello World";  Create = helloWorld ; Source = "HelloWorld.fs"}
         { Category = "Introduction";Title = "Dynamic attributes";  Create = minion ; Source = "DynamicAttributes.fs"}
-        { Category = "Introduction";Title = "Styling";  Create = (fun _ _ -> Styling.view()) ; Source = "Styling.fs"}
-        { Category = "Reactivity";Title = "Reactive Assignments";  Create = counter ; Source = "Counter.fs"}
+        { Category = "Introduction";Title = "Styling";  Create = make StylingExample.view ; Source = "Styling.fs"}
+        { Category = "Introduction";Title = "Nested components";  Create = make NestedComponents.view ; Source = "NestedComponents.fs"}
+        { Category = "Reactivity";Title = "Reactive assignments";  Create = counter ; Source = "Counter.fs"}
+        { Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Source = "ReactiveDeclarations.fs"}
         { Category = "Animations"; Title = "The animate directive"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Source = "Todos.fs" }
     ]
 

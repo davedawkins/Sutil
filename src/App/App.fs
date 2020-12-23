@@ -71,7 +71,7 @@ let mainStyleSheet = [
     rule ".app-contents" [
         backgroundColor "#676778"
         color "white"
-        height "100vh"
+        //height "100vh"
     ]
 
     rule ".app-contents ul" [
@@ -161,14 +161,15 @@ let appMain (model:Model) (dispatch : Message -> unit) =
 
                 Html.div [
                     class' "column app-demo-section"
-                    Html.div [
-                        class' "app-toolbar"
-                        Html.a [
-                            href "#"
-                            model.ShowingSource |=> (fun show -> text <| if show then "demo" else "source")
-                            onClick (fun e -> e.preventDefault(); dispatch ToggleSource )
-                        ]
-                    ]
+
+                    //Html.div [
+                    //    class' "app-toolbar"
+                    //    Html.a [
+                    //        href "#"
+                    //        model.ShowingSource |=> (fun show -> text <| if show then "demo" else "source")
+                    //        onClick (fun e -> e.preventDefault(); dispatch ToggleSource )
+                    //    ]
+                    //]
 
                     showElse model.ShowingSource
                         (Html.div [

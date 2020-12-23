@@ -14,12 +14,12 @@ let Counter() =
 
         Html.div [
             Html.button [
-                onClick (fun _ -> count <~= (fun n -> n+1))
+                onClick (fun _ -> count <~= (fun n -> n-1))
                 text "-"
             ]
 
             Html.button [
-                onClick (fun _ -> count <~= (fun n -> n-1))
+                onClick (fun _ -> count <~= (fun n -> n+1))
                 text "+"
             ]
         ]

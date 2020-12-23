@@ -46,6 +46,7 @@ let makeExampleTodos() = makeStore [
 let newUid = CodeGeneration.makeIdGeneratorFrom(7)
 
 let styleSheet = [
+
     rule ".new-todo" [
         fontSize "1.4em"
         width "100%"
@@ -62,6 +63,10 @@ let styleSheet = [
         width "50%"
         padding "0 1em 0 0"
         boxSizing "border-box"
+    ]
+
+    rule ".title" [
+        marginTop "24px"
     ]
 
     rule "h2" [
@@ -193,8 +198,6 @@ let view (model : Model) dispatch : NodeFactory =
 
     style styleSheet <| Html.div [
         class' "board"
-
-        Html.h1 [ text "Sveltish Todos" ]
 
         Html.input [
             class' "new-todo"

@@ -93,25 +93,40 @@ module Sveltish.Bindings
                     waitAnimationEnd el hide
                     ruleName <- Transition.createRule el 1.0 0.0 trans 0
 
-    let transitionOpt<'T> (trans : TransitionAttribute option) (store : Store<bool>) (element: NodeFactory) : NodeFactory = fun (ctx,parent) ->
+    let transitionOpt<'T> (trans : TransitionAttribute option) (store : Store<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
         let mutable target : Node = null
         let mutable cache = false
+
+        let mutable targetElse : Node = null
+
         let unsub = store.Subscribe( fun isVisible ->
             if isNull target then
                 target <- element(ctx,parent)
                 cache <- not isVisible
+                match elseElement with
+                | Some e ->
+                    targetElse <- e(ctx,parent)
+                    //ctx.AppendChild parent targetElse |> ignore
+                | None -> ()
 
             if cache <> isVisible then
                 cache <- isVisible
                 transitionNode (target :?> HTMLElement) trans [] isVisible ignore
+                if not (isNull targetElse) then
+                    transitionNode (targetElse :?> HTMLElement) trans [] (not isVisible) ignore
         )
+        // Not sure about this. Something is wrong in the design, since we (might) have created two elements
+        // We could create a container div to hold them and return that div.
         target
 
     let transition<'T> (trans : TransitionAttribute) store element =
-        transitionOpt (Some trans) store element
+        transitionOpt (Some trans) store element None
 
     let show<'T> store element =
-        transitionOpt None store element
+        transitionOpt None store element None
+
+    let showElse<'T> store element otherElement=
+        transitionOpt None store element (Some otherElement)
 
     [<Emit("$0[$1]")>]
     let jsGet obj name = jsNative
@@ -208,3 +223,4 @@ module Sveltish.Bindings
             )
             parent :> Node
 
+    let (|=>) a b = bind a b

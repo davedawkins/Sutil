@@ -70,6 +70,33 @@ module Sveltish.Styling
             let styleText = String.Join ("", rule.Style |> Seq.map (fun (nm,v) -> sprintf "%s: %A;" nm v))
             [ specifySelector styleName rule.Selector; " {"; styleText; "}" ] |> String.concat "" |> document.createTextNode |> style.appendChild |> ignore
 
+    let app (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
+        let mutable last : Node = parent
+        for x in xs do
+            last <- x(ctx,parent)
+        last
+
+    let headStylesheet (url : string) = fun (ctx,parent) ->
+        let head = findElement "head"
+        let styleEl = document.createElement("link")
+        head.appendChild( styleEl ) |> ignore
+        styleEl.setAttribute( "rel", "stylesheet" )
+        styleEl.setAttribute( "href", url ) |> ignore
+        parent
+
+    let headTitle (title : string) = fun (ctx,parent) ->
+        let head = findElement "head"
+        let existingTitle = findElement "head>title"
+
+        if not (isNull existingTitle) then
+            head.removeChild(existingTitle) |> ignore
+
+        let titleEl = document.createElement("title")
+        titleEl.appendChild( document.createTextNode(title) ) |> ignore
+        head.appendChild(titleEl) |> ignore
+
+        parent
+
     let style styleSheet (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let name = ctx.MakeName "sveltish"
         addStyleSheet name styleSheet
@@ -80,8 +107,15 @@ module Sveltish.Styling
         Style = style
     }
 
-    let showEl el isVisible =
+    open Fable.Core
+    [<Emit("new CustomEvent($0, $1)")>]
+    let customEvent name data = jsNative
+
+    let showEl (el : HTMLElement) isVisible =
         if isVisible then
             removeStyleAttr el "display"
         else
             addStyleAttr el "display" "none"
+        let ev = customEvent (if isVisible then "sveltish-show" else "sveltish-hide") {|  |}
+        el.dispatchEvent(ev) |> ignore
+        ()

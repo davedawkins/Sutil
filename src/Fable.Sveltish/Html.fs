@@ -1,6 +1,6 @@
 module Sveltish.Html
 
-open DOM
+open Sveltish.DOM
 open Browser.Types
 
 let div xs = el "div" xs
@@ -17,3 +17,6 @@ let button  xs = el "button" xs
 let input  xs = el "input" xs
 let label  xs = el "label" xs
 let a  xs = el "a" xs
+let ul  xs = el "ul" xs
+let li xs = el "li" xs
+

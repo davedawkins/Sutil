@@ -6,6 +6,7 @@
     <Compile Include="Nested.fs" />
     <Compile Include="NestedComponents.fs" />
     <Compile Include="Styling.fs" />
+    <Compile Include="ReactiveDeclarations.fs" />
     <Compile Include="DynamicAttributes.fs" />
     <Compile Include="HelloWorld.fs" />
     <Compile Include="Todos.fs" />

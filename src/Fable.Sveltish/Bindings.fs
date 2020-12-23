@@ -37,6 +37,33 @@ module Sveltish.Bindings
         )
         current
 
+    let subscribe2<'A,'B>  (a : Store<'A>) (b : Store<'B>)  (callback: ('A*'B) -> unit) : (unit -> unit) =
+        let unsuba = a.Subscribe( fun v ->
+            callback(v,b.Value())
+        )
+        let unsubb = b.Subscribe( fun v ->
+            callback(a.Value(),v)
+        )
+        let unsubBoth() =
+            unsuba()
+            unsubb()
+        unsubBoth
+
+    let bind2<'A,'B>  (a : Store<'A>) (b : Store<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
+        let mutable current : Node = null
+
+        let addReplaceChild p c =
+            if isNull current then
+                ctx.AppendChild p c |> ignore
+            else
+                p.replaceChild(c,current) |> ignore
+            c
+
+        let unsub = subscribe2 a b (fun (a',b') ->
+            current <- element(a',b')( { ctx with AppendChild = addReplaceChild }, parent)
+        )
+
+        current
 
     let waitAnimationEnd (el : HTMLElement) (f : unit -> unit) =
         let rec cb _ =

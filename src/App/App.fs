@@ -1,25 +1,27 @@
 module App
 
+open Fetch
 open Sveltish
 open Sveltish.Attr
 open Sveltish.Styling
 open Sveltish.DOM
 open Sveltish.Stores
 open Sveltish.Bindings
-open Browser.Dom
 
-let helloWorld _ _ = Html.div [ text "Hello World" ]
 
-let counter _ _  = Counter.Counter { ShowHint = true; Label = "Click Me"; InitialCounter = 0 }
+let counter _ _  = Counter.Counter ()
+let helloWorld _ _ = HelloWorld.helloWorld()
 
 type Model = {
     Demo : Store<string>
     TodosModel : Todos.Model
     ShowingSource : Store<bool>
+    Source : Store<string>
 }
 
 type Message =
     | SetDemo of string
+    | SetSource of string
     | TodosMsg of Todos.Message
     | ToggleSource
 
@@ -31,9 +33,9 @@ type Demo = {
     Source : string
 } with
     static member All = [
-        { Title = "Hello World"; Category = "Introduction"; Create = helloWorld ; Source = "Hello world source"}
-        { Title = "Reactive Assignments"; Category = "Reactivity"; Create = counter ; Source = "Counter source"}
-        { Title = "The animate directive"; Category = "Animations"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Source = "Todos Source" }
+        { Title = "Hello World"; Category = "Introduction"; Create = helloWorld ; Source = "HelloWorld.fs"}
+        { Title = "Reactive Assignments"; Category = "Reactivity"; Create = counter ; Source = "Counter.fs"}
+        { Title = "The animate directive"; Category = "Animations"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Source = "Todos.fs" }
     ]
 
 let init() =
@@ -42,15 +44,20 @@ let init() =
         Demo = makeStore("Hello World")
         TodosModel = todosModel
         ShowingSource = makeStore(false)
+        Source = makeStore("")
     }
 
 let update msg model =
     match msg with
     | SetDemo d ->
         model.Demo <~ d
+        model.Source <~ ""
+        model.ShowingSource <~ false
+    | SetSource src ->
+        model.Source <~ src
     | TodosMsg m ->
         Todos.update m model.TodosModel
-    | ToggleSource -> model.ShowingSource <~ (model.ShowingSource |-> not)
+    | ToggleSource -> model.ShowingSource <~= not
 
 let mainStyleSheet = [
 
@@ -137,6 +144,17 @@ let Section (name:string) model dispatch = [
         ]
     ]
 
+let urlBase = "https://raw.githubusercontent.com/davedawkins/Fable.Sveltish/main/src/App"
+
+let findDemo name = Demo.All |> List.find (fun d -> d.Title = name)
+
+let fetchSource (model:Model) dispatch =
+    let url = sprintf "%s/%s" urlBase (model.Demo |-> findDemo).Source
+    fetch url []
+    |> Promise.bind (fun res -> res.text())
+    |> Promise.map (fun txt -> txt |> SetSource |> dispatch)
+    |> ignore
+
 let appMain (model:Model) (dispatch : Message -> unit) =
 
     style mainStyleSheet <|
@@ -160,20 +178,22 @@ let appMain (model:Model) (dispatch : Message -> unit) =
                 Html.div [
                     class' "column app-demo-section"
 
-                    //Html.div [
-                    //    class' "app-toolbar"
-                    //    Html.a [
-                    //        href "#"
-                    //        model.ShowingSource |=> (fun show -> text <| if show then "demo" else "source")
-                    //        onClick (fun e -> e.preventDefault(); dispatch ToggleSource )
-                    //    ]
-                    //]
+                    Html.div [
+                        class' "app-toolbar"
+                        Html.a [
+                            href "#"
+                            model.ShowingSource |=> (fun show -> text <| if show then "← demo" else "source")
+                            onClick (fun e -> e.preventDefault(); dispatch ToggleSource )
+                        ]
+                    ]
 
                     showElse model.ShowingSource
                         (Html.div [
                             class' "column"
-                            on "sveltish-show" (fun _ -> console.log("Showing source"))
-                            text "todo - fetch source code using Fable's equivalent of ajax"
+                            on "sveltish-show" <| fun _ -> fetchSource model dispatch
+                            Html.pre [
+                                model.Source |=> text
+                            ]
                             ])
                         (currentDemo model dispatch)
                 ]

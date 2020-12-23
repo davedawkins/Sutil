@@ -162,6 +162,18 @@ module Sveltish.Stores
     let (<~) (s : Store<'T>) v =
         s.Set(v)
 
+    let (<~-) (s : Store<'T>) v =
+        s.Set(v)
+
+    let (-~>) v (s : Store<'T>) =
+        s.Set(v)
+
+    let storeModify (store:Store<'T>) (map:('T -> 'T)) =
+        store <~ (store |-> map)
+
+    let (<~=) store map = storeModify store map
+    let (=~>) store map = storeModify store map
+
     // Helpers for list stores
     let storeFetch pred (store:Store<List<'T>>) =
         store |-> (List.tryFind pred)

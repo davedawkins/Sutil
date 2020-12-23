@@ -1,8 +1,8 @@
 # Sveltish
 
-An experiment in applying the design principles from [Svelte](https://svelte.dev/) to native Fable. At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself. 
+An experiment in applying the design principles from [Svelte](https://svelte.dev/) to native Fable. At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself.
 
-See the [Sveltish website](https://davedawkins.github.io/Fable.Sveltish/) for demos. 
+See the [Sveltish website](https://davedawkins.github.io/Fable.Sveltish/) for demos.
 
 Here's how the Sveltish Todos app looks. This is an augmented port of the [Svelte animate example](https://svelte.dev/examples#animate)
 
@@ -11,7 +11,7 @@ Here's how the Sveltish Todos app looks. This is an augmented port of the [Svelt
 Some aspects that are working or in progress:
 
 ## DOM builder
-Crude and minimal. It's Feliz-styled, but builds direct into DOM. 
+Crude and minimal. It's Feliz-styled, but builds direct into DOM.
 
 ```fsharp
     div [
@@ -90,9 +90,16 @@ The operators may change in their spelling as the project develops. Here are the
     let (>%>) s f = storeBind f s    // Store<a> -> (a -> Store<b>) -> Store<b>
     let (|->) s f = storeGetMap f s  // Store<a> -> (a -> b) -> b
 
-    let (<~) (s : Store<'T>) v = s.Set(v)
-    
-    let (|=>) a b = bind a b // 
+    // Update a store with a new value
+    let (<~-) (s : Store<'T>) (v : 'T) = s.Set(v)
+    let (<~)  (s : Store<'T>) (v : 'T) = s.Set(v)
+    let (-~>) (v : 'T) (s : Store<'T>) = s.Set(v)
+
+    // Update a store as a function of the current value
+    let (<~=) (s : Store<'T>) (f : 'T -> 'T) = s <~ s |-> f
+    let (=~>) (f : 'T -> 'T) (s : Store<'T>) = s <~ s |-> f
+
+    let (|=>) a b = bind a b //
 ```
 
 I don't see a use for storeBind (m-----ic bind) yet, but was interested to see how it would be implemented.
@@ -141,7 +148,7 @@ let view =
 
 ## Transitions
 
-Transitions can be specified with the `transition` binding function. This is an extended form of the `show` binding which 
+Transitions can be specified with the `transition` binding function. This is an extended form of the `show` binding which
 just shows or hides an element according to a given `Store<bool>`.
 
 TODO All examples from here on need updating

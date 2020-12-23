@@ -150,7 +150,7 @@ let update (message : Message) (model : Model) : unit =
             Done = false
             Description = desc
         }
-        model.Todos <~ (model.Todos |-> (fun x -> x @ [ todo ])) // Mutation of model
+        model.Todos <~= (fun x -> x @ [ todo ]) // Mutation of model
     | ToggleTodo id ->
         match (storeFetchByKey todoKey id model.Todos) with
         |None -> ()
@@ -158,9 +158,9 @@ let update (message : Message) (model : Model) : unit =
             todo.Done <- not todo.Done
             forceNotify model.Todos // People will forget to do this
     | DeleteTodo id ->
-        model.Todos <~ (model.Todos |-> List.filter (fun t -> t.Id <> id) )
+        model.Todos <~= List.filter (fun t -> t.Id <> id)
     | CompleteAll ->
-        model.Todos <~ (model.Todos |-> List.map (fun t -> { t with Done = true }) )
+        model.Todos <~= List.map (fun t -> { t with Done = true })
 
 
 let fader  x = transition <| Both (fade,[ Duration 300.0 ]) <| x

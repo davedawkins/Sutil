@@ -5,92 +5,20 @@ open Sveltish.Bindings
 open Sveltish.DOM
 open Sveltish.Attr
 open Sveltish.Stores
-open Sveltish.Styling
 
-//
-// Properties for the counter
-//
-type CounterProps = {
-    InitialCounter : int
-    ShowHint : bool
-    Label: string
-}
+let Counter() =
+    let count = makeStore 0
 
-//
-// Privte styling for the counter
-//
-let private counterStyle = [
+    Html.div [
+        count |=> fun n -> sprintf "Counter = %d" n |> text
 
-    rule "div" [
-        fontFamily "sans-serif"
-        color "#4a4a4a"
-        fontSize "1em"
-        fontWeight "400"
-        lineHeight "1.5"
-    ]
-
-    rule "button" [
-        border "1px solid transparent"
-        borderRadius "4px"
-        boxShadow "none"
-        fontSize "1rem"
-        height "2.5em"
-        position "relative"
-        verticalAlign "top"
-
-        backgroundColor "#fff"
-        borderColor "#dbdbdb"
-        borderWidth "1px"
-        color "#363636"
-        cursor "pointer"
-        paddingBottom "calc(.5em - 1px)"
-        paddingLeft "1em"
-        paddingRight "1em"
-        paddingTop "calc(.5em - 1px)"
-        textAlign "center"
-        whiteSpace "nowrap"
-    ]
-
-    rule "button.reset" [
-        marginLeft "12px"
-    ]
-
-    rule "div.hint" [
-        marginTop "8px"
-        marginLeft "8px"
-        fontSize "80%"
-        color "gray"
-    ]
-]
-
-open Sveltish.Transition
-open Browser.Dom
-
-//
-// Add this to a document with
-// mountElement Counter.Counter { .. props .. }
-//
-//
-let Counter props =
-    let count = makeStore props.InitialCounter
-    let inc n = n + 1
-
-    style counterStyle <| Html.div [
         Html.button [
-            onClick (fun _ -> count <~ (count |-> inc))
-
-            count |=> fun n ->
-                text <| if n = 0 then props.Label else n |> sprintf "You clicked: %i time(s)"
+            onClick (fun _ -> count <~= (-) 1)
+            text "-"
         ]
 
         Html.button [
-            class' "reset"
-            on "click" (fun _ -> count <~ 0)
-            text "Reset"
+            onClick (fun _ -> count <~= (+) 1)
+            text "+"
         ]
-
-        (Html.div [ class' "hint"; text "Click button to start counting" ])
-        |> Bindings.transition
-                (Both (Transition.fly,[ X 100.0; Y 0.0; ]))
-                (count |%> fun n -> n = 0 && props.ShowHint)  // Visible if 'count = 0'
     ]

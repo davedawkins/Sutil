@@ -5,9 +5,18 @@
   <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="shortcut icon" href="fable.ico" />
+  <link rel="stylesheet" href="./styles/vs.css"/>
+  <script src="./highlight.min.js"></script>
 </head>
 <body>
     <div id="sveltish-app"></div>
     <script src="bundle.js"></script>
+    <script>
+        document.addEventListener('sveltish-updated', (event) => {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        });
+    </script>
 </body>
 </html>

@@ -8,6 +8,16 @@ Here's how the Sveltish Todos app looks. This is an augmented port of the [Svelt
 
 <img src="images/todosGoodJob.gif" width="400">
 
+Implementing this app is pushing the library. As each new demo example is added, it might require tweaking to existing capabilities, a bug fix, a new feature to be added (or ported over from Svelte), or even a rework of some of the internals. It's a good driver for the library in its own right.
+
+## Changelog (most recent first)
+
+- Fixes to demo app styling and production bundling thanks to a PR from [s0kil](https://github.com/s0kil)
+- Demo app support for syntax highlighting example code. See section **Interacting with 3rd-party libraries**
+- More examples ported into demo app
+- .. more to come .. 
+
+
 Some aspects that are working or in progress:
 
 ## DOM builder
@@ -394,3 +404,17 @@ let view (model : Model) dispatch : NodeFactory =
     ]
 
 ```
+
+## Interaction with 3rd-part libraries
+
+The app now has syntax highlighting, in the form of highlight.js (a dependency of the app, and not the library). This required a few enhancements:
+- custom events from Sveltish that can be used to tell highlight.js to reformat 
+- resilience to DOM nodes disappearing that were being watched by Sveltish (this will be an ongoing challenge). 
+- relaxation of the idea that all edits to index.html happen programmatically - you can add stylesheet and script tags to the head programmatically 
+but things like highlight.js needed a short JS fragment. (However, writing this just now, I think I see how I can actually just write that in Fable
+with a minor interop edit. Fable is fantastic with JS interop.)
+
+The problem I had was because I was Sveltish-binding to a `text` node, which would be replaced by highlight.js. Sveltish handles this, but can't be
+100% sure on the recovery strategy. It's a good test case so I've left it this way in the way, but a quicker fix by far would have been to bind to the
+outer `<code>` or `<pre>` elements.
+

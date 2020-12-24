@@ -1,5 +1,8 @@
 module Sveltish.Stores
 
+    open Browser.Dom
+    open Browser.Event
+
     let newStoreId = CodeGeneration.makeIdGenerator()
 
     let log = Logging.log "store"
@@ -32,6 +35,10 @@ module Sveltish.Stores
     let startNotify() =
         notifyLevel <- notifyLevel + 1
 
+
+    let notifyDocument() =
+        document.dispatchEvent( Interop.customEvent "sveltish-updated"  {|  |} ) |> ignore
+
     let endNotify() =
         notifyLevel <- notifyLevel - 1
         if (notifyLevel = 0) then
@@ -42,6 +49,7 @@ module Sveltish.Stores
             let w = waiting
             waiting <- []
             n w
+            notifyDocument()
 
     let waitEndNotify f =
         if (notifyLevel = 0)
@@ -81,17 +89,10 @@ module Sveltish.Stores
         let set(v) = value <- v
         makeGetSetStore get set
 
-    open Fable.Core
-
-    [<Emit("() => ($0)[$1]")>]
-    let getter obj name = jsNative
-
-    [<Emit("value => { ($0)[$1] = value; }")>]
-    let setter obj name = jsNative
 
     let makePropertyStore obj name =
-        let get = getter obj name
-        let set = setter obj name
+        let get = Interop.getter obj name
+        let set = Interop.setter obj name
         makeGetSetStore get set
 
     let makeExpressionStore<'T> (expr : (unit -> 'T)) =

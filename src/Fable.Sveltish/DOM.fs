@@ -88,6 +88,21 @@ let rec mountElement selector (app : NodeFactory)  =
     (app (makeContext,host)) |> ignore
 
 
+let findChildWhere (node:Node) (f : Node -> bool) =
+    let rec search (n : Node) (f : Node -> bool) =
+        if isNull n then
+            null
+        else
+            if (f n) then n else search n.nextSibling f
+    search node.firstChild f
+
+let children (node:Node) =
+    let rec visit (child:Node) : Node list=
+        match child with
+        | null -> []
+        | x -> x :: (visit child.nextSibling)
+    visit node.firstChild
+
 let addTransform (node:HTMLElement) (a : ClientRect) =
     let b = node.getBoundingClientRect()
     if (a.left <> b.left || a.top <> b.top) then
@@ -114,3 +129,9 @@ let clientRect el = (asEl el).getBoundingClientRect()
 let removeNode (node:#Node) =
     log <| sprintf "removing node %A" node.textContent
     node.parentNode.removeChild( node ) |> ignore
+
+let fragment (elements : NodeFactory list) = fun (ctx,parent) ->
+    let mutable last : Node = null
+    for e in elements do
+        last <- e(ctx,parent)
+    last

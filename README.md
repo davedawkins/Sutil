@@ -12,11 +12,11 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- Added ReactiveStatements example
+- Refactored Stores (we now have Store.map and readable function equivalents for all operators)
 - Fixes to demo app styling and production bundling thanks to a PR from [s0kil](https://github.com/s0kil)
 - Demo app support for syntax highlighting example code. See section **Interacting with 3rd-party libraries**
 - More examples ported into demo app
-- .. more to come .. 
-
 
 Some aspects that are working or in progress:
 
@@ -408,9 +408,9 @@ let view (model : Model) dispatch : NodeFactory =
 ## Interaction with 3rd-party libraries
 
 The app now has syntax highlighting, in the form of highlight.js (a dependency of the app, and not the library). This required a few enhancements:
-- custom events from Sveltish that can be used to tell highlight.js to reformat 
-- resilience to DOM nodes disappearing that were being watched by Sveltish (this will be an ongoing challenge). 
-- relaxation of the idea that all edits to index.html happen programmatically - you can add stylesheet and script tags to the head programmatically 
+- custom events from Sveltish that can be used to tell highlight.js to reformat
+- resilience to DOM nodes disappearing that were being watched by Sveltish (this will be an ongoing challenge).
+- relaxation of the idea that all edits to index.html happen programmatically - you can add stylesheet and script tags to the head programmatically
 but things like highlight.js needed a short JS fragment. (However, writing this just now, I think I see how I can actually just write that in Fable
 with a minor interop edit. Fable is fantastic with JS interop.)
 

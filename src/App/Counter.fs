@@ -4,13 +4,12 @@ open Sveltish
 open Sveltish.Bindings
 open Sveltish.DOM
 open Sveltish.Attr
-open Sveltish.Stores
 
 let Counter() =
-    let count = makeStore 0
+    let count = Store.make 0
     Html.div [
 
-        count |=> fun n -> sprintf "Counter = %d" n |> text
+        count |=> fun n -> text $"Counter = {n}"
 
         Html.div [
             Html.button [

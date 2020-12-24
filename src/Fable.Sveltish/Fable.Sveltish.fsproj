@@ -10,7 +10,7 @@
     <Compile Include="Transition.fs" />
     <Compile Include="Html.fs" />
     <Compile Include="Attr.fs" />
-    <Compile Include="Stores.fs" />
+    <Compile Include="Store.fs" />
     <Compile Include="Styling.fs" />
     <Compile Include="Bindings.fs" />
     <Compile Include="Program.fs" />

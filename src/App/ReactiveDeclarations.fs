@@ -1,14 +1,13 @@
 module ReactiveDeclarations
 
 open Sveltish
-open Sveltish.Stores
 open Sveltish.Attr
 open Sveltish.DOM
 open Sveltish.Bindings
 
-let count = makeStore(1);
+let count = Store.make(1);
 
-let doubled = count |> storeMap ((*) 2)
+let doubled = count |> Store.map ((*) 2)
 
 // Using an operator instead of storeMap
 let quadrupled = doubled |%> ((*)2);

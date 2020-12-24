@@ -1,7 +1,6 @@
 module Todos
 
 open Sveltish
-open Sveltish.Stores
 open Sveltish.Styling
 open Sveltish.Attr
 open Sveltish.DOM
@@ -34,7 +33,7 @@ type Message =
     |DeleteTodo of id:int
     |CompleteAll
 
-let makeExampleTodos() = makeStore [
+let makeExampleTodos() = Store.make [
     { Id = 1; Done = false; Description = "1:write some docs" }
     { Id = 2; Done = false; Description = "2:start writing JSConf talk" }
     { Id = 3; Done =  true; Description = "3:buy some milk" }
@@ -152,11 +151,11 @@ let update (message : Message) (model : Model) : unit =
         }
         model.Todos <~= (fun x -> x @ [ todo ]) // Mutation of model
     | ToggleTodo id ->
-        match (storeFetchByKey todoKey id model.Todos) with
+        match (Store.fetchByKey todoKey id model.Todos) with
         |None -> ()
         |Some todo ->
             todo.Done <- not todo.Done
-            forceNotify model.Todos // People will forget to do this
+            Store.forceNotify model.Todos // People will forget to do this
     | DeleteTodo id ->
         model.Todos <~= List.filter (fun t -> t.Id <> id)
     | CompleteAll ->
@@ -176,7 +175,7 @@ let todosList title filter tin tout model dispatch =
                 Html.input [
                     attr ("type","checkbox")
                     on "change" (fun e -> todo.Id |> ToggleTodo |> dispatch)
-                    bindAttrIn "checked" (model.Todos |~> (makePropertyStore todo "Done"))
+                    bindAttrIn "checked" (model.Todos |~> (Store.makeFromProperty todo "Done"))
                 ]
                 text " "
                 text todo.Description

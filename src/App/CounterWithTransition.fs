@@ -4,7 +4,6 @@ open Sveltish
 open Sveltish.Bindings
 open Sveltish.DOM
 open Sveltish.Attr
-open Sveltish.Stores
 open Sveltish.Styling
 
 //
@@ -63,7 +62,7 @@ open Browser.Dom
 //
 //
 let Counter() =
-    let count = makeStore 0
+    let count = Store.make 0
 
     style counterStyle <| Html.div [
         Html.button [

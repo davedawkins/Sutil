@@ -1,4 +1,18 @@
-module Sveltish.Stores
+namespace Sveltish
+
+type Store<'T> = {
+    Id : int
+    Value : (unit -> 'T)
+    Set   : ('T -> unit)
+
+    // Subscribe takes a callback that will be called immediately upon
+    // subscription, and when the value changes
+    // Result is an unsubscription function
+    Subscribe : ('T -> unit) -> (unit -> unit)
+}
+
+[<RequireQualifiedAccess>]
+module Store =
 
     open Browser.Dom
     open Browser.Event
@@ -7,21 +21,14 @@ module Sveltish.Stores
 
     let log = Logging.log "store"
 
-    type Store<'T> = {
-        Id : int
-        Value : (unit -> 'T)
-        Set   : ('T -> unit)
-
-        // Subscribe takes a callback that will be called immediately upon
-        // subscription, and when the value changes
-        // Result is an unsubscription function
-        Subscribe : ('T -> unit) -> (unit -> unit)
-    }
-
     type Subscriber<'T> = {
         Id : int
         Set : ('T -> unit)
     }
+
+    let set (store:Store<'T>) (value:'T) = store.Set value
+    let get (store:Store<'T>) = store.Value()
+    let subscribe (store:Store<'T>) f = store.Subscribe(f)
 
     let newSubId = CodeGeneration.makeIdGenerator()
 
@@ -56,7 +63,7 @@ module Sveltish.Stores
             then f()
             else waiting <- f :: waiting
 
-    let makeGetSetStore<'T> (get : unit -> 'T) (set : 'T -> unit) =
+    let makeFromGetSet<'T> (get : unit -> 'T) (set : 'T -> unit) =
         let mutable subscribers : Subscriber<'T> list = []
         let myId = newStoreId()
         {
@@ -81,23 +88,22 @@ module Sveltish.Stores
     let forceNotify (store : Store<'T>) =
         store.Value() |> store.Set
 
-    let makeStore<'T> (v : 'T) =
+    let make<'T> (v : 'T) =
         // Storage is separated from Store<T> so that it doesn't leak
         // through the abstraction.
         let mutable value = v
-        let get() = value
-        let set(v) = value <- v
-        makeGetSetStore get set
+        let get'() = value
+        let set'(v) = value <- v
+        makeFromGetSet get' set'
 
-
-    let makePropertyStore obj name =
+    let makeFromProperty obj name =
         let get = Interop.getter obj name
         let set = Interop.setter obj name
-        makeGetSetStore get set
+        makeFromGetSet get set
 
-    let makeExpressionStore<'T> (expr : (unit -> 'T)) =
+    let makeFromExpression<'T> (expr : (unit -> 'T)) =
         let mutable cache : 'T = expr()
-        makeGetSetStore
+        makeFromGetSet
             (fun () -> cache)
 
             // This setter will be called by forceNotify. We don't care about the incoming
@@ -111,9 +117,9 @@ module Sveltish.Stores
             // when its dependencies have changed.
             (fun _ -> cache <- expr())
 
-    let exprStore = makeExpressionStore
+    let expr = makeFromExpression
 
-    let propagateNotifications (fromStore : Store<'T1>) (toStore : Store<'T2>) =
+    let link (fromStore : Store<'T1>) (toStore : Store<'T2>) =
         let mutable init = false
         fromStore.Subscribe( fun _ ->
             if init then forceNotify toStore else init <- true
@@ -126,62 +132,52 @@ module Sveltish.Stores
     // sync, so perhaps a code smell for notifications not being as fine grained as they could be
     let makeNotifier store = (fun callback -> store.Subscribe( fun _ -> callback() )  |> ignore)
 
-    let (|~>) a b = propagateNotifications a b |> ignore; b
-    let (<~|) a b = propagateNotifications a b |> ignore; a
-
-    // ----------------------------------------------------------------------------
-    // Store bind/map
-    // These can move to Sveltish.Stores
-
     //
     // Map the wrapped value. For a List<T> (instead of a Store<T>) this might be
     // called foldMap
     //
-    let storeGetMap f s =
-        s.Value() |> f
+    let getMap f s =
+        s |> get |> f
 
     //
     // Map f onto s, to produce a new store. The new store will be updated whenever
     // the source store changes
     //
-    let storeMap f s =
-        let get() = s.Value() |> f
-        s |~> makeGetSetStore get ignore
+    let map<'A,'B> (f : 'A -> 'B) (s : Store<'A>) =
+        let result = s |> getMap f |> make
+        let unsub = subscribe s (f >> (set result))
+        result
 
-    //
-    // Monadic bind. Since f already produces a store, all we need to do
-    // is propagate notifications from the source store s.
-    //
-    let storeBind<'A,'B> (f : ('A -> Store<'B>)) (s : Store<'A>)=
-        s |~> (s.Value() |> f)
-
-
-    let (|%>) s f = storeMap f s
-    let (>%>) s f = storeBind f s
-    let (|->) s f = storeGetMap f s
-
-    let (<~) (s : Store<'T>) v =
-        s.Set(v)
-
-    let (<~-) (s : Store<'T>) v =
-        s.Set(v)
-
-    let (-~>) v (s : Store<'T>) =
-        s.Set(v)
-
-    let storeModify (store:Store<'T>) (map:('T -> 'T)) =
-        store <~ (store |-> map)
-
-    let (<~=) store map = storeModify store map
-    let (=~>) store map = storeModify store map
+    let modify (store:Store<'T>) (f:('T -> 'T)) =
+        store |> getMap f |> set store
 
     // Helpers for list stores
-    let storeFetch pred (store:Store<List<'T>>) =
-        store |-> (List.tryFind pred)
+    let fetch pred (store:Store<List<'T>>) =
+        store |> getMap (List.tryFind pred)
 
-    let storeFetchByKey kf key (store:Store<List<'T>>) =
+    let fetchByKey kf key (store:Store<List<'T>>) =
         let pred r = kf(r) = key
-        storeFetch pred store
+        fetch pred store
+
+[<AutoOpen>]
+module StoreOperators =
+    let (|~>) a b = Store.link a b |> ignore; b
+    let (<~|) a b = Store.link a b |> ignore; a
+
+    let (|%>) s f = Store.map f s
+    let (|->) s f = Store.getMap f s
+
+    let (<~) (s : Store<'T>) v =
+        Store.set s v
+
+    let (<~-) (s : Store<'T>) v =
+        Store.set s v
+
+    let (-~>) v (s : Store<'T>) =
+        Store.set s v
+
+    let (<~=) store map = Store.modify store map
+    let (=~>) store map = Store.modify store map
 
     // Study in how the expressions compose
     //let lotsDone'Form1 = storeMap (fun x -> x |> (listCount isDone) >= 3) todos

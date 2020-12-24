@@ -5,7 +5,6 @@ open Sveltish
 open Sveltish.Attr
 open Sveltish.Styling
 open Sveltish.DOM
-open Sveltish.Stores
 open Sveltish.Bindings
 
 open Browser.Types
@@ -49,10 +48,10 @@ type Demo = {
 let init() =
     let todosModel = Todos.init()
     {
-        Demo = makeStore("Hello World")
+        Demo = Store.make "Hello World"
         TodosModel = todosModel
-        Source = makeStore("")
-        Tab = makeStore("demo")
+        Source = Store.make ""
+        Tab = Store.make "demo"
     }
 
 let update msg model =
@@ -200,9 +199,10 @@ let viewSource model dispatch =
             ]
         ]
     ]
+
 let appMain (model:Model) (dispatch : Message -> unit) =
 
-    let currentDemo = model.Demo |> storeMap findDemo
+    let currentDemo = model.Demo |> Store.map findDemo
 
     style mainStyleSheet <|
         Html.div [
@@ -240,20 +240,6 @@ let appMain (model:Model) (dispatch : Message -> unit) =
                         ((fun t -> t = "demo"),  demos model dispatch,      None)
                         ((fun t -> t <> "demo"), viewSource model dispatch, None)
                     ]
-                    (*
-                    showElse model.ShowingSource
-                        (Html.div [
-                            class' "column"
-                            on "sveltish-show" <| fun _ -> fetchSource model dispatch
-                            Html.pre [
-                                Html.code [
-                                    class' "fsharp"
-                                    model.Source |=> text
-                                ]
-                            ]
-                            ])
-                        (currentDemo model dispatch)
-                        *)
                 ]
             ]
         ]

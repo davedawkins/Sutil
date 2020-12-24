@@ -1,7 +1,6 @@
 module Sveltish.Bindings
 
     open System.ComponentModel
-    open Stores
     open Styling
     open Transition
     open DOM
@@ -91,7 +90,7 @@ module Sveltish.Bindings
 
     let animateNode (node : HTMLElement) from =
         //let from = node.getBoundingClientRect()
-        Stores.waitEndNotify <| fun () ->
+        Store.waitEndNotify <| fun () ->
             //createAnimation node from flip [] |> ignore
             window.requestAnimationFrame( fun _ ->
                 let name = createAnimation node from flip []
@@ -128,13 +127,13 @@ module Sveltish.Bindings
             deleteRule el ""
             if isVisible then
                 let trans = (tr (transProps @ trProps) el)
-                Stores.waitEndNotify <| fun () ->
+                Store.waitEndNotify <| fun () ->
                     waitAnimationEnd el show
                     showEl el true
                     ruleName <- Transition.createRule el 0.0 1.0 trans 0
             else
                 let trans = (tr transProps el)
-                Stores.waitEndNotify <| fun () ->
+                Store.waitEndNotify <| fun () ->
                     waitAnimationEnd el hide
                     ruleName <- Transition.createRule el 1.0 0.0 trans 0
 

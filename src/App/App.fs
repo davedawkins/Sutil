@@ -87,7 +87,6 @@ let mainStyleSheet = [
     rule ".app-contents" [
         backgroundColor "#676778"
         color "white"
-        //height "100vh"
     ]
 
     rule ".app-contents ul" [
@@ -115,6 +114,7 @@ let mainStyleSheet = [
     rule ".app-main-section" [
         marginTop "0px"
         paddingTop "50px"
+        height "100%"
     ]
 
     rule ".app-demo" [

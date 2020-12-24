@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "dotnet tool restore",
     "start": "dotnet fable watch src/App --run webpack serve",
-    "build": "webpack",
+    "build": "dotnet fable src/App --run webpack --mode production",
     "publish": "node publish.js"
   },
   "dependencies": {

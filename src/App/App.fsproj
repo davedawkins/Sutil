@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ReactiveStatements.fs" />
     <Compile Include="Nested.fs" />
     <Compile Include="NestedComponents.fs" />
     <Compile Include="Styling.fs" />

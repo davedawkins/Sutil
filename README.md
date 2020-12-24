@@ -405,7 +405,7 @@ let view (model : Model) dispatch : NodeFactory =
 
 ```
 
-## Interaction with 3rd-part libraries
+## Interaction with 3rd-party libraries
 
 The app now has syntax highlighting, in the form of highlight.js (a dependency of the app, and not the library). This required a few enhancements:
 - custom events from Sveltish that can be used to tell highlight.js to reformat 

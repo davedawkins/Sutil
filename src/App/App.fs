@@ -52,7 +52,7 @@ let init() =
         Demo = makeStore("Hello World")
         TodosModel = todosModel
         Source = makeStore("")
-        Tab = makeStore("")
+        Tab = makeStore("demo")
     }
 
 let update msg model =

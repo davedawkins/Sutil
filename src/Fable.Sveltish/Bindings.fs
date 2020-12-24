@@ -1,5 +1,6 @@
 module Sveltish.Bindings
 
+    open System.ComponentModel
     open Stores
     open Styling
     open Transition
@@ -22,18 +23,35 @@ module Sveltish.Bindings
 
     let log s = Logging.log "bind" s
 
+    let bindId = CodeGeneration.makeIdGenerator()
+
+    let isTextNode (n:Node) = n.nodeType = 3.0
+
+
     let bind<'T>  (store : Store<'T>)  (element: 'T -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable current : Node = null
 
         let addReplaceChild p c =
-            if isNull current then
+            if (isNull current || not (parent.isSameNode(p))) then
                 ctx.AppendChild p c |> ignore
             else
-                p.replaceChild(c,current) |> ignore
+                if isNull current.parentElement then
+                    //console.log("Uh oh - our node was removed - let's clean up")
+                    // This can happen if we are generating text that then gets auto-formatted
+                    // by a syntax highlighter. We're going to see more of these collisions
+                    // with other libraries that are editing DOM that we created.
+                    for foreignNode in children p |> List.filter (fun n -> not (Interop.exists n "_svid")) do
+                        //console.log(foreignNode)
+                        p.removeChild(foreignNode) |> ignore
+                    ctx.AppendChild p c |> ignore
+                else
+                    ctx.ReplaceChild p c current |> ignore
             c
 
         let unsub = store.Subscribe( fun t ->
+            let svId = bindId() |> string
             current <- element(t)( { ctx with AppendChild = addReplaceChild }, parent)
+            Interop.set current "_svid" svId
         )
         current
 
@@ -120,7 +138,53 @@ module Sveltish.Bindings
                     waitAnimationEnd el hide
                     ruleName <- Transition.createRule el 1.0 0.0 trans 0
 
-    let transitionOpt<'T> (trans : TransitionAttribute option) (store : Store<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
+    type Hideable = {
+        predicate : Store<bool>
+        element   : NodeFactory
+        transOpt  : TransitionAttribute option
+    }
+
+    type HideableRuntime = {
+        hideable : Hideable
+        mutable target : Node
+        mutable cache : bool
+        mutable unsubscribe : (unit -> unit)
+    }
+
+    let createHideableRuntime h =
+        {
+            hideable = h
+            target = null
+            cache = false
+            unsubscribe = fun _ -> ()
+        }
+
+    let transitionList (list : Hideable list) = fun (ctx, parent) ->
+        let runtimes = list |> List.map createHideableRuntime
+        for rt in runtimes do
+            rt.unsubscribe <- rt.hideable.predicate.Subscribe( fun show ->
+                if (isNull rt.target) then
+                    rt.target <- rt.hideable.element(ctx,parent)
+                    rt.cache <- not show
+
+                if (rt.cache <> show) then
+                    rt.cache <- show
+
+                transitionNode (rt.target :?> HTMLElement) rt.hideable.transOpt [] show ignore
+            )
+        runtimes.Head.target
+
+    type MatchOption<'T> = ('T -> bool) *  NodeFactory * TransitionAttribute option
+
+    let makeHideable guard element transOpt = {
+        element = element
+        transOpt = transOpt
+        predicate = guard
+    }
+    let transitionMatch<'T> (store : Store<'T>) (options : MatchOption<'T> list) =
+        options |> List.map (fun (p,e,t) -> makeHideable (store |%> p) e t) |> transitionList
+
+    let transitionOpt (trans : TransitionAttribute option) (store : Store<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
         let mutable target : Node = null
         let mutable cache = false
 
@@ -146,6 +210,7 @@ module Sveltish.Bindings
         // We could create a container div to hold them and return that div.
         target
 
+
     let transition<'T> (trans : TransitionAttribute) store element =
         transitionOpt (Some trans) store element None
 
@@ -155,18 +220,12 @@ module Sveltish.Bindings
     let showElse<'T> store element otherElement=
         transitionOpt None store element (Some otherElement)
 
-    [<Emit("$0[$1]")>]
-    let jsGet obj name = jsNative
-
-    [<Emit("$0[$1] = $2")>]
-    let jsSet obj name value = jsNative
-
     let bindAttrIn attrName (store : Store<obj>) = fun (ctx,parent:Node) ->
         // Fixme:
         // Can't assume what element type or attribute is being bound
         //
         let input = parent :?> HTMLInputElement
-        let unsub = store.Subscribe( fun value -> jsSet input attrName value )
+        let unsub = store.Subscribe( fun value -> Interop.set input attrName value )
         parent
 
     let bindAttrBoth attrName (store : Store<obj>) = fun (ctx,parent:Node) ->
@@ -175,10 +234,10 @@ module Sveltish.Bindings
         //
         let input = parent :?> HTMLInputElement
         parent.addEventListener("change", (fun e ->
-            log <| sprintf "%s changed: %A" attrName (jsGet input attrName)
-            store.Set( jsGet input attrName )) )
+            log <| sprintf "%s changed: %A" attrName (Interop.get input attrName)
+            store.Set( Interop.get input attrName )) )
         let unsub = store.Subscribe( fun value ->
-            jsSet input attrName value
+            Interop.set input attrName value
         )
         parent
 

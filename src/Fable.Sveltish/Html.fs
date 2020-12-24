@@ -11,6 +11,7 @@ let h4  xs = el "h4" xs
 let h5  xs = el "h5" xs
 let hr  xs = el "hr" xs
 let pre  xs = el "pre" xs
+let code  xs = el "code" xs
 let p  xs = el "p" xs
 let span xs = el "span" xs
 let button  xs = el "button" xs

@@ -8,6 +8,7 @@ open Sveltish.DOM
 open Sveltish.Stores
 open Sveltish.Bindings
 
+open Browser.Types
 
 let counter _ _  = Counter.Counter ()
 let helloWorld _ _ = HelloWorld.helloWorld()
@@ -19,30 +20,30 @@ let make v = fun _ _ -> v()
 type Model = {
     Demo : Store<string>
     TodosModel : Todos.Model
-    ShowingSource : Store<bool>
+    Tab : Store<string>
     Source : Store<string>
 }
 
 type Message =
     | SetDemo of string
+    | SetTab of string
     | SetSource of string
     | TodosMsg of Todos.Message
-    | ToggleSource
 
 type Demo = {
     Title : string
     Category : string
     Create : (Model -> (Message->unit) -> NodeFactory)
-    Source : string
+    Sources : string list
 } with
     static member All = [
-        { Category = "Introduction";Title = "Hello World";  Create = helloWorld ; Source = "HelloWorld.fs"}
-        { Category = "Introduction";Title = "Dynamic attributes";  Create = minion ; Source = "DynamicAttributes.fs"}
-        { Category = "Introduction";Title = "Styling";  Create = make StylingExample.view ; Source = "Styling.fs"}
-        { Category = "Introduction";Title = "Nested components";  Create = make NestedComponents.view ; Source = "NestedComponents.fs"}
-        { Category = "Reactivity";Title = "Reactive assignments";  Create = counter ; Source = "Counter.fs"}
-        { Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Source = "ReactiveDeclarations.fs"}
-        { Category = "Animations"; Title = "The animate directive"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Source = "Todos.fs" }
+        { Category = "Introduction";Title = "Hello World";  Create = helloWorld ; Sources = ["HelloWorld.fs"]}
+        { Category = "Introduction";Title = "Dynamic attributes";  Create = minion ; Sources = ["DynamicAttributes.fs"]}
+        { Category = "Introduction";Title = "Styling";  Create = make StylingExample.view ; Sources = ["Styling.fs"]}
+        { Category = "Introduction";Title = "Nested components";  Create = make NestedComponents.view ; Sources = ["NestedComponents.fs"; "Nested.fs"]}
+        { Category = "Reactivity";Title = "Reactive assignments";  Create = counter ; Sources = ["Counter.fs"]}
+        { Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Sources = ["ReactiveDeclarations.fs"]}
+        { Category = "Animations"; Title = "The animate directive"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Sources = ["Todos.fs"] }
     ]
 
 let init() =
@@ -50,21 +51,22 @@ let init() =
     {
         Demo = makeStore("Hello World")
         TodosModel = todosModel
-        ShowingSource = makeStore(false)
         Source = makeStore("")
+        Tab = makeStore("")
     }
 
 let update msg model =
     match msg with
+    | SetTab t ->
+        model.Tab <~ t
     | SetDemo d ->
         model.Demo <~ d
         model.Source <~ ""
-        model.ShowingSource <~ false
+        model.Tab <~ "demo"
     | SetSource src ->
         model.Source <~ src
     | TodosMsg m ->
         Todos.update m model.TodosModel
-    | ToggleSource -> model.ShowingSource <~= not
 
 let mainStyleSheet = [
 
@@ -128,9 +130,21 @@ let mainStyleSheet = [
         fontSize "80%"
         padding "12px"
     ]
+
+    rule ".app-toolbar ul" [
+        display "inline"
+    ]
+
+    rule ".app-toolbar li" [
+        display "inline"
+    ]
+
+    rule "pre" [
+        padding 0
+    ]
 ]
 
-let currentDemo model dispatch =
+let demos model dispatch =
     Html.div [
         class' "column app-demo"
         for d in Demo.All do
@@ -155,14 +169,40 @@ let urlBase = "https://raw.githubusercontent.com/davedawkins/Fable.Sveltish/main
 
 let findDemo name = Demo.All |> List.find (fun d -> d.Title = name)
 
-let fetchSource (model:Model) dispatch =
-    let url = sprintf "%s/%s" urlBase (model.Demo |-> findDemo).Source
-    fetch url []
-    |> Promise.bind (fun res -> res.text())
-    |> Promise.map (fun txt -> txt |> SetSource |> dispatch)
-    |> ignore
+let fetchSource  (model:Model) dispatch =
+    let src = model.Tab.Value()
+    if (src <> "" && src <> "demo") then
+        let url = sprintf "%s/%s" urlBase (model.Tab.Value())
+        printf($"URL={url}")
+        fetch url []
+        |> Promise.bind (fun res -> res.text())
+        |> Promise.map (fun txt -> txt |> SetSource |> dispatch)
+        |> ignore
 
+
+let tabItem name dispatch =
+    Html.li [
+        Html.a [
+            href "#"
+            text name
+            onClick (fun e -> e.preventDefault(); (SetTab name |> dispatch))
+        ]
+    ]
+
+let viewSource model dispatch =
+    Html.div [
+        class' "column"
+        on "sveltish-show" <| fun _ -> fetchSource model dispatch
+        Html.pre [
+            Html.code [
+                class' "fsharp"
+                model.Source |=> text
+            ]
+        ]
+    ]
 let appMain (model:Model) (dispatch : Message -> unit) =
+
+    let currentDemo = model.Demo |> storeMap findDemo
 
     style mainStyleSheet <|
         Html.div [
@@ -187,30 +227,46 @@ let appMain (model:Model) (dispatch : Message -> unit) =
 
                     Html.div [
                         class' "app-toolbar"
-                        Html.a [
-                            href "#"
-                            model.ShowingSource |=> (fun show -> text <| if show then "← demo" else "source")
-                            onClick (fun e -> e.preventDefault(); dispatch ToggleSource )
-                        ]
+                        bind currentDemo (fun demo ->
+                            Html.ul [
+                                class' "app-tab"
+                                tabItem "demo" dispatch
+                                fragment (demo.Sources |> List.map (fun src -> tabItem src dispatch))
+                            ]
+                        )
                     ]
 
+                    transitionMatch model.Tab <| [
+                        ((fun t -> t = "demo"),  demos model dispatch,      None)
+                        ((fun t -> t <> "demo"), viewSource model dispatch, None)
+                    ]
+                    (*
                     showElse model.ShowingSource
                         (Html.div [
                             class' "column"
                             on "sveltish-show" <| fun _ -> fetchSource model dispatch
                             Html.pre [
-                                model.Source |=> text
+                                Html.code [
+                                    class' "fsharp"
+                                    model.Source |=> text
+                                ]
                             ]
                             ])
                         (currentDemo model dispatch)
+                        *)
                 ]
             ]
         ]
 
 let app model dispatch =
     Styling.app [
+        // Page title
         headTitle "Sveltish"
+
+        // Bulma style framework
         headStylesheet "https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
+
+        // Build the app
         appMain model dispatch
     ]
 

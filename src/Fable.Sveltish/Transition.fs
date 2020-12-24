@@ -92,9 +92,6 @@ module Sveltish.Transition
 
     let element tag = document.createElement(tag)
 
-    [<Emit("$0.sheet")>]
-    let dotSheet styleElem : CSSStyleSheet = jsNative
-
     // You know, this is a port from svelte/index.js. I could just import it :-/
     // That's still an option for doing a complete implementation.
 
@@ -119,6 +116,8 @@ module Sveltish.Transition
             e.setAttribute("id", "__sveltish_keyframes")
             doc.head.appendChild(e) |> ignore
         e
+
+    let dotSheet styleElem : CSSStyleSheet = Interop.get styleElem "sheet"
 
     let getSveltishStylesheet (doc : Document) =
         getSveltishStyleElement doc |> dotSheet

@@ -84,6 +84,20 @@ module Sveltish.Styling
         styleEl.setAttribute( "href", url ) |> ignore
         parent
 
+    let headScript (url : string) = fun (ctx,parent) ->
+        let head = findElement "head"
+        let el = document.createElement("script")
+        head.appendChild( el ) |> ignore
+        el.setAttribute( "src", url ) |> ignore
+        parent
+
+    let headEmbedScript (source : string) = fun (ctx,parent) ->
+        let head = findElement "head"
+        let el = document.createElement("script")
+        head.appendChild( el ) |> ignore
+        el.appendChild(document.createTextNode(source)) |> ignore
+        parent
+
     let headTitle (title : string) = fun (ctx,parent) ->
         let head = findElement "head"
         let existingTitle = findElement "head>title"

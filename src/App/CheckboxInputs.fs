@@ -6,7 +6,6 @@ open Sveltish.DOM
 
 let yes = Store.make(true)
 
-
 let view() =
     Html.div [
         Html.label [

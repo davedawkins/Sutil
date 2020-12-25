@@ -1,6 +1,7 @@
 module Sveltish.Interop
 
 open Fable.Core
+open Fable.Core.JsInterop
 
 [<Emit("new CustomEvent($0, $1)")>]
 let customEvent name data = jsNative
@@ -20,3 +21,5 @@ let get ob name = jsNative
 [<Emit("$0.hasOwnProperty($1)")>]
 let exists ob name = jsNative
 
+//[<ImportAll("../Fable.Sveltish/proxy.js")>]
+let makeProxy<'T>  ((a:'T),(b: obj -> unit )) : 'T = importMember "../Fable.Sveltish/proxy.js"

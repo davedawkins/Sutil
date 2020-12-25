@@ -219,7 +219,7 @@ module Sveltish.Bindings
     let showElse<'T> store element otherElement=
         transitionOpt None store element (Some otherElement)
 
-    let bindAttrIn attrName (store : Store<obj>) = fun (ctx,parent:Node) ->
+    let bindAttrIn<'T> attrName (store : Store<'T>) = fun (ctx,parent:Node) ->
         // Fixme:
         // Can't assume what element type or attribute is being bound
         //
@@ -227,7 +227,7 @@ module Sveltish.Bindings
         let unsub = store.Subscribe( fun value -> Interop.set input attrName value )
         parent
 
-    let bindAttrBoth attrName (store : Store<obj>) = fun (ctx,parent:Node) ->
+    let bindAttrBoth<'T> attrName (store : Store<'T>) = fun (ctx,parent:Node) ->
         // Fixme:
         // Can't assume what element type or attribute is being bound
         //

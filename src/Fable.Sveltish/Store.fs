@@ -42,7 +42,6 @@ module Store =
     let startNotify() =
         notifyLevel <- notifyLevel + 1
 
-
     let notifyDocument() =
         document.dispatchEvent( Interop.customEvent "sveltish-updated"  {|  |} ) |> ignore
 
@@ -88,6 +87,7 @@ module Store =
     let forceNotify (store : Store<'T>) =
         store.Value() |> store.Set
 
+    // Make a store from an initial value.
     let make<'T> (v : 'T) =
         // Storage is separated from Store<T> so that it doesn't leak
         // through the abstraction.
@@ -96,28 +96,13 @@ module Store =
         let set'(v) = value <- v
         makeFromGetSet get' set'
 
+    // Make a store from a JS object property
     let makeFromProperty obj name =
         let get = Interop.getter obj name
         let set = Interop.setter obj name
         makeFromGetSet get set
 
-    let makeFromExpression<'T> (expr : (unit -> 'T)) =
-        let mutable cache : 'T = expr()
-        makeFromGetSet
-            (fun () -> cache)
-
-            // This setter will be called by forceNotify. We don't care about the incoming
-            // value (which will have been from our getter() anyway), and so we use
-            // this opportunity to recache the expression value.
-            //
-            // Code smell, since caller will be surprised that their supplied value was
-            // silently ignored.
-            // Ideally, the getter wants to know whether the expression has changed value
-            // since it was last cached, which can be implemented by having a notification
-            // when its dependencies have changed.
-            (fun _ -> cache <- expr())
-
-    let expr = makeFromExpression
+    //let expr = makeFromExpression
 
     let link (fromStore : Store<'T1>) (toStore : Store<'T2>) =
         let mutable init = false
@@ -132,22 +117,27 @@ module Store =
     // sync, so perhaps a code smell for notifications not being as fine grained as they could be
     let makeNotifier store = (fun callback -> store.Subscribe( fun _ -> callback() )  |> ignore)
 
-    //
     // Map the wrapped value. For a List<T> (instead of a Store<T>) this might be
     // called foldMap
-    //
     let getMap f s =
         s |> get |> f
 
-    //
+    // Call f upon initialization and whenever the store is updated. This is the same as subscribe
+    // and ignoring the unsubscription callback
+    let write<'A,'B> (f: 'A -> unit) (s : Store<'A>) =
+        let unsub = subscribe s f
+        ()
+
     // Map f onto s, to produce a new store. The new store will be updated whenever
     // the source store changes
     //
     let map<'A,'B> (f : 'A -> 'B) (s : Store<'A>) =
-        let result = s |> getMap f |> make
+        let result = s |> getMap f |> make // Initialize with mapped value
         let unsub = subscribe s (f >> (set result))
         result
 
+    // Modify the store by mapping its current value with f
+    //
     let modify (store:Store<'T>) (f:('T -> 'T)) =
         store |> getMap f |> set store
 
@@ -177,7 +167,7 @@ module StoreOperators =
         Store.set s v
 
     let (<~=) store map = Store.modify store map
-    let (=~>) store map = Store.modify store map
+    let (=~>) map store = Store.modify store map
 
     // Study in how the expressions compose
     //let lotsDone'Form1 = storeMap (fun x -> x |> (listCount isDone) >= 3) todos

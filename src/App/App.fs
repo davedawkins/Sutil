@@ -8,6 +8,7 @@ open Sveltish.DOM
 open Sveltish.Bindings
 
 open Browser.Types
+open Browser.Dom
 
 let counter _ _  = Counter.Counter ()
 let helloWorld _ _ = HelloWorld.helloWorld()
@@ -44,6 +45,7 @@ type Demo = {
         { Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Sources = ["ReactiveDeclarations.fs"]}
         { Category = "Reactivity";Title = "Reactive statements";  Create = make ReactiveStatements.view ; Sources = ["ReactiveStatements.fs"]}
         { Category = "Animations"; Title = "The animate directive"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Sources = ["Todos.fs"] }
+        { Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
     ]
 
 let init() =
@@ -56,6 +58,7 @@ let init() =
     }
 
 let update msg model =
+    console.log($"update {msg}")
     match msg with
     | SetTab t ->
         model.Tab <~ t
@@ -170,14 +173,12 @@ let urlBase = "https://raw.githubusercontent.com/davedawkins/Fable.Sveltish/main
 let findDemo name = Demo.All |> List.find (fun d -> d.Title = name)
 
 let fetchSource  (model:Model) dispatch =
-    let src = model.Tab.Value()
-    if (src <> "" && src <> "demo") then
-        let url = sprintf "%s/%s" urlBase (model.Tab.Value())
-        printf($"URL={url}")
-        fetch url []
-        |> Promise.bind (fun res -> res.text())
-        |> Promise.map (fun txt -> txt |> SetSource |> dispatch)
-        |> ignore
+    let src = Store.get model.Tab
+    let url = sprintf "%s/%s" urlBase src
+    fetch url []
+    |> Promise.bind (fun res -> res.text())
+    |> Promise.map (SetSource >> dispatch)
+    |> ignore
 
 
 let tabItem name dispatch =
@@ -221,7 +222,8 @@ let appMain (model:Model) (dispatch : Message -> unit) =
                     (class' "column is-one-quarter app-contents") ::
                     Section "Introduction" model dispatch @
                     Section "Reactivity" model dispatch @
-                    Section "Animations" model dispatch
+                    Section "Animations" model dispatch @
+                    Section "Bindings" model dispatch
 
                 Html.div [
                     class' "column app-demo-section"

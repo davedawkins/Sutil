@@ -12,6 +12,7 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- Added CheckboxInputs example. Tweaks to attribute binding
 - Added ReactiveStatements example
 - Refactored Stores (we now have Store.map and readable function equivalents for all operators)
 - Fixes to demo app styling and production bundling thanks to a PR from [s0kil](https://github.com/s0kil)

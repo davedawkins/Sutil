@@ -1,7 +1,6 @@
 module CheckboxInputs
 
 open Sveltish
-open Sveltish.Attr
 open Sveltish.DOM
 
 let yes = Store.make(true)

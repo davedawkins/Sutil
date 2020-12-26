@@ -12,6 +12,17 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- Styling rules can extend existing classes like this
+```
+    // Turn <label> into <label class='label'>. Useful if you have Bulma loaded, for example
+    rule label {
+        addClass "label"
+        // other styles
+    }
+
+let view() = input [ ... ]  // No need to add class 'label' to make it into a Bulma input
+```
+- Cleaner support for Store<List<'T>>. See updated Todos example
 - Added CheckboxInputs example. Tweaks to attribute binding
 - Added ReactiveStatements example
 - Refactored Stores (we now have Store.map and readable function equivalents for all operators)

@@ -6,6 +6,38 @@ open Browser.CssExtensions
 
 let log = Logging.log "dom"
 
+type CssSelector =
+    | Tag of string
+    | Cls of string
+    | Id of string
+    | All of CssSelector list
+    | Any of CssSelector list
+    | Attr of string * string
+    | NotImplemented
+    with
+    member this.Match (el:HTMLElement)=
+        match this with
+        | NotImplemented -> false
+        | Tag tag -> el.tagName = tag
+        | Cls cls -> el.classList.contains(cls)
+        | Id id -> el.id = id
+        | Attr (name,value) -> el.getAttribute(name) = value
+        | All rules -> rules |> List.fold (fun a r -> a && r.Match el) true
+        | Any rules -> rules |> List.fold (fun a r -> a || r.Match el) false
+
+
+type StyleRule = {
+    SelectorSpec : string
+    Selector : CssSelector
+    Style : (string*obj) list
+}
+
+type StyleSheet = StyleRule list
+
+type NamedStyleSheet = {
+    Name : string
+    StyleSheet : StyleSheet
+}
 
 //
 // Required to inflate a NodeFactory into a real DOM element
@@ -22,7 +54,7 @@ let log = Logging.log "dom"
 //
 type BuildContext = {
     MakeName : (string -> string)
-    StyleName : string
+    StyleSheet : NamedStyleSheet option
     AppendChild: (Node -> Node -> Node)
     ReplaceChild: (Node -> Node -> Node -> Node)
     SetAttribute: (Element->string->string->unit)
@@ -31,7 +63,8 @@ type BuildContext = {
 let makeContext =
     let gen = CodeGeneration.makeIdGenerator()
     {
-        StyleName = ""
+        //StyleName = ""
+        StyleSheet = None
         AppendChild = (fun parent child -> parent.appendChild(child))
         ReplaceChild = (fun parent newChild oldChild -> parent.replaceChild(newChild, oldChild))
         SetAttribute = (fun parent name value -> parent.setAttribute(name,value))
@@ -55,6 +88,32 @@ let appendAttribute (e:Element) attrName attrValue =
                 then attrValue
                 else (sprintf "%s %s" currentValue attrValue))
 
+// TODO: Implement attribute selector
+let rec parseSelector (source:string) : CssSelector =
+    let rec parseSingle (token : string) =
+        if token.StartsWith(".")
+            then Cls (token.Substring(1))
+        else if token.StartsWith("#")
+            then Id (token.Substring(1))
+        else if token.Contains(":") || token.Contains(">") || token.Contains("[")
+            then NotImplemented
+        else
+            Tag (token.ToUpper())
+
+    let rec parseAll (token : string) =
+        let spacedItems = token.Split([| ' ' |], System.StringSplitOptions.RemoveEmptyEntries)
+        if (spacedItems.Length = 1)
+            then parseSingle spacedItems.[0]
+            else spacedItems |> Array.map parseSingle |> Array.toList |> Any
+
+    let items = source.Split(',')
+    if items.Length = 1
+        then parseAll items.[0]
+        else items |> Array.map parseAll |> Array.toList |> All
+
+let ruleMatchEl (el:HTMLElement) (rule:StyleRule) =
+    rule.Selector.Match el
+
 let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
     let e  = document.createElement tag
 
@@ -62,8 +121,18 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
 
     for x in xs do x(ctx,e) |> ignore
 
-    if ctx.StyleName <> "" then
-        appendAttribute e "class" ctx.StyleName
+    match ctx.StyleSheet with
+    | Some { Name = name; StyleSheet = sheet } ->
+        appendAttribute e "class" name
+        for rule in sheet |> List.filter (ruleMatchEl e) do
+            log($"Matches: {e.tagName} '%A{e.classList}' -> %A{rule.Selector}")
+            for custom in rule.Style |> List.filter (fun (nm,v) -> nm.StartsWith("sveltish")) do
+                match custom with
+                | (nm,v) when nm = "sveltish-add-class" ->
+                    log($"Adding class {v}")
+                    appendAttribute e "class" (string v)
+                | _ -> log($"Unimplemented: {fst custom}")
+    | None -> ()
 
     e :> Node
 
@@ -108,7 +177,7 @@ let addTransform (node:HTMLElement) (a : ClientRect) =
     if (a.left <> b.left || a.top <> b.top) then
         let s = window.getComputedStyle(node)
         let transform = if s.transform = "none" then "" else s.transform
-        node.style.transform <- sprintf "%s translate(%fpx, %fpx)" "" (a.left - b.left) (a.top - b.top)
+        node.style.transform <- sprintf "%s translate(%fpx, %fpx)" transform (a.left - b.left) (a.top - b.top)
         log node.style.transform
 
 let fixPosition (node:HTMLElement) =

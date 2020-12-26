@@ -146,6 +146,12 @@ let mainStyleSheet = [
     rule "pre" [
         padding 0
     ]
+
+    // Make all <input> elements into <input class='input'> to inherit Bulma styling
+    // Todo: Implement the attribute selector
+    rule "input[type='text']" [
+        addClass "input"
+    ]
 ]
 
 let demos model dispatch =

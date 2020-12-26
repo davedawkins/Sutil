@@ -5,13 +5,6 @@ module Sveltish.Styling
     open Sveltish.DOM
     open Browser.Dom
 
-    type StyleRule = {
-            Selector : string
-            Style : (string*obj) list
-        }
-
-    type StyleSheet = StyleRule list
-
     let log s = Logging.log "style" s
 
     let parseStyleAttr (style : string) =
@@ -65,10 +58,11 @@ module Sveltish.Styling
         splitMapJoin ',' (splitMapJoin ' ' (splitMapJoin ':' trans)) selectors
 
     let addStyleSheet styleName (styleSheet : StyleSheet) =
+        let isSveltishRule (nm:string,v) = nm.StartsWith("sveltish")
         let style = newStyleElement
         for rule in styleSheet do
-            let styleText = String.Join ("", rule.Style |> Seq.map (fun (nm,v) -> sprintf "%s: %A;" nm v))
-            [ specifySelector styleName rule.Selector; " {"; styleText; "}" ] |> String.concat "" |> document.createTextNode |> style.appendChild |> ignore
+            let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSveltishRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
+            [ specifySelector styleName rule.SelectorSpec; " {"; styleText; "}" ] |> String.concat "" |> document.createTextNode |> style.appendChild |> ignore
 
     let app (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
         let mutable last : Node = parent
@@ -114,12 +108,16 @@ module Sveltish.Styling
     let style styleSheet (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let name = ctx.MakeName "sveltish"
         addStyleSheet name styleSheet
-        element({ ctx with StyleName = name },parent)
+        element({ ctx with StyleSheet = Some { Name = name; StyleSheet = styleSheet} },parent)
 
-    let rule name style = {
-        Selector = name
-        Style = style
-    }
+    let rule selector style =
+        let result = {
+            SelectorSpec = selector
+            Selector = parseSelector selector
+            Style = style
+        }
+        log($"%s{selector} -> %A{result.Selector}")
+        result
 
     open Fable.Core
     [<Emit("new CustomEvent($0, $1)")>]

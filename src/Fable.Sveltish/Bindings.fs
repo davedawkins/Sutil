@@ -1,6 +1,6 @@
 module Sveltish.Bindings
 
-    open System.ComponentModel
+    open System
     open Styling
     open Transition
     open DOM
@@ -27,7 +27,7 @@ module Sveltish.Bindings
     let isTextNode (n:Node) = n.nodeType = 3.0
 
 
-    let bind<'T>  (store : Store<'T>)  (element: 'T -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
+    let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable current : Node = null
 
         let addReplaceChild p c =
@@ -54,17 +54,21 @@ module Sveltish.Bindings
         )
         current
 
-    let subscribe2<'A,'B>  (a : Store<'A>) (b : Store<'B>)  (callback: ('A*'B) -> unit) : (unit -> unit) =
-        let unsuba = a.Subscribe( fun v ->
-            callback(v,b.Value())
+    let subscribe2<'A,'B>  (a : Store<'A>) (b : Store<'B>)  (callback: ('A*'B) -> unit) =
+        let mutable valueA = None
+        let mutable valueB = None
+        let unsuba = a.Subscribe( fun a ->
+            valueA <- Some a
+            match valueB with Some b -> callback(a, b) | None _ -> ()
         )
-        let unsubb = b.Subscribe( fun v ->
-            callback(a.Value(),v)
+        let unsubb = b.Subscribe( fun b ->
+            valueB <- Some b
+            match valueA with Some a -> callback(a, b) | None _ -> ()
         )
-        let unsubBoth() =
-            unsuba()
-            unsubb()
-        unsubBoth
+        { new IDisposable with
+            member _.Dispose() =
+                unsuba.Dispose()
+                unsubb.Dispose() }
 
     let bind2<'A,'B>  (a : Store<'A>) (b : Store<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable current : Node = null
@@ -138,7 +142,7 @@ module Sveltish.Bindings
                     ruleName <- Transition.createRule el 1.0 0.0 trans 0
 
     type Hideable = {
-        predicate : Store<bool>
+        predicate : IObservable<bool>
         element   : NodeFactory
         transOpt  : TransitionAttribute option
     }
@@ -147,7 +151,7 @@ module Sveltish.Bindings
         hideable : Hideable
         mutable target : Node
         mutable cache : bool
-        mutable unsubscribe : (unit -> unit)
+        mutable unsubscribe : IDisposable
     }
 
     let createHideableRuntime h =
@@ -155,7 +159,7 @@ module Sveltish.Bindings
             hideable = h
             target = null
             cache = false
-            unsubscribe = fun _ -> ()
+            unsubscribe = { new IDisposable with member _.Dispose() = () }
         }
 
     let transitionList (list : Hideable list) = fun (ctx, parent) ->
@@ -180,10 +184,11 @@ module Sveltish.Bindings
         transOpt = transOpt
         predicate = guard
     }
-    let transitionMatch<'T> (store : Store<'T>) (options : MatchOption<'T> list) =
-        options |> List.map (fun (p,e,t) -> makeHideable (store |%> p) e t) |> transitionList
 
-    let transitionOpt (trans : TransitionAttribute option) (store : Store<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
+    let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> list) =
+        options |> List.map (fun (p,e,t) -> makeHideable (Observable.map p store) e t) |> transitionList
+
+    let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
         let mutable target : Node = null
         let mutable cache = false
 
@@ -219,12 +224,14 @@ module Sveltish.Bindings
     let showElse<'T> store element otherElement=
         transitionOpt None store element (Some otherElement)
 
-    let bindAttrIn attrName (store : Store<obj>) = fun (ctx,parent:Node) ->
+    let bindAttrIn attrName (store : IObservable<'T>) = fun (ctx,parent:Node) ->
         // Fixme:
         // Can't assume what element type or attribute is being bound
         //
         let input = parent :?> HTMLInputElement
-        let unsub = store.Subscribe( fun value -> Interop.set input attrName value )
+        // TODO: Dispose the subscription when the element is unmounted
+        // (and/or when the attribute is removed from element?)S
+        let unsub = store.Subscribe(Interop.set input attrName)
         parent
 
     let bindAttrBoth attrName (store : Store<obj>) = fun (ctx,parent:Node) ->
@@ -234,7 +241,7 @@ module Sveltish.Bindings
         let input = parent :?> HTMLInputElement
         parent.addEventListener("change", (fun e ->
             log <| sprintf "%s changed: %A" attrName (Interop.get input attrName)
-            store.Set( Interop.get input attrName )) )
+            store.Update(fun _ -> Interop.get input attrName )) )
         let unsub = store.Subscribe( fun value ->
             Interop.set input attrName value
         )
@@ -248,7 +255,7 @@ module Sveltish.Bindings
     }
 
 
-    let each (items:Store<list<'T>>) (key:'T -> 'K) (filter:'T -> bool) (trans : TransitionAttribute) (view : 'T -> NodeFactory)  =
+    let each (items:IObservable<list<'T>>) (key:'T -> 'K) (filter:'T -> bool) (trans : TransitionAttribute) (view : 'T -> NodeFactory)  =
 
         fun (ctx,parent) ->
             let mutable state : KeyedItem<'T,'K> list = []
@@ -256,7 +263,7 @@ module Sveltish.Bindings
 
                 state <- state |> List.map (fun ki -> { ki with Rect = clientRect ki.Node })
 
-                let newItems = items.Value() |> List.filter filter
+                let newItems = value |> List.filter filter
                 let mutable newState  = [ ]
                 let mutable enteringNodes = []
 

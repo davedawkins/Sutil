@@ -24,7 +24,7 @@ let isPending = isDone >> not
 let todoKey r = r.Id
 
 type Model = {
-    Todos : Store<List<Todo>>
+    Todos : List<Todo>
 }
 
 type Message =
@@ -33,7 +33,7 @@ type Message =
     |DeleteTodo of id:int
     |CompleteAll
 
-let makeExampleTodos() = Store.make [
+let makeExampleTodos() = [
     { Id = 1; Done = false; Description = "1:write some docs" }
     { Id = 2; Done = false; Description = "2:start writing JSConf talk" }
     { Id = 3; Done =  true; Description = "3:buy some milk" }
@@ -140,7 +140,7 @@ let styleSheet = [
 
 let init() = { Todos = makeExampleTodos() }
 
-let update (message : Message) (model : Model) : unit =
+let update (message : Message) (model : Model) =
 
     match message with
     | AddTodo desc ->
@@ -149,33 +149,36 @@ let update (message : Message) (model : Model) : unit =
             Done = false
             Description = desc
         }
-        model.Todos <~= (fun x -> x @ [ todo ]) // Mutation of model
+        { model with Todos = model.Todos @ [ todo ] }
     | ToggleTodo id ->
-        match (Store.fetchByKey todoKey id model.Todos) with
-        |None -> ()
-        |Some todo ->
-            todo.Done <- not todo.Done
-            Store.forceNotify model.Todos // People will forget to do this
+        let todos = model.Todos |> List.map (fun t ->
+            if t.Id = id then { t with Done = not t.Done } else t)
+        { model with Todos = todos }
     | DeleteTodo id ->
-        model.Todos <~= List.filter (fun t -> t.Id <> id)
+        let todos = model.Todos |> List.map (fun t ->
+            if t.Id = id then { t with Done = not t.Done } else t)
+        { model with Todos = todos }
     | CompleteAll ->
-        model.Todos <~= List.map (fun t -> { t with Done = true })
+        let todos = model.Todos |> List.map (fun t -> { t with Done = true })
+        { model with Todos = todos }
 
 
 let fader  x = transition <| Both (fade,[ Duration 300.0 ]) <| x
 let slider x = transition <| Both (slide,[ Duration 300.0 ])  <| x
 
 let todosList title filter tin tout model dispatch =
+    let todos = model |> Observable.map (fun m -> m.Todos)
+    
     Html.div [
         class' title
         Html.h2 [ text title ]
 
-        each model.Todos todoKey filter (InOut (tin,tout) ) (fun todo ->
+        each todos todoKey filter (InOut (tin,tout) ) (fun todo ->
             Html.label [
                 Html.input [
                     attr ("type","checkbox")
                     on "change" (fun e -> todo.Id |> ToggleTodo |> dispatch)
-                    bindAttrIn "checked" (model.Todos |~> (Store.makeFromProperty todo "Done"))
+                    attr ("checked", todo.Done)
                 ]
                 text " "
                 text todo.Description
@@ -187,13 +190,17 @@ let todosList title filter tin tout model dispatch =
         )
     ]
 
-let view (model : Model) dispatch : NodeFactory =
+let makeStore = Store.makeElmishSimple init update ignore 
+
+let view () : NodeFactory =
     let (send,recv) = Transition.crossfade [ ]
     let tsend = send, []
     let trecv = recv, []
 
-    let completed = model.Todos |%> List.filter isDone
-    let lotsDone  = completed |%> fun x -> (x |> List.length >= 3)
+    let model, dispatch = makeStore()
+    
+    let completed = model |> Observable.map (fun m -> List.filter isDone m.Todos)
+    let lotsDone = completed |> Observable.map (fun x -> List.length x >= 3)
 
     style styleSheet <| Html.div [
         class' "board"

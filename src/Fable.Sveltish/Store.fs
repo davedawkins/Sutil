@@ -97,10 +97,12 @@ module Store =
         makeFromGetSet get' set'
 
     // Make a store from a JS object property
-    let makeFromProperty obj name =
+    let property obj name =
         let get = Interop.getter obj name
         let set = Interop.setter obj name
         makeFromGetSet get set
+
+    let makeFromProperty = property
 
     //let expr = makeFromExpression
 
@@ -162,7 +164,7 @@ module Store =
 
 [<AutoOpen>]
 module StoreOperators =
-    let (|~>) a b = Store.link a b |> ignore; b
+    let (|~>) a b = Store.link a b
     let (<~|) a b = Store.link a b |> ignore; a
 
     let (|%>) s f = Store.map f s

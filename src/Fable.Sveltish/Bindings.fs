@@ -230,6 +230,15 @@ module Sveltish.Bindings
         let unsub = store.Subscribe( fun value -> Interop.set parent attrName value )
         parent
 
+    // Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
+    // attribute's current value to the given function. This form is useful for view templates
+    // where v is invariant (for example, an each that already filters on the value of v, like Todo.Done)
+    let attrNotify<'T> (attrName:string) (v :'T) (onchange : obj -> unit)= fun (ctx:BuildContext,parent:Node) ->
+        parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> onchange ))
+        Interop.set parent attrName v
+        parent
+
+
     // Bind a store value to an element attribute. Listen for onchange events and dispatch the
     // attribute's current value to the given function
     let bindAttrNotify<'T> (attrName:string) (store : Store<'T>) (onchange : obj -> unit)= fun (ctx:BuildContext,parent:Node) ->

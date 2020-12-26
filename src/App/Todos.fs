@@ -169,7 +169,7 @@ let todosList title filter tin tout model dispatch =
             Html.label [
                 Html.input [
                     type' "checkbox"
-                    bindAttrNotify "checked" model.Todos (fun _ -> todo.Id |> ToggleTodo |> dispatch)
+                    attrNotify "checked" todo.Done (fun _ -> todo.Id |> ToggleTodo |> dispatch)
                 ]
                 text $" {todo.Description}"
                 Html.button [

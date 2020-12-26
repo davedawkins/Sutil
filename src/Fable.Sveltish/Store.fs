@@ -149,6 +149,17 @@ module Store =
         let pred r = kf(r) = key
         fetch pred store
 
+    // Modifies store list elements in place, SQL-like
+    // Finally, notifies store subscribers
+    // Granularity of notification is "the list changed", but no modification may have actually
+    // taken place (eg, filter selected none, modify is identity), and no information about what
+    // changed is given
+    // However this simplies some simple UI view scenarios (see Todos.fs)
+    let modifyWhere (select: 'T -> bool) (modify: 'T -> unit) (store:Store<List<'T>>) =
+        for x in store |> get |> List.filter select do
+            x |> modify
+        forceNotify store
+
 [<AutoOpen>]
 module StoreOperators =
     let (|~>) a b = Store.link a b |> ignore; b

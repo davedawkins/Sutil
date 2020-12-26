@@ -15,13 +15,12 @@ type Todo = {
         Description: string
     }
 
-// List helpers
-let listCount f list = list |> List.filter f |> List.length
-
 // Todo helpers
 let isDone t = t.Done
 let isPending = isDone >> not
-let todoKey r = r.Id
+let key r = r.Id
+let hasKey k t = t.Id = k
+let toggleDone (t:Todo) = t.Done <- not t.Done
 
 type Model = {
     Todos : Store<List<Todo>>
@@ -114,7 +113,7 @@ let styleSheet = [
         display "flex"
     ]
 
-    rule ".welldone" [
+    rule ".kudos" [
         marginTop "4px"
         marginBottom "4px"
         fontSize "80%"
@@ -151,11 +150,7 @@ let update (message : Message) (model : Model) : unit =
         }
         model.Todos <~= (fun x -> x @ [ todo ]) // Mutation of model
     | ToggleTodo id ->
-        match (Store.fetchByKey todoKey id model.Todos) with
-        |None -> ()
-        |Some todo ->
-            todo.Done <- not todo.Done
-            Store.forceNotify model.Todos // People will forget to do this
+        model.Todos |> Store.modifyWhere (hasKey id)  toggleDone
     | DeleteTodo id ->
         model.Todos <~= List.filter (fun t -> t.Id <> id)
     | CompleteAll ->
@@ -170,15 +165,13 @@ let todosList title filter tin tout model dispatch =
         class' title
         Html.h2 [ text title ]
 
-        each model.Todos todoKey filter (InOut (tin,tout) ) (fun todo ->
+        each model.Todos key filter (InOut (tin,tout) ) (fun todo ->
             Html.label [
                 Html.input [
-                    attr ("type","checkbox")
-                    on "change" (fun e -> todo.Id |> ToggleTodo |> dispatch)
-                    bindAttrIn "checked" (model.Todos |~> (Store.makeFromProperty todo "Done"))
+                    type' "checkbox"
+                    bindAttrNotify "checked" model.Todos (fun _ -> todo.Id |> ToggleTodo |> dispatch)
                 ]
-                text " "
-                text todo.Description
+                text $" {todo.Description}"
                 Html.button [
                     on "click" (fun _ -> todo.Id |> DeleteTodo |> dispatch)
                     text "x"
@@ -204,6 +197,7 @@ let view (model : Model) dispatch : NodeFactory =
             onKeyDown (fun e ->
                 // This isn't the right test for mobile users
                 if e.key = "Enter" then (e.currentTarget :?> HTMLInputElement).value |> AddTodo |> dispatch
+                printfn($"{e.key}")
             )
         ]
 
@@ -217,8 +211,8 @@ let view (model : Model) dispatch : NodeFactory =
         ]
 
         Html.div [
-            class' "welldone"
-            bind completed (fun x -> text <| sprintf "%d tasks completed! Good job!" x.Length)
+            class' "kudos"
+            bind completed (fun x -> text $"{x.Length} tasks completed! Good job!")
         ] |> fader lotsDone
 
         Html.div [
@@ -226,6 +220,4 @@ let view (model : Model) dispatch : NodeFactory =
             todosList "todo" isPending trecv tsend model dispatch
             todosList "done" isDone trecv tsend model dispatch
         ]
-
-
     ]

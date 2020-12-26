@@ -9,7 +9,7 @@ let Counter() =
     let count = Store.make 0
     Html.div [
 
-        count |=> fun n -> text $"Counter = {n}"
+        bind count (fun n -> text $"Counter = {n}")
 
         Html.div [
             Html.button [

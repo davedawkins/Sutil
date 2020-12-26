@@ -291,8 +291,6 @@ __pycache__/
 *.xsd.cs
 .fable
 .ionide
-src/Scratch.txt
 .DS_Store
 public/bundle.js
-public/bundle.js
-public/bundle.js
+src/Fable.Sveltish/Scratch.txt

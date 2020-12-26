@@ -1,7 +1,0 @@
-eement {
-    animation: 4000ms linear 0ms 1 normal both running __sveltish_14;
-    position: absolute;
-    width: 256px;
-    height: 16px;
-    transform: matrix(1, 0, 0, 1, 0, 0) translate(192px, 446.533px);
-}

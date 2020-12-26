@@ -2,6 +2,7 @@ module CheckboxInputs
 
 open Sveltish
 open Sveltish.DOM
+open Sveltish.Attr
 
 let yes = Store.make(true)
 
@@ -9,8 +10,8 @@ let view() =
     Html.div [
         Html.label [
             Html.input [
-                attr ("type","checkbox")
-                Bindings.bindAttrBoth "checked" yes
+                type' "checkbox"
+                Bindings.bindAttr "checked" yes
             ]
             text "Yes! Send me regular email spam"
         ]

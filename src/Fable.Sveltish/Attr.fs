@@ -11,6 +11,7 @@ let href n         = attr("href",n)
 let src n          = attr("src",n)
 let alt n          = attr("alt",n)
 let disabled n     = attr("disabled",n)
+let type' n        = attr("type",n)
 
 let class' = className
 

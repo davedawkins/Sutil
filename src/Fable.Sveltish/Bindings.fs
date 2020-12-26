@@ -209,36 +209,48 @@ module Sveltish.Bindings
         // We could create a container div to hold them and return that div.
         target
 
-
+    // Show or hide according to a Store<bool> using a transition
     let transition<'T> (trans : TransitionAttribute) store element =
         transitionOpt (Some trans) store element None
 
+    // Alternate between a pair of elements according to a Store<bool> with no transition
+    let transitionElse<'T> (trans : TransitionAttribute) store element otherElement=
+        transitionOpt (Some trans) store element (Some otherElement)
+
+    // Show or hide according to a Store<bool> with no transition
     let show<'T> store element =
         transitionOpt None store element None
 
+    // Alternate between a pair of elements according to a Store<bool> with no transition
     let showElse<'T> store element otherElement=
         transitionOpt None store element (Some otherElement)
 
-    let bindAttrIn<'T> attrName (store : Store<'T>) = fun (ctx,parent:Node) ->
-        // Fixme:
-        // Can't assume what element type or attribute is being bound
-        //
-        let input = parent :?> HTMLInputElement
-        let unsub = store.Subscribe( fun value -> Interop.set input attrName value )
+    // Bind a store value to an element attribute. Updates to the element are unhandled
+    let bindAttrIn<'T> (attrName:string) (store : Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+        let unsub = store.Subscribe( fun value -> Interop.set parent attrName value )
         parent
 
-    let bindAttrBoth<'T> attrName (store : Store<'T>) = fun (ctx,parent:Node) ->
-        // Fixme:
-        // Can't assume what element type or attribute is being bound
-        //
-        let input = parent :?> HTMLInputElement
-        parent.addEventListener("change", (fun e ->
-            log <| sprintf "%s changed: %A" attrName (Interop.get input attrName)
-            store.Set( Interop.get input attrName )) )
-        let unsub = store.Subscribe( fun value ->
-            Interop.set input attrName value
-        )
+    // Bind a store value to an element attribute. Listen for onchange events and dispatch the
+    // attribute's current value to the given function
+    let bindAttrNotify<'T> (attrName:string) (store : Store<'T>) (onchange : obj -> unit)= fun (ctx:BuildContext,parent:Node) ->
+        parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> onchange ))
+        let unsub = store.Subscribe( Interop.set parent attrName )
         parent
+
+    // Bind a store value to an element attribute. Listen for onchange events write the converted
+    // value back to the store
+    let bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T)= fun (ctx:BuildContext,parent:Node) ->
+        parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> convert |> Store.set store ))
+        let unsub = store.Subscribe( Interop.set parent attrName )
+        parent
+
+    // Unsure how to safely convert Element.getAttribute():string to 'T
+    let convertString<'T> (v:obj) : 'T  =
+        v :?> 'T
+
+    // Bind a store to an attribute in both directions
+    let bindAttr<'T> (attrName:string) (store : Store<'T>) =
+        bindAttrConvert attrName store convertString<'T>
 
     type KeyedItem<'T,'K> = {
         Key : 'K

@@ -12,6 +12,8 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- Started on GroupInputs example. Introduces bindGroup. Added Store.map2
+- Added NumericInputs examples
 - Styling rules can extend existing classes like this
 ```
     // Turn <label> into <label class='label'>. Useful if you have Bulma loaded, for example

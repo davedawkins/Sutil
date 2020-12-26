@@ -54,18 +54,6 @@ module Sveltish.Bindings
         )
         current
 
-    let subscribe2<'A,'B>  (a : Store<'A>) (b : Store<'B>)  (callback: ('A*'B) -> unit) : (unit -> unit) =
-        let unsuba = a.Subscribe( fun v ->
-            callback(v,b.Value())
-        )
-        let unsubb = b.Subscribe( fun v ->
-            callback(a.Value(),v)
-        )
-        let unsubBoth() =
-            unsuba()
-            unsubb()
-        unsubBoth
-
     let bind2<'A,'B>  (a : Store<'A>) (b : Store<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable current : Node = null
 
@@ -76,7 +64,7 @@ module Sveltish.Bindings
                 p.replaceChild(c,current) |> ignore
             c
 
-        let unsub = subscribe2 a b (fun (a',b') ->
+        let unsub = Store.subscribe2 a b (fun (a',b') ->
             current <- element(a',b')( { ctx with AppendChild = addReplaceChild }, parent)
         )
 
@@ -224,6 +212,35 @@ module Sveltish.Bindings
     // Alternate between a pair of elements according to a Store<bool> with no transition
     let showElse<'T> store element otherElement=
         transitionOpt None store element (Some otherElement)
+
+    let getInputChecked el = Interop.get el "checked"
+    let setInputChecked (el : Node) (v:obj) = Interop.set el "checked" v
+    let getInputValue el = Interop.get el "value"
+    let setInputValue el v = Interop.set el "value" v
+
+    let bindGroup<'T when 'T : equality> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+        let updateChecked (v : obj) =
+            setInputChecked parent ( (string v) = string (getInputValue parent) )
+
+        // Sync checked upon init
+        let rec ready _ =
+            store |> Store.get |> updateChecked
+            parent.removeEventListener( Event.ElementReady, ready )
+
+        // Update the store when the radio box is clicked on
+        parent.addEventListener("input", (fun _ -> Interop.get parent "value" |> Store.set store ))
+
+        // Group this input with all other inputs that reference the same store
+        Interop.set parent "name" $"store-{store.Id}"
+
+        // We need to finalize checked status after all attrs have been processed for input,
+        // in case 'value' hasn't been set yet
+        parent.addEventListener( Event.ElementReady, ready )
+
+        // When store changes make sure check status is synced
+        let unsub = store.Subscribe(updateChecked)
+
+        parent
 
     // Bind a store value to an element attribute. Updates to the element are unhandled
     let bindAttrIn<'T> (attrName:string) (store : Store<'T>) = fun (ctx:BuildContext,parent:Node) ->

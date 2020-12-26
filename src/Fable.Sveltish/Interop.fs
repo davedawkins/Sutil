@@ -13,7 +13,7 @@ let getter obj name = jsNative
 let setter obj name = jsNative
 
 [<Emit("$0[$1] = $2")>]
-let set ob name value = jsNative
+let set ob name value : unit = jsNative
 
 [<Emit("$0[$1]")>]
 let get ob name = jsNative

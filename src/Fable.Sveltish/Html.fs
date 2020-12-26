@@ -22,3 +22,9 @@ let ul  xs = el "ul" xs
 let li xs = el "li" xs
 let img xs = el "img" xs
 
+let app (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
+    let mutable last : Node = parent
+    for x in xs do
+        last <- x(ctx,parent)
+    last
+

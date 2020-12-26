@@ -6,13 +6,19 @@ open Browser.CssExtensions
 
 let log = Logging.log "dom"
 
+module Event =
+    let ElementReady = "sveltish-element-ready"
+    let Show = "sveltish-show"
+    let Hide = "sveltish-hide"
+    let Updated = "sveltish-updated"
+
 type CssSelector =
     | Tag of string
     | Cls of string
     | Id of string
     | All of CssSelector list
     | Any of CssSelector list
-    | Attr of string * string
+    | Attr of CssSelector * string * string
     | NotImplemented
     with
     member this.Match (el:HTMLElement)=
@@ -21,7 +27,7 @@ type CssSelector =
         | Tag tag -> el.tagName = tag
         | Cls cls -> el.classList.contains(cls)
         | Id id -> el.id = id
-        | Attr (name,value) -> el.getAttribute(name) = value
+        | Attr (sub,name,value) -> sub.Match(el) && el.getAttribute(name) = value
         | All rules -> rules |> List.fold (fun a r -> a && r.Match el) true
         | Any rules -> rules |> List.fold (fun a r -> a || r.Match el) false
 
@@ -63,7 +69,6 @@ type BuildContext = {
 let makeContext =
     let gen = CodeGeneration.makeIdGenerator()
     {
-        //StyleName = ""
         StyleSheet = None
         AppendChild = (fun parent child -> parent.appendChild(child))
         ReplaceChild = (fun parent newChild oldChild -> parent.replaceChild(newChild, oldChild))
@@ -88,8 +93,11 @@ let appendAttribute (e:Element) attrName attrValue =
                 then attrValue
                 else (sprintf "%s %s" currentValue attrValue))
 
-// TODO: Implement attribute selector
+// TODO: We can make a better parser using combinators. This lets me prove this idea tbough
+// Don't judge me
 let rec parseSelector (source:string) : CssSelector =
+    let trimQuotes (s:string) = s.Trim().Trim( [| '\''; '"' |])
+
     let rec parseSingle (token : string) =
         if token.StartsWith(".")
             then Cls (token.Substring(1))
@@ -100,11 +108,24 @@ let rec parseSelector (source:string) : CssSelector =
         else
             Tag (token.ToUpper())
 
+    let rec parseAttr (token : string) =
+        if token.Contains("[") && token.EndsWith("]")
+            then
+                let i = token.IndexOf('[')
+                let single = parseSingle(token.Substring(0,i).Trim())
+                let attrExpr = token.Substring(i+1, token.Length - i - 2)
+                let attrTokens = attrExpr.Split([|'='|], 2)
+                if attrTokens.Length = 2 then
+                    Attr (single, attrTokens.[0].Trim(), attrTokens.[1] |> trimQuotes )
+                else
+                    NotImplemented
+            else parseSingle token
+
     let rec parseAll (token : string) =
         let spacedItems = token.Split([| ' ' |], System.StringSplitOptions.RemoveEmptyEntries)
         if (spacedItems.Length = 1)
-            then parseSingle spacedItems.[0]
-            else spacedItems |> Array.map parseSingle |> Array.toList |> Any
+            then parseAttr spacedItems.[0]
+            else spacedItems |> Array.map parseAttr |> Array.toList |> Any
 
     let items = source.Split(',')
     if items.Length = 1
@@ -113,6 +134,20 @@ let rec parseSelector (source:string) : CssSelector =
 
 let ruleMatchEl (el:HTMLElement) (rule:StyleRule) =
     rule.Selector.Match el
+
+let applyCustomRules e sheet =
+    // TODO: Remove all classes added by previous calls to this function
+    // TODO: Store them in a custom attribute on 'e'
+    for rule in sheet |> List.filter (ruleMatchEl e) do
+        for custom in rule.Style |> List.filter (fun (nm,v) -> nm.StartsWith("sveltish")) do
+            match custom with
+            | (nm,v) when nm = "sveltish-add-class" ->
+                log($"Matches: {e.tagName} '%A{e.classList}' -> %A{rule.Selector}")
+                log($"Adding class {v}")
+                e.classList.add(string v)
+                // TODO: Also add this class to a custom attribute so we can clean them up
+                // TODO: on subsequent calls
+            | _ -> log($"Unimplemented: {fst custom}")
 
 let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
     let e  = document.createElement tag
@@ -123,22 +158,22 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
 
     match ctx.StyleSheet with
     | Some { Name = name; StyleSheet = sheet } ->
-        appendAttribute e "class" name
-        for rule in sheet |> List.filter (ruleMatchEl e) do
-            log($"Matches: {e.tagName} '%A{e.classList}' -> %A{rule.Selector}")
-            for custom in rule.Style |> List.filter (fun (nm,v) -> nm.StartsWith("sveltish")) do
-                match custom with
-                | (nm,v) when nm = "sveltish-add-class" ->
-                    log($"Adding class {v}")
-                    appendAttribute e "class" (string v)
-                | _ -> log($"Unimplemented: {fst custom}")
+        e.classList.add(name)
+        applyCustomRules e sheet
     | None -> ()
+
+    e.dispatchEvent( Interop.customEvent Event.ElementReady {| |}) |> ignore
 
     e :> Node
 
 let inline attr (name,value:obj) : NodeFactory = fun (ctx,e) ->
     try
         ctx.SetAttribute (e :?> Element) name (string value) // Cannot type test on Element
+        match ctx.StyleSheet with
+        | Some { Name = _; StyleSheet = sheet } ->
+            applyCustomRules (e :?> HTMLElement) sheet
+        | None -> ()
+
     with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A" name e)
     e
 
@@ -155,7 +190,6 @@ let findElement selector = document.querySelector(selector)
 let rec mountElement selector (app : NodeFactory)  =
     let host = idSelector selector |> findElement :?> HTMLElement
     (app (makeContext,host)) |> ignore
-
 
 let findChildWhere (node:Node) (f : Node -> bool) =
     let rec search (n : Node) (f : Node -> bool) =

@@ -6,6 +6,7 @@ module Sveltish.Styling
     open Browser.Dom
 
     let log s = Logging.log "style" s
+    let findElement selector = document.querySelector(selector)
 
     let parseStyleAttr (style : string) =
         style.Split([|';'|], StringSplitOptions.RemoveEmptyEntries)
@@ -64,12 +65,6 @@ module Sveltish.Styling
             let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSveltishRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
             [ specifySelector styleName rule.SelectorSpec; " {"; styleText; "}" ] |> String.concat "" |> document.createTextNode |> style.appendChild |> ignore
 
-    let app (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
-        let mutable last : Node = parent
-        for x in xs do
-            last <- x(ctx,parent)
-        last
-
     let headStylesheet (url : string) = fun (ctx,parent) ->
         let head = findElement "head"
         let styleEl = document.createElement("link")
@@ -119,15 +114,11 @@ module Sveltish.Styling
         log($"%s{selector} -> %A{result.Selector}")
         result
 
-    open Fable.Core
-    [<Emit("new CustomEvent($0, $1)")>]
-    let customEvent name data = jsNative
-
     let showEl (el : HTMLElement) isVisible =
         if isVisible then
             removeStyleAttr el "display"
         else
             addStyleAttr el "display" "none"
-        let ev = customEvent (if isVisible then "sveltish-show" else "sveltish-hide") {|  |}
+        let ev = Interop.customEvent (if isVisible then Event.Show else Event.Hide) {|  |}
         el.dispatchEvent(ev) |> ignore
         ()

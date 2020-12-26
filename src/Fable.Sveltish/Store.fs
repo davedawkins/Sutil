@@ -30,6 +30,18 @@ module Store =
     let get (store:Store<'T>) = store.Value()
     let subscribe (store:Store<'T>) f = store.Subscribe(f)
 
+    let subscribe2<'A,'B>  (a : Store<'A>) (b : Store<'B>)  (callback: ('A*'B) -> unit) : (unit -> unit) =
+        let unsuba = a.Subscribe( fun v ->
+            callback(v,b.Value())
+        )
+        let unsubb = b.Subscribe( fun v ->
+            callback(a.Value(),v)
+        )
+        let unsubBoth() =
+            unsuba()
+            unsubb()
+        unsubBoth
+
     let newSubId = CodeGeneration.makeIdGenerator()
 
     //
@@ -43,7 +55,7 @@ module Store =
         notifyLevel <- notifyLevel + 1
 
     let notifyDocument() =
-        document.dispatchEvent( Interop.customEvent "sveltish-updated"  {|  |} ) |> ignore
+        document.dispatchEvent( Interop.customEvent DOM.Event.Updated  {|  |} ) |> ignore
 
     let endNotify() =
         notifyLevel <- notifyLevel - 1
@@ -136,6 +148,11 @@ module Store =
     let map<'A,'B> (f : 'A -> 'B) (s : Store<'A>) =
         let result = s |> getMap f |> make // Initialize with mapped value
         let unsub = subscribe s (f >> (set result))
+        result
+
+    let map2<'A,'B,'R> (f : ('A * 'B) -> 'R) (a : Store<'A>) (b : Store<'B>)=
+        let result = make( (get a, get b) |> f )
+        let unsub = subscribe2 a b <| fun (x,y) -> set result ((x, y) |> f)
         result
 
     // Modify the store by mapping its current value with f

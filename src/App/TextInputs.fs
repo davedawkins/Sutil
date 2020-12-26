@@ -11,6 +11,7 @@ let view() =
 
     Html.div [
         Html.input [
+            type' "text"
             Bindings.bindAttr "value" name
             placeholder "enter your name"
         ]

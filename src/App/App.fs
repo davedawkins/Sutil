@@ -46,7 +46,9 @@ type Demo = {
         { Category = "Reactivity";Title = "Reactive statements";  Create = make ReactiveStatements.view ; Sources = ["ReactiveStatements.fs"]}
         { Category = "Animations"; Title = "The animate directive"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Sources = ["Todos.fs"] }
         { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}
+        { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
         { Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
+        //{ Category = "Bindings";   Title = "Group inputs";  Create = make GroupInputs.view ; Sources = ["GroupInputs.fs"]}
     ]
 
 let init() =
@@ -147,11 +149,35 @@ let mainStyleSheet = [
         padding 0
     ]
 
-    // Make all <input> elements into <input class='input'> to inherit Bulma styling
-    // Todo: Implement the attribute selector
+
     rule "input[type='text']" [
         addClass "input"
     ]
+
+    rule "input[type='radio']" [
+        addClass "radio"
+    ]
+
+    rule "input[type='checkbox']" [
+        addClass "checkbox"
+    ]
+
+    rule "input[type='number']" [
+        addClass "input"
+        addClass "is-small"
+        maxWidth "50%"
+    ]
+
+    rule "input[type='range']" [
+        addClass "input"
+        addClass "is-small"
+        maxWidth "50%"
+    ]
+
+    rule "h2" [ addClass "title"; addClass "is-2" ]
+    rule "h3" [ addClass "title"; addClass "is-3" ]
+    rule "h4" [ addClass "title"; addClass "is-4" ]
+    rule "h5" [ addClass "title"; addClass "is-5" ]
 ]
 
 let demos model dispatch =
@@ -255,7 +281,7 @@ let appMain (model:Model) (dispatch : Message -> unit) =
         ]
 
 let app model dispatch =
-    Styling.app [
+    Html.app [
         // Page title
         headTitle "Sveltish"
 

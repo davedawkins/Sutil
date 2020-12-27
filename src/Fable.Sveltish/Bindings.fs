@@ -218,19 +218,56 @@ module Sveltish.Bindings
     let getInputValue el : string = Interop.get el "value"
     let setInputValue el (v:string) = Interop.set el "value" v
 
-    let bindSelect<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Node) ->
+    let bindSelect<'T when 'T : equality> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
 
         let select = parent :?> HTMLSelectElement
         let op (coll:HTMLCollection) i = coll.[i] :?> HTMLOptionElement
+        let opValue op : 'T = Interop.get op "__value"
+
+        let getValue() =
+            let selOps = select.selectedOptions
+            opValue selOps.[0]
+            //[0..selOps.length-1] |> List.map (fun i -> opValue (op selOps i))
+
+        let updateSelected (v : 'T) =
+            for i in [0..select.options.length-1] do
+                let o = select.options.[i] :?> HTMLOptionElement
+                o.selected <- (v = (opValue o))
+
+        // Sync checked upon init
+        let rec ready _ =
+            store |> Store.get |> updateSelected
+            parent.removeEventListener( Event.ElementReady, ready )
+
+        // Update the store when the radio box is clicked on
+        parent.addEventListener("input", (fun _ ->
+            //log($"%A{getValueList()}")
+            getValue() |> Store.set store
+        ))
+
+        // We need to finalize checked status after all attrs have been processed for input,
+        // in case 'value' hasn't been set yet
+        parent.addEventListener( Event.ElementReady, ready )
+
+        // When store changes make sure check status is synced
+        let unsub = store.Subscribe(updateSelected)
+
+        parent
+
+    let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) = fun (ctx:BuildContext,parent:Node) ->
+
+        let select = parent :?> HTMLSelectElement
+        let op (coll:HTMLCollection) i = coll.[i] :?> HTMLOptionElement
+        let opValue op : 'T = Interop.get op "__value"
 
         let getValueList() =
             let selOps = select.selectedOptions
-            [0..selOps.length-1] |> List.map (fun i -> (op selOps i).value)
+            [0..selOps.length-1] |> List.map (fun i -> opValue (op selOps i))
 
-        let updateSelected (v : List<string>) =
+        let updateSelected (v : List<'T>) =
             for i in [0..select.options.length-1] do
                 let o = select.options.[i] :?> HTMLOptionElement
-                o.selected <- v |> List.contains o.value
+                o.selected <- v |> List.contains (opValue o)
 
         // Sync checked upon init
         let rec ready _ =
@@ -337,6 +374,7 @@ module Sveltish.Bindings
     // Bind a store value to an element attribute. Listen for onchange events write the converted
     // value back to the store
     let bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T)= fun (ctx:BuildContext,parent:Node) ->
+        //let attrName' = if attrName = "value" then "__value" else attrName
         parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> convert |> Store.set store ))
         let unsub = store.Subscribe( Interop.set parent attrName )
         parent

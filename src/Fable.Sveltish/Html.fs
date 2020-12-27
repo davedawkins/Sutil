@@ -23,6 +23,7 @@ let li xs = el "li" xs
 let img xs = el "img" xs
 let option xs = el "option" xs
 let select xs = el "select" xs
+let form xs = el "form" xs
 
 let app (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
     let mutable last : Node = parent

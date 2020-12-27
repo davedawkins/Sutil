@@ -68,7 +68,7 @@ let view() =
                 class' "select is-multiple"
                 Html.select [
                     multiple
-                    Bindings.bindSelect flavours
+                    Bindings.bindSelectMultiple flavours
                     fragment [
                         for flavour in menu do
                             Html.option [

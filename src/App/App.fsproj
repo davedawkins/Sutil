@@ -6,6 +6,7 @@
     <Compile Include="NumericInputs.fs" />
     <Compile Include="TextInputs.fs" />
     <Compile Include="CheckboxInputs.fs" />
+    <Compile Include="SelectBindings.fs" />
     <Compile Include="SelectMultiple.fs" />
     <Compile Include="GroupInputs.fs" />
     <Compile Include="ReactiveStatements.fs" />

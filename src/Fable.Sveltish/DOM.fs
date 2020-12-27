@@ -169,6 +169,8 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
 let inline attr (name,value:obj) : NodeFactory = fun (ctx,e) ->
     try
         ctx.SetAttribute (e :?> Element) name (string value) // Cannot type test on Element
+        if (name = "value") then
+            Interop.set e "__value" value
         match ctx.StyleSheet with
         | Some { Name = _; StyleSheet = sheet } ->
             applyCustomRules (e :?> HTMLElement) sheet

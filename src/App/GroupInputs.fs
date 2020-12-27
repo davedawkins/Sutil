@@ -4,6 +4,7 @@ module GroupInputs
 open Sveltish
 open Sveltish.DOM
 open Sveltish.Attr
+open Sveltish.Transition
 
 let flavours = Store.make( [ "Mint choc chip" ] )
 let numFlavours = flavours |> Store.map (fun x -> x.Length)
@@ -21,101 +22,69 @@ let scoopMenu = [
     "Three scoops"
 ]
 
-//let join flavours =
-//    if (flavours.length = 1) then flavours[0]
-//    $"{flavours.slice(0, -1).join(", ")} and ${flavours[flavours.length - 1]}"
+// Text helpers
+let plural word n =
+    let s = if n = 1 then "" else "s"
+    $"{word}{s}"
 
-let control children =
-    Html.div <| (class' "control") :: children
+let scoop_s n = plural "scoop" n
+
+let rec join (flavours : string list) =
+    match flavours with
+    | [] -> ""
+    | x :: [y] -> $"{x} and {y}"
+    | [x] -> x
+    | x :: xs -> $"{x}, {join xs}"
+
+// HTML helpers
+let block children =
+    Html.div <| (class' "block") :: children
 
 // Control with only 1 label child
 let controlLabel children =
     Html.div [ class' "control"; Html.label children ]
 
+let label s = Html.label [ class' "label"; text s ]
+
+// Main component view
 let view() =
     Html.div [
 
-        control [
-            Html.label [
-                class' "label";
-                text "Scoops"
-            ]
-
-            controlLabel [
-                class' "radio"
-                Html.input [
-                    type' "radio"
-                    Bindings.bindGroup scoops
-                    value "1"
-                ]
-                text " One scoop "
-            ]
-
-            controlLabel [
-                class' "radio"
-                Html.input [
-                    type' "radio"
-                    Bindings.bindGroup scoops
-                    value "2"
-                ]
-                text " Two scoops "
-            ]
-
-            controlLabel [
-                class' "radio"
-                Html.input [
-                    type' "radio"
-                    Bindings.bindGroup scoops
-                    value "3"
-                ]
-                text " Three scoops "
-            ]
+        block [
+            label "Scoops"
+            scoopMenu |> List.mapi (fun i scoopChoice ->
+                controlLabel [
+                    class' "radio"
+                    Html.input [
+                        type' "radio"
+                        Bindings.bindRadioGroup scoops
+                        i+1 |> string |> value
+                    ]
+                    text $" {scoopChoice}"
+                ]) |> fragment
         ]
 
-        control [
-            Html.label [
-                class' "label";
-                text "Flavours"
-            ]
-
-            //{#each menu as flavour}
+        block [
+            label "Flavours"
             fragment [
                 for flavour in menu do
                     controlLabel [
                         class' "checkbox"
                         Html.input [
                             type' "checkbox"
-                            // bind:group={flavours}
+                            Bindings.bindGroup flavours
                             value flavour
-                            ]
+                        ]
                         text $" {flavour}"
                     ]
             ]
         ]
-        //{/each}
 
-        Html.p [
-            Bindings.bind2 scoops numFlavours (fun (ns,nf) ->text $"Number of scoops: {ns} Number of flavours: {nf}")
+        block [
+            Bindings.bind2 scoops flavours (fun (s,f) ->
+                match (s,f) with
+                | (_,[]) -> text "Please select at least one flavour"
+                | (s,f) when f.Length > s -> text "Can't order more flavours than scoops!"
+                | _ -> text $"You ordered {s} {scoop_s s} of {join f}")
         ]
-
-        //Html.p [
-        //    Bindings.bind scoops  (fun ns -> text $"{ns}" )
-        //]
-        //Html.p [
-        //    Bindings.bind numFlavours (fun nf -> text $"{nf}" )
-        //]
-        //Bindings.transitionList [
-        //    {   predicate = numFlavours |> Store.map ((=) 0)
-        //        transOpt = None
-        //        element = Html.p [ text "Please select at least one flavour" ]
-        //        }
-        //    {   predicate = Store.map2 (fun (nf,ns) -> nf > ns) numFlavours scoops
-        //        transOpt = None
-        //        element = Html.p [ text "Can't order more flavours than scoops!" ]
-        //        }
-        //    {   predicate = Store.map2 (fun (nf,ns) -> nf > 0 && nf <= ns) numFlavours scoops
-        //        transOpt = None
-        //        element = Html.p [ text $"You ordered _ns_ of _flavours_" ]
-        //        }
-        //]
     ]

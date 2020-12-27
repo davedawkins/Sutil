@@ -215,12 +215,49 @@ module Sveltish.Bindings
 
     let getInputChecked el = Interop.get el "checked"
     let setInputChecked (el : Node) (v:obj) = Interop.set el "checked" v
-    let getInputValue el = Interop.get el "value"
-    let setInputValue el v = Interop.set el "value" v
+    let getInputValue el : string = Interop.get el "value"
+    let setInputValue el (v:string) = Interop.set el "value" v
 
-    let bindGroup<'T when 'T : equality> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+    let bindGroup<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Node) ->
+        let name = $"store-{store.Id}"
+
+        let getValueList() =
+            let inputs = parent.ownerDocument.querySelectorAll(@$"input[name=""{name}""]")
+            [0..(inputs.length-1)] |> List.map (fun i -> inputs.[i]) |> List.filter getInputChecked |> List.map getInputValue
+
+        let updateChecked (v : List<string>) =
+            setInputChecked parent ( v |> List.contains (getInputValue parent) )
+
+        // Sync checked upon init
+        let rec ready _ =
+            store |> Store.get |> updateChecked
+            parent.removeEventListener( Event.ElementReady, ready )
+
+        // Update the store when the radio box is clicked on
+        parent.addEventListener("input", (fun _ ->
+            //log($"%A{getValueList()}")
+            getValueList() |> Store.set store
+        ))
+
+        // Group this input with all other inputs that reference the same store
+        Interop.set parent "name" name
+
+        // We need to finalize checked status after all attrs have been processed for input,
+        // in case 'value' hasn't been set yet
+        parent.addEventListener( Event.ElementReady, ready )
+
+        // When store changes make sure check status is synced
+        let unsub = store.Subscribe(updateChecked)
+
+        parent
+
+
+    // T can realistically only be numeric or a string. We're relying (I think!) on JS's ability
+    // to turn a string into an int automatically in the Store.set call (maybe it's Fable doing that)
+    //
+    let bindRadioGroup<'T> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
         let updateChecked (v : obj) =
-            setInputChecked parent ( (string v) = string (getInputValue parent) )
+            setInputChecked parent ( (string v) = getInputValue parent )
 
         // Sync checked upon init
         let rec ready _ =

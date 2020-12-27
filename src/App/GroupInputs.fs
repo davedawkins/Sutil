@@ -1,14 +1,8 @@
-// Work in progress
 module GroupInputs
 
 open Sveltish
 open Sveltish.DOM
 open Sveltish.Attr
-open Sveltish.Transition
-
-let flavours = Store.make( [ "Mint choc chip" ] )
-let numFlavours = flavours |> Store.map (fun x -> x.Length)
-let scoops = Store.make(1)
 
 let menu = [
     "Cookies and cream"
@@ -21,6 +15,10 @@ let scoopMenu = [
     "Two scoops"
     "Three scoops"
 ]
+
+let flavours = Store.make( [ menu |> List.head ] )
+let numFlavours = flavours |> Store.map (fun x -> x.Length)
+let scoops = Store.make(1)
 
 // Text helpers
 let plural word n =

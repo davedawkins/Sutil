@@ -13,9 +13,10 @@ let view() =
         Html.input [
             type' "text"
             Bindings.bindAttr "value" name
-            placeholder "enter your name"
+            placeholder "Enter your name"
         ]
         Html.p [
+            class' "block"
             Bindings.bind name (fun s -> text $"Hello {nameOrStranger s}")
         ]
     ]

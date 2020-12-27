@@ -22,6 +22,7 @@ let handleClick _ =
 let view() =
     Html.div [
         Html.button [
+            class' "block"
             onClick handleClick
             bind count (fun n -> text $"Count: {n}")
             // Alternative with operator:
@@ -29,11 +30,13 @@ let view() =
         ]
 
         Html.p [
+            class' "block"
             bind2 count doubled
                 (fun (c,d) -> text $"{c} * 2 = {d}")
         ]
 
         Html.p [
+            class' "block"
             bind2 doubled quadrupled
                 (fun (d,q) -> text $"{d} * 2 = {q}")
         ]

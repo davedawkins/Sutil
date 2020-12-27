@@ -21,6 +21,8 @@ let a  xs = el "a" xs
 let ul  xs = el "ul" xs
 let li xs = el "li" xs
 let img xs = el "img" xs
+let option xs = el "option" xs
+let select xs = el "select" xs
 
 let app (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
     let mutable last : Node = parent

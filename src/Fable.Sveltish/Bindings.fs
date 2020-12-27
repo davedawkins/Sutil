@@ -218,6 +218,40 @@ module Sveltish.Bindings
     let getInputValue el : string = Interop.get el "value"
     let setInputValue el (v:string) = Interop.set el "value" v
 
+    let bindSelect<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Node) ->
+
+        let select = parent :?> HTMLSelectElement
+        let op (coll:HTMLCollection) i = coll.[i] :?> HTMLOptionElement
+
+        let getValueList() =
+            let selOps = select.selectedOptions
+            [0..selOps.length-1] |> List.map (fun i -> (op selOps i).value)
+
+        let updateSelected (v : List<string>) =
+            for i in [0..select.options.length-1] do
+                let o = select.options.[i] :?> HTMLOptionElement
+                o.selected <- v |> List.contains o.value
+
+        // Sync checked upon init
+        let rec ready _ =
+            store |> Store.get |> updateSelected
+            parent.removeEventListener( Event.ElementReady, ready )
+
+        // Update the store when the radio box is clicked on
+        parent.addEventListener("input", (fun _ ->
+            //log($"%A{getValueList()}")
+            getValueList() |> Store.set store
+        ))
+
+        // We need to finalize checked status after all attrs have been processed for input,
+        // in case 'value' hasn't been set yet
+        parent.addEventListener( Event.ElementReady, ready )
+
+        // When store changes make sure check status is synced
+        let unsub = store.Subscribe(updateSelected)
+
+        parent
+
     let bindGroup<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Node) ->
         let name = $"store-{store.Id}"
 

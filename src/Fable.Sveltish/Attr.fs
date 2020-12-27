@@ -15,6 +15,7 @@ let min n          = attr("min",n)
 let max n          = attr("max",n)
 let type' n        = attr("type",n)
 let value n        = attr("value",n)
+let multiple : NodeFactory = attr("multiple","")
 
 let class' = className
 

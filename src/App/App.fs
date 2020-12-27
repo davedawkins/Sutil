@@ -7,14 +7,6 @@ open Sveltish.Styling
 open Sveltish.DOM
 open Sveltish.Bindings
 
-open Browser.Types
-open Browser.Dom
-
-let counter _ _  = Counter.Counter ()
-let helloWorld _ _ = HelloWorld.helloWorld()
-
-let minion _ _ = DynamicAttributes.view()
-
 let make v = fun _ _ -> v()
 
 type Model = {
@@ -37,11 +29,11 @@ type Demo = {
     Sources : string list
 } with
     static member All = [
-        { Category = "Introduction";Title = "Hello World";  Create = helloWorld ; Sources = ["HelloWorld.fs"]}
-        { Category = "Introduction";Title = "Dynamic attributes";  Create = minion ; Sources = ["DynamicAttributes.fs"]}
+        { Category = "Introduction";Title = "Hello World";  Create = make HelloWorld.helloWorld ; Sources = ["HelloWorld.fs"]}
+        { Category = "Introduction";Title = "Dynamic attributes";  Create = make DynamicAttributes.view ; Sources = ["DynamicAttributes.fs"]}
         { Category = "Introduction";Title = "Styling";  Create = make StylingExample.view ; Sources = ["Styling.fs"]}
         { Category = "Introduction";Title = "Nested components";  Create = make NestedComponents.view ; Sources = ["NestedComponents.fs"; "Nested.fs"]}
-        { Category = "Reactivity";Title = "Reactive assignments";  Create = counter ; Sources = ["Counter.fs"]}
+        { Category = "Reactivity";Title = "Reactive assignments";  Create = make Counter.Counter ; Sources = ["Counter.fs"]}
         { Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Sources = ["ReactiveDeclarations.fs"]}
         { Category = "Reactivity";Title = "Reactive statements";  Create = make ReactiveStatements.view ; Sources = ["ReactiveStatements.fs"]}
         { Category = "Animations"; Title = "The animate directive"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Sources = ["Todos.fs"] }
@@ -49,6 +41,7 @@ type Demo = {
         { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
         { Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
         { Category = "Bindings";   Title = "Group inputs";  Create = make GroupInputs.view ; Sources = ["GroupInputs.fs"]}
+        { Category = "Bindings";   Title = "Select multiple";  Create = make SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
     ]
 
 let init() =
@@ -61,7 +54,7 @@ let init() =
     }
 
 let update msg model =
-    console.log($"update {msg}")
+    //console.log($"update {msg}")
     match msg with
     | SetTab t ->
         model.Tab <~ t
@@ -178,6 +171,7 @@ let mainStyleSheet = [
     rule "h3" [ addClass "title"; addClass "is-3" ]
     rule "h4" [ addClass "title"; addClass "is-4" ]
     rule "h5" [ addClass "title"; addClass "is-5" ]
+    rule "button" [ addClass "button" ]
 ]
 
 let demos model dispatch =

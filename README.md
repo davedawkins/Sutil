@@ -12,6 +12,7 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- Finished GroupInputs example. Bindings for radio groups and checkbox groups
 - Started on GroupInputs example. Introduces bindGroup. Added Store.map2
 - Added NumericInputs examples
 - Styling rules can extend existing classes like this

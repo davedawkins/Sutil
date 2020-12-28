@@ -3,7 +3,6 @@ module Sveltish.Attr
 open DOM
 open Browser.Types
 
-
 // Attributes
 let className n    = attr("class",n)
 let placeholder n  = attr("placeholder",n)
@@ -13,12 +12,16 @@ let alt n          = attr("alt",n)
 let disabled n     = attr("disabled",n)
 let min n          = attr("min",n)
 let max n          = attr("max",n)
-let type' n        = attr("type",n)
 let value n        = attr("value",n)
+let style n        = attr("style",n)
 let multiple : NodeFactory = attr("multiple","")
 
-let class' = className
+// Attributes that are either keywords or core functions
+let id' n          = attr("id",n)
+let type' n        = attr("type",n)
+let class'         = className
 
+// Events
 let on event fn : NodeFactory = fun (_,el) ->
     el.addEventListener(event, fn)
     el

@@ -1,10 +1,11 @@
 module HelloWorld
 
-open Sveltish
+//open Sveltish.Html
 open Sveltish.DOM
 
-let helloWorld() = Html.div [
-    text "Hello World!"
-]
+//let helloWorld() = div [
+//    text "Hello World!"
+//]
 
-mountElement "sveltish-app" <| helloWorld()
+//mountElement "sveltish-app" <| helloWorld()
+mountElement "sveltish-app" (text "Hello World")

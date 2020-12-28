@@ -100,7 +100,7 @@ module Sveltish.Styling
 
         parent
 
-    let style styleSheet (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
+    let withStyle styleSheet (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let name = ctx.MakeName "sveltish"
         addStyleSheet name styleSheet
         element({ ctx with StyleSheet = Some { Name = name; StyleSheet = styleSheet} },parent)

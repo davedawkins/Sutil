@@ -85,4 +85,4 @@ let view() =
                     text $"Selected question {q.Id}"
                 ]
         ]
-    ] |> style appStyle
+    ] |> withStyle appStyle

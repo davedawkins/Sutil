@@ -15,7 +15,7 @@ let css = [
     ]
 
 let view() =
-    style css <| Html.div [
+    withStyle css <| Html.div [
         Html.p [
             text "These styles..."
         ]

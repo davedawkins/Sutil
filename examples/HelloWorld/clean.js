@@ -32,6 +32,7 @@ console.log("Cleaning...");
 const unclean = [
     "./bin",
     "./obj",
+    "./.ionide",
     "./node_modules",
     "./.fable",
     "./package-lock.json",

@@ -188,7 +188,7 @@ let view (model : Model) dispatch : NodeFactory =
     let completed = model.Todos |%> List.filter isDone
     let lotsDone  = completed |%> fun x -> (x |> List.length >= 3)
 
-    style styleSheet <| Html.div [
+    withStyle styleSheet <| Html.div [
         class' "board"
 
         Html.input [

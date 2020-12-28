@@ -234,7 +234,7 @@ let appMain (model:Model) (dispatch : Message -> unit) =
 
     let currentDemo = model.Demo |> Store.map findDemo
 
-    style mainStyleSheet <|
+    withStyle mainStyleSheet <|
         Html.div [
             class' "app-main"
 

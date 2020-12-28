@@ -64,7 +64,7 @@ open Browser.Dom
 let Counter() =
     let count = Store.make 0
 
-    style counterStyle <| Html.div [
+    withStyle counterStyle <| Html.div [
         Html.button [
             onClick (fun _ -> count <~= (+) 1)
 

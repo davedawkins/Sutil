@@ -14,6 +14,6 @@ let css = [
     ]
 
 let view() =
-    style css <| Html.p [
+    withStyle css <| Html.p [
         text "Styled!"
     ]

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="HelloWorld.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Fable.Sveltish\Fable.Sveltish.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Fable.Browser.Css" Version="2.0.0" />
+    <PackageReference Include="Fable.Browser.Dom" Version="1.2.0" />
+    <PackageReference Include="Fable.Core" Version="3.1.6" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "scripts": {
+    "postinstall": "dotnet tool restore",
+    "start": "dotnet fable watch ../HelloWorld --run webpack serve",
+    "build": "dotnet fable ../HelloWorld --run webpack --mode production",
+    "publish": "node publish.js",
+    "clean": "node clean.js"
+  },
+  "dependencies": {
+    "webpack": "^5.11.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.11.0"
+  }
+}

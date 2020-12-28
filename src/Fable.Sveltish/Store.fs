@@ -96,9 +96,6 @@ module Store =
             )
         }
 
-    let forceNotify (store : Store<'T>) =
-        store.Value() |> store.Set
-
     // Make a store from an initial value.
     let make<'T> (v : 'T) =
         // Storage is separated from Store<T> so that it doesn't leak
@@ -115,15 +112,6 @@ module Store =
         makeFromGetSet get set
 
     let makeFromProperty = property
-
-    //let expr = makeFromExpression
-
-    let link (fromStore : Store<'T1>) (toStore : Store<'T2>) =
-        let mutable init = false
-        fromStore.Subscribe( fun _ ->
-            if init then forceNotify toStore else init <- true
-            ) |> ignore
-        toStore
 
     // Subscribe wants a setter (T->unit), this converts that into a notifier (unit -> unit)
     // This allows us to know what something changed, ignoring the type and the value. It's a
@@ -157,7 +145,7 @@ module Store =
 
     // Modify the store by mapping its current value with f
     //
-    let modify (store:Store<'T>) (f:('T -> 'T)) =
+    let modify (f:('T -> 'T)) (store:Store<'T>)  =
         store |> getMap f |> set store
 
     // Helpers for list stores
@@ -168,22 +156,8 @@ module Store =
         let pred r = kf(r) = key
         fetch pred store
 
-    // Modifies store list elements in place, SQL-like
-    // Finally, notifies store subscribers
-    // Granularity of notification is "the list changed", but no modification may have actually
-    // taken place (eg, filter selected none, modify is identity), and no information about what
-    // changed is given
-    // However this simplies some simple UI view scenarios (see Todos.fs)
-    let modifyWhere (select: 'T -> bool) (modify: 'T -> unit) (store:Store<List<'T>>) =
-        for x in store |> get |> List.filter select do
-            x |> modify
-        forceNotify store
-
 [<AutoOpen>]
 module StoreOperators =
-    let (|~>) a b = Store.link a b
-    let (<~|) a b = Store.link a b |> ignore; a
-
     let (|%>) s f = Store.map f s
     let (|->) s f = Store.getMap f s
 
@@ -196,10 +170,5 @@ module StoreOperators =
     let (-~>) v (s : Store<'T>) =
         Store.set s v
 
-    let (<~=) store map = Store.modify store map
-    let (=~>) map store = Store.modify store map
-
-    // Study in how the expressions compose
-    //let lotsDone'Form1 = storeMap (fun x -> x |> (listCount isDone) >= 3) todos
-    //let lotsDone'Form2 = todos |>  storeMap (fun x -> x |> (listCount isDone) >= 3)
-    //let lotsDone'Form3 = todos |%>  (fun x -> x |> (listCount isDone) >= 3)
+    let (<~=) store map = Store.modify map store
+    let (=~>) map store = Store.modify map store

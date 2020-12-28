@@ -294,3 +294,5 @@ __pycache__/
 .DS_Store
 public/bundle.js
 src/Fable.Sveltish/Scratch.txt
+examples/HelloWorld/package-lock.json
+examples/HelloWorld/public/bundle.js

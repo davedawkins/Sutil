@@ -11,7 +11,7 @@ open Sveltish.Transition
 
 type Todo = {
         Id : int
-        mutable Done: bool
+        Done: bool
         Description: string
     }
 
@@ -20,7 +20,7 @@ let isDone t = t.Done
 let isPending = isDone >> not
 let key r = r.Id
 let hasKey k t = t.Id = k
-let toggleDone (t:Todo) = t.Done <- not t.Done
+//let toggleDone (t:Todo) = t.Done <- not t.Done
 
 type Model = {
     Todos : Store<List<Todo>>
@@ -139,6 +139,8 @@ let styleSheet = [
 
 let init() = { Todos = makeExampleTodos() }
 
+let toggle id todo = if todo.Id = id then { todo with Done = not todo.Done } else todo
+
 let update (message : Message) (model : Model) : unit =
 
     match message with
@@ -150,7 +152,7 @@ let update (message : Message) (model : Model) : unit =
         }
         model.Todos <~= (fun x -> x @ [ todo ]) // Mutation of model
     | ToggleTodo id ->
-        model.Todos |> Store.modifyWhere (hasKey id)  toggleDone
+        model.Todos |> Store.modify (fun xs -> xs |> List.map (toggle id))
     | DeleteTodo id ->
         model.Todos <~= List.filter (fun t -> t.Id <> id)
     | CompleteAll ->

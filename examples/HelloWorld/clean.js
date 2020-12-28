@@ -1,25 +1,44 @@
 var fs = require('fs');
 
 function deleteFolderRecursive(path) {
-  if (fs.existsSync(path) && fs.lstatSync(path).isDirectory()) {
-    fs.readdirSync(path).forEach(function(file, index){
-      var curPath = path + "/" + file;
+    if (fs.existsSync(path) && fs.lstatSync(path).isDirectory()) {
+        fs.readdirSync(path).forEach( (file, index) => {
+            cleanExisting(path + "/" + file);
+        });
 
-      if (fs.lstatSync(curPath).isDirectory()) { // recurse
-        deleteFolderRecursive(curPath);
-      } else { // delete file
-        fs.unlinkSync(curPath);
-      }
-    });
-
-    console.log(`Deleting directory "${path}"...`);
-    fs.rmdirSync(path);
-  }
+        console.log(`Deleting directory "${path}"...`);
+        fs.rmdirSync(path);
+    }
 };
 
-console.log("Cleaning working tree...");
+function cleanExisting (path)
+{
+    if (fs.lstatSync(path).isDirectory()) { // recurse
+        deleteFolderRecursive(path);
+    }
+    else {
+        console.log (`Deleting file "${path}"`)
+        fs.unlinkSync(path);
+    }
+}
 
-deleteFolderRecursive("./bin");
-deleteFolderRecursive("./obj");
+function clean (path)
+{
+    if (fs.existsSync(path)) cleanExisting(path);
+}
 
-console.log("Successfully cleaned working tree!");
+console.log("Cleaning...");
+
+const unclean = [
+    "./bin",
+    "./obj",
+    "./node_modules",
+    "./.fable",
+    "./package-lock.json",
+    "./HelloWorld.fs.js",
+    "./public/bundle.js"
+]
+
+unclean.forEach( (file,index) => clean(file) )
+
+console.log("Clean completed");

@@ -5,7 +5,7 @@ open Sveltish.Attr
 open Sveltish.DOM
 open Sveltish.Bindings
 
-let count = Store.make(1);
+let count  = Store.make 1
 
 let doubled = count |> Store.map ((*) 2)
 
@@ -13,11 +13,7 @@ let doubled = count |> Store.map ((*) 2)
 let quadrupled = doubled |%> ((*)2);
 
 let handleClick _ =
-    count.Set( count.Value() + 1 )
-    // Alternatively with operator:
-    //    count <~= fun v -> v + 1
-    // Or even:
-    //    count <~= (+) 1
+    count |> Store.modify (fun n -> n + 1)
 
 let view() =
     Html.div [

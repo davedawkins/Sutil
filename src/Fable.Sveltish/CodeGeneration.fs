@@ -1,6 +1,5 @@
 module Sveltish.CodeGeneration
 
-
 let makeIdGeneratorFrom start =
     let mutable id = start
     fun () ->

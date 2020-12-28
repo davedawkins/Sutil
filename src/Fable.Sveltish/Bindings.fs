@@ -47,7 +47,7 @@ module Sveltish.Bindings
                     ctx.ReplaceChild p c current |> ignore
             c
 
-        let unsub = store.Subscribe( fun t ->
+        let unsub = Store.subscribe store ( fun t ->
             let svId = bindId() |> string
             current <- element(t)( { ctx with AppendChild = addReplaceChild }, parent)
             Interop.set current "_svid" svId
@@ -149,7 +149,7 @@ module Sveltish.Bindings
     let transitionList (list : Hideable list) = fun (ctx, parent) ->
         let runtimes = list |> List.map createHideableRuntime
         for rt in runtimes do
-            rt.unsubscribe <- rt.hideable.predicate.Subscribe( fun show ->
+            rt.unsubscribe <- Store.subscribe rt.hideable.predicate ( fun show ->
                 if (isNull rt.target) then
                     rt.target <- rt.hideable.element(ctx,parent)
                     rt.cache <- not show
@@ -177,7 +177,7 @@ module Sveltish.Bindings
 
         let mutable targetElse : Node = null
 
-        let unsub = store.Subscribe( fun isVisible ->
+        let unsub = Store.subscribe store (fun isVisible ->
             if isNull target then
                 target <- element(ctx,parent)
                 cache <- not isVisible
@@ -250,7 +250,7 @@ module Sveltish.Bindings
         parent.addEventListener( Event.ElementReady, ready )
 
         // When store changes make sure check status is synced
-        let unsub = store.Subscribe(updateSelected)
+        let unsub = Store.subscribe store updateSelected
 
         parent
 
@@ -285,12 +285,12 @@ module Sveltish.Bindings
         parent.addEventListener( Event.ElementReady, ready )
 
         // When store changes make sure check status is synced
-        let unsub = store.Subscribe(updateSelected)
+        let unsub = Store.subscribe store (updateSelected)
 
         parent
 
     let bindGroup<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Node) ->
-        let name = $"store-{store.Id}"
+        let name = $"store-{Store.sid store}"
 
         let getValueList() =
             let inputs = parent.ownerDocument.querySelectorAll(@$"input[name=""{name}""]")
@@ -318,7 +318,7 @@ module Sveltish.Bindings
         parent.addEventListener( Event.ElementReady, ready )
 
         // When store changes make sure check status is synced
-        let unsub = store.Subscribe(updateChecked)
+        let unsub = Store.subscribe store (updateChecked)
 
         parent
 
@@ -339,20 +339,20 @@ module Sveltish.Bindings
         parent.addEventListener("input", (fun _ -> Interop.get parent "value" |> Store.set store ))
 
         // Group this input with all other inputs that reference the same store
-        Interop.set parent "name" $"store-{store.Id}"
+        Interop.set parent "name" $"store-{Store.sid store}"
 
         // We need to finalize checked status after all attrs have been processed for input,
         // in case 'value' hasn't been set yet
         parent.addEventListener( Event.ElementReady, ready )
 
         // When store changes make sure check status is synced
-        let unsub = store.Subscribe(updateChecked)
+        let unsub = Store.subscribe store updateChecked
 
         parent
 
     // Bind a store value to an element attribute. Updates to the element are unhandled
     let bindAttrIn<'T> (attrName:string) (store : Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
-        let unsub = store.Subscribe( fun value -> Interop.set parent attrName value )
+        let unsub = Store.subscribe store ( fun value -> Interop.set parent attrName value )
         parent
 
     // Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
@@ -368,7 +368,7 @@ module Sveltish.Bindings
     // attribute's current value to the given function
     let bindAttrNotify<'T> (attrName:string) (store : Store<'T>) (onchange : obj -> unit)= fun (ctx:BuildContext,parent:Node) ->
         parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> onchange ))
-        let unsub = store.Subscribe( Interop.set parent attrName )
+        let unsub = Store.subscribe store ( Interop.set parent attrName )
         parent
 
     // Bind a store value to an element attribute. Listen for onchange events write the converted
@@ -376,7 +376,7 @@ module Sveltish.Bindings
     let bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T)= fun (ctx:BuildContext,parent:Node) ->
         //let attrName' = if attrName = "value" then "__value" else attrName
         parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> convert |> Store.set store ))
-        let unsub = store.Subscribe( Interop.set parent attrName )
+        let unsub = Store.subscribe store ( Interop.set parent attrName )
         parent
 
     // Unsure how to safely convert Element.getAttribute():string to 'T
@@ -399,11 +399,11 @@ module Sveltish.Bindings
 
         fun (ctx,parent) ->
             let mutable state : KeyedItem<'T,'K> list = []
-            let unsub = items.Subscribe( fun value ->
+            let unsub = Store.subscribe items (fun value ->
 
                 state <- state |> List.map (fun ki -> { ki with Rect = clientRect ki.Node })
 
-                let newItems = items.Value() |> List.filter filter
+                let newItems = items |> Store.get |> List.filter filter
                 let mutable newState  = [ ]
                 let mutable enteringNodes = []
 

@@ -12,7 +12,6 @@ module Store =
     let set (s : IStore<'T>) v = ObservableStore.set (st s)  v
     let subscribe (a : IStore<'T>) f = ObservableStore.subscribe (st a) f
     let subscribe2 (a : IStore<'A>) (b : IStore<'B>) f = ObservableStore.subscribe2 (st a) (st b) f
-    let waitEndNotify f = ObservableStore.waitEndNotify f
     let sid s = (st s).Id
 #else
     let private st (a:IStore<'T>) : SimpleStore.Store<'T> = a :?> SimpleStore.Store<'T>
@@ -22,7 +21,6 @@ module Store =
     let set (s : IStore<'T>) v = SimpleStore.set (st s)  v
     let subscribe (a : IStore<'T>) f = SimpleStore.subscribe (st a) f
     let subscribe2 (a : IStore<'A>) (b : IStore<'B>) f = SimpleStore.subscribe2 (st a) (st b) f
-    let waitEndNotify f = SimpleStore.waitEndNotify f
     let sid s = (st s).Id
 #endif
 
@@ -62,6 +60,7 @@ module Store =
     let fetchByKey kf key (store:Store<List<'T>>) =
         let pred r = kf(r) = key
         fetch pred store
+
 
 [<AutoOpen>]
 module StoreOperators =

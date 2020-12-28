@@ -5,6 +5,7 @@ open Sveltish.Bindings
 open Sveltish.DOM
 open Sveltish.Attr
 open Sveltish.Styling
+open Sveltish.Transition
 
 //
 // Private styling for the counter
@@ -79,7 +80,7 @@ let Counter() =
         ]
 
         (Html.div [ class' "hint"; text "Click button to start counting" ])
-        |> Bindings.transition
+        |> transition
                 (Both (Transition.fly,[ X 100.0 ]))
                 (count |%> (=) 0)  // Visible if 'count = 0'
     ]

@@ -8,13 +8,13 @@
     <Compile Include="Logging.fs" />
     <Compile Include="CodeGeneration.fs" />
     <Compile Include="DOM.fs" />
-    <Compile Include="Transition.fs" />
-    <Compile Include="Html.fs" />
-    <Compile Include="Attr.fs" />
     <Compile Include="ObservableStore.fs" />
     <Compile Include="SimpleStore.fs" />
     <Compile Include="Store.fs" />
     <Compile Include="Styling.fs" />
+    <Compile Include="Transition.fs" />
+    <Compile Include="Html.fs" />
+    <Compile Include="Attr.fs" />
     <Compile Include="Bindings.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

@@ -10,7 +10,7 @@ module Sveltish.Logging
         enabled.["trans"] <- false
         enabled.["dom"  ] <- false
         enabled.["style"] <- false
-        enabled.["bind" ] <- true
+        enabled.["bind" ] <- false
 
     let log source (message : string) =
         if not (enabled.ContainsKey(source)) || enabled.[source] then

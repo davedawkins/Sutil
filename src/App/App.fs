@@ -6,6 +6,7 @@ open Sveltish.Attr
 open Sveltish.Styling
 open Sveltish.DOM
 open Sveltish.Bindings
+open Sveltish.Transition
 
 let make v = fun _ _ -> v()
 
@@ -179,7 +180,7 @@ let demos model dispatch =
     Html.div [
         class' "column app-demo"
         for d in Demo.All do
-            d.Create model dispatch |> Bindings.show (model.Demo |%> (fun demo -> demo = d.Title))
+            d.Create model dispatch |> show (model.Demo |%> (fun demo -> demo = d.Title))
     ]
 
 let Section (name:string) model dispatch = [

@@ -3,6 +3,7 @@ module CheckboxInputs
 open Sveltish
 open Sveltish.DOM
 open Sveltish.Attr
+open Sveltish.Transition
 
 let yes = Store.make(false)
 
@@ -23,7 +24,7 @@ let view() =
 
         Html.div [
             class' "block"
-            Bindings.showElse yes
+            showElse yes
                 (Html.p  [ text "You are ready for launch" ])
                 (Html.p  [ text "You won't be going anywhere unless you enable the ejector seat" ])
         ]

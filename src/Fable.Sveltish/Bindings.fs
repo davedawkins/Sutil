@@ -1,31 +1,16 @@
 module Sveltish.Bindings
 
-    open System.ComponentModel
     open Styling
     open Transition
     open DOM
     open Browser.Types
-    open Fable.Core
     open Browser.Dom
-    open Browser.Css
-    open Browser.CssExtensions
-
-    type TransitionFn = (TransitionProp list -> HTMLElement -> unit -> Transition)
-
-    type TransitionFactory = TransitionFn * (TransitionProp list)
-
-    type TransitionAttribute =
-        | Both of TransitionFactory
-        | In of TransitionFactory
-        | Out of TransitionFactory
-        | InOut of (TransitionFactory * TransitionFactory)
 
     let log s = Logging.log "bind" s
 
     let bindId = CodeGeneration.makeIdGenerator()
 
     let isTextNode (n:Node) = n.nodeType = 3.0
-
 
     let bind<'T>  (store : Store<'T>)  (element: 'T -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable current : Node = null
@@ -69,149 +54,6 @@ module Sveltish.Bindings
         )
 
         current
-
-    let waitAnimationEnd (el : HTMLElement) (f : unit -> unit) =
-        let rec cb _ =
-            el.removeEventListener("animationend",cb)
-            f()
-        el.addEventListener("animationend", cb)
-
-    let animateNode (node : HTMLElement) from =
-        //let from = node.getBoundingClientRect()
-        Store.waitEndNotify <| fun () ->
-            //createAnimation node from flip [] |> ignore
-            window.requestAnimationFrame( fun _ ->
-                let name = createAnimation node from flip []
-                waitAnimationEnd node <| fun _ -> deleteRule node name
-                ) |> ignore
-
-
-    let transitionNode (el : HTMLElement) (trans : TransitionAttribute option) (transProps : TransitionProp list) (isVisible :bool) (complete: HTMLElement -> unit)=
-        let mutable ruleName = ""
-
-        let hide() =
-            showEl el false
-            complete el
-            Transition.deleteRule el ruleName
-
-        let rec show() =
-            showEl el true
-            complete el
-            Transition.deleteRule el ruleName
-
-        let tr = trans |> Option.bind (fun x ->
-            match x with
-            | Both t -> Some t
-            | In t -> if isVisible then Some t else None
-            | Out t -> if isVisible then None else Some t
-            | InOut (tin,tout) -> if isVisible then Some tin else Some tout
-            )
-
-        match tr with
-        | None ->
-            showEl el isVisible
-            complete el
-        | Some (tr,trProps) ->
-            deleteRule el ""
-            if isVisible then
-                let trans = (tr (transProps @ trProps) el)
-                Store.waitEndNotify <| fun () ->
-                    waitAnimationEnd el show
-                    showEl el true
-                    ruleName <- Transition.createRule el 0.0 1.0 trans 0
-            else
-                let trans = (tr transProps el)
-                Store.waitEndNotify <| fun () ->
-                    waitAnimationEnd el hide
-                    ruleName <- Transition.createRule el 1.0 0.0 trans 0
-
-    type Hideable = {
-        predicate : Store<bool>
-        element   : NodeFactory
-        transOpt  : TransitionAttribute option
-    }
-
-    type HideableRuntime = {
-        hideable : Hideable
-        mutable target : Node
-        mutable cache : bool
-        mutable unsubscribe : (unit -> unit)
-    }
-
-    let createHideableRuntime h =
-        {
-            hideable = h
-            target = null
-            cache = false
-            unsubscribe = fun _ -> ()
-        }
-
-    let transitionList (list : Hideable list) = fun (ctx, parent) ->
-        let runtimes = list |> List.map createHideableRuntime
-        for rt in runtimes do
-            rt.unsubscribe <- Store.subscribe rt.hideable.predicate ( fun show ->
-                if (isNull rt.target) then
-                    rt.target <- rt.hideable.element(ctx,parent)
-                    rt.cache <- not show
-
-                if (rt.cache <> show) then
-                    rt.cache <- show
-
-                transitionNode (rt.target :?> HTMLElement) rt.hideable.transOpt [] show ignore
-            )
-        runtimes.Head.target
-
-    type MatchOption<'T> = ('T -> bool) *  NodeFactory * TransitionAttribute option
-
-    let makeHideable guard element transOpt = {
-        element = element
-        transOpt = transOpt
-        predicate = guard
-    }
-    let transitionMatch<'T> (store : Store<'T>) (options : MatchOption<'T> list) =
-        options |> List.map (fun (p,e,t) -> makeHideable (store |%> p) e t) |> transitionList
-
-    let transitionOpt (trans : TransitionAttribute option) (store : Store<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
-        let mutable target : Node = null
-        let mutable cache = false
-
-        let mutable targetElse : Node = null
-
-        let unsub = Store.subscribe store (fun isVisible ->
-            if isNull target then
-                target <- element(ctx,parent)
-                cache <- not isVisible
-                match elseElement with
-                | Some e ->
-                    targetElse <- e(ctx,parent)
-                    //ctx.AppendChild parent targetElse |> ignore
-                | None -> ()
-
-            if cache <> isVisible then
-                cache <- isVisible
-                transitionNode (target :?> HTMLElement) trans [] isVisible ignore
-                if not (isNull targetElse) then
-                    transitionNode (targetElse :?> HTMLElement) trans [] (not isVisible) ignore
-        )
-        // Not sure about this. Something is wrong in the design, since we (might) have created two elements
-        // We could create a container div to hold them and return that div.
-        target
-
-    // Show or hide according to a Store<bool> using a transition
-    let transition<'T> (trans : TransitionAttribute) store element =
-        transitionOpt (Some trans) store element None
-
-    // Alternate between a pair of elements according to a Store<bool> with no transition
-    let transitionElse<'T> (trans : TransitionAttribute) store element otherElement=
-        transitionOpt (Some trans) store element (Some otherElement)
-
-    // Show or hide according to a Store<bool> with no transition
-    let show<'T> store element =
-        transitionOpt None store element None
-
-    // Alternate between a pair of elements according to a Store<bool> with no transition
-    let showElse<'T> store element otherElement=
-        transitionOpt None store element (Some otherElement)
 
     let getInputChecked el = Interop.get el "checked"
     let setInputChecked (el : Node) (v:obj) = Interop.set el "checked" v
@@ -393,7 +235,6 @@ module Sveltish.Bindings
         Position : int
         Rect: ClientRect
     }
-
 
     let each (items:Store<list<'T>>) (key:'T -> 'K) (filter:'T -> bool) (trans : TransitionAttribute) (view : 'T -> NodeFactory)  =
 

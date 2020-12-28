@@ -68,6 +68,7 @@ module SimpleStore =
             let w = waiting
             waiting <- []
             n w
+            log("endNotify")
             notifyDocument()
 
     let waitEndNotify f =

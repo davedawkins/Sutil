@@ -166,7 +166,7 @@ module ObservableStore =
         notifyLevel <- notifyLevel + 1
 
     let notifyDocument() =
-        document.dispatchEvent( Interop.customEvent "sveltish-updated"  {|  |} ) |> ignore
+        document.dispatchEvent( Interop.customEvent DOM.Event.Updated  {|  |} ) |> ignore
 
     let endNotify() =
         notifyLevel <- notifyLevel - 1

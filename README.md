@@ -12,6 +12,8 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- Alfonso's PR also gives us a better Elmish MVU architecture than I had previously. See section further down on MVU
+- Switch to Observable-based stores, thanks to PR from Alfonso
 - Select bindings example
 - Select multiple example. Apply styling (Bulma) to other examples
 - Finished GroupInputs example. Bindings for radio groups and checkbox groups
@@ -319,18 +321,40 @@ let todosList title filter tin tout model dispatch =
     ]
 ```
 
-## Model-View-Update support
+## Model-View-Update (Elmish) support
 
-Experimenting with a slightly modified form of Elm's MVU, where the model mutates. There's still value in organizing
-the program into view and update functions. The view function exists naturally in Sveltish, and
-the dispatch->update separation means that all updates to the model can be made in the update function,
-with the view only issuing dispatched messages.
+A Sveltish program can support Elmish MVU as in the following example.
 
-The view has bindings to derivations of the model's store and so updates in response to changes made
-by the update function.
+Notice that the view function is called only once, and mutates the DOM according to model bindings
 
-Of course, you can mutate the model directly in the event handlers, but if you like the organization
-that Elmish/MVU brings, this is still an option.
+```f#
+type Model = { Count : int }
+type Message = Increment | Decrement
+
+let init() = { Count = 0 }
+
+let update msg model =
+    match msg with
+    | Increment -> { model with Count = model.Count + 1}
+    | Decrement -> { model with Count = model.Count - 1}
+
+let view() =
+    let model, dispatch = makeElmishSimple init update ignore
+
+    Html.div [
+        bind model <| fun m -> text $"Count is {m.Count}"
+        Html.button [
+            onClick (fun _ -> dispatch Decrement)
+            text "-"
+        ]
+        Html.button [
+            onClick (fun _ -> dispatch Increment)
+            text "+"
+        ]
+    ]
+
+view() |> Sveltish.DOM.mountElement "sveltish-app"
+```
 
 ## Interaction with 3rd-party libraries
 

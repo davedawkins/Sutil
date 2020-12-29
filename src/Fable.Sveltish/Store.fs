@@ -81,15 +81,15 @@ module Store =
         result
 
 
-#if DEBUG
+//#if DEBUG
     let makeElmishSimple init update _ = fun () ->
         let s = init() |> make
         let d msg =
             s |> modify (update msg)
         s, d
-#else
-    let makeElmishSimple = ObservableStore.makeElmishSimple
-#endif
+//#else
+//    let makeElmishSimple = ObservableStore.makeElmishSimple
+//#endif
 
 [<AutoOpen>]
 module StoreOperators =

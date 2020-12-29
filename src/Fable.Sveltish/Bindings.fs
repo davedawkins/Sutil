@@ -1,14 +1,12 @@
 module Sveltish.Bindings
 
-    open Styling
     open Transition
     open DOM
     open Browser.Types
-    open Browser.Dom
 
     let log s = Logging.log "bind" s
 
-    let bindId = CodeGeneration.makeIdGenerator()
+    let bindId = Helpers.makeIdGenerator()
 
     let isTextNode (n:Node) = n.nodeType = 3.0
 
@@ -131,8 +129,19 @@ module Sveltish.Bindings
 
         parent
 
+    let isNullString (obj:obj) =
+        isNull obj || System.String.IsNullOrEmpty(downcast obj)
+
+    let getId (s : IStore<'T>) = s.GetHashCode()
+
     let bindGroup<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Node) ->
-        let name = $"store-{Store.sid store}"
+        let name = match Interop.get parent "name" with
+                    | s when isNullString s -> $"store-{getId store}"
+                    | s -> s
+
+        // Group this input with all other inputs that reference the same store
+        Interop.set parent "name" name
+
 
         let getValueList() =
             let inputs = parent.ownerDocument.querySelectorAll(@$"input[name=""{name}""]")
@@ -152,9 +161,6 @@ module Sveltish.Bindings
             getValueList() |> Store.set store
         ))
 
-        // Group this input with all other inputs that reference the same store
-        Interop.set parent "name" name
-
         // We need to finalize checked status after all attrs have been processed for input,
         // in case 'value' hasn't been set yet
         parent.addEventListener( Event.ElementReady, ready )
@@ -169,6 +175,12 @@ module Sveltish.Bindings
     // to turn a string into an int automatically in the Store.set call (maybe it's Fable doing that)
     //
     let bindRadioGroup<'T> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+        let name = match Interop.get parent "name" with
+                    | s when isNullString s -> $"store-{getId store}"
+                    | s -> s
+        // Group this input with all other inputs that reference the same store
+        Interop.set parent "name" name
+
         let updateChecked (v : obj) =
             setInputChecked parent ( (string v) = getInputValue parent )
 
@@ -179,9 +191,6 @@ module Sveltish.Bindings
 
         // Update the store when the radio box is clicked on
         parent.addEventListener("input", (fun _ -> Interop.get parent "value" |> Store.set store ))
-
-        // Group this input with all other inputs that reference the same store
-        Interop.set parent "name" $"store-{Store.sid store}"
 
         // We need to finalize checked status after all attrs have been processed for input,
         // in case 'value' hasn't been set yet

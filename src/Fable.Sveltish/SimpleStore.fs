@@ -1,23 +1,25 @@
 namespace Sveltish
 
+open System
+
 [<RequireQualifiedAccess>]
 module SimpleStore =
-    let newStoreId = CodeGeneration.makeIdGenerator()
-
     let log = Logging.log "store"
 
     type Store<'T> =
         {
-            Id : int
             Value : (unit -> 'T)
             Set   : ('T -> unit)
-
-            // Subscribe takes a callback that will be called immediately upon
-            // subscription, and when the value changes
-            // Result is an unsubscription function
             Subscribe : ('T -> unit) -> (unit -> unit)
-        }
-        interface IStore<'T>
+        } with
+        member this.SubscribeImpl(f) = ()
+        interface IStore<'T> with
+            member this.Update(f) = this.Set(this.Value() |> f)
+            member this.Get = this.Value()
+            //member this.Id = this.Id
+            member this.Subscribe(f) =
+                let handler v = f.OnNext(v)
+                this.Subscribe(handler) |> Helpers.disposable
 
     type Subscriber<'T> = {
         Id : int
@@ -28,25 +30,11 @@ module SimpleStore =
     let get (store:Store<'T>) = store.Value()
     let subscribe (store:Store<'T>) f = store.Subscribe(f)
 
-    let subscribe2<'A,'B>  (a : Store<'A>) (b : Store<'B>)  (callback: ('A*'B) -> unit) : (unit -> unit) =
-        let unsuba = a.Subscribe( fun v ->
-            callback(v,b.Value())
-        )
-        let unsubb = b.Subscribe( fun v ->
-            callback(a.Value(),v)
-        )
-        let unsubBoth() =
-            unsuba()
-            unsubb()
-        unsubBoth
-
-    let newSubId = CodeGeneration.makeIdGenerator()
+    let newSubId = Helpers.makeIdGenerator()
 
     let makeFromGetSet<'T> (get : unit -> 'T) (set : 'T -> unit) =
         let mutable subscribers : Subscriber<'T> list = []
-        let myId = newStoreId()
         {
-            Id = myId
             Value = get
             Set  = fun (v : 'T) ->
                 set(v)

@@ -40,7 +40,7 @@ let makeExampleTodos() = [
     { Id = 6; Done = false; Description = "6:fix some bugs" }
 ]
 
-let newUid = CodeGeneration.makeIdGeneratorFrom(7)
+let newUid = Helpers.makeIdGeneratorFrom(7)
 
 let styleSheet = [
 

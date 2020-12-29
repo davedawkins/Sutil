@@ -1,27 +1,35 @@
 namespace Sveltish
 
-// Store API in use
+open System
+open Browser.Dom
+
+module internal StoreHelpers =
+    let disposable f =
+        { new IDisposable with
+            member _.Dispose() = f () }
 
 [<RequireQualifiedAccess>]
 module Store =
-#if USE_OBSERVABLE_STORE
-    let private st (a:IStore<'T>) : ObservableStore.Store<'T> = a :?> ObservableStore.Store<'T>
-
-    let make (init:'T) : IStore<'T> = (ObservableStore.make init) :> IStore<'T>
-    let get (s : IStore<'T>) : 'T = ObservableStore.get (st s)
-    let set (s : IStore<'T>) v : unit = ObservableStore.set (st s)  v
-    let subscribe (a : IStore<'T>) f = ObservableStore.subscribe (st a) f
-    let subscribe2 (a : IStore<'A>) (b : IStore<'B>) f = ObservableStore.subscribe2 (st a) (st b) f
-    let sid s = (st s).Id
-#else
-    let private st (a:IStore<'T>) : SimpleStore.Store<'T> = a :?> SimpleStore.Store<'T>
+#if USE_SIMPLE_STORE
+    let private st (a:IStore<'T>) : SimpleStore.Store<'T> = downcast a
 
     let make (init:'T) : IStore<'T> = (SimpleStore.make init) :> IStore<'T>
     let get (s : IStore<'T>) = SimpleStore.get (st s)
     let set (s : IStore<'T>) v = SimpleStore.set (st s)  v
-    let subscribe (a : IStore<'T>) f = SimpleStore.subscribe (st a) f
-    let subscribe2 (a : IStore<'A>) (b : IStore<'B>) f = SimpleStore.subscribe2 (st a) (st b) f
-    let sid s = (st s).Id
+    let subscribe (a : IStore<'T>) (f : 'T -> unit) : IDisposable =
+        SimpleStore.subscribe (st a) f |> StoreHelpers.disposable
+#else
+    let private st (a:IStore<'T>) : ObservableStore.Store<'T> = downcast a
+
+    let make (modelInit:'T) : IStore<'T> =
+        let init() = modelInit
+        let dispose(m) = ()
+        let s = ObservableStore.Store( init, dispose )
+        upcast s
+
+    let get (s : IStore<'T>) : 'T = (st s).Get
+    let set (s : IStore<'T>) v : unit = (st s).Update( fun _ -> v )
+    let subscribe (a : IStore<'T>) (f : 'T -> unit) = (st a).Subscribe(f)
 #endif
 
     // Map the wrapped value. For a List<T> (instead of a Store<T>) this might be
@@ -43,11 +51,6 @@ module Store =
         let unsub = subscribe s (f >> (set result))
         result
 
-    let map2<'A,'B,'R> (f : ('A * 'B) -> 'R) (a : Store<'A>) (b : Store<'B>)=
-        let result = make( (get a, get b) |> f )
-        let unsub = subscribe2 a b <| fun (x,y) -> set result ((x, y) |> f)
-        result
-
     // Modify the store by mapping its current value with f
     //
     let modify (f:('T -> 'T)) (store:Store<'T>)  =
@@ -61,13 +64,31 @@ module Store =
         let pred r = kf(r) = key
         fetch pred store
 
-#if USE_OBSERVABLE_STORE
-#else
+    let subscribe2<'A,'B>  (a : IStore<'A>) (b : IStore<'B>)  (callback: ('A*'B) -> unit) : System.IDisposable =
+        let unsuba = subscribe a ( fun v ->
+            callback(v,get b)
+        )
+        let unsubb = subscribe b ( fun v ->
+            callback(get a,v)
+        )
+        StoreHelpers.disposable <| fun () ->
+            unsuba.Dispose()
+            unsubb.Dispose()
+
+    let map2<'A,'B,'R> (f : ('A * 'B) -> 'R) (a : Store<'A>) (b : Store<'B>)=
+        let result = make( (get a, get b) |> f )
+        let unsub = subscribe2 a b <| fun (x,y) -> set result ((x, y) |> f)
+        result
+
+
+#if DEBUG
     let makeElmishSimple init update _ = fun () ->
         let s = init() |> make
         let d msg =
             s |> modify (update msg)
         s, d
+#else
+    let makeElmishSimple = ObservableStore.makeElmishSimple
 #endif
 
 [<AutoOpen>]

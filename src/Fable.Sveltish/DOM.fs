@@ -12,6 +12,10 @@ module Event =
     let Hide = "sveltish-hide"
     let Updated = "sveltish-updated"
 
+    let notifyDocument() =
+        log("notify document")
+        document.dispatchEvent( Interop.customEvent Updated  {|  |} ) |> ignore
+
 type CssSelector =
     | Tag of string
     | Cls of string
@@ -67,7 +71,7 @@ type BuildContext = {
 }
 
 let makeContext =
-    let gen = CodeGeneration.makeIdGenerator()
+    let gen = Helpers.makeIdGenerator()
     {
         StyleSheet = None
         AppendChild = (fun parent child -> parent.appendChild(child))

@@ -2,16 +2,8 @@ namespace Sveltish
 
 open System
 
-// An observable store. Stores can be observed and updated.
-type IObservableStore<'Model> =
-    inherit IObservable<'Model>
-    abstract Update: f:('Model -> 'Model) -> unit
-
 [<RequireQualifiedAccess>]
 module ObservableStore =
-
-    // Alias for convenience (or perhaps a static dependency injection)
-    type IStore<'Model> = IObservableStore<'Model>
 
     // Dave's understanding of the types here.
     // ('Model -> 'Model) is a model updater
@@ -29,10 +21,6 @@ module ObservableStore =
             member _.Dispose() = match dispose with Some d -> d () | None -> ()
             interface IDisposable with
                 member this.Dispose() = this.Dispose()
-
-        let disposable f =
-            { new IDisposable with
-                member _.Dispose() = f () }
 
     #if FABLE_COMPILER
         open Fable.Core
@@ -59,10 +47,13 @@ module ObservableStore =
 
     type Store<'Model>(init: unit -> 'Model, dispose: 'Model -> unit) =
         let mutable uid = 0
-        let mutable model = Unchecked.defaultof<_>
+        let mutable model = init() //Unchecked.defaultof<_>
 
         let subscribers =
             Collections.Generic.Dictionary<_, IObserver<'Model>>()
+
+        //member _.Id = storeId
+        member _.Get = model
 
         member _.Update(f: 'Model -> 'Model) =
             if subscribers.Count > 0 then
@@ -75,23 +66,24 @@ module ObservableStore =
                     |> Seq.iter (fun s -> s.OnNext(model))
 
         member _.Subscribe(observer: IObserver<'Model>): IDisposable =
-            if subscribers.Count = 0 then model <- init ()
+            //if subscribers.Count = 0 then model <- init ()
             let id = uid
             uid <- uid + 1
             subscribers.Add(id, observer)
 
             // TODO: Is this the right way to report the model to the subscriber immediately?
-            Fable.Core.JS.setTimeout (fun _ -> observer.OnNext(model)) 0 |> ignore
+            //Fable.Core.JS.setTimeout (fun _ -> observer.OnNext(model)) 0 |> ignore
+            observer.OnNext(model)
 
-            { new IDisposable with
-                member _.Dispose() =
-                    if subscribers.Remove(id) && subscribers.Count = 0 then
-                        dispose model
-                        model <- Unchecked.defaultof<_> }
+            Helpers.disposable <| fun () ->
+                if subscribers.Remove(id) && subscribers.Count = 0 then
+                    dispose model
+                    model <- Unchecked.defaultof<_>
 
         interface IStore<'Model> with
-            member this.Update(f) = this.Update(f)
             member this.Subscribe(observer: IObserver<'Model>) = this.Subscribe(observer)
+            member this.Update(f) = this.Update(f)
+            member this.Get = this.Get
 
     let makeElmishWithCons (init: 'Props -> 'Model * Cmd<'Msg>)
                            (update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>)
@@ -149,10 +141,4 @@ module ObservableStore =
         makeElmishWithCons init update dispose (fun i d ->
             let s = Store(i, d)
             upcast s, s.Update)
-
-    let newStoreId = CodeGeneration.makeIdGenerator()
-
-    let log = Logging.log "store"
-
-    let newSubId = CodeGeneration.makeIdGenerator()
 

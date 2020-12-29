@@ -7,6 +7,7 @@ open Sveltish.Styling
 open Sveltish.DOM
 open Sveltish.Bindings
 open Sveltish.Transition
+open Browser.Dom
 
 let make v = fun _ _ -> v()
 
@@ -45,7 +46,7 @@ type Demo = {
     ]
 
 let init() =
-    let todosModel = Todos.init()
+    //let todosModel = Todos.init()
     {
         Demo = Store.make "Hello World"
         Source = Store.make ""
@@ -194,7 +195,8 @@ let Section (name:string) model dispatch = [
 
 let urlBase = "https://raw.githubusercontent.com/davedawkins/Fable.Sveltish/main/src/App"
 
-let findDemo name = Demo.All |> List.find (fun d -> d.Title = name)
+let findDemo name =
+    Demo.All |> List.find (fun d -> d.Title = name)
 
 let fetchSource  (model:Model) dispatch =
     let src = Store.get model.Tab

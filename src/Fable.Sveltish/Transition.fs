@@ -104,14 +104,10 @@ module Sveltish.Transition
     let mutable numActiveAnimations = 0
     let mutable tasks : (unit -> unit) list = []
 
-    let notifyDocument() =
-        document.dispatchEvent( Interop.customEvent DOM.Event.Updated  {|  |} ) |> ignore
-
     let runTasks() =
         let copy = tasks
         tasks <- []
         for f in copy do f()
-        notifyDocument()
 
     let waitAnimationFrame f =
         let init = tasks.IsEmpty
@@ -134,7 +130,7 @@ module Sveltish.Transition
     let getSveltishStylesheet (doc : Document) =
         getSveltishStyleElement doc |> dotSheet
 
-    let nextRuleId = CodeGeneration.makeIdGenerator()
+    let nextRuleId = Helpers.makeIdGenerator()
 
     let toEmptyStr s = if System.String.IsNullOrEmpty(s) then "" else s
 
@@ -456,7 +452,7 @@ module Sveltish.Transition
         hideable : Hideable
         mutable target : Node
         mutable cache : bool
-        mutable unsubscribe : (unit -> unit)
+        mutable unsubscribe : System.IDisposable
     }
 
     let createHideableRuntime h =
@@ -464,7 +460,7 @@ module Sveltish.Transition
             hideable = h
             target = null
             cache = false
-            unsubscribe = fun _ -> ()
+            unsubscribe = null
         }
 
     let transitionList (list : Hideable list) = fun (ctx, parent) ->

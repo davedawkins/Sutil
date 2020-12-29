@@ -1,4 +1,9 @@
-module Sveltish.CodeGeneration
+module Sveltish.Helpers
+
+let internal disposable f =
+    { new System.IDisposable with
+        member _.Dispose() = f () }
+
 
 let makeIdGeneratorFrom start =
     let mutable id = start

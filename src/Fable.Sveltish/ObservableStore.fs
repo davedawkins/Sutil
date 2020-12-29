@@ -2,22 +2,25 @@ namespace Sveltish
 
 open System
 
-type ObservableStore<'Model> =
+// An observable store. Stores can be observed and updated.
+type IObservableStore<'Model> =
     inherit IObservable<'Model>
     abstract Update: f:('Model -> 'Model) -> unit
 
 [<RequireQualifiedAccess>]
 module ObservableStore =
 
-    type IStore<'Model> = ObservableStore<'Model>
+    // Alias for convenience (or perhaps a static dependency injection)
+    type IStore<'Model> = IObservableStore<'Model>
 
-    open Browser.Dom
-    open Browser.Event
+    // Dave's understanding of the types here.
+    // ('Model -> 'Model) is a model updater
+    type Update<'Model> = ('Model -> 'Model) -> unit // A store updater. Store updates by being passed a model updater
+    type Dispatch<'Msg> = 'Msg -> unit // Message dispatcher
+    type Cmd<'Msg> = (Dispatch<'Msg> -> unit) list // List of commands. A command needs a dispatcher to execute
 
-    type Update<'Model> = ('Model -> 'Model) -> unit
-    type Dispatch<'Msg> = 'Msg -> unit
-    type Cmd<'Msg> = (Dispatch<'Msg> -> unit) list
-
+    // Store constructor
+    // init(), dispose() and returns a store and a model updater
     type StoreCons<'Model, 'Store> = (unit -> 'Model) -> ('Model -> unit) -> 'Store * Update<'Model>
 
     module internal Helpers =
@@ -90,8 +93,6 @@ module ObservableStore =
             member this.Update(f) = this.Update(f)
             member this.Subscribe(observer: IObserver<'Model>) = this.Subscribe(observer)
 
-
-
     let makeElmishWithCons (init: 'Props -> 'Model * Cmd<'Msg>)
                            (update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>)
                            (dispose: 'Model -> unit)
@@ -155,32 +156,3 @@ module ObservableStore =
 
     let newSubId = CodeGeneration.makeIdGenerator()
 
-    //
-    // For a given triggering event (eg user checks a box) store subscriptions may want
-    // to defer side effects until all subscriptions have been notified
-    //
-
-    let mutable notifyLevel = 0
-    let mutable waiting = []
-    let startNotify() =
-        notifyLevel <- notifyLevel + 1
-
-    let notifyDocument() =
-        document.dispatchEvent( Interop.customEvent DOM.Event.Updated  {|  |} ) |> ignore
-
-    let endNotify() =
-        notifyLevel <- notifyLevel - 1
-        if (notifyLevel = 0) then
-            let rec n w =
-                match w with
-                | [] -> ()
-                | f :: xs -> f(); n xs
-            let w = waiting
-            waiting <- []
-            n w
-            notifyDocument()
-
-    let waitEndNotify f =
-        if (notifyLevel = 0)
-            then f()
-            else waiting <- f :: waiting

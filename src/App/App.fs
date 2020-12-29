@@ -12,7 +12,6 @@ let make v = fun _ _ -> v()
 
 type Model = {
     Demo : Store<string>
-    TodosModel : Todos.Model
     Tab : Store<string>
     Source : Store<string>
 }
@@ -21,7 +20,6 @@ type Message =
     | SetDemo of string
     | SetTab of string
     | SetSource of string
-    | TodosMsg of Todos.Message
 
 type Demo = {
     Title : string
@@ -37,7 +35,7 @@ type Demo = {
         { Category = "Reactivity";Title = "Reactive assignments";  Create = make Counter.Counter ; Sources = ["Counter.fs"]}
         { Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Sources = ["ReactiveDeclarations.fs"]}
         { Category = "Reactivity";Title = "Reactive statements";  Create = make ReactiveStatements.view ; Sources = ["ReactiveStatements.fs"]}
-        { Category = "Animations"; Title = "The animate directive"; Create = (fun m d -> Todos.view m.TodosModel (d<<TodosMsg)); Sources = ["Todos.fs"] }
+        { Category = "Animations"; Title = "The animate directive"; Create = make Todos.view; Sources = ["Todos.fs"] }
         { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}
         { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
         { Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
@@ -50,7 +48,6 @@ let init() =
     let todosModel = Todos.init()
     {
         Demo = Store.make "Hello World"
-        TodosModel = todosModel
         Source = Store.make ""
         Tab = Store.make "demo"
     }
@@ -66,8 +63,6 @@ let update msg model =
         model.Tab <~ "demo"
     | SetSource src ->
         model.Source <~ src
-    | TodosMsg m ->
-        Todos.update m model.TodosModel
 
 let mainStyleSheet = [
 

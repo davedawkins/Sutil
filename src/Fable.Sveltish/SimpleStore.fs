@@ -2,9 +2,6 @@ namespace Sveltish
 
 [<RequireQualifiedAccess>]
 module SimpleStore =
-
-    open Browser.Dom
-
     let newStoreId = CodeGeneration.makeIdGenerator()
 
     let log = Logging.log "store"
@@ -45,37 +42,6 @@ module SimpleStore =
 
     let newSubId = CodeGeneration.makeIdGenerator()
 
-    //
-    // For a given triggering event (eg user checks a box) store subscriptions may want
-    // to defer side effects until all subscriptions have been notified
-    //
-
-    let mutable notifyLevel = 0
-    let mutable waiting = []
-    let startNotify() =
-        notifyLevel <- notifyLevel + 1
-
-    let notifyDocument() =
-        document.dispatchEvent( Interop.customEvent DOM.Event.Updated  {|  |} ) |> ignore
-
-    let endNotify() =
-        notifyLevel <- notifyLevel - 1
-        if (notifyLevel = 0) then
-            let rec n w =
-                match w with
-                | [] -> ()
-                | f :: xs -> f(); n xs
-            let w = waiting
-            waiting <- []
-            n w
-            log("endNotify")
-            notifyDocument()
-
-    let waitEndNotify f =
-        if (notifyLevel = 0)
-            then f()
-            else waiting <- f :: waiting
-
     let makeFromGetSet<'T> (get : unit -> 'T) (set : 'T -> unit) =
         let mutable subscribers : Subscriber<'T> list = []
         let myId = newStoreId()
@@ -83,10 +49,8 @@ module SimpleStore =
             Id = myId
             Value = get
             Set  = fun (v : 'T) ->
-                startNotify()
                 set(v)
                 for s in subscribers do s.Set(get())
-                endNotify()
             Subscribe = (fun notify ->
                 let id = newSubId()
                 let unsub = (fun () ->

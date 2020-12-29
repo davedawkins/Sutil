@@ -8,8 +8,8 @@ module Store =
     let private st (a:IStore<'T>) : ObservableStore.Store<'T> = a :?> ObservableStore.Store<'T>
 
     let make (init:'T) : IStore<'T> = (ObservableStore.make init) :> IStore<'T>
-    let get (s : IStore<'T>) = ObservableStore.get (st s)
-    let set (s : IStore<'T>) v = ObservableStore.set (st s)  v
+    let get (s : IStore<'T>) : 'T = ObservableStore.get (st s)
+    let set (s : IStore<'T>) v : unit = ObservableStore.set (st s)  v
     let subscribe (a : IStore<'T>) f = ObservableStore.subscribe (st a) f
     let subscribe2 (a : IStore<'A>) (b : IStore<'B>) f = ObservableStore.subscribe2 (st a) (st b) f
     let sid s = (st s).Id
@@ -61,6 +61,14 @@ module Store =
         let pred r = kf(r) = key
         fetch pred store
 
+#if USE_OBSERVABLE_STORE
+#else
+    let makeElmishSimple init update _ = fun () ->
+        let s = init() |> make
+        let d msg =
+            s |> modify (update msg)
+        s, d
+#endif
 
 [<AutoOpen>]
 module StoreOperators =

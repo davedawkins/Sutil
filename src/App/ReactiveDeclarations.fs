@@ -5,12 +5,9 @@ open Sveltish.Attr
 open Sveltish.DOM
 open Sveltish.Bindings
 
-let count  = Store.make 1
-
-let doubled = count |> Store.map ((*) 2)
-
-// Using an operator instead of storeMap
-let quadrupled = doubled |%> ((*)2);
+let count      = Store.make 1
+let doubled    = count |> Store.map ((*) 2)
+let quadrupled = doubled |> Store.map ((*)2);
 
 let handleClick _ =
     count |> Store.modify (fun n -> n + 1)
@@ -21,8 +18,6 @@ let view() =
             class' "block"
             onClick handleClick
             bind count (fun n -> text $"Count: {n}")
-            // Alternative with operator:
-            //    count |-> (fun n -> text $"Count: {n}")
         ]
 
         Html.p [

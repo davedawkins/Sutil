@@ -23,7 +23,8 @@ let hasKey k t = t.Id = k
 
 type Model = {
     Todos : List<Todo>
-}
+} with
+    override this.ToString() = $"The Model: {this.Todos.Length} items"
 
 type Message =
     |AddTodo of desc:string
@@ -160,7 +161,8 @@ let update (message : Message) (model : Model) : Model =
 let fader  x = transition <| Both (fade,[ Duration 300.0 ]) <| x
 let slider x = transition <| Both (slide,[ Duration 300.0 ])  <| x
 
-let todosList title filter tin tout todos dispatch =
+let todosList title filter tin tout model dispatch =
+    let todos = model |> Store.map (fun x -> x.Todos)
     Html.div [
         class' title
         Html.h2 [ text title ]
@@ -189,7 +191,6 @@ let view () : NodeFactory =
 
     let model, dispatch = makeStore()
 
-    let todos = model |> Store.map (fun m -> m.Todos)
     let completed = model |> Store.map (fun m -> m.Todos |> List.filter isDone)
     let lotsDone  = completed |> Store.map (fun x -> (x |> List.length >= 3))
 
@@ -222,7 +223,7 @@ let view () : NodeFactory =
 
         Html.div [
             class' "row"
-            todosList "todo" isPending trecv tsend todos dispatch
-            todosList "done" isDone trecv tsend todos dispatch
+            todosList "todo" isPending trecv tsend model dispatch
+            todosList "done" isDone trecv tsend model dispatch
         ]
     ]

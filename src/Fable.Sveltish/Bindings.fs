@@ -3,6 +3,8 @@ module Sveltish.Bindings
     open Transition
     open DOM
     open Browser.Types
+    open Browser.Dom
+    open System
 
     let log s = Logging.log "bind" s
 
@@ -10,7 +12,7 @@ module Sveltish.Bindings
 
     let isTextNode (n:Node) = n.nodeType = 3.0
 
-    let bind<'T>  (store : Store<'T>)  (element: 'T -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
+    let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable current : Node = null
 
         let addReplaceChild p c =
@@ -37,7 +39,7 @@ module Sveltish.Bindings
         )
         current
 
-    let bind2<'A,'B>  (a : Store<'A>) (b : Store<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
+    let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let mutable current : Node = null
 
         let addReplaceChild p c =
@@ -202,7 +204,7 @@ module Sveltish.Bindings
         parent
 
     // Bind a store value to an element attribute. Updates to the element are unhandled
-    let bindAttrIn<'T> (attrName:string) (store : Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+    let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) = fun (ctx:BuildContext,parent:Node) ->
         let unsub = Store.subscribe store ( fun value -> Interop.set parent attrName value )
         parent
 
@@ -245,7 +247,7 @@ module Sveltish.Bindings
         Rect: ClientRect
     }
 
-    let each (items:Store<list<'T>>) (key:'T -> 'K) (filter:'T -> bool) (trans : TransitionAttribute) (view : 'T -> NodeFactory)  =
+    let each (items:IObservable<list<'T>>) (key:'T -> 'K) (filter:'T -> bool) (trans : TransitionAttribute) (view : 'T -> NodeFactory)  =
 
         fun (ctx,parent) ->
             let mutable state : KeyedItem<'T,'K> list = []
@@ -253,7 +255,8 @@ module Sveltish.Bindings
 
                 state <- state |> List.map (fun ki -> { ki with Rect = clientRect ki.Node })
 
-                let newItems = items |> Store.get |> List.filter filter
+                //let newItems = items |> Store.get |> List.filter filter
+                let newItems = value |> List.filter filter
                 let mutable newState  = [ ]
                 let mutable enteringNodes = []
 

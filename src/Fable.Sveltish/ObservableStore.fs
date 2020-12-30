@@ -47,38 +47,41 @@ module ObservableStore =
 
     type Store<'Model>(init: unit -> 'Model, dispose: 'Model -> unit) =
         let mutable uid = 0
-        let mutable model = init() //Unchecked.defaultof<_>
-
+        let mutable _modelInitialized = false
+        let mutable _model = Unchecked.defaultof<_>
+        let model() =
+            if not _modelInitialized then
+                _model <- init()
+                _modelInitialized <- true
+            _model
         let subscribers =
             Collections.Generic.Dictionary<_, IObserver<'Model>>()
 
-        //member _.Id = storeId
-        member _.Get = model
+        member _.Get = model()
 
         member _.Update(f: 'Model -> 'Model) =
             if subscribers.Count > 0 then
-                let newModel = f model
-
-                if not (Helpers.fastEquals model newModel) then
-                    model <- newModel
-
+                let newModel = f (model())
+                if not (Helpers.fastEquals _model newModel) then
+                    _model <- newModel
                     subscribers.Values
-                    |> Seq.iter (fun s -> s.OnNext(model))
+                    |> Seq.iter (fun s -> s.OnNext(_model))
 
         member _.Subscribe(observer: IObserver<'Model>): IDisposable =
-            //if subscribers.Count = 0 then model <- init ()
             let id = uid
             uid <- uid + 1
             subscribers.Add(id, observer)
 
             // TODO: Is this the right way to report the model to the subscriber immediately?
             //Fable.Core.JS.setTimeout (fun _ -> observer.OnNext(model)) 0 |> ignore
-            observer.OnNext(model)
+
+            // Sveltish depends on an immediate synchronous initializing callback
+            observer.OnNext(model())
 
             Helpers.disposable <| fun () ->
                 if subscribers.Remove(id) && subscribers.Count = 0 then
-                    dispose model
-                    model <- Unchecked.defaultof<_>
+                    dispose (model())
+                    _model <- Unchecked.defaultof<_>
 
         interface IStore<'Model> with
             member this.Subscribe(observer: IObserver<'Model>) = this.Subscribe(observer)
@@ -98,7 +101,8 @@ module ObservableStore =
 
         fun props ->
             match _storeDispatch with
-            | Some storeDispatch -> storeDispatch
+            | Some storeDispatch ->
+                storeDispatch
             | None ->
                 let store, storeUpdate =
                     cons

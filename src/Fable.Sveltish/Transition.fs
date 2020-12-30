@@ -7,6 +7,7 @@ module Sveltish.Transition
     open Sveltish.Styling
     open Sveltish.DOM
     open System.Collections.Generic
+    open System
 
     let log = Sveltish.Logging.log "trans"
 
@@ -443,7 +444,7 @@ module Sveltish.Transition
                     ruleName <- createRule el 1.0 0.0 trans 0
 
     type Hideable = {
-        predicate : Store<bool>
+        predicate : IObservable<bool>
         element   : NodeFactory
         transOpt  : TransitionAttribute option
     }
@@ -485,10 +486,10 @@ module Sveltish.Transition
         transOpt = transOpt
         predicate = guard
     }
-    let transitionMatch<'T> (store : Store<'T>) (options : MatchOption<'T> list) =
+    let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> list) =
         options |> List.map (fun (p,e,t) -> makeHideable (store |%> p) e t) |> transitionList
 
-    let transitionOpt (trans : TransitionAttribute option) (store : Store<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
+    let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
         let mutable target : Node = null
         let mutable cache = false
 

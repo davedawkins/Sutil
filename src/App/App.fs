@@ -46,7 +46,6 @@ type Demo = {
     ]
 
 let init() =
-    //let todosModel = Todos.init()
     {
         Demo = Store.make "Hello World"
         Source = Store.make ""

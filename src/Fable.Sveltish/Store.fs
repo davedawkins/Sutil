@@ -2,6 +2,7 @@ namespace Sveltish
 
 open System
 open Browser.Dom
+open Microsoft.FSharp.Core
 
 module internal StoreHelpers =
     let disposable f =
@@ -10,16 +11,18 @@ module internal StoreHelpers =
 
 [<RequireQualifiedAccess>]
 module Store =
-#if USE_SIMPLE_STORE
-    let private st (a:IStore<'T>) : SimpleStore.Store<'T> = downcast a
 
-    let make (init:'T) : IStore<'T> = (SimpleStore.make init) :> IStore<'T>
-    let get (s : IStore<'T>) = SimpleStore.get (st s)
-    let set (s : IStore<'T>) v = SimpleStore.set (st s)  v
-    let subscribe (a : IStore<'T>) (f : 'T -> unit) : IDisposable =
-        SimpleStore.subscribe (st a) f |> StoreHelpers.disposable
-#else
-    let private st (a:IStore<'T>) : ObservableStore.Store<'T> = downcast a
+    //let private st (a:IStore<'T>) : SimpleStore.Store<'T> = downcast a
+    //
+    //let make (init:'T) : IStore<'T> = (SimpleStore.make init) :> IStore<'T>
+    //let get (s : IStore<'T>) = SimpleStore.get (st s)
+    //let set (s : IStore<'T>) v = SimpleStore.set (st s)  v
+    //let subscribe (a : IStore<'T>) (f : 'T -> unit) : IDisposable =
+    //    SimpleStore.subscribe (st a) f |> StoreHelpers.disposable
+    //let map<'A,'B> (f : 'A -> 'B) (s : Store<'A>) =
+    //    let result = s |> getMap f |> make // Initialize with mapped value
+    //    let unsub = subscribe s (f >> (set result))
+    //    result
 
     let make (modelInit:'T) : IStore<'T> =
         let init() = modelInit
@@ -27,10 +30,10 @@ module Store =
         let s = ObservableStore.Store( init, dispose )
         upcast s
 
-    let get (s : IStore<'T>) : 'T = (st s).Get
-    let set (s : IStore<'T>) v : unit = (st s).Update( fun _ -> v )
-    let subscribe (a : IStore<'T>) (f : 'T -> unit) = (st a).Subscribe(f)
-#endif
+    let get (s : IStore<'T>) : 'T = s.Get
+    let set (s : IStore<'T>) v : unit = s.Update( fun _ -> v )
+    let subscribe (a : IObservable<'T>) (f : 'T -> unit) = a.Subscribe(f)
+    let map<'A,'B> (f : 'A -> 'B) (s : IObservable<'A>) = s |> Observable.map f
 
     // Map the wrapped value. For a List<T> (instead of a Store<T>) this might be
     // called foldMap
@@ -39,70 +42,66 @@ module Store =
 
     // Call f upon initialization and whenever the store is updated. This is the same as subscribe
     // and ignoring the unsubscription callback
-    let write<'A,'B> (f: 'A -> unit) (s : Store<'A>) =
+    let write<'A,'B> (f: 'A -> unit) (s : IObservable<'A>) =
         let unsub = subscribe s f
         ()
 
-    // Map f onto s, to produce a new store. The new store will be updated whenever
-    // the source store changes
-    //
-    let map<'A,'B> (f : 'A -> 'B) (s : Store<'A>) =
-        let result = s |> getMap f |> make // Initialize with mapped value
-        let unsub = subscribe s (f >> (set result))
-        result
-
     // Modify the store by mapping its current value with f
-    //
     let modify (f:('T -> 'T)) (store:Store<'T>)  =
         store |> getMap f |> set store
 
-    // Helpers for list stores
-    let fetch pred (store:Store<List<'T>>) =
-        store |> getMap (List.tryFind pred)
+    let subscribe2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (callback: ('A*'B) -> unit) : System.IDisposable =
+        // Requires that subscribe makes an initializing first callback. Otherwise, there will
+        // be a missing value for A (say) when B (say) sends an update.
+        let mutable initState = 0
 
-    let fetchByKey kf key (store:Store<List<'T>>) =
-        let pred r = kf(r) = key
-        fetch pred store
+        let mutable cachea : 'A = Unchecked.defaultof<'A>
+        let mutable cacheb : 'B = Unchecked.defaultof<'B>
 
-    let subscribe2<'A,'B>  (a : IStore<'A>) (b : IStore<'B>)  (callback: ('A*'B) -> unit) : System.IDisposable =
+        let notify() = if initState = 2 then callback(cachea, cacheb)
+
         let unsuba = subscribe a ( fun v ->
-            callback(v,get b)
+            if initState = 0 then initState <- 1
+            cachea <- v
+            notify()
         )
+
         let unsubb = subscribe b ( fun v ->
-            callback(get a,v)
+            if initState = 1 then initState <- 2
+            cacheb <- v
+            notify()
         )
+
+        if (initState <> 2) then
+            console.log("Error: subscribe didn't initialize us")
+            failwith "Subscribe didn't initialize us"
+
         StoreHelpers.disposable <| fun () ->
             unsuba.Dispose()
             unsubb.Dispose()
 
-    let map2<'A,'B,'R> (f : ('A * 'B) -> 'R) (a : Store<'A>) (b : Store<'B>)=
-        let result = make( (get a, get b) |> f )
-        let unsub = subscribe2 a b <| fun (x,y) -> set result ((x, y) |> f)
-        result
+    //let makeElmishSimple<'Props,'Model,'Msg> (init: 'Props -> 'Model) (update: ('Msg -> 'Model -> 'Model)) (dispose: 'Model -> unit) = fun () ->
+    //    let s = init() |> make
+    //    let d msg =
+    //        s |> modify (update msg)
+    //    s, d
 
-
-//#if DEBUG
-    let makeElmishSimple init update _ = fun () ->
-        let s = init() |> make
-        let d msg =
-            s |> modify (update msg)
-        s, d
-//#else
-//    let makeElmishSimple = ObservableStore.makeElmishSimple
-//#endif
+    // Strange runtime error when type specifications are missing
+    let makeElmishSimple<'Props,'Model,'Msg> (init: 'Props -> 'Model) (update: 'Msg -> 'Model -> 'Model) (dispose: 'Model -> unit) =
+        ObservableStore.makeElmishSimple init update dispose
 
 [<AutoOpen>]
 module StoreOperators =
     let (|%>) s f = Store.map f s
     let (|->) s f = Store.getMap f s
 
-    let (<~) (s : IStore<'T>) v =
+    let (<~) s v =
         Store.set s v
 
-    let (<~-) (s : IStore<'T>) v =
+    let (<~-) s v =
         Store.set s v
 
-    let (-~>) v (s : IStore<'T>) =
+    let (-~>) v s =
         Store.set s v
 
     let (<~=) store map = Store.modify map store

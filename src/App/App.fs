@@ -39,7 +39,7 @@ type Demo = {
         { Category = "Reactivity";Title = "Reactive assignments";  Create = make Counter.Counter ; Sources = ["Counter.fs"]}
         { Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Sources = ["ReactiveDeclarations.fs"]}
         { Category = "Reactivity";Title = "Reactive statements";  Create = make ReactiveStatements.view ; Sources = ["ReactiveStatements.fs"]}
-        { Category = "Animations"; Title = "The animate directive"; Create = make Todos.view; Sources = ["Todos.fs"] }
+        { Category = "Transitions"; Title = "Transitions w/ animation"; Create = make Todos.view; Sources = ["Todos.fs"] }
         { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}
         { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
         { Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
@@ -258,7 +258,7 @@ let appMain () =
                     (class' "column is-one-quarter app-contents") ::
                     Section "Introduction" model dispatch @
                     Section "Reactivity" model dispatch @
-                    Section "Animations" model dispatch @
+                    Section "Transitions" model dispatch @
                     Section "Bindings" model dispatch
 
                 Html.div [

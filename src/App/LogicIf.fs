@@ -5,22 +5,22 @@ open Sveltish.Bindings
 open Sveltish.DOM
 open Sveltish.Attr
 
-let user = {| loggedIn = Store.make false |}
+let user = Store.make {| loggedIn = false |}
 
 let toggle _ =
-    user.loggedIn |> Store.modify not
+    user |> Store.modify (fun u -> {| u with loggedIn = not u.loggedIn |})
 
 let view() =
 
-    bind user.loggedIn <| fun loggedIn ->
+    bind user <| fun u ->
         Html.div [
-            if loggedIn then
+            if u.loggedIn then
                 Html.button [
                     onClick toggle
                     text "Log out"
                 ]
 
-            if not loggedIn then
+            if not u.loggedIn then
                 Html.button [
                     onClick toggle
                     text "Log in"

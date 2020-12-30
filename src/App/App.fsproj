@@ -3,6 +3,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="LogicIf.fs" />
+    <Compile Include="LogicElse.fs" />
+    <Compile Include="LogicElseIf.fs" />
     <Compile Include="NumericInputs.fs" />
     <Compile Include="TextInputs.fs" />
     <Compile Include="CheckboxInputs.fs" />

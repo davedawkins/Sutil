@@ -12,6 +12,7 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- Convert main app to Elmish. See src/App/App.fs
 - Alfonso's PR also gives us a better Elmish MVU architecture than I had previously. See section further down on MVU
 - Switch to Observable-based stores, thanks to PR from Alfonso
 - Select bindings example

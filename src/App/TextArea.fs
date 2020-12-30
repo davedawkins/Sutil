@@ -6,7 +6,6 @@ open Sveltish.DOM
 open Sveltish.Styling
 open Fable.Core
 
-//import marked from 'marked';
 [<ImportAll("./marked.min.js")>]
 let marked text : string = jsNative
 
@@ -42,6 +41,3 @@ let view() =
             Bindings.bind inputText <| fun t -> html $"{marked t}"
         ] |> withStyle Markdown.style
     ] |> withStyle style
-
-
-//{@html marked(text)}

@@ -474,8 +474,7 @@ module Sveltish.Transition
 
                 if (rt.cache <> show) then
                     rt.cache <- show
-
-                transitionNode (rt.target :?> HTMLElement) rt.hideable.transOpt [] show ignore
+                    transitionNode (rt.target :?> HTMLElement) rt.hideable.transOpt [] show ignore
             )
         runtimes.Head.target
 
@@ -487,7 +486,7 @@ module Sveltish.Transition
         predicate = guard
     }
     let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> list) =
-        options |> List.map (fun (p,e,t) -> makeHideable (store |%> p) e t) |> transitionList
+        options |> List.map (fun (p,e,t) -> makeHideable (store |> Store.map p) e t) |> transitionList
 
     let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
         let mutable target : Node = null

@@ -133,7 +133,8 @@ module ObservableStore =
 
         makeElmishWithCons init update dispose (fun i d ->
             let s = Store(i, d)
-            upcast s, s.Update)
+            let u f = s.Update(f); DOM.Event.notifyDocument()
+            upcast s, u)
 
     let makeElmishSimple (init: 'Props -> 'Model)
                    (update: 'Msg -> 'Model -> 'Model)
@@ -144,5 +145,6 @@ module ObservableStore =
         let update msg model = update msg model, []
         makeElmishWithCons init update dispose (fun i d ->
             let s = Store(i, d)
-            upcast s, s.Update)
+            let u f = s.Update(f); DOM.Event.notifyDocument()
+            upcast s, u)
 

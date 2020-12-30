@@ -9,23 +9,26 @@ open Sveltish.Bindings
 open Sveltish.Transition
 open Browser.Dom
 
-let make v = fun _ _ -> v()
+let urlBase = "https://raw.githubusercontent.com/davedawkins/Fable.Sveltish/main/src/App"
+//let log s = console.log(s)
+let make v = v
 
 type Model = {
-    Demo : Store<string>
-    Tab : Store<string>
-    Source : Store<string>
+    Demo : string
+    Tab : string
+    Source : string
 }
 
 type Message =
     | SetDemo of string
     | SetTab of string
+    | FetchSource
     | SetSource of string
 
 type Demo = {
     Title : string
     Category : string
-    Create : (Model -> (Message->unit) -> NodeFactory)
+    Create : (unit -> NodeFactory)
     Sources : string list
 } with
     static member All = [
@@ -45,24 +48,35 @@ type Demo = {
         { Category = "Bindings";   Title = "Select multiple";  Create = make SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
     ]
 
+let fetchSource tab dispatch =
+    let url = sprintf "%s/%s" urlBase tab
+    fetch url []
+    |> Promise.bind (fun res -> res.text())
+    |> Promise.map (SetSource >> dispatch)
+    |> ignore
+
+module Cmd =
+    let none = [ ]
+    let ofMsg msg = [ fun d -> d msg ]
+
 let init() =
     {
-        Demo = Store.make "Hello World"
-        Source = Store.make ""
-        Tab = Store.make "demo"
-    }
+        Demo = Demo.All.Head.Title
+        Source = ""
+        Tab =  "demo"
+    }, Cmd.none
 
-let update msg model =
-    //console.log($"update {msg}")
+let update msg model : Model * ObservableStore.Cmd<Message> =
     match msg with
     | SetTab t ->
-        model.Tab <~ t
+        let cmd = if t = "demo" then Cmd.none else Cmd.ofMsg FetchSource
+        { model with Tab = t }, cmd
     | SetDemo d ->
-        model.Demo <~ d
-        model.Source <~ ""
-        model.Tab <~ "demo"
+        { model with Demo = d; Source = ""; Tab = "demo" }, Cmd.none
     | SetSource src ->
-        model.Source <~ src
+        { model with Source = src }, Cmd.none
+    | FetchSource ->
+        model, [ fetchSource model.Tab ]
 
 let mainStyleSheet = [
 
@@ -171,11 +185,11 @@ let mainStyleSheet = [
     rule "button" [ addClass "button" ]
 ]
 
-let demos model dispatch =
+let demos (model : IStore<Model>) =
     Html.div [
         class' "column app-demo"
         for d in Demo.All do
-            d.Create model dispatch |> show (model.Demo |%> (fun demo -> demo = d.Title))
+            d.Create() |> show (model |> Store.map (fun m -> m.Demo = d.Title))
     ]
 
 let Section (name:string) model dispatch = [
@@ -192,21 +206,10 @@ let Section (name:string) model dispatch = [
         ]
     ]
 
-let urlBase = "https://raw.githubusercontent.com/davedawkins/Fable.Sveltish/main/src/App"
+let findDemo (model : Model) =
+    Demo.All |> List.find (fun d -> d.Title = model.Demo)
 
-let findDemo name =
-    Demo.All |> List.find (fun d -> d.Title = name)
-
-let fetchSource  (model:Model) dispatch =
-    let src = Store.get model.Tab
-    let url = sprintf "%s/%s" urlBase src
-    fetch url []
-    |> Promise.bind (fun res -> res.text())
-    |> Promise.map (SetSource >> dispatch)
-    |> ignore
-
-
-let tabItem name dispatch =
+let tabItem dispatch name  =
     Html.li [
         Html.a [
             href "#"
@@ -215,21 +218,29 @@ let tabItem name dispatch =
         ]
     ]
 
-let viewSource model dispatch =
+let viewSource (model : IStore<Model>) dispatch =
+    let source = model |> Store.map (fun m -> m.Source)
     Html.div [
         class' "column"
-        on "sveltish-show" <| fun _ -> fetchSource model dispatch
+        //on "sveltish-show" <| fun _ -> fetchSource (model |> Store.getMap (fun m -> m.Tab)) dispatch
+        //on "sveltish-show" <| fun e -> log($"show source {e.target}"); dispatch FetchSource
         Html.pre [
             Html.code [
                 class' "fsharp"
-                model.Source |=> text
+                on "sveltish-show" <| fun e -> log($"2show source {e.target}"); e.stopPropagation()
+                bind source text
             ]
         ]
     ]
 
-let appMain (model:Model) (dispatch : Message -> unit) =
+let makeStore = Store.makeElmish init update ignore
 
-    let currentDemo = model.Demo |> Store.map findDemo
+let appMain () =
+
+    let model,dispatch = makeStore()
+
+    let currentDemo = model |> Store.map findDemo
+    let tab = model |> Store.map (fun m -> m.Tab)
 
     withStyle mainStyleSheet <|
         Html.div [
@@ -258,21 +269,21 @@ let appMain (model:Model) (dispatch : Message -> unit) =
                         bind currentDemo (fun demo ->
                             Html.ul [
                                 class' "app-tab"
-                                tabItem "demo" dispatch
-                                fragment (demo.Sources |> List.map (fun src -> tabItem src dispatch))
+                                tabItem dispatch "demo"
+                                demo.Sources |> List.map (tabItem dispatch) |> fragment
                             ]
                         )
                     ]
 
-                    transitionMatch model.Tab <| [
-                        ((fun t -> t = "demo"),  demos model dispatch,      None)
+                    transitionMatch tab <| [
+                        ((fun t -> t = "demo"),  demos model,      None)
                         ((fun t -> t <> "demo"), viewSource model dispatch, None)
                     ]
                 ]
             ]
         ]
 
-let app model dispatch =
+let app() =
     Html.app [
         // Page title
         headTitle "Sveltish"
@@ -281,7 +292,7 @@ let app model dispatch =
         headStylesheet "https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
 
         // Build the app
-        appMain model dispatch
+        appMain()
     ]
 
-Sveltish.Program.makeProgram "sveltish-app" init update app
+app() |> mountElement "sveltish-app"

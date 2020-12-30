@@ -90,6 +90,9 @@ module Store =
     let makeElmishSimple<'Props,'Model,'Msg> (init: 'Props -> 'Model) (update: 'Msg -> 'Model -> 'Model) (dispose: 'Model -> unit) =
         ObservableStore.makeElmishSimple init update dispose
 
+    let makeElmish<'Props,'Model,'Msg> (init: 'Props -> 'Model * ObservableStore.Cmd<'Msg>) (update: 'Msg -> 'Model -> 'Model * ObservableStore.Cmd<'Msg>) (dispose: 'Model -> unit) =
+        ObservableStore.makeElmish init update dispose
+
 [<AutoOpen>]
 module StoreOperators =
     let (|%>) s f = Store.map f s

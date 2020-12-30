@@ -5,12 +5,14 @@ module Sveltish.Logging
 
     let enabled = Dictionary<string,bool>()
 
+    let loggingEnabled = false
+
     let init =
-        enabled.["store"] <- false
-        enabled.["trans"] <- false
-        enabled.["dom"  ] <- false
-        enabled.["style"] <- false
-        enabled.["bind" ] <- false
+        enabled.["store"] <- loggingEnabled && false
+        enabled.["trans"] <- loggingEnabled && true
+        enabled.["dom"  ] <- loggingEnabled && false
+        enabled.["style"] <- loggingEnabled && false
+        enabled.["bind" ] <- loggingEnabled && true
 
     let log source (message : string) =
         if not (enabled.ContainsKey(source)) || enabled.[source] then

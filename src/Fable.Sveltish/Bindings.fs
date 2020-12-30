@@ -144,7 +144,6 @@ module Sveltish.Bindings
         // Group this input with all other inputs that reference the same store
         Interop.set parent "name" name
 
-
         let getValueList() =
             let inputs = parent.ownerDocument.querySelectorAll(@$"input[name=""{name}""]")
             [0..(inputs.length-1)] |> List.map (fun i -> inputs.[i]) |> List.filter getInputChecked |> List.map getInputValue
@@ -216,7 +215,6 @@ module Sveltish.Bindings
         Interop.set parent attrName v
         parent
 
-
     // Bind a store value to an element attribute. Listen for onchange events and dispatch the
     // attribute's current value to the given function
     let bindAttrNotify<'T> (attrName:string) (store : Store<'T>) (onchange : obj -> unit)= fun (ctx:BuildContext,parent:Node) ->
@@ -253,10 +251,13 @@ module Sveltish.Bindings
             let mutable state : KeyedItem<'T,'K> list = []
             let unsub = Store.subscribe items (fun value ->
 
+                log("-- Each Block Render -------------------------------------")
+                log($"each: caching exist rects for render {state.Length} items")
                 state <- state |> List.map (fun ki -> { ki with Rect = clientRect ki.Node })
 
-                //let newItems = items |> Store.get |> List.filter filter
                 let newItems = value |> List.filter filter
+                log($"each: rendering {newItems.Length} items")
+
                 let mutable newState  = [ ]
                 let mutable enteringNodes = []
 
@@ -286,19 +287,21 @@ module Sveltish.Bindings
                 // Remove old items
                 for oldItem in state do
                     if not (newState |> List.exists (fun x -> x.Key = oldItem.Key)) then
+                        log($"each: removing key {oldItem.Key}")
                         fixPosition (asEl oldItem.Node)
                         transitionNode (asEl oldItem.Node) (Some trans) [Key (string oldItem.Key)] false
                             removeNode
 
                 // Existence is now synced. Now to reorder
 
+                let wantAnimate = true
                 let mutable last = blockPrevNode
                 newState |> List.mapi (fun pos ki ->
                     // Can only re-order this way when all exiting nodes have been removed
                     //if pos <> ki.Position then
                     //    parent.removeChild(ki.Node) |> ignore
                     //    parent.insertBefore(ki.Node, last.nextSibling) |> ignore
-                    if not (enteringNodes |> List.exists (fun en -> en.Key = ki.Key)) then
+                    if wantAnimate && not (enteringNodes |> List.exists (fun en -> en.Key = ki.Key)) then
                         animateNode (ki.Node :?> HTMLElement) (ki.Rect)
                     last <- ki.Node
                     ()

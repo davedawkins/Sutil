@@ -186,8 +186,8 @@ let makeStore = Store.makeElmishSimple init update ignore
 
 let view () : NodeFactory =
     let (send,recv) = Transition.crossfade [ ]
-    let tsend = send, []
-    let trecv = recv, []
+    let tsend = send, [ ]
+    let trecv = recv, [ ]
 
     let model, dispatch = makeStore()
 

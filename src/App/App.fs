@@ -47,6 +47,7 @@ type Demo = {
         { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
         { Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
         { Category = "Bindings";   Title = "Group inputs";  Create = make GroupInputs.view ; Sources = ["GroupInputs.fs"]}
+        { Category = "Bindings";   Title = "Textarea inputs";  Create = make TextArea.view ; Sources = ["TextArea.fs"]}
         { Category = "Bindings";   Title = "Select bindings";  Create = make SelectBindings.view ; Sources = ["SelectBindings.fs"]}
         { Category = "Bindings";   Title = "Select multiple";  Create = make SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
     ]
@@ -81,7 +82,7 @@ let update msg model : Model * ObservableStore.Cmd<Message> =
     | FetchSource ->
         model, [ fetchSource model.Tab ]
 
-let mainStyleSheet = [
+let mainStyleSheet = Bulma.withBulma [
 
     rule ".app-main" [
         height "100%"
@@ -181,11 +182,6 @@ let mainStyleSheet = [
         maxWidth "50%"
     ]
 
-    rule "h2" [ addClass "title"; addClass "is-2" ]
-    rule "h3" [ addClass "title"; addClass "is-3" ]
-    rule "h4" [ addClass "title"; addClass "is-4" ]
-    rule "h5" [ addClass "title"; addClass "is-5" ]
-    rule "button" [ addClass "button" ]
 ]
 
 let demos (model : IStore<Model>) =

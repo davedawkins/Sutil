@@ -15,6 +15,10 @@ let max n          = attr("max",n)
 let value n        = attr("value",n)
 let style n        = attr("style",n)
 let multiple : NodeFactory = attr("multiple","")
+let rows n         = attr("rows",n)
+let cols n         = attr("cols",n)
+let readonly : NodeFactory = attr("readonly","" :> obj)
+
 
 // Attributes that are either keywords or core functions
 let id' n          = attr("id",n)
@@ -37,6 +41,7 @@ let onKeyDown (fn : (KeyboardEvent -> unit)) = onKeyboard "keydown" fn
 let cssAttr = id
 
 // Styles
+let all (n:obj)            = cssAttr("all",n)
 let margin (n:obj)         = cssAttr("margin",n)
 let marginTop (n:obj)      = cssAttr("margin-top",n)
 let marginLeft (n:obj)     = cssAttr("margin-left",n)
@@ -80,3 +85,5 @@ let opacity        (n:obj) = cssAttr("opacity",n)
 let transition     (n:obj) = cssAttr("transition",n)
 let textDecoration (n:obj) = cssAttr("text-decoration",n)
 let addClass       (n:obj) = cssAttr("sveltish-add-class",n)
+let useGlobal              = cssAttr("sveltish-use-global","" :> obj)
+

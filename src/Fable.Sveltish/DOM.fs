@@ -47,6 +47,7 @@ type StyleSheet = StyleRule list
 type NamedStyleSheet = {
     Name : string
     StyleSheet : StyleSheet
+    Parent : NamedStyleSheet option
 }
 
 //
@@ -139,15 +140,40 @@ let rec parseSelector (source:string) : CssSelector =
 let ruleMatchEl (el:HTMLElement) (rule:StyleRule) =
     rule.Selector.Match el
 
-let applyCustomRules e sheet =
+
+let rec rootStyle sheet =
+    match sheet.Parent with
+    | None -> sheet
+    | Some parentSheet -> rootStyle parentSheet
+
+let rec rootStyleName sheet =
+    (rootStyle sheet).Name
+
+let getSveltishClasses (e:HTMLElement) =
+    let classes =
+        [0..e.classList.length-1]
+            |> List.map (fun i -> e.classList.[i])
+            |> List.filter (fun cls -> cls.StartsWith("sveltish"));
+    classes
+
+let rec applyCustomRules e (namedSheet:NamedStyleSheet) =
     // TODO: Remove all classes added by previous calls to this function
     // TODO: Store them in a custom attribute on 'e'
+    let sheet = namedSheet.StyleSheet
     for rule in sheet |> List.filter (ruleMatchEl e) do
         for custom in rule.Style |> List.filter (fun (nm,v) -> nm.StartsWith("sveltish")) do
             match custom with
+            | (nm,v) when nm = "sveltish-use-global" ->
+                let root = rootStyle namedSheet
+                if root.Name <> namedSheet.Name then
+                    e.classList.add(root.Name)
+                    applyCustomRules e root
+                ()
+            | (nm,v) when nm = "sveltish-use-parent" ->
+                ()
             | (nm,v) when nm = "sveltish-add-class" ->
-                log($"Matches: {e.tagName} '%A{e.classList}' -> %A{rule.Selector}")
-                log($"Adding class {v}")
+                //log($"Matches: {e.tagName} '%A{e.classList}' -> %A{rule.Selector}")
+                //log($"Adding class {v}")
                 e.classList.add(string v)
                 // TODO: Also add this class to a custom attribute so we can clean them up
                 // TODO: on subsequent calls
@@ -161,9 +187,9 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
     for x in xs do x(ctx,e) |> ignore
 
     match ctx.StyleSheet with
-    | Some { Name = name; StyleSheet = sheet } ->
-        e.classList.add(name)
-        applyCustomRules e sheet
+    | Some namedSheet ->
+        e.classList.add(namedSheet.Name)
+        applyCustomRules e namedSheet
     | None -> ()
 
     e.dispatchEvent( Interop.customEvent Event.ElementReady {| |}) |> ignore
@@ -176,8 +202,8 @@ let inline attr (name,value:obj) : NodeFactory = fun (ctx,e) ->
         if (name = "value") then
             Interop.set e "__value" value
         match ctx.StyleSheet with
-        | Some { Name = _; StyleSheet = sheet } ->
-            applyCustomRules (e :?> HTMLElement) sheet
+        | Some namedSheet ->
+            applyCustomRules (e :?> HTMLElement) namedSheet
         | None -> ()
 
     with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A" name e)
@@ -189,6 +215,24 @@ let text value : NodeFactory =
 let idSelector = sprintf "#%s"
 let classSelector = sprintf ".%s"
 let findElement selector = document.querySelector(selector)
+
+let rec visitChildren (parent:HTMLElement) (f : HTMLElement -> unit) =
+    let mutable child = parent.firstChild
+    while not (isNull child) do
+        if (child.nodeType = 1.0) then
+            f(downcast child)
+            visitChildren (downcast child) f
+        child <- child.nextSibling
+
+let html text : NodeFactory = fun (ctx,parent) ->
+    let el = parent :?> HTMLElement
+    el.innerHTML <- text
+    match ctx.StyleSheet with
+    | None -> ()
+    | Some ns -> visitChildren el (fun ch ->
+                                        ch.classList.add ns.Name
+                                        applyCustomRules ch ns)
+    upcast el
 
 //
 // Mount a top-level application NodeFactory into an existing document

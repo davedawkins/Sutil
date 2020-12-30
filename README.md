@@ -12,6 +12,7 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- Textarea example. Introduces `html` element to inject raw HTML, using an imported JS markdown library.
 - Fix for issue #5
 - Convert main app to Elmish. See src/App/App.fs
 - Alfonso's PR also gives us a better Elmish MVU architecture than I had previously. See section further down on MVU

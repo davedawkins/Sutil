@@ -12,6 +12,7 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- More examples: FileInputs, Dimensions, If/Else/If-Else. Ported resize observer from Svelte (very clever stuff)
 - Textarea example. Introduces `html` element to inject raw HTML, using an imported JS markdown library.
 - Fix for issue #5
 - Convert main app to Elmish. See src/App/App.fs

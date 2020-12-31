@@ -1,5 +1,6 @@
 module Sveltish.DOM
 
+open System
 open Browser.Dom
 open Browser.Types
 open Browser.CssExtensions
@@ -288,3 +289,94 @@ let fragment (elements : NodeFactory list) = fun (ctx,parent) ->
     for e in elements do
         last <- e(ctx,parent)
     last
+
+let isCrossOrigin = false // TODO
+
+let listen (event:string) (e:EventTarget) (fn: (Event -> unit)) : (unit -> unit)=
+    e.addEventListener( event, fn )
+    (fun () -> e.removeEventListener(event, fn ) |> ignore)
+
+let listenOneShot (event:string) (target:EventTarget) (fn : Unit->Unit) : (unit -> unit) =
+    let rec inner _ = target.removeEventListener( event, inner ); fn()
+    listen event target inner
+
+type private ResizeSubscriber = {
+    Callback: unit -> unit
+    Id : int
+}
+
+// Ported from Svelte
+type ResizeObserver( el : HTMLElement ) =
+    let mutable iframe : HTMLIFrameElement = Unchecked.defaultof<_>
+    let mutable subId = 0
+    let mutable unsubscribe : (unit -> unit) = Unchecked.defaultof<_>
+
+    let mutable subscribers = []
+
+    let notify _ =
+        subscribers |> List.iter (fun sub -> sub.Callback())
+    do
+        let computedStyle = window.getComputedStyle(el)
+        let zIndex =  (try int(computedStyle.zIndex) with |_ -> 0) - 1;
+        if computedStyle.position = "static" then
+            el.style.position <- "relative"
+
+        iframe <- downcast el.ownerDocument.createElement("iframe")
+        let style = sprintf "%sz-index: %i;" "display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; border: 0; opacity: 0; pointer-events: none;" zIndex
+        iframe.setAttribute("style", style)
+        iframe.setAttribute("aria-hidden", "true")
+        iframe.setAttribute("tabindex", "-1")
+
+        if isCrossOrigin then
+            iframe.setAttribute("src", "data:text/html,<script>onresize=function(){parent.postMessage(0,'*')}</script>")
+
+            unsubscribe <- listen "message" window
+                (fun e -> if Helpers.fastEquals (Interop.get e "source") iframe.contentWindow then notify(e))
+        else
+            iframe.setAttribute("src", "about:blank")
+            iframe.onload <- (fun e ->
+                unsubscribe <- listen "resize" iframe.contentWindow notify)
+
+        el.appendChild(iframe) |> ignore
+
+    member _.Subscribe(callback : (unit -> unit)) =
+        let sub = { Callback = callback; Id = subId }
+        subId <- subId + 1
+        subscribers <- sub :: subscribers
+        Helpers.disposable <| fun () -> subscribers <- subscribers |> List.filter (fun s -> s.Id <> sub.Id)
+
+    member _.Dispose() =
+        try unsubscribe() with |_ -> ()
+        if not (isNull iframe) then
+            removeNode iframe
+
+    interface IDisposable with
+        member this.Dispose() = this.Dispose()
+
+[<RequireQualifiedAccessAttribute>]
+module NodeKey =
+    let Disposables = "__sveltish_disposables"
+    let ResizeObserver = "__sveltish_resizeObserver"
+
+    let get<'T> (node:Node) key : 'T option  =
+        let v : obj = Interop.get node key
+        if isNull v then None else v :?> 'T |> Some
+
+    let getCreate<'T> (node:Node) key (cons:unit -> 'T): 'T =
+        match get node key with
+        | Some v -> v
+        | None ->
+            let newVal = cons()
+            Interop.set node key newVal
+            newVal
+
+let registerUnsubscribe (node:Node) (d:unit->unit) : unit =
+    let disposables : List<unit->unit> = NodeKey.getCreate node NodeKey.Disposables (fun () -> [])
+    Interop.set node NodeKey.Disposables (d :: disposables)
+
+let registerDisposable (node:Node) (d:IDisposable) : unit =
+    registerUnsubscribe node (fun () -> d.Dispose())
+
+let getResizer (el:HTMLElement) : ResizeObserver =
+    NodeKey.getCreate el NodeKey.ResizeObserver (fun () -> new ResizeObserver(el))
+

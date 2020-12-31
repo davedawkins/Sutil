@@ -48,8 +48,10 @@ type Demo = {
         { Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
         { Category = "Bindings";   Title = "Group inputs";  Create = make GroupInputs.view ; Sources = ["GroupInputs.fs"]}
         { Category = "Bindings";   Title = "Textarea inputs";  Create = make TextArea.view ; Sources = ["TextArea.fs"]}
+        { Category = "Bindings";   Title = "File inputs";  Create = make FileInputs.view ; Sources = ["FileInputs.fs"]}
         { Category = "Bindings";   Title = "Select bindings";  Create = make SelectBindings.view ; Sources = ["SelectBindings.fs"]}
         { Category = "Bindings";   Title = "Select multiple";  Create = make SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
+        { Category = "Bindings";   Title = "Dimensions";  Create = make Dimensions.view ; Sources = ["Dimensions.fs"]}
     ]
 
 let fetchSource tab dispatch =
@@ -82,7 +84,7 @@ let update msg model : Model * ObservableStore.Cmd<Message> =
     | FetchSource ->
         model, [ fetchSource model.Tab ]
 
-let mainStyleSheet = Bulma.withBulma [
+let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".app-main" [
         height "100%"
@@ -156,32 +158,6 @@ let mainStyleSheet = Bulma.withBulma [
     rule "pre" [
         padding 0
     ]
-
-
-    rule "input[type='text']" [
-        addClass "input"
-    ]
-
-    rule "input[type='radio']" [
-        addClass "radio"
-    ]
-
-    rule "input[type='checkbox']" [
-        addClass "checkbox"
-    ]
-
-    rule "input[type='number']" [
-        addClass "input"
-        addClass "is-small"
-        maxWidth "50%"
-    ]
-
-    rule "input[type='range']" [
-        addClass "input"
-        addClass "is-small"
-        maxWidth "50%"
-    ]
-
 ]
 
 let demos (model : IStore<Model>) =

@@ -12,28 +12,17 @@ module internal StoreHelpers =
 [<RequireQualifiedAccess>]
 module Store =
 
-    //let private st (a:IStore<'T>) : SimpleStore.Store<'T> = downcast a
-    //
-    //let make (init:'T) : IStore<'T> = (SimpleStore.make init) :> IStore<'T>
-    //let get (s : IStore<'T>) = SimpleStore.get (st s)
-    //let set (s : IStore<'T>) v = SimpleStore.set (st s)  v
-    //let subscribe (a : IStore<'T>) (f : 'T -> unit) : IDisposable =
-    //    SimpleStore.subscribe (st a) f |> StoreHelpers.disposable
-    //let map<'A,'B> (f : 'A -> 'B) (s : Store<'A>) =
-    //    let result = s |> getMap f |> make // Initialize with mapped value
-    //    let unsub = subscribe s (f >> (set result))
-    //    result
-
     let make (modelInit:'T) : IStore<'T> =
         let init() = modelInit
         let dispose(m) = ()
-        let s = ObservableStore.Store( init, dispose )
+        let s = ObservableStore.Store( init, dispose, fun _ _ -> true )
         upcast s
 
     let get (s : IStore<'T>) : 'T = s.Get
     let set (s : IStore<'T>) v : unit = s.Update( fun _ -> v )
     let subscribe (a : IObservable<'T>) (f : 'T -> unit) = a.Subscribe(f)
     let map<'A,'B> (f : 'A -> 'B) (s : IObservable<'A>) = s |> Observable.map f
+    let filter<'A> (f : 'A -> bool) (s : IObservable<'A>) = s |> Observable.filter f
 
     // Map the wrapped value. For a List<T> (instead of a Store<T>) this might be
     // called foldMap
@@ -42,7 +31,7 @@ module Store =
 
     // Call f upon initialization and whenever the store is updated. This is the same as subscribe
     // and ignoring the unsubscription callback
-    let write<'A,'B> (f: 'A -> unit) (s : IObservable<'A>) =
+    let write<'A> (f: 'A -> unit) (s : IObservable<'A>) =
         let unsub = subscribe s f
         ()
 

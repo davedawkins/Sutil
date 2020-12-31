@@ -5,6 +5,8 @@
   <ItemGroup>
     <Compile Include="Markdown.fs" />
     <Compile Include="Bulma.fs" />
+    <Compile Include="Dimensions.fs" />
+    <Compile Include="FileInputs.fs" />
     <Compile Include="LogicIf.fs" />
     <Compile Include="LogicElse.fs" />
     <Compile Include="LogicElseIf.fs" />

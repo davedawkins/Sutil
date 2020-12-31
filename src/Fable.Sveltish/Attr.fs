@@ -4,6 +4,8 @@ open DOM
 open Browser.Types
 
 // Attributes
+let accept n       = attr("accept",n)
+let name n         = attr("name",n)
 let className n    = attr("class",n)
 let placeholder n  = attr("placeholder",n)
 let href n         = attr("href",n)
@@ -23,6 +25,7 @@ let readonly : NodeFactory = attr("readonly","" :> obj)
 // Attributes that are either keywords or core functions
 let id' n          = attr("id",n)
 let type' n        = attr("type",n)
+let for' n         = attr("for",n)
 let class'         = className
 
 // Events
@@ -83,6 +86,8 @@ let top            (n:obj) = cssAttr("top",n)
 let left           (n:obj) = cssAttr("left",n)
 let opacity        (n:obj) = cssAttr("opacity",n)
 let transition     (n:obj) = cssAttr("transition",n)
+let resize         (n:obj) = cssAttr("resize",n)
+let overflow       (n:obj) = cssAttr("overflow",n)
 let textDecoration (n:obj) = cssAttr("text-decoration",n)
 let addClass       (n:obj) = cssAttr("sveltish-add-class",n)
 let useGlobal              = cssAttr("sveltish-use-global","" :> obj)

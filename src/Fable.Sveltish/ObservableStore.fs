@@ -45,7 +45,9 @@ module ObservableStore =
             new CmdHandler<_>(List.iter (fun cmd -> cmd mb.Post), fun _ -> cts.Cancel())
     #endif
 
-    type Store<'Model>(init: unit -> 'Model, dispose: 'Model -> unit) =
+    // Allow stores that can handle mutable 'Model types (eg, <input>.FileList). In this
+    // case we can pass (fun _ _ -> true)
+    type Store<'Model>(init: unit -> 'Model, dispose: 'Model -> unit, accept: 'Model -> 'Model -> bool) =
         let mutable uid = 0
         let mutable _modelInitialized = false
         let mutable _model = Unchecked.defaultof<_>
@@ -62,7 +64,20 @@ module ObservableStore =
         member _.Update(f: 'Model -> 'Model) =
             if subscribers.Count > 0 then
                 let newModel = f (model())
-                if not (Helpers.fastEquals _model newModel) then
+
+                // We need to do this only where we know it's
+                // a) worth doing, and
+                // b) we don't need notifications of calls to Update.
+                //
+                // For example, when we bind to <input>.files this will initially
+                // change from null -> FileList. As the user changes their
+                // selection of files, the DOM instance of FileList appears to mutate
+                // We get notification of the change in files, but we are sending the
+                // *same* instance into Update. The end consumer is likely to just be
+                // iterating the contents, and doesn't care that the instance is the
+                // same.
+                //
+                if accept _model newModel then
                     _model <- newModel
                     subscribers.Values
                     |> Seq.iter (fun s -> s.OnNext(_model))
@@ -75,7 +90,7 @@ module ObservableStore =
             // TODO: Is this the right way to report the model to the subscriber immediately?
             //Fable.Core.JS.setTimeout (fun _ -> observer.OnNext(model)) 0 |> ignore
 
-            // Sveltish depends on an immediate synchronous initializing callback
+            // Sveltish depends on an immediate callback
             observer.OnNext(model())
 
             Helpers.disposable <| fun () ->
@@ -126,13 +141,16 @@ module ObservableStore =
                 _storeDispatch <- Some(store, dispatch)
                 store, dispatch
 
+    // Assume that Elmish programs are working with immutable records as their Model
+    let private acceptIfDifferent a b = Helpers.fastEquals a b |> not
+
     let makeElmish (init: 'Props -> 'Model * Cmd<'Msg>)
                    (update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>)
                    (dispose: 'Model -> unit)
                    : 'Props -> IStore<'Model> * Dispatch<'Msg> =
 
         makeElmishWithCons init update dispose (fun i d ->
-            let s = Store(i, d)
+            let s = Store(i, d, acceptIfDifferent)
             let u f = s.Update(f); DOM.Event.notifyDocument()
             upcast s, u)
 
@@ -144,7 +162,7 @@ module ObservableStore =
         let init p = init p, []
         let update msg model = update msg model, []
         makeElmishWithCons init update dispose (fun i d ->
-            let s = Store(i, d)
+            let s = Store(i, d, acceptIfDifferent)
             let u f = s.Update(f); DOM.Event.notifyDocument()
             upcast s, u)
 

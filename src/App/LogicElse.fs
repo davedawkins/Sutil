@@ -11,17 +11,18 @@ let toggle _ =
     user |> Store.modify (fun u -> {| u with loggedIn = not u.loggedIn |})
 
 let view() =
-
-    bind user <| fun u ->
-        Html.div [
-            if u.loggedIn then
-                Html.button [
-                    onClick toggle
-                    text "Log out"
-                ]
-            else
-                Html.button [
-                    onClick toggle
-                    text "Log in"
-                ]
-        ]
+    Html.div [
+        bind user <| fun u ->
+            Html.div [
+                if u.loggedIn then
+                    Html.button [
+                        onClick toggle
+                        text "Log out"
+                    ]
+                else
+                    Html.button [
+                        onClick toggle
+                        text "Log in"
+                    ]
+            ]
+    ]

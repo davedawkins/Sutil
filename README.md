@@ -14,6 +14,7 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 - Browser DevTools plugin. Only *just* got the stores view working.
 <img src="images/devtools.png" width="400" alt="Screenshot of Sveltish DevTools plugin">
+
 - More examples: FileInputs, Dimensions, If/Else/If-Else. Ported resize observer from Svelte (very clever stuff)
 - Textarea example. Introduces `html` element to inject raw HTML, using an imported JS markdown library.
 - Fix for issue #5

@@ -1,0 +1,61 @@
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <link rel="stylesheet" href="/css/bulma.min.css">
+    <style>
+.sv-container {
+    padding: 12px;
+    min-height: 100vh;
+}
+
+.sv-main {
+    background: white;
+    min-height: 100vh;
+}
+
+.sv-sidebar {
+    background: #eeeeee;
+    border-right: 1pt solid #cccccc;
+}
+
+#sv-title {
+    margin-bottom: 4px;
+}
+
+.sv-menu li {
+    font-size: 90%;
+    cursor: pointer;
+}
+
+.sv-menu li:hover {
+    text-decoration: underline;
+}
+
+.sv-menu li.active {
+    font-weight: bold;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="sv-container">
+        <div class="columns">
+            <div class="sv-sidebar column is-one-fifth">
+                <h4 id="sv-title" class="title is-5">Sveltish</h4>
+                <ul class="sv-menu">
+                    <li id="stores">Stores</li>
+                    <li>Styles</li>
+                    <li>Maps</li>
+                    <li>Element Bindings</li>
+                    <li>Attribute Bindings</li>
+                </ul>
+            </div>
+            <div class="sv-main column is-four-fifths">
+                <div id="sv-view"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -17,5 +17,6 @@ module Sveltish.Program
         let makeDispatcher update =
             (fun msg ->
                 update msg model
-                DOM.Event.notifyDocument())
+                DOM.Event.notifyUpdated())
+
         Sveltish.DOM.mountElement host <| view model (makeDispatcher update)

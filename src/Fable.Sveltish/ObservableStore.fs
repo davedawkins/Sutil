@@ -1,6 +1,8 @@
 namespace Sveltish
 
 open System
+open Browser.Dom
+open System.Collections.Generic
 
 [<RequireQualifiedAccess>]
 module ObservableStore =
@@ -45,6 +47,29 @@ module ObservableStore =
             new CmdHandler<_>(List.iter (fun cmd -> cmd mb.Post), fun _ -> cts.Cancel())
     #endif
 
+    module Registry =
+        let mutable nextId = 0
+        let idToStore = new Dictionary<int,obj>()
+        let storeToId = new Dictionary<obj,int>()
+
+        let notifyMakeStore s =
+            let id = nextId
+            nextId <- nextId + 1
+            idToStore.[id] <- s
+            storeToId.[s] <- id
+            DOM.Event.notifyEvent DOM.Event.NewStore {| Store = id |}
+            DOM.updateCustom document.body "__sveltish_global" "stores" (storeToId.Values |> Seq.toArray)
+
+        let notifyDisposeStore s =
+            let id = storeToId.[s]
+            idToStore.Remove(id) |> ignore
+            storeToId.Remove(s) |> ignore
+            DOM.Event.notifyEvent DOM.Event.DisposeStore {| Store = id |}
+            DOM.updateCustom document.body "__sveltish_global" "stores" (storeToId.Values |> Seq.toArray)
+
+        let getStoreById id =
+            idToStore.[id]
+
     // Allow stores that can handle mutable 'Model types (eg, <input>.FileList). In this
     // case we can pass (fun _ _ -> true)
     type Store<'Model>(init: unit -> 'Model, dispose: 'Model -> unit, accept: 'Model -> 'Model -> bool) =
@@ -58,6 +83,9 @@ module ObservableStore =
             _model
         let subscribers =
             Collections.Generic.Dictionary<_, IObserver<'Model>>()
+
+        static do
+            Interop.set window "sv_get_store" Registry.getStoreById
 
         member _.Get = model()
 
@@ -82,7 +110,7 @@ module ObservableStore =
                     subscribers.Values
                     |> Seq.iter (fun s -> s.OnNext(_model))
 
-        member _.Subscribe(observer: IObserver<'Model>): IDisposable =
+        member this.Subscribe(observer: IObserver<'Model>): IDisposable =
             let id = uid
             uid <- uid + 1
             subscribers.Add(id, observer)
@@ -97,6 +125,7 @@ module ObservableStore =
                 if subscribers.Remove(id) && subscribers.Count = 0 then
                     dispose (model())
                     _model <- Unchecked.defaultof<_>
+                    Registry.notifyDisposeStore this
 
         interface IStore<'Model> with
             member this.Subscribe(observer: IObserver<'Model>) = this.Subscribe(observer)
@@ -144,14 +173,19 @@ module ObservableStore =
     // Assume that Elmish programs are working with immutable records as their Model
     let private acceptIfDifferent a b = Helpers.fastEquals a b |> not
 
+    let makeStore<'Model> (init:unit->'Model) (dispose:'Model->unit) (accept:'Model->'Model->bool) =
+        let s = Store(init,dispose,accept)
+        Registry.notifyMakeStore s
+        s
+
     let makeElmish (init: 'Props -> 'Model * Cmd<'Msg>)
                    (update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>)
                    (dispose: 'Model -> unit)
                    : 'Props -> IStore<'Model> * Dispatch<'Msg> =
 
         makeElmishWithCons init update dispose (fun i d ->
-            let s = Store(i, d, acceptIfDifferent)
-            let u f = s.Update(f); DOM.Event.notifyDocument()
+            let s = makeStore i  d acceptIfDifferent
+            let u f = s.Update(f); DOM.Event.notifyUpdated()
             upcast s, u)
 
     let makeElmishSimple (init: 'Props -> 'Model)
@@ -162,7 +196,7 @@ module ObservableStore =
         let init p = init p, []
         let update msg model = update msg model, []
         makeElmishWithCons init update dispose (fun i d ->
-            let s = Store(i, d, acceptIfDifferent)
-            let u f = s.Update(f); DOM.Event.notifyDocument()
+            let s = makeStore i  d  acceptIfDifferent
+            let u f = s.Update(f); DOM.Event.notifyUpdated()
             upcast s, u)
 

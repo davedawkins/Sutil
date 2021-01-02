@@ -6,12 +6,14 @@ See the [Sveltish website](https://davedawkins.github.io/Fable.Sveltish/) for de
 
 Here's how the Sveltish Todos app looks. This is an augmented port of the [Svelte animate example](https://svelte.dev/examples#animate)
 
-<img src="images/todosGoodJob.gif" width="400">
+<img src="images/todosGoodJob.gif" width="400" alt="Screenshot of Todos app from Svelte">
 
 Implementing this app is pushing the library. As each new demo example is added, it might require tweaking to existing capabilities, a bug fix, a new feature to be added (or ported over from Svelte), or even a rework of some of the internals. It's a good driver for the library in its own right.
 
 ## Changelog (most recent first)
 
+- Browser DevTools plugin. Only *just* got the stores view working.
+<img src="images/devtools.png" width="400" alt="Screenshot of Sveltish DevTools plugin">
 - More examples: FileInputs, Dimensions, If/Else/If-Else. Ported resize observer from Svelte (very clever stuff)
 - Textarea example. Introduces `html` element to inject raw HTML, using an imported JS markdown library.
 - Fix for issue #5
@@ -251,7 +253,7 @@ We can react to count being updated:
 Transitions can be specified with the `transition` binding function. This is an extended form of the `show` binding which
 just shows or hides an element according to a given `Store<bool>`.
 
-<img alt="Transitions Progress" width="400" src="images/transition.gif">
+<img alt="Transitions Progress" width="400" src="images/transition.gif" alt="Screenshot of transitions progress">
 
 Here's the code for this component:
 
@@ -289,7 +291,7 @@ the specified transitions to handle entry and exit of the element from the DOM.
 
 We now have `fade`, `fly` and `slide` transitions
 
-<img src="images/fly.gif" width="400">
+<img src="images/fly.gif" width="400" alt="Animation of the fly transition">
 
 ```f#
 (Html.div [ className "hint"; text "Click button to start counting" ])
@@ -301,7 +303,7 @@ We now have `fade`, `fly` and `slide` transitions
 The `each` control manages keyed lists. Items that appear in, disappear from and move around in the list
 can be transitioned:
 
-<img src="images/transfade.gif" width="400">
+<img src="images/transfade.gif" width="400" alt="Animation of the fade transition">
 
 ```f#
 let todosList title filter tin tout model dispatch =

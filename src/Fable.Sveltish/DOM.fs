@@ -12,10 +12,15 @@ module Event =
     let Show = "sveltish-show"
     let Hide = "sveltish-hide"
     let Updated = "sveltish-updated"
+    let NewStore = "sveltish-new-store"
+    let DisposeStore = "sveltish-dispose-store"
 
-    let notifyDocument() =
+    let notifyEvent name data =
+        document.dispatchEvent( Interop.customEvent name data ) |> ignore
+
+    let notifyUpdated() =
         log("notify document")
-        document.dispatchEvent( Interop.customEvent Updated  {|  |} ) |> ignore
+        notifyEvent Updated  {|  |}
 
 type CssSelector =
     | Tag of string
@@ -380,3 +385,7 @@ let registerDisposable (node:Node) (d:IDisposable) : unit =
 let getResizer (el:HTMLElement) : ResizeObserver =
     NodeKey.getCreate el NodeKey.ResizeObserver (fun () -> new ResizeObserver(el))
 
+let updateCustom (el:HTMLElement) (name:string) (property:string) (value:obj) =
+    let r = NodeKey.getCreate el name (fun () -> {| |})
+    Interop.set r property value
+    Interop.set el name r

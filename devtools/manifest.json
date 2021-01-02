@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+
+  "name": "Sveltish Dev Tools",
+  "version": "0.1",
+
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+
+  "description": "Frontend Developer Tools for Sveltish",
+  "author": "David Dawkins",
+
+  "permissions": ["activeTab", "*://*/", "http://*/", "https://*/"],
+
+  "background": { "scripts": [  ] },
+
+  "devtools_page": "/html/devtools.html"
+}

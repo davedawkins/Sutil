@@ -42,6 +42,10 @@ type Demo = {
         { Category = "Logic"; Title = "If blocks"; Create = make LogicIf.view; Sources = ["LogicIf.fs"] }
         { Category = "Logic"; Title = "Else blocks"; Create = make LogicElse.view; Sources = ["LogicElse.fs"] }
         { Category = "Logic"; Title = "Else-if blocks"; Create = make LogicElseIf.view; Sources = ["LogicElseIf.fs"] }
+        { Category = "Logic"; Title = "Static each blocks"; Create = make StaticEachBlocks.view; Sources = ["StaticEachBlocks.fs"] }
+        { Category = "Logic"; Title = "Static each with index"; Create = make StaticEachWithIndex.view; Sources = ["StaticEachWithIndex.fs"] }
+        { Category = "Logic"; Title = "Each blocks"; Create = make EachBlocks.view; Sources = ["EachBlocks.fs"] }
+        { Category = "Logic"; Title = "Keyed-each blocks"; Create = make KeyedEachBlocks.view; Sources = ["KeyedEachBlocks.fs"] }
         { Category = "Transitions"; Title = "Transitions w/ animation"; Create = make Todos.view; Sources = ["Todos.fs"] }
         { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}
         { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
@@ -103,6 +107,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     rule ".app-contents" [
         backgroundColor "#676778"
         color "white"
+        overflow "scroll"
     ]
 
     rule ".app-contents ul" [
@@ -116,13 +121,13 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
         marginTop "16px"
     ]
 
-    rule "a" [
+    rule ".app-contents a" [
         cursor "pointer"
         color "white"
         textDecoration "none"
     ]
 
-    rule "a:hover" [
+    rule ".app-contents a:hover" [
         color "white"
         textDecoration "underline"
     ]

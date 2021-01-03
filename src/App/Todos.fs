@@ -161,13 +161,13 @@ let update (message : Message) (model : Model) : Model =
 let fader  x = transition <| Both (fade,[ Duration 300.0 ]) <| x
 let slider x = transition <| Both (slide,[ Duration 300.0 ])  <| x
 
-let todosList title filter tin tout model dispatch =
-    let todos = model |> Store.map (fun x -> x.Todos)
+let todosList title (filter : Todo -> bool) tin tout model dispatch =
+    let filteredTodos = model |> Store.map (fun x -> x.Todos |> List.filter filter)
     Html.div [
         class' title
         Html.h2 [ text title ]
 
-        each todos key filter (InOut (tin,tout) ) (fun todo ->
+        keyedEach filteredTodos key (InOut (tin,tout) ) (fun todo ->
             Html.label [
                 Html.input [
                     type' "checkbox"

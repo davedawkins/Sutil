@@ -24,6 +24,11 @@ module Store =
     let map<'A,'B> (f : 'A -> 'B) (s : IObservable<'A>) = s |> Observable.map f
     let filter<'A> (f : 'A -> bool) (s : IObservable<'A>) = s |> Observable.filter f
 
+    let current (o : IObservable<'T>) =
+        let mutable value = Unchecked.defaultof<'T>
+        o.Subscribe(fun v -> value <- v).Dispose() // Works only when root observable is a store, or root responds immediately upon subscription
+        value
+
     // Map the wrapped value. For a List<T> (instead of a Store<T>) this might be
     // called foldMap
     let getMap f s =

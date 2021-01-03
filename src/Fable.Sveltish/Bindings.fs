@@ -26,7 +26,7 @@ let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) : NodeFact
                 // This can happen if we are generating text that then gets auto-formatted
                 // by a syntax highlighter. We're going to see more of these collisions
                 // with other libraries that are editing DOM that we created.
-                for foreignNode in children p |> List.filter (fun n -> not (Interop.exists n "_svid")) do
+                for foreignNode in children p |> List.filter (not << DOM.hasDisposables) do
                     //console.log(foreignNode)
                     p.removeChild(foreignNode) |> ignore
                 ctx.AppendChild p c |> ignore
@@ -35,10 +35,12 @@ let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) : NodeFact
         c
 
     let unsub = Store.subscribe store ( fun t ->
-        let svId = bindId() |> string
+        console.log($"Bindg: Subscription yields {t}")
         current <- element(t)( { ctx with AppendChild = addReplaceChild }, parent)
-        Interop.set current "_svid" svId
     )
+
+    DOM.registerDisposable parent unsub
+
     current
 
 let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
@@ -254,7 +256,7 @@ type KeyedItem<'T,'K> = {
     Rect: ClientRect
 }
 
-let each (items:IObservable<list<'T>>) (key:'T -> 'K) (filter:'T -> bool) (trans : TransitionAttribute) (view : 'T -> NodeFactory)  =
+let keyedEach (items:IObservable<list<'T>>) (key:'T -> 'K) (trans : TransitionAttribute) (view : 'T -> NodeFactory)  =
 
     fun (ctx,parent) ->
         let mutable state : KeyedItem<'T,'K> list = []
@@ -264,7 +266,7 @@ let each (items:IObservable<list<'T>>) (key:'T -> 'K) (filter:'T -> bool) (trans
             log($"each: caching exist rects for render {state.Length} items")
             state <- state |> List.map (fun ki -> { ki with Rect = clientRect ki.Node })
 
-            let newItems = value |> List.filter filter
+            let newItems = value //|> List.filter filter
             log($"each: rendering {newItems.Length} items")
 
             let mutable newState  = [ ]
@@ -319,5 +321,78 @@ let each (items:IObservable<list<'T>>) (key:'T -> 'K) (filter:'T -> bool) (trans
             state <- newState
         )
         parent :> Node
+
+type UnkeyedItemWithStore<'T> = {
+    Store : IStore<int*'T>
+    Node  : Node
+}
+
+let eachWithIndexAndStore (items:IObservable<list<'T>>) (view : IObservable<int*'T> -> NodeFactory)  =
+    fun (ctx,parent) ->
+        let mutable state : UnkeyedItemWithStore<'T> list = []
+        let disp = Store.subscribe items (fun value ->
+
+            let mutable newState = []
+
+            let rec zip' i (xs: 'T list) (ys: UnkeyedItemWithStore<'T> list) (ns : UnkeyedItemWithStore<'T> list)=
+                match (xs,ys) with
+                | ((x::xs),[]) ->
+                    let store = Store.make (i,x) // bind x to new item
+                    let y = {
+                        Store = store
+                        Node = (view store)(ctx,parent)
+                    }
+                    zip' (i+1) xs [] (ns @ [y])
+                | ((x::xs),(y::ys)) ->
+                    y.Store |> Store.modify (fun _ -> i,x)
+                    newState <- newState @ [y]
+                    zip' (i+1) xs ys (ns @ [y])
+                | ([], remainder) ->
+                    remainder |> List.iter (fun y -> y.Node |> removeNode)
+                    ns
+
+            state <- zip' 0 value state []
+        )
+        DOM.registerDisposable parent disp
+        parent :> Node
+
+type UnkeyedItem<'T> = {
+    Node  : Node
+}
+
+let eachWithIndex (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)  =
+    fun (ctx,parent) ->
+        let mutable state : UnkeyedItem<'T> list = []
+        let disp = Store.subscribe items (fun value ->
+
+            let mutable newState = []
+
+            let rec zip' i (xs: 'T list) (ys: UnkeyedItem<'T> list) (ns : UnkeyedItem<'T> list)=
+                match (xs,ys) with
+                | ((x::xs),[]) ->
+                    console.log($"each: new item {x} at {i}")
+                    let y = {
+                        Node = view(i,x)(ctx,parent)
+                    }
+                    zip' (i+1) xs [] (ns @ [y])
+                | ((x::xs),(y::ys)) ->
+                    console.log($"each: existing item {x} at {i}")
+                    newState <- newState @ [y]
+                    zip' (i+1) xs ys (ns @ [y])
+                | ([], remainder) ->
+                    remainder |> List.iter (fun y -> y.Node |> removeNode)
+                    ns
+
+            state <- zip' 0 value state []
+        )
+        DOM.registerDisposable parent disp
+        parent :> Node
+
+let eachWithStore (items:IObservable<list<'T>>) (view : IObservable<'T> -> NodeFactory)  =
+    eachWithIndexAndStore items (view << Store.map snd)
+
+let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  =
+    eachWithIndex items (view << snd)
+
 
 let (|=>) a b = bind a b

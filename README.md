@@ -12,6 +12,7 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- More "each" block examples. Covered a few more cases than are given in Svelte, due to differences in F# and JS. Still a w.i.p.
 - Browser DevTools plugin. Only *just* got the stores view working.
 <img src="images/devtools.png" width="400" alt="Screenshot of Sveltish DevTools plugin">
 

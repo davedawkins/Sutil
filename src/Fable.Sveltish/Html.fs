@@ -3,7 +3,7 @@ module Sveltish.Html
 open Sveltish.DOM
 open Browser.Types
 
-let div xs = el "div" xs
+let div xs : NodeFactory = el "div" xs
 let textarea xs = el "textarea" xs
 let h1  xs = el "h1" xs
 let h2  xs = el "h2" xs

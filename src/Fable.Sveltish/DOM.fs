@@ -382,6 +382,9 @@ let registerUnsubscribe (node:Node) (d:unit->unit) : unit =
 let registerDisposable (node:Node) (d:IDisposable) : unit =
     registerUnsubscribe node (fun () -> d.Dispose())
 
+let hasDisposables (node:Node) : bool =
+    Interop.exists node NodeKey.Disposables
+
 let getResizer (el:HTMLElement) : ResizeObserver =
     NodeKey.getCreate el NodeKey.ResizeObserver (fun () -> new ResizeObserver(el))
 

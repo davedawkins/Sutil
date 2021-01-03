@@ -5,6 +5,10 @@
   <ItemGroup>
     <Compile Include="Markdown.fs" />
     <Compile Include="Bulma.fs" />
+    <Compile Include="KeyedEachBlocks.fs" />
+    <Compile Include="EachBlocks.fs" />
+    <Compile Include="StaticEach.fs" />
+    <Compile Include="StaticEachWithIndex.fs" />
     <Compile Include="Dimensions.fs" />
     <Compile Include="FileInputs.fs" />
     <Compile Include="LogicIf.fs" />

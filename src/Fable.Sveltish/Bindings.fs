@@ -5,38 +5,44 @@ open DOM
 open Browser.Types
 open Browser.Dom
 open System
-open Fable.Core
-open Fable.Core.JsInterop
 
 let log s = Logging.log "bind" s
 
 let bindId = Helpers.makeIdGenerator()
 
-let isTextNode (n:Node) = n.nodeType = 3.0
+let makeAppendChild (ctx:BuildContext) (parent:Node) (current:Node) = fun p c ->
+    if (isNull current || not (parent.isSameNode(p))) then
+        // Appending new child
+        log($"Appending new child id {svId c}")
+        ctx.AppendChild p c |> ignore
+    else
+        if isNull current.parentElement then
+            // This means our node was replaced, which can happen if anything else is working on our DOM
+            // It only matters where we're managing an existing node through a binding or each construct.
+            for foreignNode in children p |> List.filter (not << DOM.hasSvId) do
+                p.removeChild(foreignNode) |> ignore
+
+            log($"Append missing child: re-id from {svId c} -> {svId current}")
+            svId current |> setSvId c
+
+            ctx.AppendChild p c |> ignore
+        else
+            // Consider when this bind is a child of an each block - "each" tracks the nodes it has
+            // created. This allows each to find the replacement node
+            log($"Replace child: re-id from {svId c} -> {svId current}")
+            svId current |> setSvId c
+
+            ctx.ReplaceChild p c current |> ignore
+    c
 
 let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
     let mutable current : Node = null
-
-    let addReplaceChild p c =
-        if (isNull current || not (parent.isSameNode(p))) then
-            ctx.AppendChild p c |> ignore
-        else
-            if isNull current.parentElement then
-                //console.log("Uh oh - our node was removed - let's clean up")
-                // This can happen if we are generating text that then gets auto-formatted
-                // by a syntax highlighter. We're going to see more of these collisions
-                // with other libraries that are editing DOM that we created.
-                for foreignNode in children p |> List.filter (not << DOM.hasDisposables) do
-                    //console.log(foreignNode)
-                    p.removeChild(foreignNode) |> ignore
-                ctx.AppendChild p c |> ignore
-            else
-                ctx.ReplaceChild p c current |> ignore
-        c
+    let mutable prevt : 'T = Unchecked.defaultof<_>
 
     let unsub = Store.subscribe store ( fun t ->
-        console.log($"Bindg: Subscription yields {t}")
-        current <- element(t)( { ctx with AppendChild = addReplaceChild }, parent)
+        if not (Helpers.fastEquals prevt t) then
+            current <- element(t)( { ctx with AppendChild = (makeAppendChild ctx parent current) }, parent)
+            prevt <- t
     )
 
     DOM.registerDisposable parent unsub
@@ -46,16 +52,11 @@ let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) : NodeFact
 let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
     let mutable current : Node = null
 
-    let addReplaceChild p c =
-        if isNull current then
-            ctx.AppendChild p c |> ignore
-        else
-            p.replaceChild(c,current) |> ignore
-        c
-
     let unsub = Store.subscribe2 a b (fun (a',b') ->
-        current <- element(a',b')( { ctx with AppendChild = addReplaceChild }, parent)
+        current <- element(a',b')( { ctx with AppendChild = (makeAppendChild ctx parent current) }, parent)
     )
+
+    DOM.registerDisposable parent unsub
 
     current
 
@@ -252,19 +253,36 @@ let bindPropOut<'T> (attrName:string) (store : Store<'T>) = fun (ctx,parent) ->
 type KeyedItem<'T,'K> = {
     Key : 'K
     Node : Node
-    Position : int
+    SvId : int
+    Position : IStore<int>
+    Value: IStore<'T>
     Rect: ClientRect
 }
 
-let keyedEach (items:IObservable<list<'T>>) (key:'T -> 'K) (trans : TransitionAttribute) (view : 'T -> NodeFactory)  =
-
+let observableEachWithKey (items:IObservable<list<'T>>) (view : IObservable<int> -> IObservable<'T> -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
     fun (ctx,parent) ->
         let mutable state : KeyedItem<'T,'K> list = []
         let unsub = Store.subscribe items (fun value ->
 
+            let findNode (current:Node) (id:int) =
+                if (isNull current.parentNode) then
+                    log($"each: Node {id} was replaced - finding new one")
+                    match DOM.findNodeWithSvId id with
+                    | None ->
+                        log("each: Disaster: cannot find node")
+                        null
+                    | Some n ->
+                        log($"each: Found it: {n}")
+                        n
+                else
+                    current
+
             log("-- Each Block Render -------------------------------------")
             log($"each: caching exist rects for render {state.Length} items")
-            state <- state |> List.map (fun ki -> { ki with Rect = clientRect ki.Node })
+
+            state <- state |> List.map (fun ki ->
+                let node = findNode ki.Node ki.SvId
+                { ki with Node = node; Rect = clientRect node })
 
             let newItems = value //|> List.filter filter
             log($"each: rendering {newItems.Length} items")
@@ -285,14 +303,25 @@ let keyedEach (items:IObservable<list<'T>>) (key:'T -> 'K) (trans : TransitionAt
                 let optKi = state |> List.tryFind (fun x -> x.Key = itemKey)
                 match optKi with
                 | None ->
-                    let itemNode = view(item)(ctx,parent) // Item appears, maybe in wrong place
-                    transitionNode (itemNode :?> HTMLElement) (Some trans) [Key (string itemKey)] true ignore
-                    let newKi = { Key = itemKey; Node = itemNode; Position = itemIndex; Rect = clientRect itemNode }
+                    let storePos = Store.make itemIndex
+                    let storeVal = Store.make item
+                    let itemNode = (view storePos storeVal)(ctx,parent) // Item appears, maybe in wrong place
+                    transitionNode (itemNode :?> HTMLElement) trans [Key (string itemKey)] true ignore
+                    let newKi = {
+                        SvId = svId itemNode
+                        Key = itemKey
+                        Node = itemNode
+                        Position = storePos
+                        Rect = clientRect itemNode
+                        Value = storeVal
+                    }
                     newState <- newState @ [ newKi ]
                     enteringNodes <- newKi :: enteringNodes
                 | Some ki ->
                     let r = (ki.Node :?> HTMLElement).getBoundingClientRect()
-                    newState <- newState @ [ { ki with Position = itemIndex } ]
+                    ki.Position |> Store.modify (fun _ -> itemIndex)
+                    ki.Value |> Store.modify (fun _ -> item)
+                    newState <- newState @ [ ki ]
             ) |> ignore
 
             // Remove old items
@@ -300,7 +329,7 @@ let keyedEach (items:IObservable<list<'T>>) (key:'T -> 'K) (trans : TransitionAt
                 if not (newState |> List.exists (fun x -> x.Key = oldItem.Key)) then
                     log($"each: removing key {oldItem.Key}")
                     fixPosition (asEl oldItem.Node)
-                    transitionNode (asEl oldItem.Node) (Some trans) [Key (string oldItem.Key)] false
+                    transitionNode (asEl oldItem.Node) trans [Key (string oldItem.Key)] false
                         removeNode
 
             // Existence is now synced. Now to reorder
@@ -322,12 +351,24 @@ let keyedEach (items:IObservable<list<'T>>) (key:'T -> 'K) (trans : TransitionAt
         )
         parent :> Node
 
+let observableEach (items:IObservable<list<'T>>) (view : IObservable<int> -> IObservable<'T> -> NodeFactory) (trans : TransitionAttribute option) =
+    observableEachWithKey items view (fun v -> v.GetHashCode()) trans
+
+let each (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory) (trans : TransitionAttribute option) =
+    observableEachWithKey items (fun indexS todoS -> bind2 indexS todoS view) (fun v -> v.GetHashCode()) trans
+
+let eachWithKey (items:IObservable<list<'T>>) (view : (int * 'T) -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
+    observableEachWithKey items (fun indexS todoS -> bind2 indexS todoS view) key trans
+
+let eachWithKeyNoIndex (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
+    observableEachWithKey items (fun _ todoS -> bind todoS view) key trans
+
 type UnkeyedItemWithStore<'T> = {
     Store : IStore<int*'T>
     Node  : Node
 }
 
-let eachWithIndexAndStore (items:IObservable<list<'T>>) (view : IObservable<int*'T> -> NodeFactory)  =
+let private xeachWithIndexAndStore (items:IObservable<list<'T>>) (view : IObservable<int*'T> -> NodeFactory)  =
     fun (ctx,parent) ->
         let mutable state : UnkeyedItemWithStore<'T> list = []
         let disp = Store.subscribe items (fun value ->
@@ -360,7 +401,7 @@ type UnkeyedItem<'T> = {
     Node  : Node
 }
 
-let eachWithIndex (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)  =
+let private xeachWithIndex (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)  =
     fun (ctx,parent) ->
         let mutable state : UnkeyedItem<'T> list = []
         let disp = Store.subscribe items (fun value ->
@@ -370,13 +411,13 @@ let eachWithIndex (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)
             let rec zip' i (xs: 'T list) (ys: UnkeyedItem<'T> list) (ns : UnkeyedItem<'T> list)=
                 match (xs,ys) with
                 | ((x::xs),[]) ->
-                    console.log($"each: new item {x} at {i}")
+                    //console.log($"each: new item {x} at {i}")
                     let y = {
                         Node = view(i,x)(ctx,parent)
                     }
                     zip' (i+1) xs [] (ns @ [y])
                 | ((x::xs),(y::ys)) ->
-                    console.log($"each: existing item {x} at {i}")
+                    //console.log($"each: existing item {x} at {i}")
                     newState <- newState @ [y]
                     zip' (i+1) xs ys (ns @ [y])
                 | ([], remainder) ->
@@ -388,11 +429,11 @@ let eachWithIndex (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)
         DOM.registerDisposable parent disp
         parent :> Node
 
-let eachWithStore (items:IObservable<list<'T>>) (view : IObservable<'T> -> NodeFactory)  =
-    eachWithIndexAndStore items (view << Store.map snd)
+//let eachWithStore (items:IObservable<list<'T>>) (view : IObservable<'T> -> NodeFactory)  =
+//    eachWithIndexAndStore items (view << Store.map snd)
 
-let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  =
-    eachWithIndex items (view << snd)
+//let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  =
+//    eachWithIndex items (view << snd)
 
 
 let (|=>) a b = bind a b

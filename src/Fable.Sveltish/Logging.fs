@@ -9,7 +9,7 @@ let loggingEnabled = false
 
 let init =
     enabled.["store"] <- loggingEnabled && false
-    enabled.["trans"] <- loggingEnabled && true
+    enabled.["trans"] <- loggingEnabled && false
     enabled.["dom"  ] <- loggingEnabled && false
     enabled.["style"] <- loggingEnabled && false
     enabled.["bind" ] <- loggingEnabled && true

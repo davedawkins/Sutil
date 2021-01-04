@@ -85,9 +85,9 @@ let view() =
             Html.div [
                 Html.h2 [ text "Unkeyed" ]
                 //each things (Store.map (fun t -> t.Color) >> ThingView)
-                each things (fun thing ->
+                each things (fun (_,thing) ->
                     ThingView thing.Color
-                )
+                ) None
                 //{#each things as thing}
                 //	<Thing current={thing.color}/>
                 //{/each}

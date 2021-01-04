@@ -16,7 +16,7 @@ let cats = Store.make [
 let extraCat = { Id = "0Bmhjf0rKe8"; Name = "Surprise Kitten" }
 
 let addCat cat =
-   cats |> Store.modify (fun cats' -> cats' @ [ cat ])
+   cats |> Store.modify (fun x -> [cat] @ x)
 
 let view() =
     Html.div [
@@ -26,14 +26,14 @@ let view() =
             // If the list changes, the view will update accordingly.
             // It isn't necessary to make a store to loop over a data structure,
             // see StaticEach.fs and StaticEachWithIndex.fs
-            eachWithIndex cats (fun (i,cat) ->
+            each cats (fun (i,cat) ->
                 Html.li [
                     Html.a [
                         target "_blank"
                         href $"https://www.youtube.com/watch?v={cat.Id}"
                         text $"{i + 1}: {cat.Name}"
                     ]
-                ])
+                ]) None
         ]
         Html.button [
             style "margin-top: 12px"

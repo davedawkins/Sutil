@@ -7,6 +7,22 @@ open Browser.CssExtensions
 
 let log = Logging.log "dom"
 
+let domId = Helpers.makeIdGenerator()
+
+let isTextNode (n:Node) = n.nodeType = 3.0
+let isElementNode (n:Node) = n.nodeType = 1.0
+
+let SvIdKey = "_svid"
+
+let setSvId (n:Node) id =
+    Interop.set n SvIdKey id
+    if (isElementNode n) then
+        (n :?> HTMLElement).setAttribute(SvIdKey,(string id))
+
+let svId (n:Node) = Interop.get n SvIdKey
+
+let hasSvId (n:Node) = Interop.exists n SvIdKey
+
 module Event =
     let ElementReady = "sveltish-element-ready"
     let Show = "sveltish-show"
@@ -146,7 +162,6 @@ let rec parseSelector (source:string) : CssSelector =
 let ruleMatchEl (el:HTMLElement) (rule:StyleRule) =
     rule.Selector.Match el
 
-
 let rec rootStyle sheet =
     match sheet.Parent with
     | None -> sheet
@@ -188,6 +203,8 @@ let rec applyCustomRules e (namedSheet:NamedStyleSheet) =
 let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
     let e  = document.createElement tag
 
+    setSvId e (domId())
+
     ctx.AppendChild parent (e:>Node) |> ignore
 
     for x in xs do x(ctx,e) |> ignore
@@ -202,6 +219,9 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
 
     e :> Node
 
+let findSvIdElement id : HTMLElement =
+    downcast document.querySelector($"[_svid='{id}']")
+
 let inline attr (name,value:obj) : NodeFactory = fun (ctx,e) ->
     try
         ctx.SetAttribute (e :?> Element) name (string value) // Cannot type test on Element
@@ -215,27 +235,56 @@ let inline attr (name,value:obj) : NodeFactory = fun (ctx,e) ->
     with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A" name e)
     e
 
+let textNode value : Node =
+    let n = document.createTextNode(value)
+    setSvId n (domId())
+    upcast n
+
 let text value : NodeFactory =
-    fun (ctx,e) -> ctx.AppendChild e (document.createTextNode(value) :> Node)
+    fun (ctx,e) -> ctx.AppendChild e (textNode value)
 
 let idSelector = sprintf "#%s"
 let classSelector = sprintf ".%s"
 let findElement selector = document.querySelector(selector)
 
-let rec visitChildren (parent:HTMLElement) (f : HTMLElement -> unit) =
+let rec visitChildren (parent:Node) (f : Node -> bool) =
     let mutable child = parent.firstChild
     while not (isNull child) do
-        if (child.nodeType = 1.0) then
-            f(downcast child)
+        if f(child) then
             visitChildren (downcast child) f
-        child <- child.nextSibling
+            child <- child.nextSibling
+        else
+            child <- null
+
+let rec findNode<'T> (parent:Node) (f : Node -> 'T option)  : 'T option=
+    let mutable child = parent.firstChild
+    let mutable result : 'T option = None
+    while not (isNull child) do
+        result <- f(child)
+        if (result.IsNone) then result <- findNode child f
+        child <- match result with
+                    | None -> child.nextSibling
+                    | Some x -> null
+    result
+
+let rec visitElementChildren (parent:Node) (f : HTMLElement -> unit) =
+    visitChildren parent
+                    (fun child ->
+                        if (child.nodeType = 1.0) then f(downcast child)
+                        true)
+
+let findNodeWithSvId id =
+    let getId n =
+        let r = svId n
+        if (r = id) then Some n else None
+    findNode document.body getId
 
 let html text : NodeFactory = fun (ctx,parent) ->
     let el = parent :?> HTMLElement
     el.innerHTML <- text
     match ctx.StyleSheet with
     | None -> ()
-    | Some ns -> visitChildren el (fun ch ->
+    | Some ns -> visitElementChildren el (fun ch ->
                                         ch.classList.add ns.Name
                                         applyCustomRules ch ns)
     upcast el

@@ -167,19 +167,18 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
         class' title
         Html.h2 [ text title ]
 
-        keyedEach filteredTodos key (InOut (tin,tout) ) (fun todo ->
+        eachWithKeyNoIndex filteredTodos (fun todo ->
             Html.label [
                 Html.input [
                     type' "checkbox"
                     attrNotify "checked" todo.Done (fun _ -> todo.Id |> ToggleTodo |> dispatch)
-                ]
+                    ]
                 text $" {todo.Description}"
                 Html.button [
                     on "click" (fun _ -> todo.Id |> DeleteTodo |> dispatch)
                     text "x"
                 ]
-            ]
-        )
+            ]) key (Some (InOut (tin,tout)))
     ]
 
 let makeStore = Store.makeElmishSimple init update ignore

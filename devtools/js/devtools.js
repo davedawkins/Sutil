@@ -19,7 +19,7 @@ let panelDoc;
 
 function initialisePanel(win)
 {
-    console.log("initialize panel");
+    //console.log("initialize panel");
 
     let doc = win.document
     panelDoc = doc;
@@ -60,7 +60,7 @@ function initialisePanel(win)
     }
 
     function handleResult(result) {
-        console.log(result);
+        //console.log(result);
         if (result[1]) {
             handleError(result[1]);
         }
@@ -71,12 +71,12 @@ function initialisePanel(win)
             chrome.devtools.inspectedWindow.eval(`(${fn})()`,
                 result => {
                     if (result[1]) {
-                        console.log("failed");
+                        //console.log("failed");
                         reject(result[1]);
                     }
                     else {
-                        console.log("succeeded");
-                        console.log( result )
+                        //console.log("succeeded");
+                        //console.log( result )
                         resolve(result);
                     }
                 } );
@@ -85,7 +85,6 @@ function initialisePanel(win)
 
     doc.querySelector("#stores").addEventListener("click", e => {
         e.target.classList.add("active");
-        console.log("Click");
         contentRunFn(injectedGetStores).then( buildStoresView );
         //chrome.devtools.inspectedWindow.eval(inspectString2, handleResult);
         //.then(handleResult);
@@ -135,7 +134,7 @@ function buildStoresView( result )
 
 function unInitialisePanel()
 {
-    console.log("unInitialisePanel")
+    //console.log("unInitialisePanel")
 }
 
 function init(panel) {

@@ -16,7 +16,7 @@ let cats = Store.make [
 let extraCat = { Id = "0Bmhjf0rKe8"; Name = "Surprise Kitten" }
 
 let addCat cat =
-   cats |> Store.modify (fun x -> [cat] @ x)
+   cats |> Store.modify (fun x -> x @ [cat])
 
 let view() =
     Html.div [

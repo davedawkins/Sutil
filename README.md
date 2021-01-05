@@ -14,7 +14,7 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 - Rework on binding and each block. Better tracking of created elements and reference fixing when bound elements changed etc
 - More "each" block examples. Covered a few more cases than are given in Svelte, due to differences in F# and JS. Still a w.i.p.
-- Browser DevTools plugin. Only *just* got the stores view working.
+- Browser DevTools plugin. Only *just* got the stores view working. See section `DevTools` further down.
 <img src="images/devtools.png" width="400" alt="Screenshot of Sveltish DevTools plugin">
 
 - More examples: FileInputs, Dimensions, If/Else/If-Else. Ported resize observer from Svelte (very clever stuff)
@@ -378,3 +378,30 @@ The problem I had was because I was Sveltish-binding to a `text` node, which wou
 100% sure on the recovery strategy. It's a good test case so I've left it this way in the way, but a quicker fix by far would have been to bind to the
 outer `<code>` or `<pre>` elements.
 
+## DevTools
+
+### Current Status
+This is a working proof-of-concept. To activate, you'll need to clone/download the repo and then:
+
+In Chrome:
+- `Settings -> More tools.. -> Extensions`
+- Click `Load unpacked`
+- Select the repo's `devtools` folder
+
+In Firefox (later though):
+- Go to page "about:debugging"
+- Click `This Firefox`
+- Click `Load Temporary Add-on`
+
+In Chrome you can right-click in the extensions itself to `Inspect element`. In Firefox, you can do the same from the `This Firefox` page.
+
+I ended up preferring Chrome to get the basics working, it was a much easier workflow in the early stages
+
+### Possibilities
+
+- Write the extension in Sveltish. It's currently in JS to get it out of the ground, but it already calls back into Fable code
+- Sveltish-focused DOM tree
+- Show mapping expressions (understand the dependency expression graph)
+- Show subscribers (help to understand if cleanup is working, etc)
+- Live update
+- ...more

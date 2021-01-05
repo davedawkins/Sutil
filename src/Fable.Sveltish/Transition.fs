@@ -481,19 +481,19 @@ let createHideableRuntime h =
         unsubscribe = null
     }
 
-let transitionList (list : Hideable list) = fun (ctx, parent) ->
+let transitionList (list : Hideable list) = unitFactory <| fun (ctx, parent) ->
     let runtimes = list |> List.map createHideableRuntime
     for rt in runtimes do
         rt.unsubscribe <- Store.subscribe rt.hideable.predicate ( fun show ->
             if (isNull rt.target) then
-                rt.target <- rt.hideable.element(ctx,parent)
+                rt.target <- rt.hideable.element.BuildElement(ctx,parent)
                 rt.cache <- not show
 
             if (rt.cache <> show) then
                 rt.cache <- show
                 transitionNode (rt.target :?> HTMLElement) rt.hideable.transOpt [] show ignore
         )
-    runtimes.Head.target
+    () //runtimes.Head.target
 
 type MatchOption<'T> = ('T -> bool) *  NodeFactory * TransitionAttribute option
 
@@ -505,7 +505,7 @@ let makeHideable guard element transOpt = {
 let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> list) =
     options |> List.map (fun (p,e,t) -> makeHideable (store |> Store.map p) e t) |> transitionList
 
-let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
+let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool>) (element: NodeFactory) (elseElement : NodeFactory option) = unitFactory <| fun (ctx,parent) ->
     let mutable target : Node = null
     let mutable cache = false
 
@@ -513,11 +513,11 @@ let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool
 
     let unsub = Store.subscribe store (fun isVisible ->
         if isNull target then
-            target <- element(ctx,parent)
+            target <- element.BuildElement(ctx,parent)
             cache <- not isVisible
             match elseElement with
             | Some e ->
-                targetElse <- e(ctx,parent)
+                targetElse <- e.BuildElement(ctx,parent)
                 //ctx.AppendChild parent targetElse |> ignore
             | None -> ()
 
@@ -527,9 +527,7 @@ let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool
             if not (isNull targetElse) then
                 transitionNode (targetElse :?> HTMLElement) trans [] (not isVisible) ignore
     )
-    // Not sure about this. Something is wrong in the design, since we (might) have created two elements
-    // We could create a container div to hold them and return that div.
-    target
+    ()
 
 // Show or hide according to a Store<bool> using a transition
 let transition<'T> (trans : TransitionAttribute) store element =

@@ -17,10 +17,10 @@ let min n          = attr("min",n)
 let max n          = attr("max",n)
 let value n        = attr("value",n)
 let style n        = attr("style",n)
-let multiple : NodeFactory = attr("multiple","")
+let multiple       = attr("multiple","")
 let rows n         = attr("rows",n)
 let cols n         = attr("cols",n)
-let readonly : NodeFactory = attr("readonly","" :> obj)
+let readonly       = attr("readonly","" :> obj)
 
 
 // Attributes that are either keywords or core functions
@@ -30,13 +30,11 @@ let for' n         = attr("for",n)
 let class'         = className
 
 // Events
-let on event fn : NodeFactory = fun (_,el) ->
+let on event fn = unitFactory <| fun (_,el) ->
     el.addEventListener(event, fn)
-    el
 
-let onKeyboard event (fn : KeyboardEvent -> unit) : NodeFactory = fun (_,el) ->
+let onKeyboard event (fn : KeyboardEvent -> unit) = unitFactory <| fun (_,el) ->
     el.addEventListener(event, unbox fn )
-    el
 
 let onClick fn = on "click" fn
 

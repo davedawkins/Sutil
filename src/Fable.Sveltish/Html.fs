@@ -3,7 +3,7 @@ module Sveltish.Html
 open Sveltish.DOM
 open Browser.Types
 
-let div xs : NodeFactory = el "div" xs
+let div xs = el "div" xs
 let textarea xs = el "textarea" xs
 let h1  xs = el "h1" xs
 let h2  xs = el "h2" xs
@@ -26,9 +26,10 @@ let option xs = el "option" xs
 let select xs = el "select" xs
 let form xs = el "form" xs
 
-let app (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
-    let mutable last : Node = parent
-    for x in xs do
-        last <- x(ctx,parent)
-    last
+let app (xs : IFactory seq) = DOM.fragment xs
+    //fun (ctx,parent) ->
+    //    let mutable last : Node = parent
+    //    for x in xs do
+    //        last <- x(ctx,parent)
+    //    last
 

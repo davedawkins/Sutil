@@ -172,19 +172,20 @@ let demos (model : IStore<Model>) =
             d.Create() |> show (model |> Store.map (fun m -> m.Demo = d.Title))
     ]
 
-let Section (name:string) model dispatch = [
-    Html.h5 [ class' "title is-6"; text (name.ToUpper()) ]
-    Html.ul [
-        for d in Demo.All |> List.filter (fun x -> x.Category = name) do
-            Html.li [
-                Html.a [
-                    href "#"
-                    text d.Title
-                    onClick (fun e -> e.preventDefault(); d.Title |> SetDemo |> dispatch )
+let Section (name:string) model dispatch : List<IFactory> =
+    seqIFactory [
+        Html.h5 [ class' "title is-6"; text (name.ToUpper()) ]
+        Html.ul [
+            for d in Demo.All |> List.filter (fun x -> x.Category = name) do
+                Html.li [
+                    Html.a [
+                        href "#"
+                        text d.Title
+                        onClick (fun e -> e.preventDefault(); d.Title |> SetDemo |> dispatch )
+                    ]
                 ]
             ]
-        ]
-    ]
+    ] |> Seq.toList
 
 let findDemo (model : Model) =
     Demo.All |> List.find (fun d -> d.Title = model.Demo)
@@ -234,13 +235,15 @@ let appMain () =
             Html.div [
                 class' "columns app-main-section"
 
-                Html.div <|
-                    (class' "column is-one-quarter app-contents") ::
-                    Section "Introduction" model dispatch @
-                    Section "Reactivity" model dispatch @
-                    Section "Logic" model dispatch @
-                    Section "Transitions" model dispatch @
-                    Section "Bindings" model dispatch
+                let sections =
+                              Section "Introduction" model dispatch
+                            @ Section "Reactivity" model dispatch
+                            @ Section "Logic" model dispatch
+                            @ Section "Transitions" model dispatch
+                            @ Section "Bindings" model dispatch
+                            @ [ (class' "column is-one-quarter app-contents") :> IFactory ]
+
+                Html.div sections
 
                 Html.div [
                     class' "column app-demo-section"
@@ -251,7 +254,7 @@ let appMain () =
                             Html.ul [
                                 class' "app-tab"
                                 tabItem dispatch "demo"
-                                demo.Sources |> List.map (tabItem dispatch) |> fragment
+                                demo.Sources |> List.map (tabItem dispatch) |> seqIFactory |> fragment
                             ]
                         )
                     ]

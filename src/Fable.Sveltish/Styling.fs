@@ -65,29 +65,29 @@ module Sveltish.Styling
             let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSveltishRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
             [ specifySelector styleName rule.SelectorSpec; " {"; styleText; "}" ] |> String.concat "" |> document.createTextNode |> style.appendChild |> ignore
 
-    let headStylesheet (url : string) = fun (ctx,parent) ->
+    let headStylesheet (url : string) = unitFactory <| fun (ctx,parent) ->
         let head = findElement "head"
         let styleEl = document.createElement("link")
         head.appendChild( styleEl ) |> ignore
         styleEl.setAttribute( "rel", "stylesheet" )
         styleEl.setAttribute( "href", url ) |> ignore
-        parent
+        ()
 
-    let headScript (url : string) = fun (ctx,parent) ->
+    let headScript (url : string) = unitFactory <| fun (ctx,parent) ->
         let head = findElement "head"
         let el = document.createElement("script")
         head.appendChild( el ) |> ignore
         el.setAttribute( "src", url ) |> ignore
-        parent
+        ()
 
-    let headEmbedScript (source : string) = fun (ctx,parent) ->
+    let headEmbedScript (source : string) = unitFactory <| fun (ctx,parent) ->
         let head = findElement "head"
         let el = document.createElement("script")
         head.appendChild( el ) |> ignore
         el.appendChild(document.createTextNode(source)) |> ignore
-        parent
+        ()
 
-    let headTitle (title : string) = fun (ctx,parent) ->
+    let headTitle (title : string) = unitFactory <| fun (ctx,parent) ->
         let head = findElement "head"
         let existingTitle = findElement "head>title"
 
@@ -98,12 +98,13 @@ module Sveltish.Styling
         titleEl.appendChild( document.createTextNode(title) ) |> ignore
         head.appendChild(titleEl) |> ignore
 
-        parent
+        ()
 
-    let withStyle styleSheet (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
+    let withStyle styleSheet (element : NodeFactory) = nodeFactory <| fun (ctx,parent) ->
         let name = ctx.MakeName "sveltish"
         addStyleSheet name styleSheet
-        element({ ctx with StyleSheet = Some { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } },parent)
+        let r = List.head <| element.BuildFragment({ ctx with StyleSheet = Some { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } },parent)
+        r
 
     let rule selector style =
         let result = {

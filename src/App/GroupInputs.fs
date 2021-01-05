@@ -36,13 +36,17 @@ let rec join (flavours : string list) =
 
 // HTML helpers
 let block children =
-    Html.div <| (class' "block") :: children
+    Html.div (children @ [class' "block"])
 
 // Control with only 1 label child
 let controlLabel children =
     Html.div [ class' "control"; Html.label children ]
 
 let label s = Html.label [ class' "label"; text s ]
+
+#if !NO_HACKS
+let inline nf (xs:#seq<NodeFactory>) = xs :> obj :?> seq<IFactory>
+#endif
 
 // Main component view
 let view() =
@@ -59,7 +63,7 @@ let view() =
                         i+1 |> string |> value
                     ]
                     text $" {scoopChoice}"
-                ]) |> fragment
+                ]) |> nf |> fragment
         ]
 
         block [

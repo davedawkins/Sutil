@@ -37,7 +37,7 @@ let view() =
             Bindings.bindAttr "value" inputText
         ]
 
-        Html.span [
-            Bindings.bind inputText <| fun t -> html $"{marked t}"
+        Bindings.bind inputText <| fun t -> Html.span [
+            html $"{marked t}"
         ] |> withStyle Markdown.style
     ] |> withStyle style

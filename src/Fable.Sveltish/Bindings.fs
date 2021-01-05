@@ -35,37 +35,38 @@ let makeAppendChild (ctx:BuildContext) (parent:Node) (current:Node) = fun p c ->
             ctx.ReplaceChild p c current |> ignore
     c
 
-let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
-    let mutable current : Node = null
-    let mutable prevt : 'T = Unchecked.defaultof<_>
+let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = nodeFactory <| fun (ctx,parent) ->
+    let mutable node : Node = null
+    let mutable value : 'T = Unchecked.defaultof<_>
 
-    let unsub = Store.subscribe store ( fun t ->
-        if not (Helpers.fastEquals prevt t) then
-            current <- element(t)( { ctx with AppendChild = (makeAppendChild ctx parent current) }, parent)
-            prevt <- t
+    let unsub = Store.subscribe store ( fun next ->
+        if not (Helpers.fastEquals value next) then
+            node <- element(next).BuildElement( { ctx with AppendChild = (makeAppendChild ctx parent node) }, parent)
+            value <- next
     )
 
     DOM.registerDisposable parent unsub
+    node
 
-    current
+let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) = NodeFactory <| fun (ctx,parent) ->
+    let mutable node : Node = null
+    let mutable value : ('A*'B) = Unchecked.defaultof<_>
 
-let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory = fun (ctx,parent) ->
-    let mutable current : Node = null
-
-    let unsub = Store.subscribe2 a b (fun (a',b') ->
-        current <- element(a',b')( { ctx with AppendChild = (makeAppendChild ctx parent current) }, parent)
+    let unsub = Store.subscribe2 a b (fun next ->
+        if not (Helpers.fastEquals value next) then
+            node <- (element next).BuildElement( { ctx with AppendChild = (makeAppendChild ctx parent node) }, parent)
+            value <- next
     )
 
     DOM.registerDisposable parent unsub
-
-    current
+    node
 
 let getInputChecked el = Interop.get el "checked"
 let setInputChecked (el : Node) (v:obj) = Interop.set el "checked" v
 let getInputValue el : string = Interop.get el "value"
 let setInputValue el (v:string) = Interop.set el "value" v
 
-let bindSelect<'T when 'T : equality> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+let bindSelect<'T when 'T : equality> (store:Store<'T>) = unitFactory <| fun (ctx:BuildContext,parent:Node) ->
 
     let select = parent :?> HTMLSelectElement
     let op (coll:HTMLCollection) i = coll.[i] :?> HTMLOptionElement
@@ -95,9 +96,9 @@ let bindSelect<'T when 'T : equality> (store:Store<'T>) = fun (ctx:BuildContext,
     // When store changes make sure check status is synced
     let unsub = Store.subscribe store updateSelected
 
-    parent
+    () //parent
 
-let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) = fun (ctx:BuildContext,parent:Node) ->
+let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) = unitFactory <| fun (ctx:BuildContext,parent:Node) ->
 
     let select = parent :?> HTMLSelectElement
     let op (coll:HTMLCollection) i = coll.[i] :?> HTMLOptionElement
@@ -126,14 +127,14 @@ let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) = fun (ctx
     // When store changes make sure check status is synced
     let unsub = Store.subscribe store (updateSelected)
 
-    parent
+    () //parent
 
 let isNullString (obj:obj) =
     isNull obj || System.String.IsNullOrEmpty(downcast obj)
 
 let getId (s : IStore<'T>) = s.GetHashCode()
 
-let bindGroup<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Node) ->
+let bindGroup<'T> (store:Store<List<string>>) = unitFactory <| fun (ctx:BuildContext,parent:Node) ->
     let name = match Interop.get parent "name" with
                 | s when isNullString s -> $"store-{getId store}"
                 | s -> s
@@ -162,13 +163,13 @@ let bindGroup<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Nod
     // When store changes make sure check status is synced
     let unsub = Store.subscribe store (updateChecked)
 
-    parent
+    () //parent
 
 
 // T can realistically only be numeric or a string. We're relying (I think!) on JS's ability
 // to turn a string into an int automatically in the Store.set call (maybe it's Fable doing that)
 //
-let bindRadioGroup<'T> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+let bindRadioGroup<'T> (store:Store<'T>) = unitFactory <| fun (ctx:BuildContext,parent:Node) ->
     let name = match Interop.get parent "name" with
                 | s when isNullString s -> $"store-{getId store}"
                 | s -> s
@@ -189,35 +190,35 @@ let bindRadioGroup<'T> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
     // When store changes make sure check status is synced
     let unsub = Store.subscribe store updateChecked
 
-    parent
+    () //parent
 
 // Bind a store value to an element attribute. Updates to the element are unhandled
-let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) = fun (ctx:BuildContext,parent:Node) ->
+let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) = unitFactory <| fun (ctx:BuildContext,parent:Node) ->
     let unsub = Store.subscribe store ( fun value -> Interop.set parent attrName value )
-    parent
+    () //parent
 
 // Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function. This form is useful for view templates
 // where v is invariant (for example, an each that already filters on the value of v, like Todo.Done)
-let attrNotify<'T> (attrName:string) (v :'T) (onchange : obj -> unit)= fun (ctx:BuildContext,parent:Node) ->
+let attrNotify<'T> (attrName:string) (v :'T) (onchange : obj -> unit)= unitFactory <| fun (ctx:BuildContext,parent:Node) ->
     let unsub = listen "input" parent (fun _ -> Interop.get parent attrName |> onchange )
     Interop.set parent attrName v
-    parent
+    () //parent
 
 // Bind a store value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function
-let bindAttrNotify<'T> (attrName:string) (store : Store<'T>) (onchange : obj -> unit)= fun (ctx:BuildContext,parent:Node) ->
+let bindAttrNotify<'T> (attrName:string) (store : Store<'T>) (onchange : obj -> unit)= unitFactory <| fun (ctx:BuildContext,parent:Node) ->
     parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> onchange ))
     let unsub = Store.subscribe store ( Interop.set parent attrName )
-    parent
+    () //parent
 
 // Bind a store value to an element attribute. Listen for onchange events write the converted
 // value back to the store
-let bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T)= fun (ctx:BuildContext,parent:Node) ->
+let bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T)= unitFactory <| fun (ctx:BuildContext,parent:Node) ->
     //let attrName' = if attrName = "value" then "__value" else attrName
     parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> convert |> Store.set store ))
     let unsub = Store.subscribe store ( Interop.set parent attrName )
-    parent
+    () //parent
 
 // Unsure how to safely convert Element.getAttribute():string to 'T
 let convertObj<'T> (v:obj) : 'T  =
@@ -227,17 +228,17 @@ let convertObj<'T> (v:obj) : 'T  =
 let bindAttr<'T> (attrName:string) (store : Store<'T>) =
     bindAttrConvert attrName store convertObj<'T>
 
-let bindAttrOut<'T> (attrName:string) (store : Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+let bindAttrOut<'T> (attrName:string) (store : Store<'T>) = unitFactory <| fun (ctx:BuildContext,parent:Node) ->
     let unsub = DOM.listen "input" parent (fun _ -> Interop.get parent attrName |> convertObj<'T> |> Store.set store)
     //(asEl parent).addEventListener("input", (fun _ -> Interop.get parent attrName |> convertObj<'T> |> Store.set store ))
-    parent
+    () //parent
 
 
 let attrIsSizeRelated  (attrName:string) =
     let upr = attrName.ToUpper()
     upr.IndexOf("WIDTH") >= 0 || upr.IndexOf("HEIGHT") >= 0
 
-let bindPropOut<'T> (attrName:string) (store : Store<'T>) = fun (ctx,parent) ->
+let bindPropOut<'T> (attrName:string) (store : Store<'T>) = unitFactory <| fun (ctx,parent) ->
     let notify() = Interop.get parent attrName |> convertObj<'T> |> Store.set store
 
     let unsub =
@@ -248,7 +249,7 @@ let bindPropOut<'T> (attrName:string) (store : Store<'T>) = fun (ctx,parent) ->
 
     DOM.registerUnsubscribe parent unsub
 
-    parent
+    ()//parent
 
 type KeyedItem<'T,'K> = {
     Key : 'K
@@ -259,8 +260,8 @@ type KeyedItem<'T,'K> = {
     Rect: ClientRect
 }
 
-let observableEachWithKey (items:IObservable<list<'T>>) (view : IObservable<int> -> IObservable<'T> -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
-    fun (ctx,parent) ->
+let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> -> IObservable<'T> -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
+    unitFactory <| fun (ctx,parent) ->
         let mutable state : KeyedItem<'T,'K> list = []
         let unsub = Store.subscribe items (fun value ->
 
@@ -305,7 +306,7 @@ let observableEachWithKey (items:IObservable<list<'T>>) (view : IObservable<int>
                 | None ->
                     let storePos = Store.make itemIndex
                     let storeVal = Store.make item
-                    let itemNode = (view storePos storeVal)(ctx,parent) // Item appears, maybe in wrong place
+                    let itemNode = (view storePos storeVal).BuildElement(ctx,parent) // Item appears, maybe in wrong place
                     transitionNode (itemNode :?> HTMLElement) trans [Key (string itemKey)] true ignore
                     let newKi = {
                         SvId = svId itemNode
@@ -349,91 +350,21 @@ let observableEachWithKey (items:IObservable<list<'T>>) (view : IObservable<int>
 
             state <- newState
         )
-        parent :> Node
+        () //parent :> Node
 
-let observableEach (items:IObservable<list<'T>>) (view : IObservable<int> -> IObservable<'T> -> NodeFactory) (trans : TransitionAttribute option) =
-    observableEachWithKey items view (fun v -> v.GetHashCode()) trans
+let eachio (items:IObservable<list<'T>>) (view : IObservable<int> -> IObservable<'T> -> NodeFactory) (trans : TransitionAttribute option) =
+    eachiko items view (fun v -> v.GetHashCode()) trans
 
-let each (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory) (trans : TransitionAttribute option) =
-    observableEachWithKey items (fun indexS todoS -> bind2 indexS todoS view) (fun v -> v.GetHashCode()) trans
+let eachi (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory) (trans : TransitionAttribute option) =
+    eachiko items (fun indexS todoS -> bind2 indexS todoS view) (fun v -> v.GetHashCode()) trans
 
-let eachWithKey (items:IObservable<list<'T>>) (view : (int * 'T) -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
-    observableEachWithKey items (fun indexS todoS -> bind2 indexS todoS view) key trans
+let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory) (trans : TransitionAttribute option) =
+    eachiko items (fun _ todoS -> bind todoS view) (fun v -> v.GetHashCode()) trans
 
-let eachWithKeyNoIndex (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
-    observableEachWithKey items (fun _ todoS -> bind todoS view) key trans
+let eachik (items:IObservable<list<'T>>) (view : (int * 'T) -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
+    eachiko items (fun indexS todoS -> bind2 indexS todoS view) key trans
 
-type UnkeyedItemWithStore<'T> = {
-    Store : IStore<int*'T>
-    Node  : Node
-}
-
-let private xeachWithIndexAndStore (items:IObservable<list<'T>>) (view : IObservable<int*'T> -> NodeFactory)  =
-    fun (ctx,parent) ->
-        let mutable state : UnkeyedItemWithStore<'T> list = []
-        let disp = Store.subscribe items (fun value ->
-
-            let mutable newState = []
-
-            let rec zip' i (xs: 'T list) (ys: UnkeyedItemWithStore<'T> list) (ns : UnkeyedItemWithStore<'T> list)=
-                match (xs,ys) with
-                | ((x::xs),[]) ->
-                    let store = Store.make (i,x) // bind x to new item
-                    let y = {
-                        Store = store
-                        Node = (view store)(ctx,parent)
-                    }
-                    zip' (i+1) xs [] (ns @ [y])
-                | ((x::xs),(y::ys)) ->
-                    y.Store |> Store.modify (fun _ -> i,x)
-                    newState <- newState @ [y]
-                    zip' (i+1) xs ys (ns @ [y])
-                | ([], remainder) ->
-                    remainder |> List.iter (fun y -> y.Node |> removeNode)
-                    ns
-
-            state <- zip' 0 value state []
-        )
-        DOM.registerDisposable parent disp
-        parent :> Node
-
-type UnkeyedItem<'T> = {
-    Node  : Node
-}
-
-let private xeachWithIndex (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)  =
-    fun (ctx,parent) ->
-        let mutable state : UnkeyedItem<'T> list = []
-        let disp = Store.subscribe items (fun value ->
-
-            let mutable newState = []
-
-            let rec zip' i (xs: 'T list) (ys: UnkeyedItem<'T> list) (ns : UnkeyedItem<'T> list)=
-                match (xs,ys) with
-                | ((x::xs),[]) ->
-                    //console.log($"each: new item {x} at {i}")
-                    let y = {
-                        Node = view(i,x)(ctx,parent)
-                    }
-                    zip' (i+1) xs [] (ns @ [y])
-                | ((x::xs),(y::ys)) ->
-                    //console.log($"each: existing item {x} at {i}")
-                    newState <- newState @ [y]
-                    zip' (i+1) xs ys (ns @ [y])
-                | ([], remainder) ->
-                    remainder |> List.iter (fun y -> y.Node |> removeNode)
-                    ns
-
-            state <- zip' 0 value state []
-        )
-        DOM.registerDisposable parent disp
-        parent :> Node
-
-//let eachWithStore (items:IObservable<list<'T>>) (view : IObservable<'T> -> NodeFactory)  =
-//    eachWithIndexAndStore items (view << Store.map snd)
-
-//let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  =
-//    eachWithIndex items (view << snd)
-
+let eachk (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
+    eachiko items (fun _ todoS -> bind todoS view) key trans
 
 let (|=>) a b = bind a b

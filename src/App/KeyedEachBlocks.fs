@@ -25,7 +25,7 @@ let ThingViewOb (current : IObservable<string>) =
     Html.div [
         bind current (fun color ->
             if initial = "" then initial <- color
-            Html.p [
+            downcast Html.p [
                 Html.span [ style $"background-color: {initial};"; text "initial" ]
                 Html.span [ style $"background-color: {color};"; text "current" ]
             ] |> withStyle thingStyle)
@@ -85,7 +85,7 @@ let view() =
             Html.div [
                 Html.h2 [ text "Unkeyed" ]
                 //each things (Store.map (fun t -> t.Color) >> ThingView)
-                each things (fun (_,thing) ->
+                eachi things (fun (_,thing) ->
                     ThingView thing.Color
                 ) None
                 //{#each things as thing}

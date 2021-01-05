@@ -167,7 +167,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
         class' title
         Html.h2 [ text title ]
 
-        eachWithKeyNoIndex filteredTodos (fun todo ->
+        eachk filteredTodos (fun todo ->
             Html.label [
                 Html.input [
                     type' "checkbox"

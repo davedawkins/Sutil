@@ -40,7 +40,7 @@ let appStyle = [
 
 // HTML helpers
 let block children =
-    Html.div <| (class' "block") :: children
+    Html.div (children @ [ class' "block" ])
 
 let view() =
     Html.div [
@@ -54,7 +54,9 @@ let view() =
                 class' "select block"
                 Html.select [
                     Bindings.bindSelect selected
+
                     on "change" (fun _ -> Store.set answer "")
+
                     for question in questions do
                         Html.option [
                             value question

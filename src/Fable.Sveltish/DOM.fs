@@ -110,7 +110,57 @@ let makeContext =
 // operates on the parent node, then the parent node is returned. For example, setting
 // attribute.
 //
-type NodeFactory = (BuildContext * Node) -> Node
+
+type Fragment = Node list
+type FactoryArgs = BuildContext * Node
+
+type IFactory = interface
+    abstract BuildFragment: args:FactoryArgs -> Fragment
+    end
+
+[<AbstractClass>]
+type Factory<'T>(f : FactoryArgs -> 'T) =
+    abstract BuildFragment: args: FactoryArgs -> Fragment
+    interface IFactory with
+        member this.BuildFragment(args: FactoryArgs) = this.BuildFragment(args)
+
+type NodeFactory(f : FactoryArgs -> Node) =
+    inherit Factory<Node>(f)
+    member _.BuildElement (args: FactoryArgs) =
+        args |> f
+    override _.BuildFragment (args: FactoryArgs) =
+        [ args |> f ]
+
+type FragmentFactory(f : FactoryArgs -> Fragment) =
+    inherit Factory<Fragment>(f)
+    override _.BuildFragment (args: FactoryArgs) =
+        args |> f
+
+type UnitFactory(f : FactoryArgs -> unit) =
+    inherit Factory<unit>(f)
+    override _.BuildFragment (args: FactoryArgs) =
+        args |> f
+        []
+
+#if false
+let nodeFactory f : IFactory = upcast (f |> NodeFactory)
+let fragmentFactory f : IFactory = upcast (f |> FragmentFactory)
+let unitFactory f : IFactory = upcast (UnitFactory(f))
+#else
+let nodeFactory f  =  (f |> NodeFactory)
+let fragmentFactory f  =  (f |> FragmentFactory)
+let unitFactory f  =  (UnitFactory(f))
+#endif
+
+#if !NO_HACKS
+//let seqIFactory (xs:#seq<NodeFactory>) : seq<IFactory> = xs :> obj :?> seq<IFactory>
+let seqIFactory (xs:#seq<NodeFactory>) : seq<IFactory> = xs |> Seq.map (fun x -> x :> IFactory)
+#endif
+
+// Abstractions that help with type checking and type signatures as shown by the editor
+// I would hope the identity functions are optimized away
+let nodeResult (node:Node) : Node = node
+let nodeFragment (nodes : Node list) : Fragment = nodes
 
 let appendAttribute (e:Element) attrName attrValue =
     if (attrValue <> "") then
@@ -200,14 +250,15 @@ let rec applyCustomRules e (namedSheet:NamedStyleSheet) =
                 // TODO: on subsequent calls
             | _ -> log($"Unimplemented: {fst custom}")
 
-let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
+let el tag (xs : #seq<IFactory>) = nodeFactory <| fun (ctx,parent) ->
     let e  = document.createElement tag
 
     setSvId e (domId())
 
     ctx.AppendChild parent (e:>Node) |> ignore
 
-    for x in xs do x(ctx,e) |> ignore
+    for x in xs do
+        x.BuildFragment(ctx,upcast e) |> ignore
 
     match ctx.StyleSheet with
     | Some namedSheet ->
@@ -217,12 +268,12 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
 
     e.dispatchEvent( Interop.customEvent Event.ElementReady {| |}) |> ignore
 
-    e :> Node
+    e :> Node |> nodeResult
 
 let findSvIdElement id : HTMLElement =
     downcast document.querySelector($"[_svid='{id}']")
 
-let inline attr (name,value:obj) : NodeFactory = fun (ctx,e) ->
+let inline attr (name,value:obj) = unitFactory <| fun (ctx,e) ->
     try
         ctx.SetAttribute (e :?> Element) name (string value) // Cannot type test on Element
         if (name = "value") then
@@ -233,15 +284,15 @@ let inline attr (name,value:obj) : NodeFactory = fun (ctx,e) ->
         | None -> ()
 
     with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A" name e)
-    e
+    ()
 
 let textNode value : Node =
     let n = document.createTextNode(value)
     setSvId n (domId())
     upcast n
 
-let text value : NodeFactory =
-    fun (ctx,e) -> ctx.AppendChild e (textNode value)
+let text value =
+    nodeFactory <| fun (ctx,e) -> ctx.AppendChild e (textNode value) |> nodeResult
 
 let idSelector = sprintf "#%s"
 let classSelector = sprintf ".%s"
@@ -279,22 +330,29 @@ let findNodeWithSvId id =
         if (r = id) then Some n else None
     findNode document.body getId
 
-let html text : NodeFactory = fun (ctx,parent) ->
+let htmlCollectionToSeq<'T when 'T :> Node> (coll:HTMLCollection) =
+    seq {
+        for i in [0..coll.length-1] do yield (coll.[i] :> obj :?> 'T)
+    }
+
+let html text = fragmentFactory <| fun (ctx,parent) ->
     let el = parent :?> HTMLElement
     el.innerHTML <- text
+
     match ctx.StyleSheet with
     | None -> ()
     | Some ns -> visitElementChildren el (fun ch ->
                                         ch.classList.add ns.Name
                                         applyCustomRules ch ns)
-    upcast el
+
+    el.children |> htmlCollectionToSeq<Node> |> Seq.toList
 
 //
 // Mount a top-level application NodeFactory into an existing document
 //
-let rec mountElement selector (app : NodeFactory)  =
+let rec mountElement selector (app : IFactory)  =
     let host = idSelector selector |> findElement :?> HTMLElement
-    (app (makeContext,host)) |> ignore
+    (app.BuildFragment(makeContext,upcast host)) |> ignore
 
 let findChildWhere (node:Node) (f : Node -> bool) =
     let rec search (n : Node) (f : Node -> bool) =
@@ -334,15 +392,12 @@ let asEl (node : Node) = (node :?> HTMLElement)
 
 let clientRect el = (asEl el).getBoundingClientRect()
 
-let removeNode (node:#Node) =
+let removeNode (node:Node) =
     log <| sprintf "removing node %A" node.textContent
     node.parentNode.removeChild( node ) |> ignore
 
-let fragment (elements : NodeFactory list) = fun (ctx,parent) ->
-    let mutable last : Node = null
-    for e in elements do
-        last <- e(ctx,parent)
-    last
+let fragment (elements : #seq<IFactory>) = fragmentFactory <| fun ctxParent ->
+    elements |> Seq.collect (fun e -> e.BuildFragment ctxParent) |> Seq.toList |> nodeFragment
 
 let isCrossOrigin = false // TODO
 

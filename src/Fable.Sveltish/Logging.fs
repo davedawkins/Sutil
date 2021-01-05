@@ -17,3 +17,9 @@ let init =
 let log source (message : string) =
     if not (enabled.ContainsKey(source)) || enabled.[source] then
         console.log(sprintf "%s: %s" source message)
+
+let warn (message : string) =
+    console.log(sprintf "warning: %s" message)
+
+let Error (message : string) =
+    console.log(sprintf "error: %s" message)

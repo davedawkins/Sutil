@@ -26,9 +26,10 @@ let option xs = el "option" xs
 let select xs = el "select" xs
 let form xs = el "form" xs
 
-let app (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
-    let mutable last : Node = parent
-    for x in xs do
-        last <- x(ctx,parent)
-    last
+let app (xs : seq<NodeFactory>) : NodeFactory = DOM.fragment xs
+    //fun (ctx,parent) ->
+    //let mutable last : Node = parent
+    //for x in xs do
+    //    last <- x(ctx,parent)
+    //last
 

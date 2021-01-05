@@ -486,14 +486,15 @@ let transitionList (list : Hideable list) = fun (ctx, parent) ->
     for rt in runtimes do
         rt.unsubscribe <- Store.subscribe rt.hideable.predicate ( fun show ->
             if (isNull rt.target) then
-                rt.target <- rt.hideable.element(ctx,parent)
+                rt.target <- buildSolitary rt.hideable.element ctx parent
                 rt.cache <- not show
 
             if (rt.cache <> show) then
                 rt.cache <- show
                 transitionNode (rt.target :?> HTMLElement) rt.hideable.transOpt [] show ignore
         )
-    runtimes.Head.target
+    unitResult()
+    //runtimes.Head.target
 
 type MatchOption<'T> = ('T -> bool) *  NodeFactory * TransitionAttribute option
 
@@ -513,11 +514,11 @@ let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool
 
     let unsub = Store.subscribe store (fun isVisible ->
         if isNull target then
-            target <- element(ctx,parent)
+            target <- buildSolitary element ctx parent
             cache <- not isVisible
             match elseElement with
             | Some e ->
-                targetElse <- e(ctx,parent)
+                targetElse <- buildSolitary e ctx parent
                 //ctx.AppendChild parent targetElse |> ignore
             | None -> ()
 
@@ -529,7 +530,7 @@ let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool
     )
     // Not sure about this. Something is wrong in the design, since we (might) have created two elements
     // We could create a container div to hold them and return that div.
-    target
+    unitResult()
 
 // Show or hide according to a Store<bool> using a transition
 let transition<'T> (trans : TransitionAttribute) store element =

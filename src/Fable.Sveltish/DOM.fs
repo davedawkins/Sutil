@@ -110,7 +110,22 @@ let makeContext =
 // operates on the parent node, then the parent node is returned. For example, setting
 // attribute.
 //
-type NodeFactory = (BuildContext * Node) -> Node
+
+type Fragment = Node list
+type NodeFactory = (BuildContext * Node) -> Fragment
+
+let nodeResult (node:Node) = [ node ]
+let fragmentResult (nodes:Node list) = nodes
+let unitResult() : Node list = []
+
+let expectSolitary (fragment : Fragment) =
+    match fragment with
+    | [n] -> n
+    | [] -> failwith "Expected single node, none found"
+    | _ -> failwith "Expected single node, too many found"
+
+let buildSolitary (f : NodeFactory) ctx parent =
+    expectSolitary( f(ctx,parent) )
 
 let appendAttribute (e:Element) attrName attrValue =
     if (attrValue <> "") then
@@ -217,7 +232,7 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
 
     e.dispatchEvent( Interop.customEvent Event.ElementReady {| |}) |> ignore
 
-    e :> Node
+    nodeResult e
 
 let findSvIdElement id : HTMLElement =
     downcast document.querySelector($"[_svid='{id}']")
@@ -233,7 +248,7 @@ let inline attr (name,value:obj) : NodeFactory = fun (ctx,e) ->
         | None -> ()
 
     with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A" name e)
-    e
+    unitResult()
 
 let textNode value : Node =
     let n = document.createTextNode(value)
@@ -241,7 +256,8 @@ let textNode value : Node =
     upcast n
 
 let text value : NodeFactory =
-    fun (ctx,e) -> ctx.AppendChild e (textNode value)
+    fun (ctx,e) ->
+        nodeResult (ctx.AppendChild e (textNode value))
 
 let idSelector = sprintf "#%s"
 let classSelector = sprintf ".%s"
@@ -287,7 +303,7 @@ let html text : NodeFactory = fun (ctx,parent) ->
     | Some ns -> visitElementChildren el (fun ch ->
                                         ch.classList.add ns.Name
                                         applyCustomRules ch ns)
-    upcast el
+    nodeResult el
 
 //
 // Mount a top-level application NodeFactory into an existing document
@@ -338,11 +354,12 @@ let removeNode (node:#Node) =
     log <| sprintf "removing node %A" node.textContent
     node.parentNode.removeChild( node ) |> ignore
 
-let fragment (elements : NodeFactory list) = fun (ctx,parent) ->
-    let mutable last : Node = null
-    for e in elements do
-        last <- e(ctx,parent)
-    last
+let fragment (elements : NodeFactory seq) = fun (ctx,parent) ->
+    fragmentResult (elements |> Seq.collect (fun e -> e(ctx,parent)) |> Seq.toList)
+//    let mutable last : Node = null
+//    for e in elements do
+//        last <- e(ctx,parent)
+//    last
 
 let isCrossOrigin = false // TODO
 

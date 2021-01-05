@@ -71,21 +71,21 @@ module Sveltish.Styling
         head.appendChild( styleEl ) |> ignore
         styleEl.setAttribute( "rel", "stylesheet" )
         styleEl.setAttribute( "href", url ) |> ignore
-        parent
+        unitResult()
 
     let headScript (url : string) = fun (ctx,parent) ->
         let head = findElement "head"
         let el = document.createElement("script")
         head.appendChild( el ) |> ignore
         el.setAttribute( "src", url ) |> ignore
-        parent
+        unitResult()
 
     let headEmbedScript (source : string) = fun (ctx,parent) ->
         let head = findElement "head"
         let el = document.createElement("script")
         head.appendChild( el ) |> ignore
         el.appendChild(document.createTextNode(source)) |> ignore
-        parent
+        unitResult()
 
     let headTitle (title : string) = fun (ctx,parent) ->
         let head = findElement "head"
@@ -98,12 +98,12 @@ module Sveltish.Styling
         titleEl.appendChild( document.createTextNode(title) ) |> ignore
         head.appendChild(titleEl) |> ignore
 
-        parent
+        unitResult()
 
     let withStyle styleSheet (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let name = ctx.MakeName "sveltish"
         addStyleSheet name styleSheet
-        element({ ctx with StyleSheet = Some { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } },parent)
+        fragmentResult <| element({ ctx with StyleSheet = Some { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } },parent)
 
     let rule selector style =
         let result = {

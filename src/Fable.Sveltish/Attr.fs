@@ -32,11 +32,11 @@ let class'         = className
 // Events
 let on event fn : NodeFactory = fun (_,el) ->
     el.addEventListener(event, fn)
-    el
+    unitResult()
 
 let onKeyboard event (fn : KeyboardEvent -> unit) : NodeFactory = fun (_,el) ->
     el.addEventListener(event, unbox fn )
-    el
+    unitResult()
 
 let onClick fn = on "click" fn
 

@@ -26,7 +26,7 @@ let view() =
             // If the list changes, the view will update accordingly.
             // It isn't necessary to make a store to loop over a data structure,
             // see StaticEach.fs and StaticEachWithIndex.fs
-            each cats (fun (i,cat) ->
+            eachi cats (fun (i,cat) ->
                 Html.li [
                     Html.a [
                         target "_blank"

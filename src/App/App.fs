@@ -44,7 +44,7 @@ type Demo = {
         { Category = "Logic"; Title = "Else-if blocks"; Create = make LogicElseIf.view; Sources = ["LogicElseIf.fs"] }
         { Category = "Logic"; Title = "Static each blocks"; Create = make StaticEachBlocks.view; Sources = ["StaticEachBlocks.fs"] }
         { Category = "Logic"; Title = "Static each with index"; Create = make StaticEachWithIndex.view; Sources = ["StaticEachWithIndex.fs"] }
-        { Category = "Logic"; Title = "Each blocks"; Create = make EachBlocks.view; Sources = ["EachBlocks.fs"] }
+        //{ Category = "Logic"; Title = "Each blocks"; Create = make EachBlocks.view; Sources = ["EachBlocks.fs"] }
         //{ Category = "Logic"; Title = "Keyed-each blocks"; Create = make KeyedEachBlocks.view; Sources = ["KeyedEachBlocks.fs"] }
         { Category = "Transitions"; Title = "Transitions w/ animation"; Create = make Todos.view; Sources = ["Todos.fs"] }
         { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}

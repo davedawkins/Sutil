@@ -114,13 +114,13 @@ let styleSheet = [
     ]
 
     rule ".kudos" [
-        marginTop "4px"
-        marginBottom "4px"
         fontSize "80%"
-        color "#aaa"
+        color "#888"
     ]
 
     rule "div.complete-all-container" [
+        display "flex"
+        justifyContent "space-between"
         marginTop "4px"
     ]
 
@@ -213,12 +213,11 @@ let view () : NodeFactory =
                 text "complete all"
                 on "click" (fun e -> e.preventDefault();dispatch CompleteAll)
             ]
+            Html.span [
+                class' "kudos"
+                bind completed (fun x -> text $"{x.Length} tasks completed! Good job!")
+            ] |> fader lotsDone
         ]
-
-        Html.div [
-            class' "kudos"
-            bind completed (fun x -> text $"{x.Length} tasks completed! Good job!")
-        ] |> fader lotsDone
 
         Html.div [
             class' "row"

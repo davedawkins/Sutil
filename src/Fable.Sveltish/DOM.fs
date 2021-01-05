@@ -9,8 +9,14 @@ let log = Logging.log "dom"
 
 let domId = Helpers.makeIdGenerator()
 
-let isTextNode (n:Node) = n.nodeType = 3.0
-let isElementNode (n:Node) = n.nodeType = 1.0
+[<Literal>]
+let ElementNodeType = 1.0
+
+[<Literal>]
+let TextNodeType = 3.0
+
+let isTextNode (n:Node) = n.nodeType = TextNodeType
+let isElementNode (n:Node) = n.nodeType = ElementNodeType
 
 let SvIdKey = "_svid"
 
@@ -121,8 +127,12 @@ let unitResult() : Node list = []
 let expectSolitary (fragment : Fragment) =
     match fragment with
     | [n] -> n
-    | [] -> failwith "Expected single node, none found"
-    | _ -> failwith "Expected single node, too many found"
+    | [] ->
+        Logging.error("Expected single node, none found")
+        null
+    | _ ->
+        Logging.error("Expected single node, multiple found")
+        null
 
 let buildSolitary (f : NodeFactory) ctx parent =
     expectSolitary( f(ctx,parent) )

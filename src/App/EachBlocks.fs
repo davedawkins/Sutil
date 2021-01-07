@@ -9,8 +9,8 @@ type Cat = { Id : string; Name : string }
 
 let cats = Store.make [
     { Id = "J---aiyznGQ"; Name = "Keyboard Cat" }
-    { Id = "OUtn3pvWmpg"; Name = "Henri The Existential Cat" }
     { Id = "z_AbfPXTKms"; Name = "Maru" }
+    { Id = "OUtn3pvWmpg"; Name = "Henri The Existential Cat" }
 ]
 
 let extraCat = { Id = "0Bmhjf0rKe8"; Name = "Surprise Kitten" }
@@ -26,7 +26,7 @@ let view() =
             // If the list changes, the view will update accordingly.
             // It isn't necessary to make a store to loop over a data structure,
             // see StaticEach.fs and StaticEachWithIndex.fs
-            eachi cats (fun i cat ->
+            eachi cats (fun (i,cat) ->
                 Html.li [
                     Html.a [
                         target "_blank"

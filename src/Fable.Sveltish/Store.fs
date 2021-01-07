@@ -89,8 +89,10 @@ module Store =
 
 [<AutoOpen>]
 module StoreOperators =
-    let (|%>) s f = Store.map f s
+    //let (|%>) s f = Store.map f s
     let (|->) s f = Store.getMap f s
+
+    let (.>) s f = Store.map f s
 
     let (<~) s v =
         Store.set s v

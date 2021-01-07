@@ -118,24 +118,79 @@ let makeContext =
 //
 
 type Fragment = Node list
-type NodeFactory = (BuildContext * Node) -> Fragment
 
-let nodeResult (node:Node) = [ node ]
-let fragmentResult (nodes:Node list) = nodes
-let unitResult() : Node list = []
+type INode = interface
+    abstract Remove: unit -> unit
+    abstract Append: Node -> unit
+    abstract Replace: Node -> Node -> unit
+    abstract Node: Node
+    end
 
-let expectSolitary (fragment : Fragment) =
-    match fragment with
-    | [n] -> n
-    | [] ->
-        Logging.error("Expected single node, none found")
-        null
-    | _ ->
-        Logging.error("Expected single node, multiple found")
-        null
+type NodeRef =
+    | RealNode of Node
+    | VirtualNode of INode
+    with
+        member this.Node =
+            match this with
+            | RealNode n -> n
+            | VirtualNode n -> n.Node
+        member this.Remove () =
+            match this with
+            | RealNode n -> n.parentNode.removeChild(n) |> ignore
+            | VirtualNode n -> n.Remove()
+        member this.Append (parent : Node) =
+            match this with
+            | RealNode n -> parent.appendChild(n) |> ignore
+            | VirtualNode n -> n.Append(parent)
+        member this.Replace (parent : Node, newChild:Node) =
+            match this with
+            | RealNode n -> parent.replaceChild(n,newChild) |> ignore
+            | VirtualNode n -> n.Replace parent newChild
+
+
+type BuildResult =
+    | Unit
+    | Solitary of Node
+    | Fragment of Node list
+    | Binding of NodeRef
+
+type NodeFactory = (BuildContext * Node) -> BuildResult
+
+let nodeResult (node:Node) = Solitary node
+let fragmentResult (nodes:Node list) = Fragment nodes
+let unitResult()  = Unit
+let bindResult r = Binding r
+
+let errorNode (parent:Node) message : Node=
+    let d = document.createElement("div")
+    d.appendChild(document.createTextNode($"sveltish-error: {message}")) |> ignore
+    parent.appendChild(d) |> ignore
+    d.setAttribute("style", "color: red; padding: 4px; font-size: 10px;")
+    upcast d
+
+let expectSolitary (parent:Node) (result : BuildResult) =
+    match result with
+    | Solitary n -> n
+    | Binding b -> b.Node
+        //errorNode parent "Expected single node, binding found"
+    | Unit ->
+        errorNode parent "Expected single node, none found"
+    | Fragment xs ->
+        let tmpDiv = document.createElement("div")
+        let en = errorNode tmpDiv "'fragment' not allowed as root for 'each' blocks"
+        parent.appendChild tmpDiv |> ignore
+        xs |> List.iter (tmpDiv.appendChild >> ignore)
+        upcast tmpDiv
+
+let collectFragment (result : BuildResult) =
+    match result with
+    | Solitary n -> [ n ]
+    | Binding b -> [ b.Node ] // TODO: Hmm..
+    | Unit -> []
+    | Fragment xs -> xs
 
 let buildSolitary (f : NodeFactory) ctx parent =
-    expectSolitary( f(ctx,parent) )
+    expectSolitary parent (f(ctx,parent))
 
 let appendAttribute (e:Element) attrName attrValue =
     if (attrValue <> "") then
@@ -365,7 +420,7 @@ let removeNode (node:#Node) =
     node.parentNode.removeChild( node ) |> ignore
 
 let fragment (elements : NodeFactory seq) = fun (ctx,parent) ->
-    fragmentResult (elements |> Seq.collect (fun e -> e(ctx,parent)) |> Seq.toList)
+    fragmentResult (elements |> Seq.collect (fun e -> e(ctx,parent) |> collectFragment) |> Seq.toList)
 //    let mutable last : Node = null
 //    for e in elements do
 //        last <- e(ctx,parent)

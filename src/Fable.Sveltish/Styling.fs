@@ -103,7 +103,7 @@ module Sveltish.Styling
     let withStyle styleSheet (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
         let name = ctx.MakeName "sveltish"
         addStyleSheet name styleSheet
-        fragmentResult <| element({ ctx with StyleSheet = Some { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } },parent)
+        element({ ctx with StyleSheet = Some { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } },parent)
 
     let rule selector style =
         let result = {

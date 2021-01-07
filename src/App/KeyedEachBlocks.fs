@@ -9,50 +9,11 @@ open System
 open Browser.Dom
 open Browser.Types
 
-let ThingViewOb (current : IObservable<string>) =
-    let thingStyle = [
-        rule "span" [
-            display "inline-block"
-            padding "0.2em 0.5em"
-            margin "0 0.2em 0.2em 0"
-            width "6em"
-            textAlign "center"
-            borderRadius "0.2em"
-            color "#eeeeee"
-        ]
-    ]
-    let mutable initial = ""
-    Html.div [
-        bind current (fun color ->
-            if initial = "" then initial <- color
-            Html.p [
-                Html.span [ style $"background-color: {initial};"; text "initial" ]
-                Html.span [ style $"background-color: {color};"; text "current" ]
-            ] |> withStyle thingStyle)
-    ]
-
-let ThingView (current : string) : NodeFactory =
-        let thingStyle = [
-            rule "span" [
-                display "inline-block"
-                padding "0.2em 0.5em"
-                margin "0 0.2em 0.2em 0"
-                width "6em"
-                textAlign "center"
-                borderRadius "0.2em"
-                color "#eeeeee"
-            ]
-        ]
-        let mutable initial = ""
-        Html.div [
-                if initial = "" then initial <- current
-                Html.p [
-                    Html.span [ style $"background-color: {initial};"; text "initial" ]
-                    Html.span [ style $"background-color: {current};"; text "current" ]
-                ] |> withStyle thingStyle
-        ]
+let nextId = Helpers.makeIdGenerator()
 
 type Thing = { Id : int; Color : string }
+let Color t = t.Color
+let Id t = t.Id
 
 let things = Store.make [
     { Id = 1; Color = "darkblue" }
@@ -61,6 +22,30 @@ let things = Store.make [
     { Id = 4; Color = "salmon" }
     { Id = 5; Color = "gold" }
 ]
+
+let ThingView (thing : IObservable<Thing>) : NodeFactory =
+        let viewId = nextId() // So we can see the lifetime of this view instance
+        let initialColor = thing |> Store.current |> Color
+
+        let thingStyle = [
+            rule "span" [
+                display "inline-block"
+                padding "0.2em 0.5em"
+                margin "0 0.2em 0.2em 0"
+                width "8em"
+                textAlign "center"
+                borderRadius "0.2em"
+                color "#eeeeee"
+            ]
+        ]
+
+        Html.div [
+            bind thing <| fun t ->
+                Html.p [
+                    Html.span [ style $"background-color: {t.Color};"; text $"{t.Id} {t.Color} #{viewId}" ]
+                    Html.span [ style $"background-color: {initialColor};"; text "initial" ]
+                ] |> withStyle thingStyle
+        ]
 
 let handleClick _ =
     things |> Store.modify List.tail
@@ -76,21 +61,13 @@ let view() =
             style "display: grid; grid-template-columns: 1fr 1fr; grid-gap: 1em"
 
             Html.div [
-                Html.h2 [ text "keyed" ]
-                //keyedEach things (fun t -> t.Id) (Store.map (fun t -> t.Color) >> ThingView)
-                    //{#each things as thing (thing.id)}
-                    //	<Thing current={thing.color}/>
-                    //{/each}
+                Html.h2 [ text "Keyed" ]
+                eachiko things (snd>>ThingView) (snd>>Id)  None
             ]
+
             Html.div [
                 Html.h2 [ text "Unkeyed" ]
-                //each things (Store.map (fun t -> t.Color) >> ThingView)
-                eachi things (fun _ thing ->
-                    ThingView thing.Color
-                ) None
-                //{#each things as thing}
-                //	<Thing current={thing.color}/>
-                //{/each}
+                eachio things (snd>>ThingView) None
             ]
         ]
     ]

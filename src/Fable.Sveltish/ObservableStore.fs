@@ -90,25 +90,25 @@ module ObservableStore =
         member _.Get = model()
 
         member _.Update(f: 'Model -> 'Model) =
-            if subscribers.Count > 0 then
-                let newModel = f (model())
+            let newModel = f (model())
 
-                // We need to do this only where we know it's
-                // a) worth doing, and
-                // b) we don't need notifications of calls to Update.
-                //
-                // For example, when we bind to <input>.files this will initially
-                // change from null -> FileList. As the user changes their
-                // selection of files, the DOM instance of FileList appears to mutate
-                // We get notification of the change in files, but we are sending the
-                // *same* instance into Update. The end consumer is likely to just be
-                // iterating the contents, and doesn't care that the instance is the
-                // same.
-                //
-                if accept _model newModel then
-                    _model <- newModel
+            if accept _model newModel then
+                _model <- newModel
+                if subscribers.Count > 0 then
+                    // We need to do this only where we know it's
+                    // a) worth doing, and
+                    // b) we don't need notifications of calls to Update.
+                    //
+                    // For example, when we bind to <input>.files this will initially
+                    // change from null -> FileList. As the user changes their
+                    // selection of files, the DOM instance of FileList appears to mutate
+                    // We get notification of the change in files, but we are sending the
+                    // *same* instance into Update. The end consumer is likely to just be
+                    // iterating the contents, and doesn't care that the instance is the
+                    // same.
+                    //
                     subscribers.Values
-                    |> Seq.iter (fun s -> s.OnNext(_model))
+                        |> Seq.iter (fun s -> s.OnNext(_model))
 
         member this.Subscribe(observer: IObserver<'Model>): IDisposable =
             let id = uid
@@ -122,10 +122,14 @@ module ObservableStore =
             observer.OnNext(model())
 
             Helpers.disposable <| fun () ->
-                if subscribers.Remove(id) && subscribers.Count = 0 then
-                    dispose (model())
-                    _model <- Unchecked.defaultof<_>
-                    Registry.notifyDisposeStore this
+                subscribers.Remove(id) |> ignore
+                //
+                // This will dispose a store that has a transient initial subscriber
+                //
+                //if subscribers.Remove(id) && subscribers.Count = 0 then
+                //    dispose (model())
+                //    _model <- Unchecked.defaultof<_>
+                //    Registry.notifyDisposeStore this
 
         interface IStore<'Model> with
             member this.Subscribe(observer: IObserver<'Model>) = this.Subscribe(observer)

@@ -178,7 +178,8 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
                     on "click" (fun _ -> todo.Id |> DeleteTodo |> dispatch)
                     text "x"
                 ]
-            ]) key (Some (InOut (tin,tout)))
+            ]
+        ) key (Some (InOut (tin,tout)))
     ]
 
 let makeStore = Store.makeElmishSimple init update ignore

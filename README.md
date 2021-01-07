@@ -12,6 +12,7 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- KeyedEach example. More rework of NodeFactory API
 - Improved return value from NodeFactory. Experimented with IFactory, moved to branch.
 - Rework on binding and each block. Better tracking of created elements and reference fixing when bound elements changed etc
 - More "each" block examples. Covered a few more cases than are given in Svelte, due to differences in F# and JS. Still a w.i.p.

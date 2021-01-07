@@ -541,11 +541,11 @@ let transitionElse<'T> (trans : TransitionAttribute) store element otherElement=
     transitionOpt (Some trans) store element (Some otherElement)
 
 // Show or hide according to a Store<bool> with no transition
-let show<'T> store element =
+let showIf<'T> store element =
     transitionOpt None store element None
 
 // Alternate between a pair of elements according to a Store<bool> with no transition
-let showElse<'T> store element otherElement=
+let showIfElse<'T> store element otherElement=
     transitionOpt None store element (Some otherElement)
 
 

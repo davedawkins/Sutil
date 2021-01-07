@@ -24,7 +24,7 @@ let view() =
 
         Html.div [
             class' "block"
-            showElse yes
+            showIfElse yes
                 (Html.p  [ text "You are ready for launch" ])
                 (Html.p  [ text "You won't be going anywhere unless you enable the ejector seat" ])
         ]

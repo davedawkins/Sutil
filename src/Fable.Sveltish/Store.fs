@@ -105,3 +105,24 @@ module StoreOperators =
 
     let (<~=) store map = Store.modify map store
     let (=~>) map store = Store.modify map store
+
+
+[<AutoOpen>]
+module PromiseStore =
+
+    type State<'T> =
+        | Waiting
+        | Result of 'T
+        | Error of Exception
+
+    type PromiseStore<'T>() =
+        let store = Store.make( Waiting )
+        with
+            member _.Store = store
+            member _.Run (p : Fable.Core.JS.Promise<'T>) =
+                    store <~ Waiting
+                    p |> Promise.map (fun v -> store <~ Result v)
+                      |> Promise.catch (fun x -> store <~ Error x)
+                      |> ignore
+
+

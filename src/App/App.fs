@@ -46,6 +46,7 @@ type Demo = {
         { Category = "Logic"; Title = "Static each with index"; Create = make StaticEachWithIndex.view; Sources = ["StaticEachWithIndex.fs"] }
         { Category = "Logic"; Title = "Each blocks"; Create = make EachBlocks.view; Sources = ["EachBlocks.fs"] }
         { Category = "Logic"; Title = "Keyed-each blocks"; Create = make KeyedEachBlocks.view; Sources = ["KeyedEachBlocks.fs"] }
+        { Category = "Logic"; Title = "Await blocks"; Create = make AwaitBlocks.view; Sources = ["AwaitBlocks.fs"] }
         { Category = "Transitions"; Title = "Transitions w/ animation"; Create = make Todos.view; Sources = ["Todos.fs"] }
         { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}
         { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
@@ -169,7 +170,7 @@ let demos (model : IStore<Model>) =
     Html.div [
         class' "column app-demo"
         for d in Demo.All do
-            d.Create() |> show (model |> Store.map (fun m -> m.Demo = d.Title))
+            d.Create() |> showIf (model .> (fun m -> m.Demo = d.Title))
     ]
 
 let Section (name:string) model dispatch = [

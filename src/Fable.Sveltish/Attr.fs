@@ -39,6 +39,8 @@ let onKeyboard event (fn : KeyboardEvent -> unit) : NodeFactory = fun (_,el) ->
     unitResult()
 
 let onClick fn = on "click" fn
+let onShow fn = on Event.Show fn
+let onHide fn = on Event.Hide fn
 
 let onKeyDown (fn : (KeyboardEvent -> unit)) = onKeyboard "keydown" fn
 

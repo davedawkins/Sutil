@@ -44,8 +44,7 @@ let view() =
 
         Html.div [
             class' "block"
-            bind randomName <| fun result ->
-                match result with
+            bind randomName <| function
                 | Waiting ->
                     text "...waiting"
                 | Result n ->

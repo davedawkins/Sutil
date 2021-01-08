@@ -108,21 +108,21 @@ module StoreOperators =
 
 
 [<AutoOpen>]
-module PromiseStore =
+module Promise =
 
     type State<'T> =
         | Waiting
         | Result of 'T
         | Error of Exception
 
-    type PromiseStore<'T>() =
+    type ObservablePromise<'T>() =
         let store = Store.make( Waiting )
-        with
-            member _.Store = store
-            member _.Run (p : Fable.Core.JS.Promise<'T>) =
-                    store <~ Waiting
-                    p |> Promise.map (fun v -> store <~ Result v)
-                      |> Promise.catch (fun x -> store <~ Error x)
-                      |> ignore
+        member _.Run (p : Fable.Core.JS.Promise<'T>) =
+                store <~ Waiting
+                p |> Promise.map (fun v -> store <~ Result v)
+                  |> Promise.catch (fun x -> store <~ Error x)
+                  |> ignore
+        interface IObservable<State<'T>> with
+            member this.Subscribe(observer: IObserver<State<'T>>) = store.Subscribe(observer)
 
 

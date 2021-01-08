@@ -17,10 +17,10 @@ module RandomUser =
         return result.results.[0]
     }
 
-let promisedNo = PromiseStore<string>()
+let randomName = ObservablePromise<string>()
 
-let getRandomUser _ =
-    promisedNo.Run <| promise {
+let getRandomName _ =
+    randomName.Run <| promise {
         do! Promise.sleep(500) // So we can see more of the "Waiting..." phase
 
         let! u = RandomUser.get()
@@ -34,18 +34,18 @@ let getRandomUser _ =
 let view() =
     Html.div [
 
-        onShow getRandomUser
+        onShow getRandomName
 
         Html.button [
             class' "block"
-            onClick getRandomUser
+            onClick getRandomName
             text "generate random name"
         ]
 
         Html.div [
             class' "block"
-            bind promisedNo.Store <| fun r ->
-                match r with
+            bind randomName <| fun result ->
+                match result with
                 | Waiting ->
                     text "...waiting"
                 | Result n ->

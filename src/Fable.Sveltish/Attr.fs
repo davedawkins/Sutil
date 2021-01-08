@@ -30,19 +30,42 @@ let for' n         = attr("for",n)
 let class'         = className
 
 // Events
-let on event fn : NodeFactory = fun (_,el) ->
-    el.addEventListener(event, fn)
+
+type EventModifier =
+    | Once
+    | PreventDefault
+    | StopPropagation
+    | StopImmediatePropagation
+
+let on (event : string) (fn : Event -> unit) (options : EventModifier list) = fun (_,el:Node) ->
+    let rec h (e:Event) =
+        for opt in options do
+            match opt with
+            | Once -> el.removeEventListener(event,h)
+            | PreventDefault -> e.preventDefault()
+            | StopPropagation -> e.stopPropagation()
+            | StopImmediatePropagation -> e.stopImmediatePropagation()
+        fn(e)
+    el.addEventListener(event, h)
     unitResult()
 
-let onKeyboard event (fn : KeyboardEvent -> unit) : NodeFactory = fun (_,el) ->
-    el.addEventListener(event, unbox fn )
-    unitResult()
+//let on0 event fn : NodeFactory = fun (_,el) ->
+//    el.addEventListener(event, fn)
+//    unitResult()
 
-let onClick fn = on "click" fn
-let onShow fn = on Event.Show fn
-let onHide fn = on Event.Hide fn
+let onKeyboard event (fn : KeyboardEvent -> unit) options =
+    on event (unbox fn) options
 
-let onKeyDown (fn : (KeyboardEvent -> unit)) = onKeyboard "keydown" fn
+let onMouse event (fn : MouseEvent -> unit) options =
+    on event (unbox fn) options
+
+let onClick fn options = on "click" fn options
+
+let onShow fn options = on Event.Show fn options
+let onHide fn options = on Event.Hide fn options
+
+let onKeyDown (fn : (KeyboardEvent -> unit)) options  = onKeyboard "keydown" fn options
+let onMouseMove fn options  = onMouse "mousemove" fn options
 
 let cssAttr = id
 

@@ -39,6 +39,6 @@ let view() =
             style "margin-top: 12px"
             text "More Cats"
             bindAttrIn "disabled" (cats |> Store.map (fun cats' -> cats'.Length = 4))
-            onClick (fun _ -> addCat extraCat)
+            onClick (fun _ -> addCat extraCat) []
         ]
     ]

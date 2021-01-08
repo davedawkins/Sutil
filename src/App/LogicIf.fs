@@ -16,13 +16,13 @@ let view() =
             Html.div [
                 if u.loggedIn then
                     Html.button [
-                        onClick toggle
+                        onClick toggle []
                         text "Log out"
                     ]
 
                 if not u.loggedIn then
                     Html.button [
-                        onClick toggle
+                        onClick toggle []
                         text "Log in"
                     ]
             ]

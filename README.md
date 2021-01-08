@@ -12,6 +12,9 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 ## Changelog (most recent first)
 
+- DomEvents example
+- EventModifiers example
+- HtmlTags example
 - Add ObservablePromise to replace PromiseStore
 - Switch await example to randomuser.me
 - Await blocks example. This was fun and looks quite neat

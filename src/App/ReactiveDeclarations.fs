@@ -16,7 +16,7 @@ let view() =
     Html.div [
         Html.button [
             class' "block"
-            onClick handleClick
+            onClick handleClick []
             bind count (fun n -> text $"Count: {n}")
         ]
 

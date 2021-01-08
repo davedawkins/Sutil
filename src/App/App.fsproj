@@ -30,6 +30,9 @@
     <Compile Include="ReactiveDeclarations.fs" />
     <Compile Include="DynamicAttributes.fs" />
     <Compile Include="HelloWorld.fs" />
+    <Compile Include="HtmlTags.fs" />
+    <Compile Include="DomEvents.fs" />
+    <Compile Include="EventModifiers.fs" />
     <Compile Include="Todos.fs" />
     <Compile Include="Counter.fs" />
     <Compile Include="CounterWithTransition.fs" />

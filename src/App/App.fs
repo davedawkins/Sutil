@@ -36,6 +36,7 @@ type Demo = {
         { Category = "Introduction";Title = "Dynamic attributes";  Create = make DynamicAttributes.view ; Sources = ["DynamicAttributes.fs"]}
         { Category = "Introduction";Title = "Styling";  Create = make StylingExample.view ; Sources = ["Styling.fs"]}
         { Category = "Introduction";Title = "Nested components";  Create = make NestedComponents.view ; Sources = ["NestedComponents.fs"; "Nested.fs"]}
+        { Category = "Introduction";Title = "HTML tags";  Create = make HtmlTags.view ; Sources = ["HtmlTags.fs"]}
         { Category = "Reactivity";Title = "Reactive assignments";  Create = make Counter.Counter ; Sources = ["Counter.fs"]}
         { Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Sources = ["ReactiveDeclarations.fs"]}
         { Category = "Reactivity";Title = "Reactive statements";  Create = make ReactiveStatements.view ; Sources = ["ReactiveStatements.fs"]}
@@ -47,6 +48,8 @@ type Demo = {
         { Category = "Logic"; Title = "Each blocks"; Create = make EachBlocks.view; Sources = ["EachBlocks.fs"] }
         { Category = "Logic"; Title = "Keyed-each blocks"; Create = make KeyedEachBlocks.view; Sources = ["KeyedEachBlocks.fs"] }
         { Category = "Logic"; Title = "Await blocks"; Create = make AwaitBlocks.view; Sources = ["AwaitBlocks.fs"] }
+        { Category = "Events"; Title = "DOM events"; Create = make DomEvents.view; Sources = ["DomEvents.fs"] }
+        { Category = "Events"; Title = "Event modifiers"; Create = make EventModifiers.view; Sources = ["EventModifiers.fs"] }
         { Category = "Transitions"; Title = "Transitions w/ animation"; Create = make Todos.view; Sources = ["Todos.fs"] }
         { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}
         { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
@@ -173,7 +176,7 @@ let demos (model : IStore<Model>) =
             d.Create() |> showIf (model .> (fun m -> m.Demo = d.Title))
     ]
 
-let Section (name:string) model dispatch = [
+let Section (name:string) model dispatch = fragment [
     Html.h5 [ class' "title is-6"; text (name.ToUpper()) ]
     Html.ul [
         for d in Demo.All |> List.filter (fun x -> x.Category = name) do
@@ -181,7 +184,7 @@ let Section (name:string) model dispatch = [
                 Html.a [
                     href "#"
                     text d.Title
-                    onClick (fun e -> e.preventDefault(); d.Title |> SetDemo |> dispatch )
+                    onClick (fun _ -> d.Title |> SetDemo |> dispatch ) [PreventDefault]
                 ]
             ]
         ]
@@ -195,7 +198,7 @@ let tabItem dispatch name  =
         Html.a [
             href "#"
             text name
-            onClick (fun e -> e.preventDefault(); (SetTab name |> dispatch))
+            onClick (fun _ -> SetTab name |> dispatch) [PreventDefault]
         ]
     ]
 
@@ -208,7 +211,7 @@ let viewSource (model : IStore<Model>) dispatch =
         Html.pre [
             Html.code [
                 class' "fsharp"
-                on "sveltish-show" <| fun e -> log($"2show source {e.target}"); e.stopPropagation()
+                on "sveltish-show" (fun e -> log($"2show source {e.target}")) [StopPropagation]
                 bind source text
             ]
         ]
@@ -235,13 +238,15 @@ let appMain () =
             Html.div [
                 class' "columns app-main-section"
 
-                Html.div <|
-                    (class' "column is-one-quarter app-contents") ::
-                    Section "Introduction" model dispatch @
-                    Section "Reactivity" model dispatch @
-                    Section "Logic" model dispatch @
-                    Section "Transitions" model dispatch @
+                Html.div [
+                    class' "column is-one-quarter app-contents"
+                    Section "Introduction" model dispatch
+                    Section "Reactivity" model dispatch
+                    Section "Logic" model dispatch
+                    Section "Events" model dispatch
+                    Section "Transitions" model dispatch
                     Section "Bindings" model dispatch
+                ]
 
                 Html.div [
                     class' "column app-demo-section"

@@ -34,11 +34,11 @@ let getRandomName _ =
 let view() =
     Html.div [
 
-        onShow getRandomName
+        onShow getRandomName []
 
         Html.button [
             class' "block"
-            onClick getRandomName
+            onClick getRandomName []
             text "generate random name"
         ]
 

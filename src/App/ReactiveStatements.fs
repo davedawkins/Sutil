@@ -22,6 +22,6 @@ let handleClick _ =
 
 let view() =
     Html.button [
-        onClick handleClick
+        onClick handleClick []
         count |=> (fun n -> text $"Clicked {n} time{plural n}")
     ]

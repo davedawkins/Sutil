@@ -48,13 +48,13 @@ let view() =
         Html.h2 [ text "Health Check" ]
 
         Html.form [
-            on "submit" handleSubmit
+            on "submit" handleSubmit []
 
             Html.div [
                 class' "select block"
                 Html.select [
                     Bindings.bindSelect selected
-                    on "change" (fun _ -> Store.set answer "")
+                    on "change" (fun _ -> Store.set answer "") []
                     for question in questions do
                         Html.option [
                             value question

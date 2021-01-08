@@ -67,7 +67,7 @@ let Counter() =
 
     withStyle counterStyle <| Html.div [
         Html.button [
-            onClick (fun _ -> count <~= (+) 1)
+            onClick (fun _ -> count <~= (+) 1) []
 
             count |=> fun n ->
                 text <| if n = 0 then "Click Me" else n |> sprintf "You clicked: %i time(s)"
@@ -75,7 +75,7 @@ let Counter() =
 
         Html.button [
             class' "reset"
-            on "click" (fun _ -> count <~ 0)
+            on "click" (fun _ -> count <~ 0) []
             text "Reset"
         ]
 

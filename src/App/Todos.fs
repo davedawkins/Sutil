@@ -175,7 +175,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
                     ]
                 text $" {todo.Description}"
                 Html.button [
-                    on "click" (fun _ -> todo.Id |> DeleteTodo |> dispatch)
+                    onClick (fun _ -> todo.Id |> DeleteTodo |> dispatch) []
                     text "x"
                 ]
             ]
@@ -204,7 +204,7 @@ let view () : NodeFactory =
                 // This isn't the right test for mobile users
                 if e.key = "Enter" then (e.currentTarget :?> HTMLInputElement).value |> AddTodo |> dispatch
                 printfn($"{e.key}")
-            )
+            ) []
         ]
 
         Html.div [
@@ -212,7 +212,7 @@ let view () : NodeFactory =
             Html.a [
                 href "#"
                 text "complete all"
-                on "click" (fun e -> e.preventDefault();dispatch CompleteAll)
+                onClick (fun _ -> dispatch CompleteAll) [ PreventDefault ]
             ]
             Html.span [
                 class' "kudos"

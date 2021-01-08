@@ -53,7 +53,7 @@ let handleClick _ =
 let view() =
     Html.div [
         Html.button [
-            onClick handleClick
+            onClick handleClick []
             text "Remove first thing"
         ]
 

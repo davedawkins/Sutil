@@ -21,9 +21,13 @@ let promisedNo = PromiseStore<string>()
 
 let getRandomUser _ =
     promisedNo.Run <| promise {
+        do! Promise.sleep(500) // So we can see more of the "Waiting..." phase
+
         let! u = RandomUser.get()
-        if (u.GetHashCode() % 3 = 1) then
+
+        if (u.GetHashCode() % 3 = 1) then // Simulate a failure so we an see "Error" state
             failwith "Randomly failed to get name"
+
         return $"{u.name.first} {u.name.last}"
     }
 

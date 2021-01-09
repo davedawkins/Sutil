@@ -10,7 +10,7 @@ Here's how the Sveltish Todos app looks. This is an augmented port of the [Svelt
 
 Implementing this app is pushing the library. As each new demo example is added, it might require tweaking to existing capabilities, a bug fix, a new feature to be added (or ported over from Svelte), or even a rework of some of the internals. It's a good driver for the library in its own right.
 
-- [Changelog](CHANGELOG.MD)
+- [Changelog](CHANGELOG.md)
 - [Todo](TODO.md)
 
 # Getting Started

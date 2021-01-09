@@ -102,8 +102,8 @@ let renderCell m dispatch pos =
 let view () : NodeFactory =
     let model, dispatch = makeStore()
 
-    bind model <| fun m -> Html.div [
-        Html.table [
+    Html.div [
+        bind model <| fun m -> Html.table [
 
             Html.thead [
                 Html.tr [

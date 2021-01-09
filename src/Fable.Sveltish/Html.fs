@@ -25,6 +25,12 @@ let img xs = el "img" xs
 let option xs = el "option" xs
 let select xs = el "select" xs
 let form xs = el "form" xs
+let table xs = el "table" xs
+let tbody xs = el "tbody" xs
+let thead xs = el "thead" xs
+let tr xs = el "tr" xs
+let th xs = el "th" xs
+let td xs = el "td" xs
 
 let app (xs : seq<NodeFactory>) : NodeFactory = DOM.fragment xs
     //fun (ctx,parent) ->

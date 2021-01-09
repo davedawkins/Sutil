@@ -44,6 +44,16 @@ module Event =
         log("notify document")
         notifyEvent Updated  {|  |}
 
+let listen (event:string) (e:EventTarget) (fn: (Event -> unit)) : (unit -> unit)=
+    e.addEventListener( event, fn )
+    (fun () -> e.removeEventListener(event, fn ) |> ignore)
+
+let raf (f : float -> unit) = window.requestAnimationFrame(f)
+
+let once (event:string) (target:EventTarget) (fn : Event->Unit) : (unit -> unit) =
+    let rec inner e = target.removeEventListener( event, inner ); fn(e)
+    listen event target inner
+
 type CssSelector =
     | Tag of string
     | Cls of string
@@ -285,8 +295,6 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
 
     setSvId e (domId())
 
-    ctx.AppendChild parent (e:>Node) |> ignore
-
     for x in xs do x(ctx,e) |> ignore
 
     match ctx.StyleSheet with
@@ -294,6 +302,8 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
         e.classList.add(namedSheet.Name)
         applyCustomRules e namedSheet
     | None -> ()
+
+    ctx.AppendChild parent (e:>Node) |> ignore
 
     e.dispatchEvent( Interop.customEvent Event.ElementReady {| |}) |> ignore
 
@@ -427,14 +437,6 @@ let fragment (elements : NodeFactory seq) = fun (ctx,parent) ->
 //    last
 
 let isCrossOrigin = false // TODO
-
-let listen (event:string) (e:EventTarget) (fn: (Event -> unit)) : (unit -> unit)=
-    e.addEventListener( event, fn )
-    (fun () -> e.removeEventListener(event, fn ) |> ignore)
-
-let listenOneShot (event:string) (target:EventTarget) (fn : Unit->Unit) : (unit -> unit) =
-    let rec inner _ = target.removeEventListener( event, inner ); fn()
-    listen event target inner
 
 type private ResizeSubscriber = {
     Callback: unit -> unit

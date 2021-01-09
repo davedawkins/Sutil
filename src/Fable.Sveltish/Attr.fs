@@ -2,6 +2,7 @@ module Sveltish.Attr
 
 open DOM
 open Browser.Types
+open Fable.Core.JsInterop
 
 // Attributes
 let accept n       = attr("accept",n)
@@ -20,7 +21,13 @@ let style n        = attr("style",n)
 let multiple : NodeFactory = attr("multiple","")
 let rows n         = attr("rows",n)
 let cols n         = attr("cols",n)
-let readonly : NodeFactory = attr("readonly","" :> obj)
+let readonly : NodeFactory = attr("readonly","true" :> obj)
+let autofocus      = fun (_,e:Node) ->
+                        DOM.raf (fun _ ->
+                            e?focus()
+                            e?setSelectionRange(99999,99999)
+                            ) |> ignore
+                        unitResult()
 
 
 // Attributes that are either keywords or core functions
@@ -96,8 +103,10 @@ let zIndex         (n:obj) = cssAttr("z-index",n)
 let display        (n:obj) = cssAttr("display",n)
 let fontSize       (n:obj) = cssAttr("font-size",n)
 let fontFamily     (n:obj) = cssAttr("font-family",n)
-let maxHeight      (n:obj) = cssAttr("maxHeight",n)
+let minHeight      (n:obj) = cssAttr("min-height",n)
+let maxHeight      (n:obj) = cssAttr("max-height",n)
 let width          (n:obj) = cssAttr("width",n)
+let minWidth       (n:obj) = cssAttr("min-width",n)
 let maxWidth       (n:obj) = cssAttr("max-width",n)
 let height         (n:obj) = cssAttr("height",n)
 let lineHeight     (n:obj) = cssAttr("line-height",n)
@@ -115,6 +124,11 @@ let transition     (n:obj) = cssAttr("transition",n)
 let resize         (n:obj) = cssAttr("resize",n)
 let overflow       (n:obj) = cssAttr("overflow",n)
 let textDecoration (n:obj) = cssAttr("text-decoration",n)
+let borderSpacing  (n:obj) = cssAttr("border-spacing",n)
+let borderBottom   (n:obj) = cssAttr("border-bottom",n)
+let borderRight    (n:obj) = cssAttr("border-right",n)
+let borderLeft     (n:obj) = cssAttr("border-left",n)
+let borderTop      (n:obj) = cssAttr("border-top",n)
+
 let addClass       (n:obj) = cssAttr("sveltish-add-class",n)
 let useGlobal              = cssAttr("sveltish-use-global","" :> obj)
-

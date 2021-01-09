@@ -54,8 +54,8 @@ let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = fun (ctx
                 try
                     buildSolitary (element(next)) { ctx with AppendChild = (makeAppendChild ctx parent node.Get) } parent
                 with
-                | _ ->
-                    Logging.error "Exception in bind"
+                | x ->
+                    Logging.error $"Exception in bind: {x.Message}"
                     null
 
             if not (isNull newNode) then
@@ -117,7 +117,7 @@ let bindSelect<'T when 'T : equality> (store:Store<'T>) = fun (ctx:BuildContext,
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
-    let unsubOneShot = listenOneShot Event.ElementReady parent <| fun () ->
+    let unsubOneShot = once Event.ElementReady parent <| fun _ ->
         store |> Store.get |> updateSelected
 
     // When store changes make sure check status is synced
@@ -148,7 +148,7 @@ let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) = fun (ctx
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
-    let unsubOneShot = listenOneShot Event.ElementReady parent <| fun () ->
+    let unsubOneShot = once Event.ElementReady parent <| fun _ ->
         store |> Store.get |> updateSelected
 
     // When store changes make sure check status is synced
@@ -184,7 +184,7 @@ let bindGroup<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Nod
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
-    let unsubOneShot = listenOneShot Event.ElementReady parent <| fun () ->
+    let unsubOneShot = once Event.ElementReady parent <| fun _ ->
         store |> Store.get |> updateChecked
 
     // When store changes make sure check status is synced
@@ -211,7 +211,7 @@ let bindRadioGroup<'T> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
-    let oneShotUnsub = listenOneShot Event.ElementReady parent <| fun () ->
+    let oneShotUnsub = once Event.ElementReady parent <| fun _ ->
         store |> Store.get |> updateChecked
 
     // When store changes make sure check status is synced

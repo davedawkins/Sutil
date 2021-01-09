@@ -2,6 +2,7 @@
 
 ## Changelog (most recent first)
 
+- Spreadsheet example
 - Added tests, but cannot get them to compile (a TODO)
 - Reorganized docs
 - DomEvents example

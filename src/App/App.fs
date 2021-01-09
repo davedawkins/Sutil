@@ -60,6 +60,7 @@ type Demo = {
         { Category = "Bindings";   Title = "Select bindings";  Create = make SelectBindings.view ; Sources = ["SelectBindings.fs"]}
         { Category = "Bindings";   Title = "Select multiple";  Create = make SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
         { Category = "Bindings";   Title = "Dimensions";  Create = make Dimensions.view ; Sources = ["Dimensions.fs"]}
+        { Category = "7Guis";   Title = "Spreadsheet";  Create = make Spreadsheet.view ; Sources = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
     ]
 
 let fetchSource tab dispatch =
@@ -206,8 +207,6 @@ let viewSource (model : IStore<Model>) dispatch =
     let source = model |> Store.map (fun m -> m.Source)
     Html.div [
         class' "column"
-        //on "sveltish-show" <| fun _ -> fetchSource (model |> Store.getMap (fun m -> m.Tab)) dispatch
-        //on "sveltish-show" <| fun e -> log($"show source {e.target}"); dispatch FetchSource
         Html.pre [
             Html.code [
                 class' "fsharp"
@@ -246,6 +245,7 @@ let appMain () =
                     Section "Events" model dispatch
                     Section "Transitions" model dispatch
                     Section "Bindings" model dispatch
+                    Section "7Guis" model dispatch
                 ]
 
                 Html.div [

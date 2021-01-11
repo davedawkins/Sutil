@@ -7,11 +7,12 @@
     "postinstall": "dotnet tool restore",
     "start": "dotnet fable watch src/App --run webpack serve",
     "build": "dotnet fable src/App --run webpack --mode production",
-    "build:tests": "dotnet fable tests --run webpack --mode production",
+    "pretest": "dotnet fable tests -o dist/tests",
     "publish": "node publish.js",
-    "test": "mocha dist/tests"
+    "test": "mocha dist/tests -r esm"
   },
   "dependencies": {
+    "esm": "^3.2.25",
     "gh-pages": "^3.1.0",
     "mocha": "^8.2.1",
     "webpack": "^5.11.0",

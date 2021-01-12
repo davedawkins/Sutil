@@ -481,12 +481,12 @@ let createHideableRuntime h =
         unsubscribe = null
     }
 
-let transitionList (list : Hideable list) = fun (ctx, parent) ->
+let transitionList (list : Hideable list) : NodeFactory = fun ctx ->
     let runtimes = list |> List.map createHideableRuntime
     for rt in runtimes do
         rt.unsubscribe <- Store.subscribe rt.hideable.predicate ( fun show ->
             if (isNull rt.target) then
-                rt.target <- buildSolitary rt.hideable.element ctx parent
+                rt.target <- buildSolitary rt.hideable.element ctx
                 rt.cache <- not show
 
             if (rt.cache <> show) then
@@ -494,7 +494,6 @@ let transitionList (list : Hideable list) = fun (ctx, parent) ->
                 transitionNode (rt.target :?> HTMLElement) rt.hideable.transOpt [] show ignore
         )
     unitResult()
-    //runtimes.Head.target
 
 type MatchOption<'T> = ('T -> bool) *  NodeFactory * TransitionAttribute option
 
@@ -506,20 +505,17 @@ let makeHideable guard element transOpt = {
 let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> list) =
     options |> List.map (fun (p,e,t) -> makeHideable (store |> Store.map p) e t) |> transitionList
 
-let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun (ctx,parent) ->
+let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun ctx ->
     let mutable target : Node = null
     let mutable cache = false
-
     let mutable targetElse : Node = null
 
     let unsub = Store.subscribe store (fun isVisible ->
         if isNull target then
-            target <- buildSolitary element ctx parent
+            target <- buildSolitary element ctx
             cache <- not isVisible
             match elseElement with
-            | Some e ->
-                targetElse <- buildSolitary e ctx parent
-                //ctx.AppendChild parent targetElse |> ignore
+            | Some e -> targetElse <- buildSolitary e ctx
             | None -> ()
 
         if cache <> isVisible then

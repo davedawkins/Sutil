@@ -2,6 +2,9 @@
 
 ## Changelog (most recent first)
 
+- Reworking of Cells example to try and make the reactive bindings neater. It's a challenge.
+- NodeFactory is now "BuildContext -> BuildResult"
+- Append/Replace is now fundamental within `DOM.El`. It means that bind etc don't need to augment BuildContext with special handlers
 - Spreadsheet sample moved from 7GUIs to Miscellaneous. New Cells example that observes more of the specification outlined by 7GUIs (which is mainly about only redrawing/recalculating changes).
 - Spreadsheet example
 - Added tests, but cannot get them to compile (a TODO)

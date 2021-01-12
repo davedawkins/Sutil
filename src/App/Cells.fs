@@ -16,10 +16,12 @@ open Browser.Dom
 open Browser.Types
 open System
 
-let log s = ()
+let log s = () // console.log(s)
+
 let filterSome (source : IObservable<'T option>) =
     source |> Observable.filter (fun x -> x.IsSome) |> Observable.map (fun x -> x.Value)
-let elementOfCell pos = document.querySelector($"[x-id='{positionStr pos}'") :?> HTMLElement
+
+let nodeOfCell pos = document.querySelector($"[x-id='{positionStr pos}'") :> Node
 
 type Sheet = Map<Position, Sveltish.IStore<string> >
 
@@ -47,9 +49,7 @@ let cellSet pos value =
 
 let cellListen toPos dispatch =
     let store = Cells.[toPos]
-    let unsub = Store.subscribe store <| fun value ->
-        log($"Cell {toPos} was updated to {value}")
-        dispatch value
+    let unsub = Store.subscribe store dispatch
     ()
 
 let cellNotify pos =
@@ -64,7 +64,6 @@ let bindRefresh targetCell dependsOnCells dispatch =
 
 let cellInitialise (dispatch : Position -> unit) pos =
     if not (Cells.ContainsKey pos) then
-        log($"create cell store {pos}")
         Cells <- Cells.Add(pos,Store.make "")
 
 type Model =
@@ -105,25 +104,6 @@ let styleSheet = [
     ]
 ]
 
-let renderPlainCell dispatch pos =
-    let content = valAt pos
-    log($"rendering cell {pos} '{content}'")
-    fragment [
-        onClick (fun _ -> StartEdit pos |> dispatch) []
-        evalCellAsString valAt content |> text
-    ]
-
-let renderActiveCell dispatch pos =
-    let content = valAt pos
-    Html.div [
-        Html.input [
-            type' "text"
-            value content
-            autofocus
-            onKeyDown (fun me -> if me.key = "Enter" then (pos,me.target?value) |> UpdateValue |> dispatch) []
-        ]
-    ]
-
 let sample = [
     ('B',1), "Fibonacci"
     ('B',2), "1"
@@ -147,9 +127,9 @@ let init() =
        Active = None
        NeedsRefresh = None }, Cmd.batch (sample |> List.map (UpdateValue >> Cmd.ofMsg))
 
-let updateValue pos value dispatch =
+let updateValue pos value d =
     let tcells = findTriggerCells value // Examine expression for cells pos is dependent on
-    let refresh = (dispatch << RefreshCell)
+    let refresh = (d << RefreshCell)
     (pos :: tcells) |> List.iter (cellInitialise refresh) // Make sure all cells involved have stores
     bindRefresh pos tcells refresh // Make sure pos gets a refresh when any of tcells update
     cellSet pos value // Finally update the sheet
@@ -175,29 +155,38 @@ let makeStore = Store.makeElmish init update ignore
 //
 let renderCellAt (renderfn: Position -> NodeFactory) (ctx : BuildContext) (cell:Position) =
     let nodeFactory = renderfn >> exclusive
-    (nodeFactory cell)(ctx, (elementOfCell cell) :> Node) |> ignore
+    (nodeFactory cell)( ctx |> withParent (nodeOfCell cell)) |> ignore
     ()
 
-//
-// Listen for cells that want a refresh, and render them with 'renderPlainCell'
-let bindRefreshCell (cellSource : IObservable<Position>) dispatch : NodeFactory = fun (ctx,_) ->
-    let unsub = Store.subscribe cellSource (renderCellAt (renderPlainCell dispatch) ctx)
-    unitResult()
-
-//
-// Listen for changes to active cell and render previous active cell with plain, and new with active
-let bindActiveCell (activeSource : IObservable<Position option*Position option>) dispatch : NodeFactory = fun (ctx,_) ->
-    let unsub = Store.subscribe activeSource <| fun (value,next) ->
-        value |> Option.iter (renderCellAt (renderPlainCell  dispatch) ctx)
-        next  |> Option.iter (renderCellAt (renderActiveCell dispatch) ctx)
-    unitResult()
-
 let view () : NodeFactory =
+
     let model, dispatch = makeStore()
 
+    let renderPlainCell pos =
+        let content = valAt pos
+        fragment [
+            onClick (fun _ -> StartEdit pos |> dispatch) []
+            evalCellAsString valAt content |> text
+        ]
+
+    let renderActiveCell pos =
+        let content = valAt pos
+        Html.div [
+            Html.input [
+                type' "text"
+                value content
+                autofocus
+                onKeyDown (fun me -> if me.key = "Enter" then (pos,me.target?value) |> UpdateValue |> dispatch) []
+            ]
+        ]
+
+    //
+    // Root element
+    //
     Html.div [
-        bind2e (model .> rows) (model .> cols) <| fun (rows,cols) -> Html.table [
-            //let m = model.Value
+        let rowsXcols = ObservableX.zip (model .> rows) (model .> cols) |> ObservableX.distinctUntilChanged
+
+        bind rowsXcols <| fun (rows,cols) -> Html.table [
             do log("Render table")
 
             Html.thead [
@@ -214,14 +203,34 @@ let view () : NodeFactory =
                         cols |> List.map (fun col ->
                             Html.td [
                                 attr("x-id", positionStr (col,row) )
-                                renderPlainCell dispatch (col,row)
+                                renderPlainCell (col,row)
                             ]
                         ) |> fragment
                     ])
                 )
 
             log("Installing bindings for active cell")
-            bindActiveCell (model |> Observable.map (fun m -> m.Active) |> Observable.pairwise) dispatch
-            bindRefreshCell (model |> Observable.map (fun m -> m.NeedsRefresh) |> filterSome) dispatch
+
+            //
+            // It's hard to make this section look beautiful. I'll keep working at it
+            //
+
+            // Pairs of (Position option, Position option). Each pair represents a change
+            // in the active cell.
+            // value : the cell being vacated, must be rendered as normal
+            // next  : the becoming active.
+            let activeS = (model |> Observable.map (fun m -> m.Active) |> Observable.pairwise)
+
+            // bindSub at this location in the DOM feeds us the context from this location
+            // In this view, this will include the styling applied further up
+            bindSub activeS <| fun ctx (value,next) ->
+                value |> Option.iter (renderCellAt renderPlainCell  ctx)
+                next  |> Option.iter (renderCellAt renderActiveCell ctx)
+
+            // model.Refresh (Potiion option) indicates which cell is requesting a refresh (re-evaluation)
+            // the observable stream strips out Option.None to leave only a stream of Positions
+            let refreshS =  (model |> Observable.map (fun m -> m.NeedsRefresh) |> filterSome)
+
+            bindSub refreshS (renderCellAt renderPlainCell)
         ]
     ] |> withStyle styleSheet

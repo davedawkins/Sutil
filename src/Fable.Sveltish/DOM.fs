@@ -102,22 +102,43 @@ type NamedStyleSheet = {
 //            children so that behaviour can be customized.
 //
 type BuildContext = {
+    // Parent / replace context
+    Parent : Node
+    Replace : Node option  // Consider making this "SvId option" and then finding node to replace
+
+    // Naming service
     MakeName : (string -> string)
+
+    // Style context
     StyleSheet : NamedStyleSheet option
+
+    // IDom
     AppendChild: (Node -> Node -> Node)
     ReplaceChild: (Node -> Node -> Node -> Node)
     SetAttribute: (Element->string->string->unit)
 }
 
-let makeContext =
+let makeContext parent =
     let gen = Helpers.makeIdGenerator()
     {
+        Parent = parent
+        Replace = None
         StyleSheet = None
         AppendChild = (fun parent child -> parent.appendChild(child))
         ReplaceChild = (fun parent newChild oldChild -> parent.replaceChild(newChild, oldChild))
         SetAttribute = (fun parent name value -> parent.setAttribute(name,value))
         MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
     }
+
+let withStyleSheet sheet ctx : BuildContext =
+    { ctx with StyleSheet = Some sheet }
+
+let withParent parent ctx =
+    { ctx with Parent = parent; Replace = None }
+
+let withReplace toReplace ctx =
+    { ctx with Replace = if isNull toReplace then None else Some toReplace }
+
 
 //
 // Basic building block for documents
@@ -164,7 +185,7 @@ type BuildResult =
     | Fragment of Node list
     | Binding of NodeRef
 
-type NodeFactory = (BuildContext * Node) -> BuildResult
+type NodeFactory = BuildContext -> BuildResult
 
 let nodeResult (node:Node) = Solitary node
 let fragmentResult (nodes:Node list) = Fragment nodes
@@ -178,17 +199,18 @@ let errorNode (parent:Node) message : Node=
     d.setAttribute("style", "color: red; padding: 4px; font-size: 10px;")
     upcast d
 
-let expectSolitary (parent:Node) (result : BuildResult) =
-    match result with
+let expectSolitary (f : NodeFactory) ctx =
+    match f(ctx) with
     | Solitary n -> n
     | Binding b -> b.Node
         //errorNode parent "Expected single node, binding found"
     | Unit ->
-        errorNode parent "Expected single node, none found"
+        errorNode ctx.Parent "Expected single node, none found"
     | Fragment xs ->
         let tmpDiv = document.createElement("div")
         let en = errorNode tmpDiv "'fragment' not allowed as root for 'each' blocks"
-        parent.appendChild tmpDiv |> ignore
+        tmpDiv.appendChild en |> ignore
+        ctx.Parent.appendChild tmpDiv |> ignore
         xs |> List.iter (tmpDiv.appendChild >> ignore)
         upcast tmpDiv
 
@@ -199,8 +221,8 @@ let collectFragment (result : BuildResult) =
     | Unit -> []
     | Fragment xs -> xs
 
-let buildSolitary (f : NodeFactory) ctx parent =
-    expectSolitary parent (f(ctx,parent))
+let buildSolitary (f : NodeFactory) ctx =
+    expectSolitary f ctx
 
 let appendAttribute (e:Element) attrName attrValue =
     if (attrValue <> "") then
@@ -252,7 +274,7 @@ let rec parseSelector (source:string) : CssSelector =
 let ruleMatchEl (el:HTMLElement) (rule:StyleRule) =
     rule.Selector.Match el
 
-let rec rootStyle sheet =
+let rec rootStyle (sheet : NamedStyleSheet) =
     match sheet.Parent with
     | None -> sheet
     | Some parentSheet -> rootStyle parentSheet
@@ -290,21 +312,43 @@ let rec applyCustomRules e (namedSheet:NamedStyleSheet) =
                 // TODO: on subsequent calls
             | _ -> log($"Unimplemented: {fst custom}")
 
-let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
+
+let appendReplaceChild (node : Node) (ctx : BuildContext) =
+    match ctx.Replace with
+    | None ->
+        ctx.AppendChild ctx.Parent node |> ignore
+    | Some existing ->
+        if not (ctx.Parent.isSameNode(existing.parentNode)) then
+            ctx.AppendChild ctx.Parent node |> ignore
+        else
+            ctx.ReplaceChild ctx.Parent node existing |> ignore
+        setSvId node (svId existing)
+    node
+
+let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
     let e  = document.createElement tag
 
+    // Considering packing these effects into pipeline that lives on ctx.
+    // User can then extend the pipeline, or even re-arrange. No immediate
+    // need for it right now.
+
+    // Effect 1
     setSvId e (domId())
 
-    for x in xs do x(ctx,e) |> ignore
+    // Effect 2
+    for x in xs do ctx |> withParent e |> x |> ignore
 
+    // Effect 3
     match ctx.StyleSheet with
     | Some namedSheet ->
         e.classList.add(namedSheet.Name)
         applyCustomRules e namedSheet
     | None -> ()
 
-    ctx.AppendChild parent (e:>Node) |> ignore
+    // Effect 4
+    appendReplaceChild e ctx |> ignore
 
+    // Effect 5
     e.dispatchEvent( Interop.customEvent Event.ElementReady {| |}) |> ignore
 
     nodeResult e
@@ -314,9 +358,10 @@ let findSvIdElement id : HTMLElement =
 
 let splitBySpace (s:string) = s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries)
 
-let inline attr (name,value:obj) : NodeFactory = fun (ctx,parent) ->
+let inline attr (name,value:obj) : NodeFactory = fun ctx ->
+    let parent = ctx.Parent
     try
-        let e = parent :?> HTMLElement
+        let e = ctx.Parent :?> HTMLElement
 
         if name = "class" then
             e.classList.add( (string value) |> splitBySpace )
@@ -326,7 +371,7 @@ let inline attr (name,value:obj) : NodeFactory = fun (ctx,parent) ->
             ctx.SetAttribute (upcast e) name (string value)
 
         if (name = "value") then
-            Interop.set e "__value" value
+            Interop.set e "__value" value // Un-stringified version of value
 
         match ctx.StyleSheet with
         | Some namedSheet ->
@@ -342,8 +387,7 @@ let textNode value : Node =
     upcast n
 
 let text value : NodeFactory =
-    fun (ctx,e) ->
-        nodeResult (ctx.AppendChild e (textNode value))
+    fun ctx -> nodeResult (appendReplaceChild (textNode value) ctx)
 
 let idSelector = sprintf "#%s"
 let classSelector = sprintf ".%s"
@@ -381,8 +425,8 @@ let findNodeWithSvId id =
         if (r = id) then Some n else None
     findNode document.body getId
 
-let html text : NodeFactory = fun (ctx,parent) ->
-    let el = parent :?> HTMLElement
+let html text : NodeFactory = fun ctx ->
+    let el = ctx.Parent :?> HTMLElement
     el.innerHTML <- text
     match ctx.StyleSheet with
     | None -> ()
@@ -396,7 +440,7 @@ let html text : NodeFactory = fun (ctx,parent) ->
 //
 let rec mountElement selector (app : NodeFactory)  =
     let host = idSelector selector |> findElement :?> HTMLElement
-    (app (makeContext,host)) |> ignore
+    (app (makeContext host)) |> ignore
 
 let findChildWhere (node:Node) (f : Node -> bool) =
     let rec search (n : Node) (f : Node -> bool) =
@@ -419,9 +463,17 @@ let clearWithDispose (node:Node) (dispose:Node->unit)=
 let clear (node:Node) =
     clearWithDispose node ignore
 
-let exclusive (f : NodeFactory) = fun (ctx,parent) ->
-    clear parent
-    f(ctx,parent)
+let exclusive (f : NodeFactory) = fun ctx ->
+    clear ctx.Parent
+    f ctx
+
+let hookContext (hook: BuildContext -> unit) : NodeFactory = fun ctx ->
+    hook ctx
+    unitResult()
+
+let hookParent (hook: Node -> unit) : NodeFactory = fun ctx ->
+    hook ctx.Parent
+    unitResult()
 
 let addTransform (node:HTMLElement) (a : ClientRect) =
     let b = node.getBoundingClientRect()
@@ -450,12 +502,8 @@ let removeNode (node:#Node) =
     log <| sprintf "removing node %A" node.textContent
     node.parentNode.removeChild( node ) |> ignore
 
-let fragment (elements : NodeFactory seq) = fun (ctx,parent) ->
-    fragmentResult (elements |> Seq.collect (fun e -> e(ctx,parent) |> collectFragment) |> Seq.toList)
-//    let mutable last : Node = null
-//    for e in elements do
-//        last <- e(ctx,parent)
-//    last
+let fragment (elements : NodeFactory seq) = fun ctx ->
+    fragmentResult (elements |> Seq.collect (fun e -> ctx |> e |> collectFragment) |> Seq.toList)
 
 let isCrossOrigin = false // TODO
 

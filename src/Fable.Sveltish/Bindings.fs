@@ -19,7 +19,17 @@ let nodeStr (node : Node) =
         $"\"{node.textContent}\""
     | _ -> $"?{node.textContent}"
 
-let makeAppendChild (ctx:BuildContext) (parent:Node) (current:Node) = fun p c ->
+
+// All bindings ought to either end up calling this or at least doing the same registration
+let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit) = fun ctx ->
+    let unsub = source.Subscribe( handler ctx )
+    registerDisposable ctx.Parent unsub
+    unitResult()
+
+
+#if COMMENTED_OUT
+let makeAppendChild (ctx:BuildContext) (current:Node) = fun p c ->
+    let parent = ctx.Parent
     if (isNull current || not (parent.isSameNode(p))) then
         // Appending new child
         log($"Appending new child id {svId c} to {svId p} '{nodeStr c}'")
@@ -43,74 +53,58 @@ let makeAppendChild (ctx:BuildContext) (parent:Node) (current:Node) = fun p c ->
 
             ctx.ReplaceChild p c current |> ignore
     c
+#endif
 
-let binda<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) (accept: 'T->'T->bool) = fun (ctx,parent) ->
-    let node = Store.make Unchecked.defaultof<Node>
-    let mutable value : 'T = Unchecked.defaultof<_>
+let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = fun ctx ->
+    let mutable node = Unchecked.defaultof<_>
 
     let unsub = Store.subscribe store ( fun next ->
-        //if not (Helpers.fastEquals value next) then
-        if accept value next then
-            let newNode =
-                try
-                    buildSolitary (element(next)) { ctx with AppendChild = (makeAppendChild ctx parent node.Value) } parent
-                with
-                | x ->
-                    Logging.error $"Exception in bind: {x.Message}"
-                    null
-
-            if not (isNull newNode) then
-                node <~ newNode
-                value <- next
+        try
+            //buildSolitary (element(next)) { ctx with AppendChild = (makeAppendChild ctx node.Value) }
+            node <- buildSolitary (element(next)) (ctx |> withReplace node)
+        with
+        | x -> Logging.error $"Exception in bind: {x.Message} parent {nodeStr ctx.Parent} node {nodeStr node} node.Parent "
     )
 
-    DOM.registerDisposable parent unsub
-    bindResult (RealNode(node.Value))
+    DOM.registerDisposable ctx.Parent unsub
+    bindResult (RealNode(node))
 
 type BindFn<'T> = IObservable<'T> -> ('T -> NodeFactory) -> NodeFactory
 
-let binde<'T when 'T : equality>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) =
-    binda store element (<>)
+//let binde<'T when 'T : equality>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) =
+//    bind store element
 
-let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) =
-    binda store element Helpers.fastNotEquals
+//let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) =
+//    binda store element Helpers.fastNotEquals
 
-let bind2a<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) (accept: ('A * 'B) -> ('A * 'B) -> bool) = fun (ctx,parent) ->
-    let node = Store.make Unchecked.defaultof<Node>
-    let mutable value : ('A*'B) = Unchecked.defaultof<_>
+let bind2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) = fun ctx ->
+    let mutable node = Unchecked.defaultof<_>
 
     let unsub = Store.subscribe2 a b (fun next ->
-        if (accept value next) then
-            let newNode =
-                try
-                    buildSolitary (element next) { ctx with AppendChild = (makeAppendChild ctx parent node.Value) } parent
-                with
-                | _ ->
-                    Logging.error "Exception in bind"
-                    null
-
-            if not (isNull newNode) then
-                node <~ newNode
-                value <- next
+        try
+            //buildSolitary (element next) { ctx with AppendChild = (makeAppendChild ctx node.Value) }
+            node <- buildSolitary (element(next)) (ctx |> withReplace node)
+        with
+        | x -> Logging.error $"Exception in bind: {x.Message}"
     )
 
-    DOM.registerDisposable parent unsub
-    bindResult (RealNode(node.Value))
+    DOM.registerDisposable ctx.Parent unsub
+    bindResult (RealNode(node))
 
-let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) =
-    bind2a a b element Helpers.fastNotEquals
+//let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory =
+//    bind2a a b element Helpers.fastNotEquals
 
-let bind2e<'A,'B  when 'A : equality and 'B : equality>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) =
-    bind2a a b element (<>)
+//let bind2e<'A,'B  when 'A : equality and 'B : equality>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory =
+//    bind2a a b element (<>)
 
 let getInputChecked el = Interop.get el "checked"
 let setInputChecked (el : Node) (v:obj) = Interop.set el "checked" v
 let getInputValue el : string = Interop.get el "value"
 let setInputValue el (v:string) = Interop.set el "value" v
 
-let bindSelect<'T when 'T : equality> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+let bindSelect<'T when 'T : equality> (store:Store<'T>) : NodeFactory = fun ctx ->
 
-    let select = parent :?> HTMLSelectElement
+    let select = ctx.Parent :?> HTMLSelectElement
     let op (coll:HTMLCollection) i = coll.[i] :?> HTMLOptionElement
     let opValue op : 'T = Interop.get op "__value"
 
@@ -125,14 +119,14 @@ let bindSelect<'T when 'T : equality> (store:Store<'T>) = fun (ctx:BuildContext,
             o.selected <- (v = (opValue o))
 
     // Update the store when the radio box is clicked on
-    let unsubInput = parent.addEventListener("input", (fun _ ->
+    let unsubInput = select.addEventListener("input", (fun _ ->
         //log($"%A{getValueList()}")
         getValue() |> Store.set store
     ))
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
-    let unsubOneShot = once Event.ElementReady parent <| fun _ ->
+    let unsubOneShot = once Event.ElementReady select <| fun _ ->
         store |> Store.get |> updateSelected
 
     // When store changes make sure check status is synced
@@ -140,9 +134,9 @@ let bindSelect<'T when 'T : equality> (store:Store<'T>) = fun (ctx:BuildContext,
 
     unitResult()
 
-let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) = fun (ctx:BuildContext,parent:Node) ->
+let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) : NodeFactory = fun ctx ->
 
-    let select = parent :?> HTMLSelectElement
+    let select = ctx.Parent :?> HTMLSelectElement
     let op (coll:HTMLCollection) i = coll.[i] :?> HTMLOptionElement
     let opValue op : 'T = Interop.get op "__value"
 
@@ -156,14 +150,14 @@ let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) = fun (ctx
             o.selected <- v |> List.contains (opValue o)
 
     // Update the store when the radio box is clicked on
-    let unsubInput = parent.addEventListener("input", (fun _ ->
+    let unsubInput = select.addEventListener("input", (fun _ ->
         //log($"%A{getValueList()}")
         getValueList() |> Store.set store
     ))
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
-    let unsubOneShot = once Event.ElementReady parent <| fun _ ->
+    let unsubOneShot = once Event.ElementReady select <| fun _ ->
         store |> Store.get |> updateSelected
 
     // When store changes make sure check status is synced
@@ -176,7 +170,8 @@ let isNullString (obj:obj) =
 
 let getId (s : IStore<'T>) = s.GetHashCode()
 
-let bindGroup<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Node) ->
+let bindGroup<'T> (store:Store<List<string>>) : NodeFactory = fun ctx ->
+    let parent = ctx.Parent
     let name = match Interop.get parent "name" with
                 | s when isNullString s -> $"store-{getId store}"
                 | s -> s
@@ -211,7 +206,8 @@ let bindGroup<'T> (store:Store<List<string>>) = fun (ctx:BuildContext,parent:Nod
 // T can realistically only be numeric or a string. We're relying (I think!) on JS's ability
 // to turn a string into an int automatically in the Store.set call (maybe it's Fable doing that)
 //
-let bindRadioGroup<'T> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+let bindRadioGroup<'T> (store:Store<'T>) : NodeFactory = fun ctx ->
+    let parent = ctx.Parent
     let name = match Interop.get parent "name" with
                 | s when isNullString s -> $"store-{getId store}"
                 | s -> s
@@ -235,28 +231,31 @@ let bindRadioGroup<'T> (store:Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
     unitResult()
 
 // Bind a store value to an element attribute. Updates to the element are unhandled
-let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) = fun (ctx:BuildContext,parent:Node) ->
-    let unsub = Store.subscribe store ( fun value -> Interop.set parent attrName value )
+let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : NodeFactory = fun ctx ->
+    let unsub = Store.subscribe store ( fun value -> Interop.set ctx.Parent attrName value )
     unitResult()
 
 // Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function. This form is useful for view templates
 // where v is invariant (for example, an each that already filters on the value of v, like Todo.Done)
-let attrNotify<'T> (attrName:string) (v :'T) (onchange : obj -> unit)= fun (ctx:BuildContext,parent:Node) ->
+let attrNotify<'T> (attrName:string) (v :'T) (onchange : obj -> unit) : NodeFactory = fun ctx ->
+    let parent = ctx.Parent
     let unsub = listen "input" parent (fun _ -> Interop.get parent attrName |> onchange )
     Interop.set parent attrName v
     unitResult()
 
 // Bind a store value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function
-let bindAttrNotify<'T> (attrName:string) (store : Store<'T>) (onchange : obj -> unit)= fun (ctx:BuildContext,parent:Node) ->
+let bindAttrNotify<'T> (attrName:string) (store : Store<'T>) (onchange : obj -> unit) : NodeFactory = fun ctx ->
+    let parent = ctx.Parent
     parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> onchange ))
     let unsub = Store.subscribe store ( Interop.set parent attrName )
     unitResult()
 
 // Bind a store value to an element attribute. Listen for onchange events write the converted
 // value back to the store
-let bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T)= fun (ctx:BuildContext,parent:Node) ->
+let bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T) : NodeFactory = fun ctx ->
+    let parent = ctx.Parent
     //let attrName' = if attrName = "value" then "__value" else attrName
     parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> convert |> Store.set store ))
     let unsub = Store.subscribe store ( Interop.set parent attrName )
@@ -270,7 +269,8 @@ let convertObj<'T> (v:obj) : 'T  =
 let bindAttr<'T> (attrName:string) (store : Store<'T>) =
     bindAttrConvert attrName store convertObj<'T>
 
-let bindAttrOut<'T> (attrName:string) (store : Store<'T>) = fun (ctx:BuildContext,parent:Node) ->
+let bindAttrOut<'T> (attrName:string) (store : Store<'T>) : NodeFactory = fun ctx ->
+    let parent = ctx.Parent
     let unsub = DOM.listen "input" parent (fun _ -> Interop.get parent attrName |> convertObj<'T> |> Store.set store)
     //(asEl parent).addEventListener("input", (fun _ -> Interop.get parent attrName |> convertObj<'T> |> Store.set store ))
     unitResult()
@@ -280,7 +280,8 @@ let attrIsSizeRelated  (attrName:string) =
     let upr = attrName.ToUpper()
     upr.IndexOf("WIDTH") >= 0 || upr.IndexOf("HEIGHT") >= 0
 
-let bindPropOut<'T> (attrName:string) (store : Store<'T>) = fun (ctx,parent) ->
+let bindPropOut<'T> (attrName:string) (store : Store<'T>) : NodeFactory = fun ctx ->
+    let parent = ctx.Parent
     let notify() = Interop.get parent attrName |> convertObj<'T> |> Store.set store
 
     let unsub =
@@ -331,8 +332,8 @@ type UnkeyedItem<'T> = {
     Rect: ClientRect
 }
 
-let eachik (items:IObservable<list<'T>>) (view : int * 'T -> NodeFactory) (key:'T -> 'K) (trans : TransitionAttribute option) =
-    fun (ctx,parent) ->
+let eachik (items:IObservable<list<'T>>) (view : int * 'T -> NodeFactory) (key:'T -> 'K) (trans : TransitionAttribute option) : NodeFactory =
+    fun ctx ->
         let mutable state : KeyedItem<'T,'K> list = []
         let unsub = Store.subscribe items (fun value ->
 
@@ -411,8 +412,8 @@ let eachik (items:IObservable<list<'T>>) (view : int * 'T -> NodeFactory) (key:'
 //        parent :> Node
 #endif
 
-let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable<'T> -> NodeFactory) (key:int*'T->'K) (trans : TransitionAttribute option) =
-    fun (ctx,parent) ->
+let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable<'T> -> NodeFactory) (key:int*'T->'K) (trans : TransitionAttribute option) : NodeFactory =
+    fun ctx ->
         let mutable state : KeyedStoreItem<'T,'K> list = []
         let unsub = Store.subscribe items (fun value ->
 
@@ -432,7 +433,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
             let blockPrevNode = // First node before this collection
                 match state with
                 | [] -> null
-                | x::xs -> x.Node.previousSibling
+                | x::_ -> x.Node.previousSibling
 
             newItems |> List.mapi (fun itemIndex item ->
                 let itemKey = key(itemIndex,item)
@@ -441,7 +442,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
                 | None ->
                     let storePos = Store.make itemIndex
                     let storeVal = Store.make item
-                    let itemNode = buildSolitary (view (storePos,storeVal)) ctx parent
+                    let itemNode = buildSolitary (view (storePos,storeVal)) ctx
                     transitionNode (itemNode :?> HTMLElement) trans [Key (string itemKey)] true ignore
                     let newKi = {
                         SvId = svId itemNode
@@ -491,7 +492,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
 let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory) (trans : TransitionAttribute option) =
     eachiko items (fun (_,item) -> bind item view) (fun (_,v) -> v.GetHashCode()) trans
 
-let eachi (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)  (trans : TransitionAttribute option) =
+let eachi (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)  (trans : TransitionAttribute option) : NodeFactory =
     eachiko items (fun (index,item) -> bind2 index item view) fst trans
 
 let eachio (items:IObservable<list<'T>>) (view : (IObservable<int>*IObservable<'T>) -> NodeFactory)  (trans : TransitionAttribute option) =

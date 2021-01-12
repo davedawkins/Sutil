@@ -22,12 +22,14 @@ let multiple : NodeFactory = attr("multiple","")
 let rows n         = attr("rows",n)
 let cols n         = attr("cols",n)
 let readonly : NodeFactory = attr("readonly","true" :> obj)
-let autofocus      = fun (_,e:Node) ->
-                        DOM.raf (fun _ ->
-                            e?focus()
-                            e?setSelectionRange(99999,99999)
-                            ) |> ignore
-                        unitResult()
+let autofocus : NodeFactory =
+    fun ctx ->
+        let e = ctx.Parent
+        DOM.raf (fun _ ->
+            e?focus()
+            e?setSelectionRange(99999,99999)
+            ) |> ignore
+        unitResult()
 
 
 // Attributes that are either keywords or core functions
@@ -46,7 +48,8 @@ type EventModifier =
     | StopPropagation
     | StopImmediatePropagation
 
-let on (event : string) (fn : Event -> unit) (options : EventModifier list) = fun (_,el:Node) ->
+let on (event : string) (fn : Event -> unit) (options : EventModifier list) = fun ctx ->
+    let el = ctx.Parent
     let rec h (e:Event) =
         for opt in options do
             match opt with

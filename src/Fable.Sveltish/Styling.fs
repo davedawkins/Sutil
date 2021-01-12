@@ -65,7 +65,7 @@ module Sveltish.Styling
             let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSveltishRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
             [ specifySelector styleName rule.SelectorSpec; " {"; styleText; "}" ] |> String.concat "" |> document.createTextNode |> style.appendChild |> ignore
 
-    let headStylesheet (url : string) = fun (ctx,parent) ->
+    let headStylesheet (url : string) : NodeFactory = fun _ ->
         let head = findElement "head"
         let styleEl = document.createElement("link")
         head.appendChild( styleEl ) |> ignore
@@ -73,21 +73,21 @@ module Sveltish.Styling
         styleEl.setAttribute( "href", url ) |> ignore
         unitResult()
 
-    let headScript (url : string) = fun (ctx,parent) ->
+    let headScript (url : string) : NodeFactory = fun _ ->
         let head = findElement "head"
         let el = document.createElement("script")
         head.appendChild( el ) |> ignore
         el.setAttribute( "src", url ) |> ignore
         unitResult()
 
-    let headEmbedScript (source : string) = fun (ctx,parent) ->
+    let headEmbedScript (source : string) : NodeFactory = fun _ ->
         let head = findElement "head"
         let el = document.createElement("script")
         head.appendChild( el ) |> ignore
         el.appendChild(document.createTextNode(source)) |> ignore
         unitResult()
 
-    let headTitle (title : string) = fun (ctx,parent) ->
+    let headTitle (title : string) : NodeFactory = fun _ ->
         let head = findElement "head"
         let existingTitle = findElement "head>title"
 
@@ -100,10 +100,10 @@ module Sveltish.Styling
 
         unitResult()
 
-    let withStyle styleSheet (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
+    let withStyle styleSheet (element : NodeFactory) : NodeFactory = fun ctx ->
         let name = ctx.MakeName "sveltish"
         addStyleSheet name styleSheet
-        element({ ctx with StyleSheet = Some { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } },parent)
+        ctx |> withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } |> element
 
     let rule selector style =
         let result = {

@@ -312,17 +312,28 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun (ctx,parent) ->
 let findSvIdElement id : HTMLElement =
     downcast document.querySelector($"[_svid='{id}']")
 
-let inline attr (name,value:obj) : NodeFactory = fun (ctx,e) ->
+let splitBySpace (s:string) = s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries)
+
+let inline attr (name,value:obj) : NodeFactory = fun (ctx,parent) ->
     try
-        ctx.SetAttribute (e :?> Element) name (string value) // Cannot type test on Element
+        let e = parent :?> HTMLElement
+
+        if name = "class" then
+            e.classList.add( (string value) |> splitBySpace )
+        else  if name = "class-" then
+            e.classList.remove( (string value) |> splitBySpace )
+        else
+            ctx.SetAttribute (upcast e) name (string value)
+
         if (name = "value") then
             Interop.set e "__value" value
+
         match ctx.StyleSheet with
         | Some namedSheet ->
-            applyCustomRules (e :?> HTMLElement) namedSheet
+            applyCustomRules e namedSheet
         | None -> ()
 
-    with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A" name e)
+    with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A %f %s" name parent parent.nodeType (parent :?> HTMLElement).tagName)
     unitResult()
 
 let textNode value : Node =
@@ -401,6 +412,16 @@ let children (node:Node) =
         | null -> []
         | x -> x :: (visit child.nextSibling)
     visit node.firstChild
+
+let clearWithDispose (node:Node) (dispose:Node->unit)=
+    children node |> List.iter (node.removeChild >> dispose)
+
+let clear (node:Node) =
+    clearWithDispose node ignore
+
+let exclusive (f : NodeFactory) = fun (ctx,parent) ->
+    clear parent
+    f(ctx,parent)
 
 let addTransform (node:HTMLElement) (a : ClientRect) =
     let b = node.getBoundingClientRect()

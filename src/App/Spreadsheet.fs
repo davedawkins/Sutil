@@ -1,14 +1,16 @@
 module Spreadsheet
 
+// Based on http://tomasp.net/blog/2018/write-your-own-excel/
+
 open Sveltish
 open Sveltish.Styling
 open Sveltish.Attr
 open Sveltish.DOM
 open Sveltish.Bindings
 open Fable.Core.JsInterop
-open Browser.Dom
-
 open Evaluator
+
+type Sheet = Map<Position,string>
 
 type Message =
   | UpdateValue of Position * string
@@ -28,7 +30,6 @@ let styleSheet = [
     ]
     rule "td, th" [
         minWidth "50px"
-        //maxWidth "200px"
         borderLeft "1px solid #e0e0e0"
         borderTop "1px solid #e0e0e0"
         padding "5px"
@@ -36,7 +37,12 @@ let styleSheet = [
     rule "td.selected" [
         padding "0px"
     ]
+    rule "td div" [
+        display "flex"
+        flexDirection "row"
+    ]
     rule "td input" [
+        flex "1"
         width "56px"
         height "22px"
     ]
@@ -52,40 +58,29 @@ let sample = Map.ofList [
     ('B',7), "=B5 + B6"
     ('B',8), "=B6 + B7"
     ('B',9), "=B7 + B8"
-    ('E',3), "Convert:"
-    ('F',3), "0"
-    ('G',3), "°C"
-    ('E',4), "Result:"
-    ('F',4), "=32 + F3 * 9 / 5"
-    ('G',4), "°F"
-    ]
+    ('E',3), "Convert:" ; ('F',3), "0"                ; ('G',3), "°C";
+    ('E',4), "Result:"  ; ('F',4), "=32 + F3 * 9 / 5" ; ('G',4), "°F" ]
 
-let init() = {
-    Rows = [1 .. 15]
-    Cols = ['A'.. 'K' ]
-    Active = None
-    Cells = sample
-    }
-
-let rows m = m.Rows
-let cols m = m.Cols
+let init() =
+    {  Rows = [1 .. 15]
+       Cols = ['A'.. 'K' ]
+       Active = None
+       Cells = sample }
 
 let update (message : Message) (model : Model) : Model =
     match message with
-    | UpdateValue (p,v) ->
-        { model with Cells = model.Cells.Add(p,v); Active = None }
-    | StartEdit p ->
-        { model with Active = Some p }
+    | UpdateValue (p,v) -> { model with Cells = model.Cells.Add(p,v); Active = None }
+    | StartEdit p -> { model with Active = Some p }
 
 let makeStore = Store.makeElmishSimple init update ignore
+
+let cellValue (sheet:Sheet) (pos:Position) = sheet.[pos]
 
 let renderCell m dispatch pos =
     let content = m.Cells.TryFind pos |> Option.defaultValue ""
     if Some pos = m.Active then
         Html.div [
-            style "display:flex;flex-direction:row"
             Html.input [
-                style "flex:1"
                 type' "text"
                 value content
                 autofocus
@@ -93,10 +88,9 @@ let renderCell m dispatch pos =
             ]
         ]
     else
-        let value = Evaluator.evalCellAsString m.Cells content
         fragment [
             onClick (fun _ -> StartEdit pos |> dispatch) []
-            text value
+            evalCellAsString (cellValue m.Cells) content |> text
         ]
 
 let view () : NodeFactory =
@@ -117,10 +111,7 @@ let view () : NodeFactory =
                     Html.tr [
                         Html.td [ row |> string |> text ]
                         m.Cols |> List.map (fun col ->
-                            let pos = (col,row)
-                            Html.td [
-                                renderCell m dispatch pos
-                            ]
+                            Html.td [ renderCell m dispatch (col,row) ]
                         ) |> fragment
                     ])
                 )

@@ -15,10 +15,10 @@ module Store =
     let make (modelInit:'T) : IStore<'T> =
         let init() = modelInit
         let dispose(m) = ()
-        let s = ObservableStore.makeStore init dispose (fun _ _ -> true)
+        let s = ObservableStore.makeStore init dispose
         upcast s
 
-    let get (s : IStore<'T>) : 'T = s.Get
+    let get (s : IStore<'T>) : 'T = s.Value
     let set (s : IStore<'T>) v : unit = s.Update( fun _ -> v )
     let subscribe (a : IObservable<'T>) (f : 'T -> unit) = a.Subscribe(f)
     let map<'A,'B> (f : 'A -> 'B) (s : IObservable<'A>) = s |> Observable.map f
@@ -74,17 +74,11 @@ module Store =
             unsuba.Dispose()
             unsubb.Dispose()
 
-    //let makeElmishSimple<'Props,'Model,'Msg> (init: 'Props -> 'Model) (update: ('Msg -> 'Model -> 'Model)) (dispose: 'Model -> unit) = fun () ->
-    //    let s = init() |> make
-    //    let d msg =
-    //        s |> modify (update msg)
-    //    s, d
-
     // Strange runtime error when type specifications are missing
     let makeElmishSimple<'Props,'Model,'Msg> (init: 'Props -> 'Model) (update: 'Msg -> 'Model -> 'Model) (dispose: 'Model -> unit) =
         ObservableStore.makeElmishSimple init update dispose
 
-    let makeElmish<'Props,'Model,'Msg> (init: 'Props -> 'Model * ObservableStore.Cmd<'Msg>) (update: 'Msg -> 'Model -> 'Model * ObservableStore.Cmd<'Msg>) (dispose: 'Model -> unit) =
+    let makeElmish<'Props,'Model,'Msg> (init: 'Props -> 'Model * Cmd<'Msg>) (update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>) (dispose: 'Model -> unit) =
         ObservableStore.makeElmish init update dispose
 
 [<AutoOpen>]

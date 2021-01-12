@@ -33,9 +33,3 @@ let th xs = el "th" xs
 let td xs = el "td" xs
 
 let app (xs : seq<NodeFactory>) : NodeFactory = DOM.fragment xs
-    //fun (ctx,parent) ->
-    //let mutable last : Node = parent
-    //for x in xs do
-    //    last <- x(ctx,parent)
-    //last
-

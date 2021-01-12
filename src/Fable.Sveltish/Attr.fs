@@ -35,6 +35,8 @@ let id' n          = attr("id",n)
 let type' n        = attr("type",n)
 let for' n         = attr("for",n)
 let class'         = className
+let unclass n      = attr("class-", n)
+let unclass' n     = attr("class-", n)
 
 // Events
 
@@ -129,6 +131,8 @@ let borderBottom   (n:obj) = cssAttr("border-bottom",n)
 let borderRight    (n:obj) = cssAttr("border-right",n)
 let borderLeft     (n:obj) = cssAttr("border-left",n)
 let borderTop      (n:obj) = cssAttr("border-top",n)
+let flex           (n:obj) = cssAttr("flex",n)
+let flexDirection  (n:obj) = cssAttr("flex-direction",n)
 
 let addClass       (n:obj) = cssAttr("sveltish-add-class",n)
 let useGlobal              = cssAttr("sveltish-use-global","" :> obj)

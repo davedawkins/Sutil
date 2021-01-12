@@ -1,9 +1,9 @@
 module Evaluator
 
 open Parser
-
 type Position = char * int
-type Sheet = Map<Position,string>
+
+let positionStr p = $"{fst p}{snd p}"
 
 type Expr =
   | Number of float
@@ -54,13 +54,13 @@ let parseToEnd p =
         run p input >>= (fun (e,r) ->
                             if r |> skipWhite |> atEnd
                                 then Success (e,r)
-                                else Error $"Syntax error at {r}")
+                                else ParseResult.Error $"Syntax error at {r}")
     Parser inner
 
 let parseToEndWith p input =
     run (parseToEnd p) input >>= (fun (e,r) -> Success e)
 
-let rec evalExpr (sheet : Sheet) e =
+let rec evalExpr (sheet : Position -> string) e =
     match e with
     | Sub e -> evalExpr sheet e
     | Number n -> Success n
@@ -68,11 +68,25 @@ let rec evalExpr (sheet : Sheet) e =
         let ops = dict [ '+', (+); '-', (-); '*', (*); '/', (/); '%', (%) ]
         (evalExpr sheet a) >>= (fun av -> evalExpr sheet b >>= (fun bv -> Success (ops.[op] av bv)))
     | Reference pos ->
-        let content = sheet.[pos]
+        let content = sheet pos
         run (parseToEnd parseCellExpr) content >>= (fun (e,_) -> evalExpr sheet e)
 
 let evalCellAsString sheet content =
     let result = run (parseToEnd parseCellExpr) content >>= (fun (e,r) -> evalExpr sheet e)
     match result with
     | Success f -> string f
-    | Error _ -> content // TODO: Show errors if '= <junk>' seen
+    | ParseResult.Error _ -> content // TODO: Show errors if '= <junk>' seen
+
+
+let findTriggerCells expr =
+    let ast = Parser.run parseCellExpr expr
+    match ast with
+    | Parser.Error _ -> []
+    | Parser.Success (e,_) ->
+        let rec walk e result =
+            match e with
+            | Number _ -> result
+            | Reference p -> p :: result
+            | Sub e -> walk e result
+            | Binary (left,_,right) -> walk left (walk right result)
+        walk e []

@@ -7,10 +7,10 @@ open Fable.Core
 
 [<Emit("$0 === $1")>]
 let fastEquals (x: 'T) (y: 'T): bool = jsNative
-
 #else
 let fastEquals (x: 'T) (y: 'T): bool = Unchecked.equals x y
 #endif
+let fastNotEquals x y = fastEquals x y |> not
 
 let fileListToSeq (files:FileList) : File seq =
     if not (isNull files) then

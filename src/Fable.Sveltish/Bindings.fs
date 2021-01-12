@@ -44,15 +44,16 @@ let makeAppendChild (ctx:BuildContext) (parent:Node) (current:Node) = fun p c ->
             ctx.ReplaceChild p c current |> ignore
     c
 
-let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = fun (ctx,parent) ->
+let binda<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) (accept: 'T->'T->bool) = fun (ctx,parent) ->
     let node = Store.make Unchecked.defaultof<Node>
     let mutable value : 'T = Unchecked.defaultof<_>
 
     let unsub = Store.subscribe store ( fun next ->
-        if not (Helpers.fastEquals value next) then
+        //if not (Helpers.fastEquals value next) then
+        if accept value next then
             let newNode =
                 try
-                    buildSolitary (element(next)) { ctx with AppendChild = (makeAppendChild ctx parent node.Get) } parent
+                    buildSolitary (element(next)) { ctx with AppendChild = (makeAppendChild ctx parent node.Value) } parent
                 with
                 | x ->
                     Logging.error $"Exception in bind: {x.Message}"
@@ -64,17 +65,25 @@ let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = fun (ctx
     )
 
     DOM.registerDisposable parent unsub
-    bindResult (RealNode(node.Get))
+    bindResult (RealNode(node.Value))
 
-let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) = fun (ctx,parent) ->
+type BindFn<'T> = IObservable<'T> -> ('T -> NodeFactory) -> NodeFactory
+
+let binde<'T when 'T : equality>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) =
+    binda store element (<>)
+
+let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) =
+    binda store element Helpers.fastNotEquals
+
+let bind2a<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) (accept: ('A * 'B) -> ('A * 'B) -> bool) = fun (ctx,parent) ->
     let node = Store.make Unchecked.defaultof<Node>
     let mutable value : ('A*'B) = Unchecked.defaultof<_>
 
     let unsub = Store.subscribe2 a b (fun next ->
-        if not (Helpers.fastEquals value next) then
+        if (accept value next) then
             let newNode =
                 try
-                    buildSolitary (element next) { ctx with AppendChild = (makeAppendChild ctx parent node.Get) } parent
+                    buildSolitary (element next) { ctx with AppendChild = (makeAppendChild ctx parent node.Value) } parent
                 with
                 | _ ->
                     Logging.error "Exception in bind"
@@ -86,7 +95,13 @@ let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B)
     )
 
     DOM.registerDisposable parent unsub
-    bindResult (RealNode(node.Get))
+    bindResult (RealNode(node.Value))
+
+let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) =
+    bind2a a b element Helpers.fastNotEquals
+
+let bind2e<'A,'B  when 'A : equality and 'B : equality>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) =
+    bind2a a b element (<>)
 
 let getInputChecked el = Interop.get el "checked"
 let setInputChecked (el : Node) (v:obj) = Interop.set el "checked" v

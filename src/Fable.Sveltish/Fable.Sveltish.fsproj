@@ -9,7 +9,6 @@
     <Compile Include="Helpers.fs" />
     <Compile Include="DOM.fs" />
     <Compile Include="ObservableStore.fs" />
-    <Compile Include="SimpleStore.fs" />
     <Compile Include="Store.fs" />
     <Compile Include="Promise.fs" />
     <Compile Include="Styling.fs" />

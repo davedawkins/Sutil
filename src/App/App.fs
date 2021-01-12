@@ -60,7 +60,8 @@ type Demo = {
         { Category = "Bindings";   Title = "Select bindings";  Create = make SelectBindings.view ; Sources = ["SelectBindings.fs"]}
         { Category = "Bindings";   Title = "Select multiple";  Create = make SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
         { Category = "Bindings";   Title = "Dimensions";  Create = make Dimensions.view ; Sources = ["Dimensions.fs"]}
-        { Category = "7Guis";   Title = "Spreadsheet";  Create = make Spreadsheet.view ; Sources = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
+        { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = make Spreadsheet.view ; Sources = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
+        { Category = "7Guis";   Title = "Cells";  Create = make SevenGuisCells.view ; Sources = ["Cells.fs"]}
     ]
 
 let fetchSource tab dispatch =
@@ -70,10 +71,6 @@ let fetchSource tab dispatch =
     |> Promise.map (SetSource >> dispatch)
     |> ignore
 
-module Cmd =
-    let none = [ ]
-    let ofMsg msg = [ fun d -> d msg ]
-
 let init() =
     {
         Demo = Demo.All.Head.Title
@@ -81,7 +78,7 @@ let init() =
         Tab =  "demo"
     }, Cmd.none
 
-let update msg model : Model * ObservableStore.Cmd<Message> =
+let update msg model : Model * Cmd<Message> =
     match msg with
     | SetTab t ->
         let cmd = if t = "demo" then Cmd.none else Cmd.ofMsg FetchSource
@@ -245,6 +242,7 @@ let appMain () =
                     Section "Events" model dispatch
                     Section "Transitions" model dispatch
                     Section "Bindings" model dispatch
+                    Section "Miscellaneous" model dispatch
                     Section "7Guis" model dispatch
                 ]
 

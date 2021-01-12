@@ -9,9 +9,9 @@ module ObservableStore =
 
     // Dave's understanding of the types here.
     // ('Model -> 'Model) is a model updater
-    type Update<'Model> = ('Model -> 'Model) -> unit // A store updater. Store updates by being passed a model updater
-    type Dispatch<'Msg> = 'Msg -> unit // Message dispatcher
-    type Cmd<'Msg> = (Dispatch<'Msg> -> unit) list // List of commands. A command needs a dispatcher to execute
+    //type Update<'Model> = ('Model -> 'Model) -> unit // A store updater. Store updates by being passed a model updater
+    //type Dispatch<'Msg> = 'Msg -> unit // Message dispatcher
+    //type Cmd<'Msg> = (Dispatch<'Msg> -> unit) list // List of commands. A command needs a dispatcher to execute
 
     // Store constructor
     // init(), dispose() and returns a store and a model updater
@@ -72,7 +72,7 @@ module ObservableStore =
 
     // Allow stores that can handle mutable 'Model types (eg, <input>.FileList). In this
     // case we can pass (fun _ _ -> true)
-    type Store<'Model>(init: unit -> 'Model, dispose: 'Model -> unit, accept: 'Model -> 'Model -> bool) =
+    type Store<'Model>(init: unit -> 'Model, dispose: 'Model -> unit) =
         let mutable uid = 0
         let mutable _modelInitialized = false
         let mutable _model = Unchecked.defaultof<_>
@@ -87,28 +87,28 @@ module ObservableStore =
         static do
             Interop.set window "sv_get_store" Registry.getStoreById
 
-        member _.Get = model()
+        member _.Value = model()
 
         member _.Update(f: 'Model -> 'Model) =
             let newModel = f (model())
 
-            if accept _model newModel then
-                _model <- newModel
-                if subscribers.Count > 0 then
-                    // We need to do this only where we know it's
-                    // a) worth doing, and
-                    // b) we don't need notifications of calls to Update.
-                    //
-                    // For example, when we bind to <input>.files this will initially
-                    // change from null -> FileList. As the user changes their
-                    // selection of files, the DOM instance of FileList appears to mutate
-                    // We get notification of the change in files, but we are sending the
-                    // *same* instance into Update. The end consumer is likely to just be
-                    // iterating the contents, and doesn't care that the instance is the
-                    // same.
-                    //
-                    subscribers.Values
-                        |> Seq.iter (fun s -> s.OnNext(_model))
+            // Send every update. Use 'distinctUntilChanged' with fastEquals to get previous behaviour
+            _model <- newModel
+            if subscribers.Count > 0 then
+                // We need to do this only where we know it's
+                // a) worth doing, and
+                // b) we don't need notifications of calls to Update.
+                //
+                // For example, when we bind to <input>.files this will initially
+                // change from null -> FileList. As the user changes their
+                // selection of files, the DOM instance of FileList appears to mutate
+                // We get notification of the change in files, but we are sending the
+                // *same* instance into Update. The end consumer is likely to just be
+                // iterating the contents, and doesn't care that the instance is the
+                // same.
+                //
+                subscribers.Values
+                    |> Seq.iter (fun s -> s.OnNext(_model))
 
         member this.Subscribe(observer: IObserver<'Model>): IDisposable =
             let id = uid
@@ -134,7 +134,7 @@ module ObservableStore =
         interface IStore<'Model> with
             member this.Subscribe(observer: IObserver<'Model>) = this.Subscribe(observer)
             member this.Update(f) = this.Update(f)
-            member this.Get = this.Get
+            member this.Value = this.Value
 
     let makeElmishWithCons (init: 'Props -> 'Model * Cmd<'Msg>)
                            (update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>)
@@ -177,8 +177,8 @@ module ObservableStore =
     // Assume that Elmish programs are working with immutable records as their Model
     let private acceptIfDifferent a b = Helpers.fastEquals a b |> not
 
-    let makeStore<'Model> (init:unit->'Model) (dispose:'Model->unit) (accept:'Model->'Model->bool) =
-        let s = Store(init,dispose,accept)
+    let makeStore<'Model> (init:unit->'Model) (dispose:'Model->unit) =
+        let s = Store(init,dispose)
         Registry.notifyMakeStore s
         s
 
@@ -188,7 +188,7 @@ module ObservableStore =
                    : 'Props -> IStore<'Model> * Dispatch<'Msg> =
 
         makeElmishWithCons init update dispose (fun i d ->
-            let s = makeStore i  d acceptIfDifferent
+            let s = makeStore i  d
             let u f = s.Update(f); DOM.Event.notifyUpdated()
             upcast s, u)
 
@@ -200,7 +200,7 @@ module ObservableStore =
         let init p = init p, []
         let update msg model = update msg model, []
         makeElmishWithCons init update dispose (fun i d ->
-            let s = makeStore i  d  acceptIfDifferent
+            let s = makeStore i  d
             let u f = s.Update(f); DOM.Event.notifyUpdated()
             upcast s, u)
 

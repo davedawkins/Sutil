@@ -100,10 +100,15 @@ let private computedStyleOpacity e =
         log(sprintf "parse error: '%A'" (window.getComputedStyle(e).opacity))
         1.0
 
-let element tag = document.createElement(tag)
+let element (doc:Document) tag = doc.createElement(tag)
 
 let mutable numActiveAnimations = 0
 let mutable tasks : (unit -> unit) list = []
+let mutable activeDocs : Map<int,Document> = Map.empty
+
+let registerDoc (doc:Document) =
+    activeDocs <- activeDocs.Add( doc.GetHashCode(), doc )
+    log($"Active docs: {activeDocs.Count}")
 
 let runTasks() =
     let copy = tasks
@@ -123,7 +128,7 @@ let waitAnimationFrame f =
 let getSveltishStyleElement (doc : Document) =
     let mutable e = doc.querySelector("head style#__sveltish_keyframes")
     if (isNull e) then
-        e <- element("style")
+        e <- element doc "style"
         e.setAttribute("id", "__sveltish_keyframes")
         doc.head.appendChild(e) |> ignore
     e
@@ -139,11 +144,14 @@ let toEmptyStr s = if System.String.IsNullOrEmpty(s) then "" else s
 
 let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transition) (uid:int) =
     let tr = trfn()
+    registerDoc (documentOf node)
 
     let durn =
         match tr.DurationFn with
         | Some f -> f(a)
         | None -> tr.Duration
+
+    log($"rule duration {durn}")
 
     let step = 16.666 / durn
     let mutable keyframes = [ "{\n" ];
@@ -158,7 +166,7 @@ let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transiti
     let keyframeText = sprintf "@keyframes %s %s" name rule
     //log <| sprintf "keyframe: %s" (keyframes |> List.skip (keyframes.Length / 2) |> List.head)
 
-    let stylesheet = getSveltishStylesheet document
+    let stylesheet = getSveltishStylesheet (documentOf node)
     stylesheet.insertRule( keyframeText, stylesheet.cssRules.length) |> ignore
 
     let animations =
@@ -172,13 +180,14 @@ let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transiti
 let clearRules() =
     window.requestAnimationFrame( fun _ ->
         if (numActiveAnimations = 0) then
-            let doc = document  // Svelte supports multiple active documents
-            let stylesheet = getSveltishStylesheet doc
-            log <| sprintf "clearing %d rules" (int stylesheet.cssRules.length)
-            for i in [(int stylesheet.cssRules.length-1) .. -1 .. 0] do
-                stylesheet.deleteRule( float i )
+            for kv in activeDocs do
+                let doc = kv.Value
+                let stylesheet = getSveltishStylesheet doc
+                log <| sprintf "clearing %d rules" (int stylesheet.cssRules.length)
+                for i in [(int stylesheet.cssRules.length-1) .. -1 .. 0] do
+                    stylesheet.deleteRule( float i )
             //doc.__svelte_rules = {};
-        //active_docs.clear();
+        activeDocs <- Map.empty
     ) |> ignore
 
 let deleteRule (node:HTMLElement) (name:string) =
@@ -408,16 +417,23 @@ let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element ->
 
 let waitAnimationEnd (el : HTMLElement) (f : unit -> unit) =
     let rec cb _ =
+        log($"animationend: {f}")
         el.removeEventListener("animationend",cb)
         f()
+    log($"waitAnimationEnd: {f}")
     el.addEventListener("animationend", cb)
 
 let animateNode (node : HTMLElement) from =
     //let from = node.getBoundingClientRect()
     waitAnimationFrame <| fun () ->
         window.requestAnimationFrame( fun _ ->
+            log("starting animation...")
             let name = createAnimation node from flip []
-            waitAnimationEnd node <| fun _ -> deleteRule node name
+            log($"Animation is {name}")
+            waitAnimationEnd node <|
+                fun _ ->
+                    log("animation finished")
+                    deleteRule node name
             ) |> ignore
 
 
@@ -425,11 +441,13 @@ let transitionNode (el : HTMLElement) (trans : TransitionAttribute option) (tran
     let mutable ruleName = ""
 
     let hide() =
+        log $"hide {nodeStr el}"
         showEl el false
         complete el
         deleteRule el ruleName
 
     let rec show() =
+        log $"show {nodeStr el}"
         showEl el true
         complete el
         deleteRule el ruleName

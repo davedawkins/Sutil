@@ -3,6 +3,7 @@ namespace Sveltish
 open System
 open Browser.Dom
 open System.Collections.Generic
+open Browser.Types
 
 [<RequireQualifiedAccess>]
 module ObservableStore =
@@ -47,28 +48,37 @@ module ObservableStore =
             new CmdHandler<_>(List.iter (fun cmd -> cmd mb.Post), fun _ -> cts.Cancel())
     #endif
 
+    type GenericStore = interface
+        abstract Value: obj
+        end
+
     module Registry =
+        open Fable.Core.JsInterop
+
         let mutable nextId = 0
         let idToStore = new Dictionary<int,obj>()
         let storeToId = new Dictionary<obj,int>()
 
-        let notifyMakeStore s =
+        let notifyMakeStore (doc:Document) s =
             let id = nextId
             nextId <- nextId + 1
             idToStore.[id] <- s
             storeToId.[s] <- id
-            DOM.Event.notifyEvent DOM.Event.NewStore {| Store = id |}
-            DOM.updateCustom document.body "__sveltish_global" "stores" (storeToId.Values |> Seq.toArray)
+            DOM.Event.notifyEvent doc DOM.Event.NewStore {| Store = id |}
+            DOM.updateCustom doc.body "__sveltish_global" "stores" (storeToId.Values |> Seq.toArray)
 
-        let notifyDisposeStore s =
+        let notifyDisposeStore  (doc:Document) s =
             let id = storeToId.[s]
             idToStore.Remove(id) |> ignore
             storeToId.Remove(s) |> ignore
-            DOM.Event.notifyEvent DOM.Event.DisposeStore {| Store = id |}
-            DOM.updateCustom document.body "__sveltish_global" "stores" (storeToId.Values |> Seq.toArray)
+            DOM.Event.notifyEvent doc DOM.Event.DisposeStore {| Store = id |}
+            DOM.updateCustom doc.body "__sveltish_global" "stores" (storeToId.Values |> Seq.toArray)
 
-        let getStoreById id =
-            idToStore.[id]
+        let getStoreById id : GenericStore =
+            idToStore.[id] :?> GenericStore
+
+        let getStores (doc:Document) : int array =
+            try doc.body?__sveltish_global?stores with |_ -> [| |]
 
     // Allow stores that can handle mutable 'Model types (eg, <input>.FileList). In this
     // case we can pass (fun _ _ -> true)
@@ -174,12 +184,9 @@ module ObservableStore =
                 _storeDispatch <- Some(store, dispatch)
                 store, dispatch
 
-    // Assume that Elmish programs are working with immutable records as their Model
-    let private acceptIfDifferent a b = Helpers.fastEquals a b |> not
-
     let makeStore<'Model> (init:unit->'Model) (dispose:'Model->unit) =
         let s = Store(init,dispose)
-        Registry.notifyMakeStore s
+        Registry.notifyMakeStore document s
         s
 
     let makeElmish (init: 'Props -> 'Model * Cmd<'Msg>)
@@ -189,7 +196,7 @@ module ObservableStore =
 
         makeElmishWithCons init update dispose (fun i d ->
             let s = makeStore i  d
-            let u f = s.Update(f); DOM.Event.notifyUpdated()
+            let u f = s.Update(f); DOM.Event.notifyUpdated document
             upcast s, u)
 
     let makeElmishSimple (init: 'Props -> 'Model)
@@ -201,6 +208,6 @@ module ObservableStore =
         let update msg model = update msg model, []
         makeElmishWithCons init update dispose (fun i d ->
             let s = makeStore i  d
-            let u f = s.Update(f); DOM.Event.notifyUpdated()
+            let u f = s.Update(f); DOM.Event.notifyUpdated document
             upcast s, u)
 

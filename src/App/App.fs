@@ -32,36 +32,36 @@ type Demo = {
     Sources : string list
 } with
     static member All = [
-        { Category = "Introduction";Title = "Hello World";  Create = make HelloWorld.helloWorld ; Sources = ["HelloWorld.fs"]}
-        { Category = "Introduction";Title = "Dynamic attributes";  Create = make DynamicAttributes.view ; Sources = ["DynamicAttributes.fs"]}
-        { Category = "Introduction";Title = "Styling";  Create = make StylingExample.view ; Sources = ["Styling.fs"]}
-        { Category = "Introduction";Title = "Nested components";  Create = make NestedComponents.view ; Sources = ["NestedComponents.fs"; "Nested.fs"]}
-        { Category = "Introduction";Title = "HTML tags";  Create = make HtmlTags.view ; Sources = ["HtmlTags.fs"]}
-        { Category = "Reactivity";Title = "Reactive assignments";  Create = make Counter.Counter ; Sources = ["Counter.fs"]}
-        { Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Sources = ["ReactiveDeclarations.fs"]}
-        { Category = "Reactivity";Title = "Reactive statements";  Create = make ReactiveStatements.view ; Sources = ["ReactiveStatements.fs"]}
-        { Category = "Logic"; Title = "If blocks"; Create = make LogicIf.view; Sources = ["LogicIf.fs"] }
-        { Category = "Logic"; Title = "Else blocks"; Create = make LogicElse.view; Sources = ["LogicElse.fs"] }
-        { Category = "Logic"; Title = "Else-if blocks"; Create = make LogicElseIf.view; Sources = ["LogicElseIf.fs"] }
-        { Category = "Logic"; Title = "Static each blocks"; Create = make StaticEachBlocks.view; Sources = ["StaticEachBlocks.fs"] }
-        { Category = "Logic"; Title = "Static each with index"; Create = make StaticEachWithIndex.view; Sources = ["StaticEachWithIndex.fs"] }
-        { Category = "Logic"; Title = "Each blocks"; Create = make EachBlocks.view; Sources = ["EachBlocks.fs"] }
-        { Category = "Logic"; Title = "Keyed-each blocks"; Create = make KeyedEachBlocks.view; Sources = ["KeyedEachBlocks.fs"] }
-        { Category = "Logic"; Title = "Await blocks"; Create = make AwaitBlocks.view; Sources = ["AwaitBlocks.fs"] }
-        { Category = "Events"; Title = "DOM events"; Create = make DomEvents.view; Sources = ["DomEvents.fs"] }
-        { Category = "Events"; Title = "Event modifiers"; Create = make EventModifiers.view; Sources = ["EventModifiers.fs"] }
+        //{ Category = "Introduction";Title = "Hello World";  Create = make HelloWorld.helloWorld ; Sources = ["HelloWorld.fs"]}
+        //{ Category = "Introduction";Title = "Dynamic attributes";  Create = make DynamicAttributes.view ; Sources = ["DynamicAttributes.fs"]}
+        //{ Category = "Introduction";Title = "Styling";  Create = make StylingExample.view ; Sources = ["Styling.fs"]}
+        //{ Category = "Introduction";Title = "Nested components";  Create = make NestedComponents.view ; Sources = ["NestedComponents.fs"; "Nested.fs"]}
+        //{ Category = "Introduction";Title = "HTML tags";  Create = make HtmlTags.view ; Sources = ["HtmlTags.fs"]}
+        //{ Category = "Reactivity";Title = "Reactive assignments";  Create = make Counter.Counter ; Sources = ["Counter.fs"]}
+        //{ Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Sources = ["ReactiveDeclarations.fs"]}
+        //{ Category = "Reactivity";Title = "Reactive statements";  Create = make ReactiveStatements.view ; Sources = ["ReactiveStatements.fs"]}
+        //{ Category = "Logic"; Title = "If blocks"; Create = make LogicIf.view; Sources = ["LogicIf.fs"] }
+        //{ Category = "Logic"; Title = "Else blocks"; Create = make LogicElse.view; Sources = ["LogicElse.fs"] }
+        //{ Category = "Logic"; Title = "Else-if blocks"; Create = make LogicElseIf.view; Sources = ["LogicElseIf.fs"] }
+        //{ Category = "Logic"; Title = "Static each blocks"; Create = make StaticEachBlocks.view; Sources = ["StaticEachBlocks.fs"] }
+        //{ Category = "Logic"; Title = "Static each with index"; Create = make StaticEachWithIndex.view; Sources = ["StaticEachWithIndex.fs"] }
+        //{ Category = "Logic"; Title = "Each blocks"; Create = make EachBlocks.view; Sources = ["EachBlocks.fs"] }
+        //{ Category = "Logic"; Title = "Keyed-each blocks"; Create = make KeyedEachBlocks.view; Sources = ["KeyedEachBlocks.fs"] }
+        //{ Category = "Logic"; Title = "Await blocks"; Create = make AwaitBlocks.view; Sources = ["AwaitBlocks.fs"] }
+        //{ Category = "Events"; Title = "DOM events"; Create = make DomEvents.view; Sources = ["DomEvents.fs"] }
+        //{ Category = "Events"; Title = "Event modifiers"; Create = make EventModifiers.view; Sources = ["EventModifiers.fs"] }
         { Category = "Transitions"; Title = "Transitions w/ animation"; Create = make Todos.view; Sources = ["Todos.fs"] }
-        { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}
-        { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
-        { Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
-        { Category = "Bindings";   Title = "Group inputs";  Create = make GroupInputs.view ; Sources = ["GroupInputs.fs"]}
-        { Category = "Bindings";   Title = "Textarea inputs";  Create = make TextArea.view ; Sources = ["TextArea.fs"]}
-        { Category = "Bindings";   Title = "File inputs";  Create = make FileInputs.view ; Sources = ["FileInputs.fs"]}
-        { Category = "Bindings";   Title = "Select bindings";  Create = make SelectBindings.view ; Sources = ["SelectBindings.fs"]}
-        { Category = "Bindings";   Title = "Select multiple";  Create = make SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
-        { Category = "Bindings";   Title = "Dimensions";  Create = make Dimensions.view ; Sources = ["Dimensions.fs"]}
-        { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = make Spreadsheet.view ; Sources = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
-        { Category = "7Guis";   Title = "Cells";  Create = make SevenGuisCells.view ; Sources = ["Cells.fs"]}
+        //{ Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}
+        //{ Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
+        //{ Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
+        //{ Category = "Bindings";   Title = "Group inputs";  Create = make GroupInputs.view ; Sources = ["GroupInputs.fs"]}
+        //{ Category = "Bindings";   Title = "Textarea inputs";  Create = make TextArea.view ; Sources = ["TextArea.fs"]}
+        //{ Category = "Bindings";   Title = "File inputs";  Create = make FileInputs.view ; Sources = ["FileInputs.fs"]}
+        //{ Category = "Bindings";   Title = "Select bindings";  Create = make SelectBindings.view ; Sources = ["SelectBindings.fs"]}
+        //{ Category = "Bindings";   Title = "Select multiple";  Create = make SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
+        //{ Category = "Bindings";   Title = "Dimensions";  Create = make Dimensions.view ; Sources = ["Dimensions.fs"]}
+        //{ Category = "Miscellaneous";   Title = "Spreadsheet";  Create = make Spreadsheet.view ; Sources = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
+        //{ Category = "7Guis";   Title = "Cells";  Create = make SevenGuisCells.view ; Sources = ["Cells.fs"]}
     ]
 
 let fetchSource tab dispatch =

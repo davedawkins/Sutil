@@ -10,15 +10,6 @@ let log s = Logging.log "bind" s
 
 let bindId = Helpers.makeIdGenerator()
 
-let nodeStr (node : Node) =
-    match node.nodeType with
-    | DOM.ElementNodeType ->
-        let e = node :?> HTMLElement
-        $"<{e.tagName.ToLower()}>"
-    | DOM.TextNodeType ->
-        $"\"{node.textContent}\""
-    | _ -> $"?{node.textContent}"
-
 
 // All bindings ought to either end up calling this or at least doing the same registration
 let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit) = fun ctx ->
@@ -180,7 +171,7 @@ let bindGroup<'T> (store:Store<List<string>>) : NodeFactory = fun ctx ->
     Interop.set parent "name" name
 
     let getValueList() =
-        let inputs = parent.ownerDocument.querySelectorAll(@$"input[name=""{name}""]")
+        let inputs = (documentOf parent).querySelectorAll(@$"input[name=""{name}""]")
         [0..(inputs.length-1)] |> List.map (fun i -> inputs.[i]) |> List.filter getInputChecked |> List.map getInputValue
 
     let updateChecked (v : List<string>) =
@@ -305,8 +296,8 @@ type KeyedStoreItem<'T,'K> = {
 
 let private findCurrentNode (current:Node) (id:int) =
     if (isNull current.parentNode) then
-        log($"each: Node {id} was replaced - finding new one")
-        match DOM.findNodeWithSvId id with
+        log($"each: Node {nodeStr current} was replaced - finding new one with id {id}")
+        match DOM.findNodeWithSvId (documentOf current) id with
         | None ->
             log("each: Disaster: cannot find node")
             null
@@ -479,6 +470,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
                 //    parent.removeChild(ki.Node) |> ignore
                 //    parent.insertBefore(ki.Node, last.nextSibling) |> ignore
                 if wantAnimate && not (enteringNodes |> List.exists (fun en -> en.Key = ki.Key)) then
+                    log("Animate node")
                     animateNode (ki.Node :?> HTMLElement) (ki.Rect)
                 last <- ki.Node
                 ()

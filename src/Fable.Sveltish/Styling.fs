@@ -6,7 +6,7 @@ module Sveltish.Styling
     open Browser.Dom
 
     let log s = Logging.log "style" s
-    let findElement selector = document.querySelector(selector)
+    let findElement (doc : Document) selector = doc.querySelector(selector)
 
     let parseStyleAttr (style : string) =
         style.Split([|';'|], StringSplitOptions.RemoveEmptyEntries)
@@ -38,9 +38,9 @@ module Sveltish.Styling
         log( sprintf "filter by %s: %A -> %A" name (getStyleAttr el) (getStyleAttr el |> filterStyleAttr name) )
         el.setAttribute( "style", getStyleAttr el |> filterStyleAttr name )
 
-    let newStyleElement =
-        let head = "head" |> findElement
-        let style = document.createElement("style")
+    let newStyleElement (doc : Document)=
+        let head = "head" |> findElement doc
+        let style = doc.createElement("style")
         head.appendChild(style :> Node) |> ignore
         style
 
@@ -58,51 +58,55 @@ module Sveltish.Styling
         let trans s = if isPseudo s || isGlobal s then s else sprintf "%s.%s" s styleName  // button -> button.styleA
         splitMapJoin ',' (splitMapJoin ' ' (splitMapJoin ':' trans)) selectors
 
-    let addStyleSheet styleName (styleSheet : StyleSheet) =
+    let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheet) =
         let isSveltishRule (nm:string,v) = nm.StartsWith("sveltish")
-        let style = newStyleElement
+        let style = newStyleElement doc
         for rule in styleSheet do
             let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSveltishRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
-            [ specifySelector styleName rule.SelectorSpec; " {"; styleText; "}" ] |> String.concat "" |> document.createTextNode |> style.appendChild |> ignore
+            [ specifySelector styleName rule.SelectorSpec; " {"; styleText; "}" ] |> String.concat "" |> doc.createTextNode |> style.appendChild |> ignore
 
-    let headStylesheet (url : string) : NodeFactory = fun _ ->
-        let head = findElement "head"
-        let styleEl = document.createElement("link")
+    let headStylesheet (url : string) : NodeFactory = fun ctx ->
+        let doc = ctx.Document
+        let head = findElement doc "head"
+        let styleEl = doc.createElement("link")
         head.appendChild( styleEl ) |> ignore
         styleEl.setAttribute( "rel", "stylesheet" )
         styleEl.setAttribute( "href", url ) |> ignore
         unitResult()
 
-    let headScript (url : string) : NodeFactory = fun _ ->
-        let head = findElement "head"
-        let el = document.createElement("script")
+    let headScript (url : string) : NodeFactory = fun ctx ->
+        let doc = ctx.Document
+        let head = findElement doc "head"
+        let el = doc.createElement("script")
         head.appendChild( el ) |> ignore
         el.setAttribute( "src", url ) |> ignore
         unitResult()
 
-    let headEmbedScript (source : string) : NodeFactory = fun _ ->
-        let head = findElement "head"
-        let el = document.createElement("script")
+    let headEmbedScript (source : string) : NodeFactory = fun ctx ->
+        let doc = ctx.Document
+        let head = findElement doc "head"
+        let el = doc.createElement("script")
         head.appendChild( el ) |> ignore
-        el.appendChild(document.createTextNode(source)) |> ignore
+        el.appendChild(doc.createTextNode(source)) |> ignore
         unitResult()
 
-    let headTitle (title : string) : NodeFactory = fun _ ->
-        let head = findElement "head"
-        let existingTitle = findElement "head>title"
+    let headTitle (title : string) : NodeFactory = fun ctx ->
+        let doc = ctx.Document
+        let head = findElement doc "head"
+        let existingTitle = findElement doc "head>title"
 
         if not (isNull existingTitle) then
             head.removeChild(existingTitle) |> ignore
 
-        let titleEl = document.createElement("title")
-        titleEl.appendChild( document.createTextNode(title) ) |> ignore
+        let titleEl = doc.createElement("title")
+        titleEl.appendChild( doc.createTextNode(title) ) |> ignore
         head.appendChild(titleEl) |> ignore
 
         unitResult()
 
     let withStyle styleSheet (element : NodeFactory) : NodeFactory = fun ctx ->
         let name = ctx.MakeName "sveltish"
-        addStyleSheet name styleSheet
+        addStyleSheet ctx.Document name styleSheet
         ctx |> withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } |> element
 
     let rule selector style =

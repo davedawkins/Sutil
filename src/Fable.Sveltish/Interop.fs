@@ -21,6 +21,9 @@ let get ob name = jsNative
 [<Emit("$0.hasOwnProperty($1)")>]
 let exists ob name = jsNative
 
+[<Emit("$0 === undefined")>]
+let isUndefined (x: 'a) : bool = jsNative
+
 //[<ImportAll("../Fable.Sveltish/proxy.js")>]
 let makeProxy<'T>  ((a:'T),(b: obj -> unit )) : 'T = importMember "../Fable.Sveltish/proxy.js"
 

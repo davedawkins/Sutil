@@ -35,10 +35,10 @@ type Message =
 let makeExampleTodos() = [
     { Id = 1; Done = false; Description = "1:write some docs" }
     { Id = 2; Done = false; Description = "2:start writing JSConf talk" }
-    { Id = 3; Done =  true; Description = "3:buy some milk" }
-    { Id = 4; Done = false; Description = "4:mow the lawn" }
-    { Id = 5; Done = false; Description = "5:feed the turtle" }
-    { Id = 6; Done = false; Description = "6:fix some bugs" }
+    //{ Id = 3; Done =  true; Description = "3:buy some milk" }
+    //{ Id = 4; Done = false; Description = "4:mow the lawn" }
+    //{ Id = 5; Done = false; Description = "5:feed the turtle" }
+    //{ Id = 6; Done = false; Description = "6:fix some bugs" }
 ]
 
 let newUid = Helpers.makeIdGeneratorFrom(7)
@@ -185,7 +185,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
 let makeStore = Store.makeElmishSimple init update ignore
 
 let view () : NodeFactory =
-    let (send,recv) = Transition.crossfade [ ]
+    let (send,recv) = Transition.crossfade [ Duration 4000.0 ]
     let tsend = send, [ ]
     let trecv = recv, [ ]
 

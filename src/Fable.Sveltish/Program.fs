@@ -12,11 +12,12 @@ module Sveltish.Program
     // dispatch messages that are then processed only in the update function.
     //
     let makeProgram host init update view =
+        let doc = Browser.Dom.document
         let model = init()
 
         let makeDispatcher update =
             (fun msg ->
                 update msg model
-                DOM.Event.notifyUpdated())
+                DOM.Event.notifyUpdated doc)
 
-        Sveltish.DOM.mountElement host <| view model (makeDispatcher update)
+        Sveltish.DOM.mountElementOnDocument doc host <| view model (makeDispatcher update)

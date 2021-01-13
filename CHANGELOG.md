@@ -2,6 +2,8 @@
 
 ## Changelog (most recent first)
 
+- Converted DevTools panel to Sveltish-Fable. This will make it easier and faster to develop. I want to use it to help
+diagnose recent regression with the animation of the todos.
 - Reworking of Cells example to try and make the reactive bindings neater. It's a challenge.
 - NodeFactory is now "BuildContext -> BuildResult"
 - Append/Replace is now fundamental within `DOM.El`. It means that bind etc don't need to augment BuildContext with special handlers

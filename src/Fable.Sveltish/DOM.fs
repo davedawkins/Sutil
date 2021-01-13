@@ -18,6 +18,8 @@ let TextNodeType = 3.0
 let isTextNode (n:Node) = n.nodeType = TextNodeType
 let isElementNode (n:Node) = n.nodeType = ElementNodeType
 
+let documentOf (n:Node) = n.ownerDocument
+
 let SvIdKey = "_svid"
 
 let setSvId (n:Node) id =
@@ -29,6 +31,16 @@ let svId (n:Node) = Interop.get n SvIdKey
 
 let hasSvId (n:Node) = Interop.exists n SvIdKey
 
+let nodeStr (node : Node) =
+    match node.nodeType with
+    | ElementNodeType ->
+        let e = node :?> HTMLElement
+        $"<{e.tagName.ToLower()}>#{svId node} \"{node.textContent}\""
+    | TextNodeType ->
+        $"\"{node.textContent}\"#{svId node}"
+    | _ -> $"?'{node.textContent}'#{svId node}"
+
+
 module Event =
     let ElementReady = "sveltish-element-ready"
     let Show = "sveltish-show"
@@ -37,12 +49,12 @@ module Event =
     let NewStore = "sveltish-new-store"
     let DisposeStore = "sveltish-dispose-store"
 
-    let notifyEvent name data =
-        document.dispatchEvent( Interop.customEvent name data ) |> ignore
+    let notifyEvent (doc : Document) name data =
+        doc.dispatchEvent( Interop.customEvent name data ) |> ignore
 
-    let notifyUpdated() =
+    let notifyUpdated doc =
         log("notify document")
-        notifyEvent Updated  {|  |}
+        notifyEvent doc Updated  {|  |}
 
 let listen (event:string) (e:EventTarget) (fn: (Event -> unit)) : (unit -> unit)=
     e.addEventListener( event, fn )
@@ -115,8 +127,10 @@ type BuildContext = {
     // IDom
     AppendChild: (Node -> Node -> Node)
     ReplaceChild: (Node -> Node -> Node -> Node)
-    SetAttribute: (Element->string->string->unit)
-}
+    SetAttribute: (Element->string->string->unit) }
+    with
+        member this.Document = documentOf this.Parent
+
 
 let makeContext parent =
     let gen = Helpers.makeIdGenerator()
@@ -138,15 +152,6 @@ let withParent parent ctx =
 
 let withReplace toReplace ctx =
     { ctx with Replace = if isNull toReplace then None else Some toReplace }
-
-
-//
-// Basic building block for documents
-// The arguments to the factory are a context and the element's parent. If the
-// factory makes an element, then this will be the return value. If the factory
-// operates on the parent node, then the parent node is returned. For example, setting
-// attribute.
-//
 
 type Fragment = Node list
 
@@ -193,8 +198,9 @@ let unitResult()  = Unit
 let bindResult r = Binding r
 
 let errorNode (parent:Node) message : Node=
-    let d = document.createElement("div")
-    d.appendChild(document.createTextNode($"sveltish-error: {message}")) |> ignore
+    let doc = documentOf parent
+    let d = doc.createElement("div")
+    d.appendChild(doc.createTextNode($"sveltish-error: {message}")) |> ignore
     parent.appendChild(d) |> ignore
     d.setAttribute("style", "color: red; padding: 4px; font-size: 10px;")
     upcast d
@@ -207,7 +213,8 @@ let expectSolitary (f : NodeFactory) ctx =
     | Unit ->
         errorNode ctx.Parent "Expected single node, none found"
     | Fragment xs ->
-        let tmpDiv = document.createElement("div")
+        let doc = ctx.Document
+        let tmpDiv = doc.createElement("div")
         let en = errorNode tmpDiv "'fragment' not allowed as root for 'each' blocks"
         tmpDiv.appendChild en |> ignore
         ctx.Parent.appendChild tmpDiv |> ignore
@@ -326,7 +333,8 @@ let appendReplaceChild (node : Node) (ctx : BuildContext) =
     node
 
 let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
-    let e  = document.createElement tag
+
+    let e  = ctx.Document.createElement tag
 
     // Considering packing these effects into pipeline that lives on ctx.
     // User can then extend the pipeline, or even re-arrange. No immediate
@@ -353,8 +361,8 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
 
     nodeResult e
 
-let findSvIdElement id : HTMLElement =
-    downcast document.querySelector($"[_svid='{id}']")
+let findSvIdElement (doc : Document) id : HTMLElement =
+    downcast doc.querySelector($"[_svid='{id}']")
 
 let splitBySpace (s:string) = s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries)
 
@@ -381,19 +389,22 @@ let inline attr (name,value:obj) : NodeFactory = fun ctx ->
     with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A %f %s" name parent parent.nodeType (parent :?> HTMLElement).tagName)
     unitResult()
 
-let textNode value : Node =
-    let n = document.createTextNode(value)
+let textNode (doc : Document) value : Node =
+    let n = doc.createTextNode(value)
     setSvId n (domId())
     upcast n
 
 let text value : NodeFactory =
-    fun ctx -> nodeResult (appendReplaceChild (textNode value) ctx)
+    fun ctx ->
+        let doc = ctx.Document
+        nodeResult (appendReplaceChild (textNode doc value) ctx)
 
 let idSelector = sprintf "#%s"
 let classSelector = sprintf ".%s"
-let findElement selector = document.querySelector(selector)
+let findElement (doc: Document) selector = doc.querySelector(selector)
 
 let rec visitChildren (parent:Node) (f : Node -> bool) =
+
     let mutable child = parent.firstChild
     while not (isNull child) do
         if f(child) then
@@ -419,11 +430,11 @@ let rec visitElementChildren (parent:Node) (f : HTMLElement -> unit) =
                         if (child.nodeType = 1.0) then f(downcast child)
                         true)
 
-let findNodeWithSvId id =
+let findNodeWithSvId (doc : Document) id =
     let getId n =
         let r = svId n
         if (r = id) then Some n else None
-    findNode document.body getId
+    findNode doc.body getId
 
 let html text : NodeFactory = fun ctx ->
     let el = ctx.Parent :?> HTMLElement
@@ -438,27 +449,31 @@ let html text : NodeFactory = fun ctx ->
 //
 // Mount a top-level application NodeFactory into an existing document
 //
-let rec mountElement selector (app : NodeFactory)  =
-    let host = idSelector selector |> findElement :?> HTMLElement
+let rec mountElementOnDocument (doc : Document) id (app : NodeFactory)  =
+    let host = doc.querySelector($"#{id}")
     (app (makeContext host)) |> ignore
 
-let findChildWhere (node:Node) (f : Node -> bool) =
-    let rec search (n : Node) (f : Node -> bool) =
-        if isNull n then
-            null
-        else
-            if (f n) then n else search n.nextSibling f
-    search node.firstChild f
+let rec mountElement id (app : NodeFactory)  =
+    mountElementOnDocument document id app
 
 let children (node:Node) =
-    let rec visit (child:Node) : Node list=
-        match child with
-        | null -> []
-        | x -> x :: (visit child.nextSibling)
+    let rec visit (child:Node) =
+        seq {
+            if not (isNull child) then
+                yield child
+                yield! visit child.nextSibling
+        }
     visit node.firstChild
 
+let rec descendants (node:Node) =
+    seq {
+        for child in children node do
+            yield child
+            yield! descendants child
+    }
+
 let clearWithDispose (node:Node) (dispose:Node->unit)=
-    children node |> List.iter (node.removeChild >> dispose)
+    children node |> Seq.iter (node.removeChild >> dispose)
 
 let clear (node:Node) =
     clearWithDispose node ignore
@@ -528,7 +543,7 @@ type ResizeObserver( el : HTMLElement ) =
         if computedStyle.position = "static" then
             el.style.position <- "relative"
 
-        iframe <- downcast el.ownerDocument.createElement("iframe")
+        iframe <- downcast (documentOf el).createElement("iframe")
         let style = sprintf "%sz-index: %i;" "display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; border: 0; opacity: 0; pointer-events: none;" zIndex
         iframe.setAttribute("style", style)
         iframe.setAttribute("aria-hidden", "true")

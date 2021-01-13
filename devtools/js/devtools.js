@@ -4,23 +4,19 @@
 // http://galadriel.cs.utsa.edu/plugin_study/injected_apps/brave_injected/sources/browser-android-tabs/chrome/common/extensions/docs/templates/intros/devtools_inspectedWindow.html
 // https://gist.github.com/TaijaQ/5aff8ade70b386ba8527f6328914879f
 
+// This has been ported to Fable. See src/DevTools/Chrome.Devtools.fs
+
 let p = chrome.devtools.panels.create(
-    "Sveltish",                      // title
-    "/icon.png",                // icon
+    "Sveltish",         // title
+    "/icon.png",        // icon
     "/html/panel.html",
-    init // Chrome
+    init                // Chrome
   );
 
 let panelDoc;
 
-//if (p !== undefined) {
-  //  p.then(init); // Mozilla
-//}
-
 function initialisePanel(win)
 {
-    //console.log("initialize panel");
-
     let doc = win.document
     panelDoc = doc;
 
@@ -134,7 +130,6 @@ function buildStoresView( result )
 
 function unInitialisePanel()
 {
-    //console.log("unInitialisePanel")
 }
 
 function init(panel) {

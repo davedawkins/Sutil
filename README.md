@@ -372,3 +372,11 @@ I ended up preferring Chrome to get the basics working, it was a much easier wor
 - Show subscribers (help to understand if cleanup is working, etc)
 - Live update
 - ...more
+
+### DevTools Resources
+
+- https://developer.chrome.com/docs/extensions/reference/devtools_inspectedWindow/
+- https://github.com/mdn/webextensions-examples/tree/master/devtools-panels
+- https://stackoverflow.com/questions/4532236/how-to-access-the-webpage-dom-rather-than-the-extension-page-dom
+- http://galadriel.cs.utsa.edu/plugin_study/injected_apps/brave_injected/sources/browser-android-tabs/chrome/common/extensions/docs/templates/intros/devtools_inspectedWindow.html
+- https://gist.github.com/TaijaQ/5aff8ade70b386ba8527f6328914879f

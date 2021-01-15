@@ -3,8 +3,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Types.fs" />
     <Compile Include="Interop.fs" />
+    <Compile Include="Types.fs" />
     <Compile Include="Logging.fs" />
     <Compile Include="Helpers.fs" />
     <Compile Include="DOM.fs" />

@@ -609,3 +609,4 @@ let updateCustom (el:HTMLElement) (name:string) (property:string) (value:obj) =
     let r = NodeKey.getCreate el name (fun () -> {| |})
     Interop.set r property value
     Interop.set el name r
+

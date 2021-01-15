@@ -1,23 +1,87 @@
 module Sveltish.Devtools
 
+// https://github.com/mdn/webextensions-examples/tree/master/devtools-panels
+// https://stackoverflow.com/questions/4532236/how-to-access-the-webpage-dom-rather-than-the-extension-page-dom
+// http://galadriel.cs.utsa.edu/plugin_study/injected_apps/brave_injected/sources/browser-android-tabs/chrome/common/extensions/docs/templates/intros/devtools_inspectedWindow.html
+// https://gist.github.com/TaijaQ/5aff8ade70b386ba8527f6328914879f
+
+
+open System
 open Browser.Types
-open Chrome.Devtools
 open Sveltish
 open Sveltish.DOM
 open Sveltish.Attr
 open Sveltish.Styling
+open Sveltish.Bindings
+open Sveltish.Transition
 open Browser.Dom
 
 open Fable.Core
 open Fable.Core.JsInterop
 
 [<Import("injectedGetStores", from="./inject.js")>]
-let injectedGetStores() : obj array = jsNative
+let injectedGetStores() : obj = jsNative
+[<Import("injectedDollar0", from="./inject.js")>]
+let injectedDollar0() : obj = jsNative
+
+[<Import("injectedGetOptions", from="./inject.js")>]
+let injectedGetOptions() : obj = jsNative
+
+[<Import("injectedSetOptions", from="./inject.js")>]
+let injectedSetOptions( options : obj ) : obj = jsNative
+
+type Page =
+    |Stores
+    |Options
+
+type Model = {
+    Page : Page
+    Options : Sveltish.DevToolsControl.SveltishOptions
+    }
 
 type Message =
-    | ViewStores
+    | ViewPage of Page
+    | SetSlowAnimations of bool
+    | SetLoggingEnabled of bool
 
-let mutable panel: Panel = Unchecked.defaultof<_>
+let page m = m.Page
+let slowAnimations m = m.Options.SlowAnimations
+let loggingEnabled m = m.Options.LoggingEnabled
+
+
+let run<'T,'A> (fn : 'A -> 'T) (arg:'A) : JS.Promise<'T> =
+    console.log( $"run: ({fn})({JS.JSON.stringify arg})" )
+
+    Promise.create( fun fulfil fail ->
+        Chrome.Devtools.InspectedWindow.eval
+            $"({fn})({JS.JSON.stringify arg})"
+            {| |}
+            (fun result -> if Interop.isUndefined result then (fail <| Exception("Unknown error")) else fulfil result)
+    )
+
+let init() = {
+    Page = Stores
+    Options = {
+        SlowAnimations = false
+        LoggingEnabled = false
+    }
+}
+
+let update msg model =
+    console.log($"update: {msg}\n{model}")
+    let m =
+        match msg with
+        | ViewPage p -> { model with Page = p }
+        | SetSlowAnimations f -> { model with Options = { model.Options with SlowAnimations = f } }
+        | SetLoggingEnabled f -> { model with Options = { model.Options with LoggingEnabled = f } }
+    run injectedSetOptions  (model.Options) |> ignore
+    m
+
+let mutable panel: Chrome.Devtools.Panels.ExtensionPanel = Unchecked.defaultof<_>
+let mutable sidePanel : Chrome.Devtools.Panels.ExtensionSidebarPane = Unchecked.defaultof<_>
+let mutable panelDoc : Document = Unchecked.defaultof<_>
+
+let mutable stores : ObservablePromise<obj> = Unchecked.defaultof<_>
 
 let styleSheet = [
     rule ".sv-container" [ padding "12px";minHeight "100vh" ]
@@ -30,9 +94,8 @@ let styleSheet = [
 ]
 
 let contentRun<'T,'A> (fn : 'A -> 'T) (arg:'A) (success : 'T -> unit) (failure: string -> unit) =
-    console.log($" ({fn})({arg})")
     Chrome.Devtools.InspectedWindow.eval
-        $"({fn})({arg})"
+        $"({fn})({JS.JSON.stringify arg})"
         {| |}
         (fun result ->
             if Interop.isUndefined result then failure("Unknown error") else success result)
@@ -42,6 +105,8 @@ let contentRun<'T,'A> (fn : 'A -> 'T) (arg:'A) (success : 'T -> unit) (failure: 
             //    then failure(error)
             //else
             //    failwith "No result return from eval")
+
+let getStores() = run injectedGetStores ()
 
 let buildStoresTable (idVals : obj array) =
     Html.div [
@@ -62,23 +127,48 @@ let buildStoresTable (idVals : obj array) =
         ]
     ] |> withStyle styleSheet
 
-let viewStores (doc:Document) =
-    console.log("Show stores")
-    contentRun
-        injectedGetStores
-        ()
-        (fun result ->
-            mountElementOnDocument doc "sv-view" (buildStoresTable result?Data)
-            console.dir(result)
-            )
-        (fun error -> console.dir(error))
+let viewStores model dispatch =
+    Html.div [
+        bind stores <| function
+            | Waiting -> text "Waiting"
+            | Result r -> buildStoresTable r?Data
+            | Error x -> text "Error"
 
-// Working towards MVU
-let dispatch doc (msg : Message) : unit =
-    match msg with
-    | ViewStores -> viewStores doc
+        on Event.ElementReady (fun _ -> stores.Run (getStores())) []
+    ]
 
-let view dispatch  =
+let viewOptions (model:IObservable<Model>) dispatch =
+    Html.div [
+        Html.div [
+            class' "field"
+            Html.label [
+                class' "checkbox"
+                Html.input [
+                    type' "checkbox"
+                    bindAttrNotify "checked" (model .> slowAnimations) (dispatch << SetSlowAnimations)
+                ]
+                text " Slow Animations"
+            ]
+        ]
+        Html.div [
+            class' "field"
+            Html.label [
+                class' "checkbox"
+                Html.input [
+                    type' "checkbox"
+                    bindAttrNotify "checked" (model .> loggingEnabled) (dispatch << SetLoggingEnabled)
+                ]
+                text " Logging Enabled"
+            ]
+        ]
+    ]
+
+let makeStore doc = ObservableStore.makeElmishSimpleWithDocument doc init update ignore
+
+let view doc =
+    stores <- ObservablePromise<obj>(doc)
+    let model, dispatch = makeStore doc ()
+    //let dispatch = ignore
     Html.div [
         class' "sv-container"
         Html.div [
@@ -93,32 +183,62 @@ let view dispatch  =
                 Html.ul [
                     class' "sv-menu"
                     Html.li [
-                        id' "stores"
-                        onClick (fun _ -> dispatch ViewStores ) []
+                        onClick (fun _ -> Stores |> ViewPage |> dispatch ) []
                         text "Stores" ]
                     Html.li [ text "Styles" ]
                     Html.li [ text "Maps" ]
                     Html.li [ text "Element Bindings" ]
                     Html.li [ text "Attribute Bindings" ]
+                    Html.li [
+                        onClick (fun _ -> Options |> ViewPage |> dispatch) []
+                        text "Options"
+                        ]
                 ]
             ]
             Html.div [
                 class' "sv-main column is-four-fifths"
-                Html.div [ id' "sv-view" ] ] ] ] |> withStyle styleSheet
+
+                transitionMatch (model .> page) <| [
+                    ((=) Stores,  viewStores  model dispatch, None)
+                    ((=) Options, viewOptions model dispatch, None)
+                ]
+
+
+            ] ] ] |> withStyle styleSheet
 
 let initialisePanel (win: Window) =
-    view (dispatch win.document)
-    |> mountElementOnDocument win.document "sveltish-app"
+    panelDoc <- win.document
+    view panelDoc
+    |> mountElementOnDocument panelDoc "sveltish-app"
 
 let unInitialisePanel (win: Window) = ()
 
-let init (p: Panel) =
+let initPanel (p: Chrome.Devtools.Panels.ExtensionPanel) =
     panel <- p
     panel.onShown.addListener initialisePanel
     panel.onHidden.addListener unInitialisePanel
 
-Panels.create
-    "Sveltish Fable" // title
+Chrome.Devtools.Panels.create
+    "Sveltish" // title
     "/icon.png" // icon
     "/html/panel.html"
-    init
+    initPanel
+
+Chrome.Devtools.Panels.elements.onSelectionChanged.addListener (
+        fun _ ->
+            contentRun
+                injectedDollar0
+                ()
+                (fun result ->
+                    sidePanel.setObject( result, "Selected", ignore)
+                    console.dir(result)
+                    )
+                (fun _ -> console.log("failed"))
+            console.log("elements.onSelectionChanged")
+            )
+
+Chrome.Devtools.Panels.elements.createSidebarPane(
+    "Sveltish",
+    fun sidebarPanel -> sidePanel <- sidebarPanel
+    )
+

@@ -3,6 +3,7 @@ namespace Sveltish
 open System
 open Browser.Dom
 open Microsoft.FSharp.Core
+open Browser.Types
 
 module internal StoreHelpers =
     let disposable f =
@@ -12,11 +13,14 @@ module internal StoreHelpers =
 [<RequireQualifiedAccess>]
 module Store =
 
-    let make (modelInit:'T) : IStore<'T> =
+    let makeWithDoc (doc:Document) (modelInit:'T) : IStore<'T> =
         let init() = modelInit
         let dispose(m) = ()
-        let s = ObservableStore.makeStore init dispose
+        let s = ObservableStore.makeStore doc init dispose
         upcast s
+
+    let make (modelInit:'T) : IStore<'T> =
+        makeWithDoc document modelInit
 
     let get (s : IStore<'T>) : 'T = s.Value
     let set (s : IStore<'T>) v : unit = s.Update( fun _ -> v )

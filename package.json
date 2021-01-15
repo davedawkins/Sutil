@@ -8,7 +8,7 @@
     "start": "dotnet fable watch src/App --run webpack serve",
     "build": "dotnet fable src/App --run webpack --mode production",
     "build:devtools": "dotnet fable src/DevTools --run webpack --config webpack.devtools.js",
-    "watch:devtools": "dotnet fable watch src/DevTools --run webpack --config webpack.devtools.js",
+    "watch:devtools": "dotnet fable watch src/DevTools --runWatch webpack --config webpack.devtools.js",
     "pretest": "dotnet fable tests -o dist/tests",
     "publish": "node publish.js",
     "test": "mocha dist/tests -r esm"

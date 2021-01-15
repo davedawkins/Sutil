@@ -2,6 +2,7 @@
 
 ## Changelog (most recent first)
 
+- Options window in DevTools, communicating with Sveltish core. Still debugging, but *almost* working.
 - Converted DevTools panel to Sveltish-Fable. This will make it easier and faster to develop. I want to use it to help
 diagnose recent regression with the animation of the todos.
 - Reworking of Cells example to try and make the reactive bindings neater. It's a challenge.

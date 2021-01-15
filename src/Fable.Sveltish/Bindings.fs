@@ -235,9 +235,9 @@ let attrNotify<'T> (attrName:string) (v :'T) (onchange : obj -> unit) : NodeFact
     Interop.set parent attrName v
     unitResult()
 
-// Bind a store value to an element attribute. Listen for onchange events and dispatch the
+// Bind an observable value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function
-let bindAttrNotify<'T> (attrName:string) (store : Store<'T>) (onchange : obj -> unit) : NodeFactory = fun ctx ->
+let bindAttrNotify<'T> (attrName:string) (store : IObservable<'T>) (onchange : 'T -> unit) : NodeFactory = fun ctx ->
     let parent = ctx.Parent
     parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> onchange ))
     let unsub = Store.subscribe store ( Interop.set parent attrName )

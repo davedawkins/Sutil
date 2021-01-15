@@ -184,30 +184,36 @@ module ObservableStore =
                 _storeDispatch <- Some(store, dispatch)
                 store, dispatch
 
-    let makeStore<'Model> (init:unit->'Model) (dispose:'Model->unit) =
+    let makeStore<'Model> (doc:Document) (init:unit->'Model) (dispose:'Model->unit) =
         let s = Store(init,dispose)
-        Registry.notifyMakeStore document s
+        Registry.notifyMakeStore doc s
         s
 
-    let makeElmish (init: 'Props -> 'Model * Cmd<'Msg>)
+    let makeElmishWithDocument (doc:Document) (init: 'Props -> 'Model * Cmd<'Msg>)
                    (update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>)
                    (dispose: 'Model -> unit)
                    : 'Props -> IStore<'Model> * Dispatch<'Msg> =
 
+        DevToolsControl.initialise doc
+
         makeElmishWithCons init update dispose (fun i d ->
-            let s = makeStore i  d
-            let u f = s.Update(f); DOM.Event.notifyUpdated document
+            let s = makeStore doc i  d
+            let u f = s.Update(f); DOM.Event.notifyUpdated doc
             upcast s, u)
 
-    let makeElmishSimple (init: 'Props -> 'Model)
+    let makeElmishSimpleWithDocument (doc:Document) (init: 'Props -> 'Model)
                    (update: 'Msg -> 'Model -> 'Model)
                    (dispose: 'Model -> unit)
                    : 'Props -> IStore<'Model> * Dispatch<'Msg> =
 
+        DevToolsControl.initialise doc
+
         let init p = init p, []
         let update msg model = update msg model, []
         makeElmishWithCons init update dispose (fun i d ->
-            let s = makeStore i  d
-            let u f = s.Update(f); DOM.Event.notifyUpdated document
+            let s = makeStore doc i  d
+            let u f = s.Update(f); DOM.Event.notifyUpdated doc
             upcast s, u)
 
+    let makeElmishSimple i u d = makeElmishSimpleWithDocument document i u d
+    let makeElmish       i u d = makeElmishWithDocument       document i u d

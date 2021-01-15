@@ -146,10 +146,15 @@ let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transiti
     let tr = trfn()
     registerDoc (documentOf node)
 
+    console.dir(DevToolsControl.Options)
+
     let durn =
-        match tr.DurationFn with
-        | Some f -> f(a)
-        | None -> tr.Duration
+        if DevToolsControl.Options.SlowAnimations
+        then 4000.0
+        else
+            match tr.DurationFn with
+            | Some f -> f(a)
+            | None -> tr.Duration
 
     log($"rule duration {durn}")
 

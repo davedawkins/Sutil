@@ -4,6 +4,7 @@ open Sveltish
 open Sveltish.Attr
 open Sveltish.DOM
 open Sveltish.Bindings
+open Browser.Dom
 
 module RandomUser =
     type Name = { title: string; first : string; last : string }
@@ -17,7 +18,7 @@ module RandomUser =
         return result.results.[0]
     }
 
-let randomName = ObservablePromise<string>()
+let randomName = ObservablePromise<string>(document)
 
 let getRandomName _ =
     randomName.Run <| promise {

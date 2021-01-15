@@ -3,6 +3,7 @@ namespace Sveltish
 open System
 open Fable.Core
 open Fable.Core.JsInterop
+open Browser.Types
 
 [<AutoOpen>]
 module ObservablePromise =
@@ -12,8 +13,8 @@ module ObservablePromise =
         | Result of 'T
         | Error of Exception
 
-    type ObservablePromise<'T>() =
-        let store = Store.make( Waiting )
+    type ObservablePromise<'T>(doc:Document) =
+        let store = Store.makeWithDoc doc Waiting
         member _.Run (p : JS.Promise<'T>) =
                 store <~ Waiting
                 p |> Promise.map (fun v -> store <~ Result v)

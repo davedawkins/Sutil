@@ -5,17 +5,17 @@ open Browser.Dom
 
 let enabled = Dictionary<string,bool>()
 
-let loggingEnabled = true
+let le() = DevToolsControl.Options.LoggingEnabled
 
 let init =
-    enabled.["store"] <- loggingEnabled && false
-    enabled.["trans"] <- loggingEnabled && true
-    enabled.["dom"  ] <- loggingEnabled && true
-    enabled.["style"] <- loggingEnabled && false
-    enabled.["bind" ] <- loggingEnabled && true
+    enabled.["store"] <- false
+    enabled.["trans"] <- true
+    enabled.["dom"  ] <- true
+    enabled.["style"] <- false
+    enabled.["bind" ] <- true
 
 let log source (message : string) =
-    if not (enabled.ContainsKey(source)) || enabled.[source] then
+    if le() && (not (enabled.ContainsKey(source)) || enabled.[source]) then
         console.log(sprintf "%0.3f: %s: %s" (((float)System.DateTime.Now.Ticks / 10000000.0) % 60.0) source message)
 
 let warning (message : string) =

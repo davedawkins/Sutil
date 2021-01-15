@@ -1,6 +1,35 @@
 namespace Sveltish
 open System
 
+module DevToolsControl =
+
+    type SveltishOptions = {
+        SlowAnimations : bool
+        LoggingEnabled : bool
+    }
+
+    let mutable Options = {
+        SlowAnimations = false
+        LoggingEnabled = false
+    }
+
+    type DevToolsControl = {
+        GetOptions : unit -> SveltishOptions
+        SetOptions : SveltishOptions -> unit
+    }
+
+    let getControlBlock doc : DevToolsControl = Interop.get doc "__sveltish_cb"
+    let setControlBlock doc (cb : DevToolsControl)  = Interop.set doc "__sveltish_cb" cb
+
+    let makeControlBlock() = {
+        GetOptions = (fun _ -> Options)
+        SetOptions = (fun op -> Options <- op)
+    }
+
+    let initialise doc =
+        setControlBlock doc (makeControlBlock())
+
+
 type IStore<'T> = interface
     inherit IObservable<'T>
     abstract Update: f:('T -> 'T) -> unit

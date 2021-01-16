@@ -19,16 +19,29 @@ open Browser.Dom
 open Fable.Core
 open Fable.Core.JsInterop
 
-[<Import("injectedGetStores", from="./inject.js")>]
-let injectedGetStores() : obj = jsNative
-[<Import("injectedDollar0", from="./inject.js")>]
-let injectedDollar0() : obj = jsNative
+type StoreIdVal = {  Id : int; Val : obj }
+type GetStoresResult = { Data: StoreIdVal array }
 
-[<Import("injectedGetOptions", from="./inject.js")>]
-let injectedGetOptions() : obj = jsNative
+[<Import("GetStores", from="./inject.js")>]
+let jsGetStores() : GetStoresResult = jsNative
 
-[<Import("injectedSetOptions", from="./inject.js")>]
-let injectedSetOptions( options : obj ) : obj = jsNative
+[<Import("Dollar0", from="./inject.js")>]
+let jsDollar0() : obj = jsNative
+
+[<Import("Version", from="./inject.js")>]
+let jsVersion() : DevToolsControl.Version = jsNative
+
+[<Import("GetOptions", from="./inject.js")>]
+let jsGetOptions() : DevToolsControl.SveltishOptions = jsNative
+
+[<Import("SetOptions", from="./inject.js")>]
+let jsSetOptions( options : DevToolsControl.SveltishOptions ) : bool = jsNative
+
+[<Import("GetLogCategories", from="./inject.js")>]
+let jsGetLogCategories() : (string * bool) array = jsNative
+
+[<Import("SetLogCategory", from="./inject.js")>]
+let jsSetLogCategory( nameState : obj array ) : bool = jsNative
 
 type Page =
     |Stores
@@ -39,25 +52,16 @@ type Model = {
     Options : Sveltish.DevToolsControl.SveltishOptions
     }
 
+
 type Message =
     | ViewPage of Page
     | SetSlowAnimations of bool
     | SetLoggingEnabled of bool
+    | SetLoggingOption of string * bool
 
 let page m = m.Page
 let slowAnimations m = m.Options.SlowAnimations
 let loggingEnabled m = m.Options.LoggingEnabled
-
-
-let run<'T,'A> (fn : 'A -> 'T) (arg:'A) : JS.Promise<'T> =
-    console.log( $"run: ({fn})({JS.JSON.stringify arg})" )
-
-    Promise.create( fun fulfil fail ->
-        Chrome.Devtools.InspectedWindow.eval
-            $"({fn})({JS.JSON.stringify arg})"
-            {| |}
-            (fun result -> if Interop.isUndefined result then (fail <| Exception("Unknown error")) else fulfil result)
-    )
 
 let init() = {
     Page = Stores
@@ -68,20 +72,26 @@ let init() = {
 }
 
 let update msg model =
-    console.log($"update: {msg}\n{model}")
-    let m =
-        match msg with
-        | ViewPage p -> { model with Page = p }
-        | SetSlowAnimations f -> { model with Options = { model.Options with SlowAnimations = f } }
-        | SetLoggingEnabled f -> { model with Options = { model.Options with LoggingEnabled = f } }
-    run injectedSetOptions  (model.Options) |> ignore
-    m
+    //console.log($"update: {msg}\n{model}")
+    match msg with
+    | ViewPage p ->
+        { model with Page = p }
+    | SetSlowAnimations f ->
+        let m = { model with Options = { model.Options with SlowAnimations = f } }
+        Chrome.Helpers.inject jsSetOptions  (m.Options) |> ignore
+        m
+    | SetLoggingEnabled f ->
+        let m = { model with Options = { model.Options with LoggingEnabled = f } }
+        Chrome.Helpers.inject jsSetOptions  (m.Options) |> ignore
+        m
+    | SetLoggingOption (name,state) ->
+        Chrome.Helpers.inject jsSetLogCategory [| name; state |] |> ignore
+        model
 
 let mutable panel: Chrome.Devtools.Panels.ExtensionPanel = Unchecked.defaultof<_>
 let mutable sidePanel : Chrome.Devtools.Panels.ExtensionSidebarPane = Unchecked.defaultof<_>
 let mutable panelDoc : Document = Unchecked.defaultof<_>
-
-let mutable stores : ObservablePromise<obj> = Unchecked.defaultof<_>
+//let mutable stores : ObservablePromise<GetStoresResult> = Unchecked.defaultof<_>
 
 let styleSheet = [
     rule ".sv-container" [ padding "12px";minHeight "100vh" ]
@@ -91,26 +101,61 @@ let styleSheet = [
     rule ".sv-menu li" [ fontSize "90%"; cursor "pointer" ]
     rule ".sv-menu li:hover" [ textDecoration "underline" ]
     rule ".sv-menu li.active" [ fontWeight "bold" ]
+    rule ".o-val" [ color "#1F618D" ]
+    rule ".o-str" [ color "#B03A2E" ]
+    rule ".o-bool" [ color "#3498DB" ]
+    rule ".o-int" [ color "#117864" ]
+    rule ".o-float" [ color "#117864" ]
+    rule ".table" [
+        fontSize "8pt"
+        fontFamily "Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif"
+    ]
+
+    rule ".log-categories" [
+        fontSize "80%"
+        marginLeft "16px"
+    ]
+    rule ".log-categories .field" [
+        marginBottom "0.5rem"
+    ]
 ]
 
-let contentRun<'T,'A> (fn : 'A -> 'T) (arg:'A) (success : 'T -> unit) (failure: string -> unit) =
-    Chrome.Devtools.InspectedWindow.eval
-        $"({fn})({JS.JSON.stringify arg})"
-        {| |}
-        (fun result ->
-            if Interop.isUndefined result then failure("Unknown error") else success result)
-            //if not (Interop.isUndefined result)
-            //    then success(result)
-            //else if not (Interop.isUndefined error)
-            //    then failure(error)
-            //else
-            //    failwith "No result return from eval")
+let getStores() = Chrome.Helpers.inject jsGetStores ()
 
-let getStores() = run injectedGetStores ()
+let viewStr s =
+    Html.span [
+        text "\""
+        Html.span [ class' "o-str"; text s ]
+        text "\""
+    ]
 
-let buildStoresTable (idVals : obj array) =
+let viewBool (b:bool) =
+    Html.span [
+        Html.span [ class' "o-bool"; text<| string b ]
+    ]
+
+let viewInt i  =
+    Html.span [
+        Html.span [ class' "o-int"; text i ]
+    ]
+
+let viewFlt f  =
+    Html.span [
+        Html.span [ class' "o-float"; text f ]
+    ]
+
+let rec viewObject (x:obj) : NodeFactory =
+    match  x with
+    | :? int -> viewInt (downcast x)
+    | :? float -> viewFlt (downcast x)
+    | :? string -> viewStr (downcast x)
+    | :? bool -> viewBool (downcast x)
+    | x -> text (JS.JSON.stringify x)
+
+let buildStoresTable (idVals : StoreIdVal array) =
     Html.div [
         Html.table [
+            class' "table"
             Html.thead [
                 Html.tr [
                     Html.th [ text "Id" ]
@@ -120,55 +165,62 @@ let buildStoresTable (idVals : obj array) =
             Html.tbody [
                 for item in idVals do
                     Html.tr [
-                        Html.td [ text (string item?Id) ]
-                        Html.td [ text (Fable.Core.JS.JSON.stringify item?Val) ]
+                        Html.td [ text (string item.Id) ]
+                        Html.td [
+                            class' "o-val"
+                            viewObject (item.Val)
+                        ]
                     ]
             ]
         ]
-    ] |> withStyle styleSheet
+    ]
 
 let viewStores model dispatch =
     Html.div [
-        bind stores <| function
-            | Waiting -> text "Waiting"
-            | Result r -> buildStoresTable r?Data
-            | Error x -> text "Error"
-
-        on Event.ElementReady (fun _ -> stores.Run (getStores())) []
+        bindPromise (getStores())
+            (text "Waiting")
+            (fun r -> buildStoresTable r.Data)
+            (fun _ -> text "Error")
     ]
 
+let divc name children = class' name :: children |> Html.div
+let labelc name children = class' name :: children |> Html.label
+let inputc name children = class' name :: children |> Html.input
+
+let bindCheckboxField label (model:IObservable<bool>) dispatch =
+    divc "field is-small" [
+        labelc "checkbox is-small" [
+            inputc "is-small" [
+                type' "checkbox"
+                bindAttrNotify "checked" model dispatch
+            ]
+            text $" {label}"
+        ]
+    ]
+
+
 let viewOptions (model:IObservable<Model>) dispatch =
+    //let mutable p : Node = null
+
     Html.div [
-        Html.div [
-            class' "field"
-            Html.label [
-                class' "checkbox"
-                Html.input [
-                    type' "checkbox"
-                    bindAttrNotify "checked" (model .> slowAnimations) (dispatch << SetSlowAnimations)
-                ]
-                text " Slow Animations"
-            ]
-        ]
-        Html.div [
-            class' "field"
-            Html.label [
-                class' "checkbox"
-                Html.input [
-                    type' "checkbox"
-                    bindAttrNotify "checked" (model .> loggingEnabled) (dispatch << SetLoggingEnabled)
-                ]
-                text " Logging Enabled"
-            ]
-        ]
+        bindCheckboxField "Slow Animations" (model .> slowAnimations) (dispatch << SetSlowAnimations)
+        bindCheckboxField "Logging Enabled" (model .> loggingEnabled) (dispatch << SetLoggingEnabled)
+        bindPromise (Chrome.Helpers.inject jsGetLogCategories ())
+            (text "Waiting")
+            (fun lcs ->
+                Html.div [
+                    class' "log-categories"
+                    for (name,state) in lcs do
+                        bindCheckboxField name (Store.make state) (fun v -> (name,v) |> SetLoggingOption |> dispatch)
+                ])
+            (fun x -> text "Error")
     ]
 
 let makeStore doc = ObservableStore.makeElmishSimpleWithDocument doc init update ignore
 
 let view doc =
-    stores <- ObservablePromise<obj>(doc)
     let model, dispatch = makeStore doc ()
-    //let dispatch = ignore
+
     Html.div [
         class' "sv-container"
         Html.div [
@@ -203,7 +255,6 @@ let view doc =
                     ((=) Options, viewOptions model dispatch, None)
                 ]
 
-
             ] ] ] |> withStyle styleSheet
 
 let initialisePanel (win: Window) =
@@ -224,18 +275,9 @@ Chrome.Devtools.Panels.create
     "/html/panel.html"
     initPanel
 
-Chrome.Devtools.Panels.elements.onSelectionChanged.addListener (
-        fun _ ->
-            contentRun
-                injectedDollar0
-                ()
-                (fun result ->
-                    sidePanel.setObject( result, "Selected", ignore)
-                    console.dir(result)
-                    )
-                (fun _ -> console.log("failed"))
-            console.log("elements.onSelectionChanged")
-            )
+Chrome.Devtools.Panels.elements.onSelectionChanged.addListener ( fun _ ->
+    Chrome.Helpers.inject jsDollar0 ()
+        |> Promise.iter (fun dollar0 -> sidePanel.setObject( dollar0, "Selected", ignore) ))
 
 Chrome.Devtools.Panels.elements.createSidebarPane(
     "Sveltish",

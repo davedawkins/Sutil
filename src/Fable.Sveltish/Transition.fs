@@ -75,6 +75,8 @@ type TransitionAttribute =
     | Out of TransitionFactory
     | InOut of (TransitionFactory * TransitionFactory)
 
+let overrideDuration d = if Sveltish.DevToolsControl.Options.SlowAnimations then 10.0 * d else d
+let overrideDurationFn fo = if Sveltish.DevToolsControl.Options.SlowAnimations then (fo |> Option.map (fun f -> ((*)10.0 << f))) else fo
 
 let private applyProp (r:Transition) (prop : TransitionProp) =
     match prop with
@@ -146,17 +148,11 @@ let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transiti
     let tr = trfn()
     registerDoc (documentOf node)
 
-    console.dir(DevToolsControl.Options)
-
     let durn =
-        if DevToolsControl.Options.SlowAnimations
-        then 4000.0
-        else
-            match tr.DurationFn with
+        match tr.DurationFn with
             | Some f -> f(a)
             | None -> tr.Duration
-
-    log($"rule duration {durn}")
+        |> overrideDuration
 
     let step = 16.666 / durn
     let mutable keyframes = [ "{\n" ];
@@ -176,7 +172,7 @@ let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transiti
 
     let animations =
         if System.String.IsNullOrEmpty(node.style.animation) then [] else [ node.style.animation ]
-        @ [ sprintf "%s %fms linear %fms 1 both" name tr.Duration tr.Delay ]
+        @ [ sprintf "%s %fms linear %fms 1 both" name durn tr.Delay ]
 
     node.style.animation <- animations |> String.concat ", "
     numActiveAnimations <- numActiveAnimations + 1
@@ -317,7 +313,7 @@ let crossfade userProps =
         let transform = if style.transform = "none" then "" else style.transform
         let opacity = computedStyleOpacity node
         let duration = match tr.DurationFn with
-                        | Some f -> log("duration fn"); f(d)
+                        | Some f -> f(d)
                         | None -> tr.Duration
         {
             tr with

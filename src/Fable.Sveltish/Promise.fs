@@ -13,8 +13,8 @@ module ObservablePromise =
         | Result of 'T
         | Error of Exception
 
-    type ObservablePromise<'T>(doc:Document) =
-        let store = Store.makeWithDoc doc Waiting
+    type ObservablePromise<'T>() =
+        let store = Store.make Waiting
         member _.Run (p : JS.Promise<'T>) =
                 store <~ Waiting
                 p |> Promise.map (fun v -> store <~ Result v)

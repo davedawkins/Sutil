@@ -13,14 +13,11 @@ module internal StoreHelpers =
 [<RequireQualifiedAccess>]
 module Store =
 
-    let makeWithDoc (doc:Document) (modelInit:'T) : IStore<'T> =
+    let make (modelInit:'T) : IStore<'T> =
         let init() = modelInit
         let dispose(m) = ()
-        let s = ObservableStore.makeStore doc init dispose
+        let s = ObservableStore.makeStore init dispose
         upcast s
-
-    let make (modelInit:'T) : IStore<'T> =
-        makeWithDoc document modelInit
 
     let get (s : IStore<'T>) : 'T = s.Value
     let set (s : IStore<'T>) v : unit = s.Update( fun _ -> v )

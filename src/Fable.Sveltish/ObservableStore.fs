@@ -8,14 +8,6 @@ open Browser.Types
 [<RequireQualifiedAccess>]
 module ObservableStore =
 
-    // Dave's understanding of the types here.
-    // ('Model -> 'Model) is a model updater
-    //type Update<'Model> = ('Model -> 'Model) -> unit // A store updater. Store updates by being passed a model updater
-    //type Dispatch<'Msg> = 'Msg -> unit // Message dispatcher
-    //type Cmd<'Msg> = (Dispatch<'Msg> -> unit) list // List of commands. A command needs a dispatcher to execute
-
-    // Store constructor
-    // init(), dispose() and returns a store and a model updater
     type StoreCons<'Model, 'Store> = (unit -> 'Model) -> ('Model -> unit) -> 'Store * Update<'Model>
 
     module internal Helpers =
@@ -48,10 +40,6 @@ module ObservableStore =
             new CmdHandler<_>(List.iter (fun cmd -> cmd mb.Post), fun _ -> cts.Cancel())
     #endif
 
-    type GenericStore = interface
-        abstract Value: obj
-        end
-
     module Registry =
         open Fable.Core.JsInterop
 
@@ -59,26 +47,34 @@ module ObservableStore =
         let idToStore = new Dictionary<int,obj>()
         let storeToId = new Dictionary<obj,int>()
 
-        let notifyMakeStore (doc:Document) s =
+        let notifyMakeStore s =
             let id = nextId
             nextId <- nextId + 1
             idToStore.[id] <- s
             storeToId.[s] <- id
-            DOM.Event.notifyEvent doc DOM.Event.NewStore {| Store = id |}
-            DOM.updateCustom doc.body "__sveltish_global" "stores" (storeToId.Values |> Seq.toArray)
 
-        let notifyDisposeStore  (doc:Document) s =
+        let notifyDisposeStore  s =
             let id = storeToId.[s]
             idToStore.Remove(id) |> ignore
             storeToId.Remove(s) |> ignore
-            DOM.Event.notifyEvent doc DOM.Event.DisposeStore {| Store = id |}
-            DOM.updateCustom doc.body "__sveltish_global" "stores" (storeToId.Values |> Seq.toArray)
 
-        let getStoreById id : GenericStore =
-            idToStore.[id] :?> GenericStore
+        let getStoreById id : DevToolsControl.IGenericStore =
+            idToStore.[id] :?> DevToolsControl.IGenericStore
 
-        let getStores (doc:Document) : int array =
-            try doc.body?__sveltish_global?stores with |_ -> [| |]
+        let controlBlock () : DevToolsControl.IControlBlock = {
+            new DevToolsControl.IControlBlock with
+                member _.ControlBlockVersion = 1
+                member _.Version = { Major = 0; Minor = 1; Patch = 0 }
+                member _.GetOptions() = DevToolsControl.Options
+                member _.SetOptions(op) = DevToolsControl.Options <- op
+                member _.GetStores() = storeToId.Values |> Seq.toArray
+                member _.GetStoreById(id) = getStoreById id
+                member _.GetLogCategories() = Logging.enabled |> Seq.map (fun k -> k.Key , k.Value) |> Seq.toArray
+                member _.SetLogCategory(name,state) = Logging.enabled.[name] <- state
+        }
+
+        let initialise (doc:Document) =
+            DevToolsControl.initialise doc (controlBlock())
 
     // Allow stores that can handle mutable 'Model types (eg, <input>.FileList). In this
     // case we can pass (fun _ _ -> true)
@@ -94,9 +90,6 @@ module ObservableStore =
         let subscribers =
             Collections.Generic.Dictionary<_, IObserver<'Model>>()
 
-        static do
-            Interop.set window "sv_get_store" Registry.getStoreById
-
         member _.Value = model()
 
         member _.Update(f: 'Model -> 'Model) =
@@ -104,19 +97,8 @@ module ObservableStore =
 
             // Send every update. Use 'distinctUntilChanged' with fastEquals to get previous behaviour
             _model <- newModel
+
             if subscribers.Count > 0 then
-                // We need to do this only where we know it's
-                // a) worth doing, and
-                // b) we don't need notifications of calls to Update.
-                //
-                // For example, when we bind to <input>.files this will initially
-                // change from null -> FileList. As the user changes their
-                // selection of files, the DOM instance of FileList appears to mutate
-                // We get notification of the change in files, but we are sending the
-                // *same* instance into Update. The end consumer is likely to just be
-                // iterating the contents, and doesn't care that the instance is the
-                // same.
-                //
                 subscribers.Values
                     |> Seq.iter (fun s -> s.OnNext(_model))
 
@@ -184,9 +166,9 @@ module ObservableStore =
                 _storeDispatch <- Some(store, dispatch)
                 store, dispatch
 
-    let makeStore<'Model> (doc:Document) (init:unit->'Model) (dispose:'Model->unit) =
+    let makeStore<'Model> (init:unit->'Model) (dispose:'Model->unit) =
         let s = Store(init,dispose)
-        Registry.notifyMakeStore doc s
+        Registry.notifyMakeStore s
         s
 
     let makeElmishWithDocument (doc:Document) (init: 'Props -> 'Model * Cmd<'Msg>)
@@ -194,10 +176,10 @@ module ObservableStore =
                    (dispose: 'Model -> unit)
                    : 'Props -> IStore<'Model> * Dispatch<'Msg> =
 
-        DevToolsControl.initialise doc
+        Registry.initialise doc
 
         makeElmishWithCons init update dispose (fun i d ->
-            let s = makeStore doc i  d
+            let s = makeStore i  d
             let u f = s.Update(f); DOM.Event.notifyUpdated doc
             upcast s, u)
 
@@ -206,12 +188,12 @@ module ObservableStore =
                    (dispose: 'Model -> unit)
                    : 'Props -> IStore<'Model> * Dispatch<'Msg> =
 
-        DevToolsControl.initialise doc
+        Registry.initialise doc
 
         let init p = init p, []
         let update msg model = update msg model, []
         makeElmishWithCons init update dispose (fun i d ->
-            let s = makeStore doc i  d
+            let s = makeStore i  d
             let u f = s.Update(f); DOM.Event.notifyUpdated doc
             upcast s, u)
 

@@ -13,21 +13,33 @@ module DevToolsControl =
         LoggingEnabled = false
     }
 
-    type DevToolsControl = {
-        GetOptions : unit -> SveltishOptions
-        SetOptions : SveltishOptions -> unit
+    type IGenericStore = interface
+        abstract Value: obj
+        end
+
+    type Version = {
+        Major : int
+        Minor : int
+        Patch : int
     }
+    with override v.ToString() = $"{v.Major}.{v.Minor}.{v.Patch}"
 
-    let getControlBlock doc : DevToolsControl = Interop.get doc "__sveltish_cb"
-    let setControlBlock doc (cb : DevToolsControl)  = Interop.set doc "__sveltish_cb" cb
+    type IControlBlock = interface
+        abstract ControlBlockVersion : int
+        abstract Version: Version
+        abstract GetOptions : unit -> SveltishOptions
+        abstract SetOptions : SveltishOptions -> unit
+        abstract GetStores : unit -> int array
+        abstract GetStoreById : int -> IGenericStore
+        abstract GetLogCategories: unit -> (string * bool) array
+        abstract SetLogCategory: string * bool -> unit
+        end
 
-    let makeControlBlock() = {
-        GetOptions = (fun _ -> Options)
-        SetOptions = (fun op -> Options <- op)
-    }
+    let getControlBlock doc : IControlBlock = Interop.get doc "__sveltish_cb"
+    let setControlBlock doc (cb : IControlBlock)  = Interop.set doc "__sveltish_cb" cb
 
-    let initialise doc =
-        setControlBlock doc (makeControlBlock())
+    let initialise doc controlBlock =
+        setControlBlock doc controlBlock
 
 
 type IStore<'T> = interface

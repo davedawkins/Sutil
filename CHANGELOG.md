@@ -2,6 +2,8 @@
 
 ## Changelog (most recent first)
 
+- Logging options in DevTools. Rework of promise bindings. Cleaner interface between app and devtools.
+  Intermediate check-in
 - Options window in DevTools, communicating with Sveltish core. Still debugging, but *almost* working.
 - Converted DevTools panel to Sveltish-Fable. This will make it easier and faster to develop. I want to use it to help
 diagnose recent regression with the animation of the todos.

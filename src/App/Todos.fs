@@ -185,7 +185,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
 let makeStore = Store.makeElmishSimple init update ignore
 
 let view () : NodeFactory =
-    let (send,recv) = Transition.crossfade []
+    let (send,recv) = Transition.crossfade [ ]
     let tsend = send, [ ]
     let trecv = recv, [ ]
 

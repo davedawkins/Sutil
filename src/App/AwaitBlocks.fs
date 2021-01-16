@@ -18,7 +18,7 @@ module RandomUser =
         return result.results.[0]
     }
 
-let randomName = ObservablePromise<string>(document)
+let randomName = ObservablePromise<string>()
 
 let getRandomName _ =
     randomName.Run <| promise {

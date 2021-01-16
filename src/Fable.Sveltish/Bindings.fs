@@ -5,18 +5,17 @@ open DOM
 open Browser.Types
 open Browser.Dom
 open System
+open Fable.Core
 
 let log s = Logging.log "bind" s
 
 let bindId = Helpers.makeIdGenerator()
-
 
 // All bindings ought to either end up calling this or at least doing the same registration
 let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit) = fun ctx ->
     let unsub = source.Subscribe( handler ctx )
     registerDisposable ctx.Parent unsub
     unitResult()
-
 
 #if COMMENTED_OUT
 let makeAppendChild (ctx:BuildContext) (current:Node) = fun p c ->
@@ -59,6 +58,25 @@ let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = fun ctx 
 
     DOM.registerDisposable ctx.Parent unsub
     bindResult (RealNode(node))
+
+let bindPromiseStore<'T>  (p : ObservablePromise<'T>)
+        (waiting : NodeFactory)
+        (result: 'T -> NodeFactory)
+        (fail : Exception -> NodeFactory)
+        : NodeFactory =
+    bind p <| (function
+        | Waiting -> waiting
+        | Result r -> result r
+        | Error x -> fail x)
+
+let bindPromise<'T>  (p : JS.Promise<'T>)
+        (waiting : NodeFactory)
+        (result: 'T -> NodeFactory)
+        (fail : Exception -> NodeFactory)
+        : NodeFactory =
+    let x = ObservablePromise<'T>()
+    x.Run p
+    bindPromiseStore x waiting result fail
 
 type BindFn<'T> = IObservable<'T> -> ('T -> NodeFactory) -> NodeFactory
 
@@ -241,6 +259,12 @@ let bindAttrNotify<'T> (attrName:string) (store : IObservable<'T>) (onchange : '
     let parent = ctx.Parent
     parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> onchange ))
     let unsub = Store.subscribe store ( Interop.set parent attrName )
+    unitResult()
+
+let bindAttrListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : NodeFactory = fun ctx ->
+    let parent = ctx.Parent
+    let unsubA = Sveltish.DOM.listen event parent handler
+    let unsubB = Store.subscribe store ( Interop.set parent attrName )
     unitResult()
 
 // Bind a store value to an element attribute. Listen for onchange events write the converted

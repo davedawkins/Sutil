@@ -3,6 +3,7 @@ namespace Chrome
 open System
 open Fable.Core
 open Browser.Types
+open Browser.Dom
 
 [<RequireQualifiedAccess>]
 module Devtools =
@@ -57,3 +58,14 @@ module Devtools =
 
         [<Emit("chrome.devtools.inspectedWindow.eval($0,$1,$2)")>]
         let eval<'T> (expression:string) (options:obj) (callback : EvalCallback<'T>) : unit = jsNative
+
+module Helpers =
+    let inject<'T,'A> (fn : 'A -> 'T) (arg:'A) : JS.Promise<'T> =
+        console.log($"({fn})({JS.JSON.stringify arg})")
+        Promise.create( fun fulfil fail ->
+            Devtools.InspectedWindow.eval
+                $"({fn})({JS.JSON.stringify arg})"
+                {| |}
+                (fun result -> if Sveltish.Interop.isUndefined result then (fail <| Exception("Unknown error")) else fulfil result)
+        )
+

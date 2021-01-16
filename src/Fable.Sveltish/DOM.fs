@@ -46,8 +46,8 @@ module Event =
     let Show = "sveltish-show"
     let Hide = "sveltish-hide"
     let Updated = "sveltish-updated"
-    let NewStore = "sveltish-new-store"
-    let DisposeStore = "sveltish-dispose-store"
+    //let NewStore = "sveltish-new-store"
+    //let DisposeStore = "sveltish-dispose-store"
 
     let notifyEvent (doc : Document) name data =
         doc.dispatchEvent( Interop.customEvent name data ) |> ignore

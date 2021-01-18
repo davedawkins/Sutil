@@ -31,14 +31,19 @@ let svId (n:Node) = Interop.get n SvIdKey
 
 let hasSvId (n:Node) = Interop.exists n SvIdKey
 
+let rectStr (r:ClientRect) = $"{r.left},{r.top} -> {r.right},{r.bottom}"
+
 let nodeStr (node : Node) =
-    match node.nodeType with
-    | ElementNodeType ->
-        let e = node :?> HTMLElement
-        $"<{e.tagName.ToLower()}>#{svId node} \"{node.textContent}\""
-    | TextNodeType ->
-        $"\"{node.textContent}\"#{svId node}"
-    | _ -> $"?'{node.textContent}'#{svId node}"
+    if isNull node then
+        "null"
+    else
+        match node.nodeType with
+        | ElementNodeType ->
+            let e = node :?> HTMLElement
+            $"<{e.tagName.ToLower()}>#{svId node} \"{node.textContent}\""
+        | TextNodeType ->
+            $"\"{node.textContent}\"#{svId node}"
+        | _ -> $"?'{node.textContent}'#{svId node}"
 
 
 module Event =
@@ -113,47 +118,7 @@ type NamedStyleSheet = {
 //            functions may override these in the context they pass to their
 //            children so that behaviour can be customized.
 //
-type BuildContext = {
-    // Parent / replace context
-    Parent : Node
-    Replace : Node option  // Consider making this "SvId option" and then finding node to replace
 
-    // Naming service
-    MakeName : (string -> string)
-
-    // Style context
-    StyleSheet : NamedStyleSheet option
-
-    // IDom
-    AppendChild: (Node -> Node -> Node)
-    ReplaceChild: (Node -> Node -> Node -> Node)
-    SetAttribute: (Element->string->string->unit) }
-    with
-        member this.Document = documentOf this.Parent
-
-
-let makeContext parent =
-    let gen = Helpers.makeIdGenerator()
-    {
-        Parent = parent
-        Replace = None
-        StyleSheet = None
-        AppendChild = (fun parent child -> parent.appendChild(child))
-        ReplaceChild = (fun parent newChild oldChild -> parent.replaceChild(newChild, oldChild))
-        SetAttribute = (fun parent name value -> parent.setAttribute(name,value))
-        MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
-    }
-
-let withStyleSheet sheet ctx : BuildContext =
-    { ctx with StyleSheet = Some sheet }
-
-let withParent parent ctx =
-    { ctx with Parent = parent; Replace = None }
-
-let withReplace toReplace ctx =
-    { ctx with Replace = if isNull toReplace then None else Some toReplace }
-
-type Fragment = Node list
 
 type INode = interface
     abstract Remove: unit -> unit
@@ -183,14 +148,71 @@ type NodeRef =
             | RealNode n -> parent.replaceChild(n,newChild) |> ignore
             | VirtualNode n -> n.Replace parent newChild
 
-
 type BuildResult =
     | Unit
     | Solitary of Node
     | Fragment of Node list
     | Binding of NodeRef
 
+type DomAction =
+    | Append
+    | Replace of Node
+    | After of Node
+    | Before of Node
+
+type BuildContext = {
+    // Parent / replace context
+    Parent : Node
+    Action  : DomAction  // Consider making this "SvId option" and then finding node to replace
+
+    // Naming service
+    MakeName : (string -> string)
+
+    // Style context
+    StyleSheet : NamedStyleSheet option
+
+    // IDom
+    AppendChild: (Node -> Node -> Node)
+    ReplaceChild: (Node -> Node -> Node -> Node)
+    SetAttribute: (Element->string->string->unit) }
+    with
+        member this.Document = documentOf this.Parent
+        member this.ParentElement : HTMLElement = downcast this.Parent
+        //member this.Create (f : NodeFactory) = f this
+
 type NodeFactory = BuildContext -> BuildResult
+
+let build (f : NodeFactory) (ctx : BuildContext) =
+    f ctx
+
+let makeContext parent =
+    let gen = Helpers.makeIdGenerator()
+    {
+        Parent = parent
+        Action = Append
+        StyleSheet = None
+        AppendChild = (fun parent child -> parent.appendChild(child))
+        ReplaceChild = (fun parent newChild oldChild -> parent.replaceChild(newChild, oldChild))
+        SetAttribute = (fun parent name value -> parent.setAttribute(name,value))
+        MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
+    }
+
+let withStyleSheet sheet ctx : BuildContext =
+    { ctx with StyleSheet = Some sheet }
+
+let withParent parent ctx =
+    { ctx with Parent = parent; Action = Append }
+
+let withReplace toReplace ctx =
+    { ctx with Action = if isNull toReplace then Append else Replace toReplace }
+
+let withAfter after ctx =
+    { ctx with Action = After after }
+
+let withBefore before ctx =
+    { ctx with Action = Before before }
+
+type Fragment = Node list
 
 let nodeResult (node:Node) = Solitary node
 let fragmentResult (nodes:Node list) = Fragment nodes
@@ -206,7 +228,7 @@ let errorNode (parent:Node) message : Node=
     upcast d
 
 let expectSolitary (f : NodeFactory) ctx =
-    match f(ctx) with
+    match ctx |> build f with
     | Solitary n -> n
     | Binding b -> b.Node
         //errorNode parent "Expected single node, binding found"
@@ -319,15 +341,24 @@ let rec applyCustomRules e (namedSheet:NamedStyleSheet) =
                 // TODO: on subsequent calls
             | _ -> log($"Unimplemented: {fst custom}")
 
-
 let appendReplaceChild (node : Node) (ctx : BuildContext) =
-    match ctx.Replace with
-    | None ->
+    log $"appendReplaceChild {ctx.Action}"
+    match ctx.Action with
+    | Append ->
+        log $"append {nodeStr node} to {nodeStr ctx.Parent}"
         ctx.AppendChild ctx.Parent node |> ignore
-    | Some existing ->
+    | Before next ->
+        log $"insert {nodeStr node} before {nodeStr next} on {nodeStr ctx.Parent}"
+        ctx.Parent.insertBefore(node,next) |> ignore
+    | After prev ->
+        log $"insert {nodeStr node} after {nodeStr prev} on {nodeStr ctx.Parent}"
+        ctx.Parent.insertBefore(node, if isNull prev then ctx.Parent.firstChild else prev.nextSibling) |> ignore
+    | Replace existing ->
         if not (ctx.Parent.isSameNode(existing.parentNode)) then
+            log $"reinstate {nodeStr node} to {nodeStr ctx.Parent} - existing {nodeStr existing} has different parent"
             ctx.AppendChild ctx.Parent node |> ignore
         else
+            log $"replace {nodeStr existing} with {nodeStr node} on {nodeStr ctx.Parent}"
             ctx.ReplaceChild ctx.Parent node existing |> ignore
         setSvId node (svId existing)
     node
@@ -341,10 +372,15 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
     // need for it right now.
 
     // Effect 1
-    setSvId e (domId())
+    let id = domId()
+    log $"create <{tag}> #{id}"
+    setSvId e id
+
+    log $"1. el ctx {ctx.Action}"
 
     // Effect 2
-    for x in xs do ctx |> withParent e |> x |> ignore
+    for x in xs do
+        ctx |> withParent e |> build x |> ignore
 
     // Effect 3
     match ctx.StyleSheet with
@@ -361,10 +397,26 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
 
     nodeResult e
 
+
+let buildSolitaryElement (f : NodeFactory) ctx : HTMLElement =
+    log $"buildSolitaryElement: {ctx.Action}"
+    let node = expectSolitary f ctx
+    if isElementNode node then
+        node :?> HTMLElement
+    else
+        let spanWrapper = el "span" [ (fun _ -> nodeResult node) ]
+        (expectSolitary spanWrapper ctx) :?> HTMLElement
+
 let findSvIdElement (doc : Document) id : HTMLElement =
     downcast doc.querySelector($"[_svid='{id}']")
 
 let splitBySpace (s:string) = s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries)
+
+let addToClasslist (e:HTMLElement) classes =
+    e.classList.add( classes |> splitBySpace )
+
+let removeFromClasslist (e:HTMLElement) classes =
+    e.classList.remove( classes |> splitBySpace )
 
 let inline attr (name,value:obj) : NodeFactory = fun ctx ->
     let parent = ctx.Parent
@@ -372,9 +424,9 @@ let inline attr (name,value:obj) : NodeFactory = fun ctx ->
         let e = ctx.Parent :?> HTMLElement
 
         if name = "class" then
-            e.classList.add( (string value) |> splitBySpace )
+            addToClasslist e (string value)
         else  if name = "class-" then
-            e.classList.remove( (string value) |> splitBySpace )
+            removeFromClasslist e (string value)
         else
             ctx.SetAttribute (upcast e) name (string value)
 
@@ -390,8 +442,10 @@ let inline attr (name,value:obj) : NodeFactory = fun ctx ->
     unitResult()
 
 let textNode (doc : Document) value : Node =
+    let id = domId()
+    log $"create \"{value}\" #{id}"
     let n = doc.createTextNode(value)
-    setSvId n (domId())
+    setSvId n id
     upcast n
 
 let text value : NodeFactory =
@@ -423,6 +477,32 @@ let rec findNode<'T> (parent:Node) (f : Node -> 'T option)  : 'T option=
                     | None -> child.nextSibling
                     | Some x -> null
     result
+
+let prevSibling (node : Node) : Node =
+    match node with |null->null|_->node.previousSibling
+
+let rec lastSibling (node : Node) : Node =
+    if (isNull node || isNull node.nextSibling) then
+        node
+    else
+        lastSibling node.nextSibling
+
+let lastChild (node : Node) : Node = lastSibling (node.firstChild)
+
+let rec firstSiblingWhere (node:Node) (condition:Node -> bool) =
+    if isNull node || condition node then node else firstSiblingWhere (node.nextSibling) condition
+
+let firstChildWhere (node:Node) (condition:Node -> bool) =
+    firstSiblingWhere node.firstChild condition
+
+let rec lastSiblingWhere (node:Node) (condition:Node -> bool) =
+    if  isNull node || (condition node && (isNull node.nextSibling || not (condition node.nextSibling))) then
+        node
+    else
+        lastSiblingWhere node.nextSibling condition
+
+let lastChildWhere (node:Node) (condition:Node->bool) =
+    lastSiblingWhere node.firstChild condition
 
 let rec visitElementChildren (parent:Node) (f : HTMLElement -> unit) =
     visitChildren parent
@@ -480,7 +560,7 @@ let clear (node:Node) =
 
 let exclusive (f : NodeFactory) = fun ctx ->
     clear ctx.Parent
-    f ctx
+    ctx |> build f
 
 let hookContext (hook: BuildContext -> unit) : NodeFactory = fun ctx ->
     hook ctx
@@ -501,6 +581,7 @@ let addTransform (node:HTMLElement) (a : ClientRect) =
 let fixPosition (node:HTMLElement) =
     let s = window.getComputedStyle(node)
     if (s.position <> "absolute" && s.position <> "fixed") then
+        log $"fixPosition {nodeStr node}"
         let width  = s.width
         let height = s.height
         let a = node.getBoundingClientRect()

@@ -2,6 +2,9 @@
 
 ## Changelog (most recent first)
 
+- Unit tests
+- Fix animation regression in App/Todos.fs. DevTools made this a lot easier, being able to switch logging options on and off
+- Implement ordering for each blocks
 - Logging options in DevTools. Rework of promise bindings. Cleaner interface between app and devtools.
   Intermediate check-in
 - Options window in DevTools, communicating with Sveltish core. Still debugging, but *almost* working.

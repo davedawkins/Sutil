@@ -33,12 +33,12 @@ type Message =
     |CompleteAll
 
 let makeExampleTodos() = [
-    { Id = 1; Done = false; Description = "1:write some docs" }
-    { Id = 2; Done = false; Description = "2:start writing JSConf talk" }
-    //{ Id = 3; Done =  true; Description = "3:buy some milk" }
-    //{ Id = 4; Done = false; Description = "4:mow the lawn" }
-    //{ Id = 5; Done = false; Description = "5:feed the turtle" }
-    //{ Id = 6; Done = false; Description = "6:fix some bugs" }
+    { Id = 1; Done = false; Description = "write some docs" }
+    { Id = 2; Done = false; Description = "start writing JSConf talk" }
+    { Id = 3; Done =  true; Description = "buy some milk" }
+    { Id = 4; Done = false; Description = "mow the lawn" }
+    { Id = 5; Done = false; Description = "feed the turtle" }
+    { Id = 6; Done = false; Description = "fix some bugs" }
 ]
 
 let newUid = Helpers.makeIdGeneratorFrom(7)

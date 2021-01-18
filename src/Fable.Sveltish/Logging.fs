@@ -7,12 +7,25 @@ let enabled = Dictionary<string,bool>()
 
 let le() = DevToolsControl.Options.LoggingEnabled
 
+let mutable initialized = false
+
 let init =
-    enabled.["store"] <- false
-    enabled.["trans"] <- true
-    enabled.["dom"  ] <- true
-    enabled.["style"] <- false
-    enabled.["bind" ] <- true
+    if not initialized then
+        console.log("logging:init defaults")
+        initialized <- true
+        enabled.["store"] <- false
+        enabled.["trans"] <- false
+        enabled.["dom"  ] <- false
+        enabled.["style"] <- false
+        enabled.["bind" ] <- false
+        enabled.["each" ] <- false
+
+let initWith states =
+    console.log("logging:init with states")
+    initialized <- true
+    for (name,state) in states do
+        console.log($"logging:{name}: {state}")
+        enabled.[name] <- state
 
 let log source (message : string) =
     if le() && (not (enabled.ContainsKey(source)) || enabled.[source]) then

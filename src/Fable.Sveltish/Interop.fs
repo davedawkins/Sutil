@@ -19,7 +19,7 @@ let set ob name value : unit = jsNative
 let get ob name = jsNative
 
 [<Emit("$0.hasOwnProperty($1)")>]
-let exists ob name = jsNative
+let exists (ob:obj) (name:string) : bool= jsNative
 
 [<Emit("$0 === undefined")>]
 let isUndefined (x: 'a) : bool = jsNative

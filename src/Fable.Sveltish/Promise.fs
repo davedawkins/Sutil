@@ -15,6 +15,7 @@ module ObservablePromise =
 
     type ObservablePromise<'T>() =
         let store = Store.make Waiting
+        // TODO: Clean up store
         member _.Run (p : JS.Promise<'T>) =
                 store <~ Waiting
                 p |> Promise.map (fun v -> store <~ Result v)

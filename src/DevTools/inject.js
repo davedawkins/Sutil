@@ -1,4 +1,3 @@
-// This code runs in the context of the inspected window
 
 export function ControlBlockVersion() {
     return document.__sveltish_cb.ControlBlockVersion;
@@ -29,9 +28,8 @@ export function GetLogCategories() {
     return document.__sveltish_cb.GetLogCategories();
 }
 
-export function SetLogCategory( nameState ) {
-    console.log("SetLogCategory " + nameState[0] + "=" + nameState[1]);
-    document.__sveltish_cb.SetLogCategory( nameState[0], nameState[1] );
+export function SetLogCategories( nameStates ) {
+    document.__sveltish_cb.SetLogCategories( nameStates );
     return true;
 }
 

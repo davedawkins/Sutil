@@ -11,7 +11,13 @@
 
   "permissions": ["activeTab", "*://*/", "http://*/", "https://*/"],
 
-  "background": { "scripts": [  ] },
+  "background": { "scripts": ["/js/background.js"] },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["/js/content.js"]
+    }
+  ],
 
   "devtools_page": "/html/devtools.html"
 }

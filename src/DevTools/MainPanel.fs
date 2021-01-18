@@ -21,6 +21,8 @@ open Fable.Core.JsInterop
 
 type StoreIdVal = {  Id : int; Val : obj }
 type GetStoresResult = { Data: StoreIdVal array }
+type LogState = string * bool
+type LogOptions = LogState array
 
 [<Import("GetStores", from="./inject.js")>]
 let jsGetStores() : GetStoresResult = jsNative
@@ -38,10 +40,20 @@ let jsGetOptions() : DevToolsControl.SveltishOptions = jsNative
 let jsSetOptions( options : DevToolsControl.SveltishOptions ) : bool = jsNative
 
 [<Import("GetLogCategories", from="./inject.js")>]
-let jsGetLogCategories() : (string * bool) array = jsNative
+let jsGetLogCategories() : LogState array = jsNative
 
-[<Import("SetLogCategory", from="./inject.js")>]
-let jsSetLogCategory( nameState : obj array ) : bool = jsNative
+[<Import("SetLogCategories", from="./inject.js")>]
+let jsSetLogCategories( nameState : LogState array ) : bool = jsNative
+
+let dispatchPromise (success: 'a -> unit) failure p =
+    p   |> Promise.map success
+        |> Promise.catch failure
+
+let getStores() = Chrome.Helpers.inject jsGetStores ()
+let getOptions() = Chrome.Helpers.inject jsGetOptions ()
+let getLogCategories() = Chrome.Helpers.inject jsGetLogCategories ()
+let writeLogCategories lcs = Chrome.Helpers.inject jsSetLogCategories lcs |> ignore
+let writeOptions opt = Chrome.Helpers.inject jsSetOptions opt |> ignore
 
 type Page =
     |Stores
@@ -49,58 +61,92 @@ type Page =
 
 type Model = {
     Page : Page
-    Options : Sveltish.DevToolsControl.SveltishOptions
+    LogCategories : LogState array
+    Stores : StoreIdVal array
+    Options : DevToolsControl.SveltishOptions
     }
 
+let connectedStores = ObservablePromise<GetStoresResult>()
 
 type Message =
     | ViewPage of Page
+    // Outgoing from DevTools to app
     | SetSlowAnimations of bool
     | SetLoggingEnabled of bool
-    | SetLoggingOption of string * bool
+    | SetLogCategory of LogState
+    // Incoming from the app
+    | StoresFromApp of StoreIdVal array
+    | LogCategoriesFromApp of LogState array
+    | OptionsFromApp of DevToolsControl.SveltishOptions
 
 let page m = m.Page
+let logCategories m = m.LogCategories
+let stores m = m.Stores
 let slowAnimations m = m.Options.SlowAnimations
 let loggingEnabled m = m.Options.LoggingEnabled
 
-let init() = {
-    Page = Stores
-    Options = {
-        SlowAnimations = false
-        LoggingEnabled = false
-    }
-}
+let init() =
+    {
+        Page = Options
+        Options = {
+            SlowAnimations = false
+            LoggingEnabled = false
+        }
+        LogCategories = [| |]
+        Stores = [| |]
+    }, Cmd.none
 
-let update msg model =
+let update msg model : Model * Cmd<Message> =
     //console.log($"update: {msg}\n{model}")
     match msg with
+    | OptionsFromApp op ->
+        { model with Options = op }, Cmd.none
+    | StoresFromApp s ->
+        { model with Stores = s }, Cmd.none
+    | LogCategoriesFromApp lcs ->
+        { model with LogCategories = lcs }, Cmd.none
     | ViewPage p ->
-        { model with Page = p }
+        { model with Page = p }, Cmd.none
     | SetSlowAnimations f ->
         let m = { model with Options = { model.Options with SlowAnimations = f } }
-        Chrome.Helpers.inject jsSetOptions  (m.Options) |> ignore
-        m
+        // Write back to app
+        writeOptions m.Options
+        m, Cmd.none
     | SetLoggingEnabled f ->
         let m = { model with Options = { model.Options with LoggingEnabled = f } }
-        Chrome.Helpers.inject jsSetOptions  (m.Options) |> ignore
-        m
-    | SetLoggingOption (name,state) ->
-        Chrome.Helpers.inject jsSetLogCategory [| name; state |] |> ignore
-        model
+        // Write back to app
+        writeOptions m.Options
+        m, Cmd.none
+    | SetLogCategory (name,state) ->
+        let m = { model with
+                        LogCategories = model.LogCategories
+                                        |> Array.map (fun (n,s) -> if n = name then (name,state) else (n,s))
+                        }
+        // Write back to app
+        writeLogCategories m.LogCategories
+        m, Cmd.none
 
 let mutable panel: Chrome.Devtools.Panels.ExtensionPanel = Unchecked.defaultof<_>
 let mutable sidePanel : Chrome.Devtools.Panels.ExtensionSidebarPane = Unchecked.defaultof<_>
 let mutable panelDoc : Document = Unchecked.defaultof<_>
-//let mutable stores : ObservablePromise<GetStoresResult> = Unchecked.defaultof<_>
 
 let styleSheet = [
     rule ".sv-container" [ padding "12px";minHeight "100vh" ]
     rule ".sv-main" [ background "white"; minHeight "100vh" ]
-    rule ".sv-sidebar" [ background "#eeeeee";borderRight "1pt solid #cccccc" ]
+    rule ".sv-sidebar" [ background "#eeeeee";borderRight "1pt solid #cccccc"; paddingRight "0" ]
     rule "#sv-title" [ marginBottom "4px" ]
-    rule ".sv-menu li" [ fontSize "90%"; cursor "pointer" ]
+    rule ".sv-menu li" [ fontSize "90%"; cursor "pointer"; paddingLeft "4px" ]
     rule ".sv-menu li:hover" [ textDecoration "underline" ]
-    rule ".sv-menu li.active" [ fontWeight "bold" ]
+    rule ".sv-menu li.active" [
+        borderTop "1pt solid #cccccc"
+        borderLeft "1pt solid #cccccc"
+        borderBottom "1pt solid #cccccc"
+        borderTopLeftRadius "4px"
+        borderBottomLeftRadius "4px"
+        background "white"
+        marginRight "-1px"
+        marginLeft "-4px"
+        paddingLeft "8px" ]
     rule ".o-val" [ color "#1F618D" ]
     rule ".o-str" [ color "#B03A2E" ]
     rule ".o-bool" [ color "#3498DB" ]
@@ -110,17 +156,16 @@ let styleSheet = [
         fontSize "8pt"
         fontFamily "Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif"
     ]
-
-    rule ".log-categories" [
+    rule ".options" [
         fontSize "80%"
+    ]
+    rule ".log-categories" [
         marginLeft "16px"
     ]
     rule ".log-categories .field" [
         marginBottom "0.5rem"
     ]
 ]
-
-let getStores() = Chrome.Helpers.inject jsGetStores ()
 
 let viewStr s =
     Html.span [
@@ -177,10 +222,7 @@ let buildStoresTable (idVals : StoreIdVal array) =
 
 let viewStores model dispatch =
     Html.div [
-        bindPromise (getStores())
-            (text "Waiting")
-            (fun r -> buildStoresTable r.Data)
-            (fun _ -> text "Error")
+        bind (model .> stores) buildStoresTable
     ]
 
 let divc name children = class' name :: children |> Html.div
@@ -188,9 +230,9 @@ let labelc name children = class' name :: children |> Html.label
 let inputc name children = class' name :: children |> Html.input
 
 let bindCheckboxField label (model:IObservable<bool>) dispatch =
-    divc "field is-small" [
-        labelc "checkbox is-small" [
-            inputc "is-small" [
+    divc "field" [
+        labelc "checkbox" [
+            Html.input [
                 type' "checkbox"
                 bindAttrNotify "checked" model dispatch
             ]
@@ -198,28 +240,22 @@ let bindCheckboxField label (model:IObservable<bool>) dispatch =
         ]
     ]
 
-
 let viewOptions (model:IObservable<Model>) dispatch =
-    //let mutable p : Node = null
-
-    Html.div [
+    divc "options" [
         bindCheckboxField "Slow Animations" (model .> slowAnimations) (dispatch << SetSlowAnimations)
         bindCheckboxField "Logging Enabled" (model .> loggingEnabled) (dispatch << SetLoggingEnabled)
-        bindPromise (Chrome.Helpers.inject jsGetLogCategories ())
-            (text "Waiting")
-            (fun lcs ->
-                Html.div [
-                    class' "log-categories"
-                    for (name,state) in lcs do
-                        bindCheckboxField name (Store.make state) (fun v -> (name,v) |> SetLoggingOption |> dispatch)
-                ])
-            (fun x -> text "Error")
+        bind (model .> logCategories) <| fun lcs ->
+            divc "log-categories" [
+                for (name,state) in lcs do
+                    bindCheckboxField name (Store.make state) (fun v -> (name,v) |> SetLogCategory |> dispatch)
+            ]
     ]
 
-let makeStore doc = ObservableStore.makeElmishSimpleWithDocument doc init update ignore
+let makeStore doc = ObservableStore.makeElmishWithDocument doc init update ignore
 
-let view doc =
-    let model, dispatch = makeStore doc ()
+let view model dispatch =
+
+    let activeWhen p = bindClass (model .> (page >> (=) p)) "active"
 
     Html.div [
         class' "sv-container"
@@ -235,16 +271,17 @@ let view doc =
                 Html.ul [
                     class' "sv-menu"
                     Html.li [
+                        activeWhen Options
+                        onClick (fun _ -> Options |> ViewPage |> dispatch) []
+                        text "Options" ]
+                    Html.li [
+                        activeWhen Stores
                         onClick (fun _ -> Stores |> ViewPage |> dispatch ) []
                         text "Stores" ]
                     Html.li [ text "Styles" ]
                     Html.li [ text "Maps" ]
                     Html.li [ text "Element Bindings" ]
                     Html.li [ text "Attribute Bindings" ]
-                    Html.li [
-                        onClick (fun _ -> Options |> ViewPage |> dispatch) []
-                        text "Options"
-                        ]
                 ]
             ]
             Html.div [
@@ -257,30 +294,84 @@ let view doc =
 
             ] ] ] |> withStyle styleSheet
 
-let initialisePanel (win: Window) =
-    panelDoc <- win.document
-    view panelDoc
-    |> mountElementOnDocument panelDoc "sveltish-app"
+let initialiseConnectedApp (model:IObservable<Model>) dispatch =
+    getStores()
+        |> Promise.map (fun r -> r.Data)
+        |> dispatchPromise (dispatch << StoresFromApp) (fun _ -> [| |] |> StoresFromApp |> dispatch)
+        |> ignore
 
-let unInitialisePanel (win: Window) = ()
+    let m = Store.current model
 
-let initPanel (p: Chrome.Devtools.Panels.ExtensionPanel) =
-    panel <- p
-    panel.onShown.addListener initialisePanel
-    panel.onHidden.addListener unInitialisePanel
+    // Learn the log categories upon first connection
+    if m.LogCategories.Length = 0 then
+        getOptions()
+            |> dispatchPromise (dispatch << OptionsFromApp) ignore
+            |> ignore
+        getLogCategories()
+            |> dispatchPromise (dispatch << LogCategoriesFromApp) ignore
+            |> ignore
+    else
+        // assume user refreshed the app so push the options into the new app
+        // small risk that it's a different version of the Sveltish core.
+        writeOptions m.Options
+        writeLogCategories m.LogCategories
 
-Chrome.Devtools.Panels.create
-    "Sveltish" // title
-    "/icon.png" // icon
-    "/html/panel.html"
-    initPanel
+    //connectedStores.Run <| getStores()
 
-Chrome.Devtools.Panels.elements.onSelectionChanged.addListener ( fun _ ->
-    Chrome.Helpers.inject jsDollar0 ()
-        |> Promise.iter (fun dollar0 -> sidePanel.setObject( dollar0, "Selected", ignore) ))
+let startMessageHandlers (model : IObservable<Model>) dispatch =
+    Chrome.Devtools.Panels.elements.onSelectionChanged.addListener ( fun _ ->
+        Chrome.Helpers.inject jsDollar0 ()
+            |> Promise.iter (fun dollar0 -> sidePanel.setObject( dollar0, "Selected", ignore) ))
 
-Chrome.Devtools.Panels.elements.createSidebarPane(
-    "Sveltish",
-    fun sidebarPanel -> sidePanel <- sidebarPanel
+    Chrome.Devtools.Panels.elements.createSidebarPane(
+        "Sveltish",
+        fun sidebarPanel -> sidePanel <- sidebarPanel
+        )
+
+    let backgroundPageConnection = Chrome.Runtime.connect( {| name = "devtools-page" |} )
+
+    backgroundPageConnection.onMessage.addListener( fun msg ->
+        match msg?name with
+        |"content-page-connected" ->
+            console.log("content page connected")
+            initialiseConnectedApp model dispatch
+        | _ ->
+            console.log($"unhandled message: {msg?name}")
+            ()
     )
 
+    backgroundPageConnection.postMessage(
+            {|
+                name = "hello"
+            |})
+
+    backgroundPageConnection.postMessage(
+            {|
+                name = "init"
+                tabId= Chrome.Devtools.InspectedWindow.tabId
+            |})
+
+let createMainPanel() =
+    let initialisePanel (win: Window) =
+        panelDoc <- win.document
+        let model, dispatch = makeStore panelDoc ()
+
+        view model dispatch
+            |> mountElementOnDocument panelDoc "sveltish-app"
+
+        startMessageHandlers model dispatch
+        initialiseConnectedApp model dispatch
+
+    let unInitialisePanel (win: Window) = ()
+
+    Chrome.Devtools.Panels.create
+        "Sveltish" // title
+        "/icon.png" // icon
+        "/html/panel.html"
+        (fun p ->
+            panel <- p
+            panel.onShown.addListener initialisePanel
+            panel.onHidden.addListener unInitialisePanel)
+
+
+createMainPanel()

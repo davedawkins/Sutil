@@ -70,7 +70,8 @@ module ObservableStore =
                 member _.GetStores() = storeToId.Values |> Seq.toArray
                 member _.GetStoreById(id) = getStoreById id
                 member _.GetLogCategories() = Logging.enabled |> Seq.map (fun k -> k.Key , k.Value) |> Seq.toArray
-                member _.SetLogCategory(name,state) = Logging.enabled.[name] <- state
+                member _.SetLogCategories(states) =
+                    Logging.initWith states
         }
 
         let initialise (doc:Document) =
@@ -113,20 +114,21 @@ module ObservableStore =
             // Sveltish depends on an immediate callback
             observer.OnNext(model())
 
-            Helpers.disposable <| fun () ->
-                subscribers.Remove(id) |> ignore
-                //
-                // This will dispose a store that has a transient initial subscriber
-                //
-                //if subscribers.Remove(id) && subscribers.Count = 0 then
-                //    dispose (model())
-                //    _model <- Unchecked.defaultof<_>
-                //    Registry.notifyDisposeStore this
+            Helpers.disposable <| fun () -> subscribers.Remove(id) |> ignore
+
+        member this.Dispose() =
+            subscribers.Values |> Seq.iter (fun x -> x.OnCompleted())
+            subscribers.Clear()
+            dispose (model())
+            _model <- Unchecked.defaultof<_>
+            Registry.notifyDisposeStore this
 
         interface IStore<'Model> with
             member this.Subscribe(observer: IObserver<'Model>) = this.Subscribe(observer)
             member this.Update(f) = this.Update(f)
             member this.Value = this.Value
+        interface IDisposable with
+            member this.Dispose() = this.Dispose()
 
     let makeElmishWithCons (init: 'Props -> 'Model * Cmd<'Msg>)
                            (update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>)
@@ -167,7 +169,7 @@ module ObservableStore =
                 store, dispatch
 
     let makeStore<'Model> (init:unit->'Model) (dispose:'Model->unit) =
-        let s = Store(init,dispose)
+        let s = new Store<'Model>(init,dispose)
         Registry.notifyMakeStore s
         s
 

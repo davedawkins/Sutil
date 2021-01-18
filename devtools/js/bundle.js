@@ -22167,20 +22167,34 @@ function fromBytesBE(bytes, unsigned) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Runtime": () => /* binding */ Runtime,
+/* harmony export */   "Runtime$reflection": () => /* binding */ Runtime$reflection,
+/* harmony export */   "Runtime_$ctor": () => /* binding */ Runtime_$ctor,
 /* harmony export */   "Devtools_InspectedWindow_EvalExceptionInfo": () => /* binding */ Devtools_InspectedWindow_EvalExceptionInfo,
 /* harmony export */   "Devtools_InspectedWindow_EvalExceptionInfo$reflection": () => /* binding */ Devtools_InspectedWindow_EvalExceptionInfo$reflection,
 /* harmony export */   "Helpers_inject": () => /* binding */ Helpers_inject
 /* harmony export */ });
-/* harmony import */ var _fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Types.js */ "./src/DevTools/.fable/fable-library.3.0.5/Types.js");
-/* harmony import */ var _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Reflection.js */ "./src/DevTools/.fable/fable-library.3.0.5/Reflection.js");
+/* harmony import */ var _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Reflection.js */ "./src/DevTools/.fable/fable-library.3.0.5/Reflection.js");
+/* harmony import */ var _fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Types.js */ "./src/DevTools/.fable/fable-library.3.0.5/Types.js");
 /* harmony import */ var _fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/String.js */ "./src/DevTools/.fable/fable-library.3.0.5/String.js");
-/* harmony import */ var _fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Option.js */ "./src/DevTools/.fable/fable-library.3.0.5/Option.js");
 
 
 
 
+class Runtime {
+    constructor() {
+    }
+}
 
-class Devtools_InspectedWindow_EvalExceptionInfo extends _fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_0__.Record {
+function Runtime$reflection() {
+    return (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.class_type)("Chrome.Runtime", void 0, Runtime);
+}
+
+function Runtime_$ctor() {
+    return new Runtime();
+}
+
+class Devtools_InspectedWindow_EvalExceptionInfo extends _fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_1__.Record {
     constructor(code, description, details, isError, isException, value) {
         super();
         this.code = code;
@@ -22193,11 +22207,10 @@ class Devtools_InspectedWindow_EvalExceptionInfo extends _fable_fable_library_3_
 }
 
 function Devtools_InspectedWindow_EvalExceptionInfo$reflection() {
-    return (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.record_type)("Chrome.Devtools.InspectedWindow.EvalExceptionInfo", [], Devtools_InspectedWindow_EvalExceptionInfo, () => [["code", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.string_type], ["description", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.string_type], ["details", (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.array_type)(_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.obj_type)], ["isError", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.bool_type], ["isException", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.bool_type], ["value", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.string_type]]);
+    return (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.record_type)("Chrome.Devtools.InspectedWindow.EvalExceptionInfo", [], Devtools_InspectedWindow_EvalExceptionInfo, () => [["code", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.string_type], ["description", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.string_type], ["details", (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.array_type)(_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.obj_type)], ["isError", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.bool_type], ["isException", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.bool_type], ["value", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.string_type]]);
 }
 
 function Helpers_inject(fn, arg) {
-    console.log((0,_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_3__.some)((0,_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_2__.toText)((0,_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_2__.interpolate)("(%P())(%P())", [fn, JSON.stringify(arg)]))));
     return new Promise(((fulfil, fail) => {
         chrome.devtools.inspectedWindow.eval((0,_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_2__.toText)((0,_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_2__.interpolate)("(%P())(%P())", [fn, JSON.stringify(arg)])),{},((result) => {
             if (result === undefined) {
@@ -22226,13 +22239,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "StoreIdVal$reflection": () => /* binding */ StoreIdVal$reflection,
 /* harmony export */   "GetStoresResult": () => /* binding */ GetStoresResult,
 /* harmony export */   "GetStoresResult$reflection": () => /* binding */ GetStoresResult$reflection,
+/* harmony export */   "dispatchPromise": () => /* binding */ dispatchPromise,
+/* harmony export */   "getStores": () => /* binding */ getStores,
+/* harmony export */   "getOptions": () => /* binding */ getOptions,
+/* harmony export */   "getLogCategories": () => /* binding */ getLogCategories,
+/* harmony export */   "writeLogCategories": () => /* binding */ writeLogCategories,
+/* harmony export */   "writeOptions": () => /* binding */ writeOptions,
 /* harmony export */   "Page": () => /* binding */ Page,
 /* harmony export */   "Page$reflection": () => /* binding */ Page$reflection,
 /* harmony export */   "Model": () => /* binding */ Model,
 /* harmony export */   "Model$reflection": () => /* binding */ Model$reflection,
+/* harmony export */   "connectedStores": () => /* binding */ connectedStores,
 /* harmony export */   "Message": () => /* binding */ Message,
 /* harmony export */   "Message$reflection": () => /* binding */ Message$reflection,
 /* harmony export */   "page": () => /* binding */ page,
+/* harmony export */   "logCategories": () => /* binding */ logCategories,
+/* harmony export */   "stores": () => /* binding */ stores,
 /* harmony export */   "slowAnimations": () => /* binding */ slowAnimations,
 /* harmony export */   "loggingEnabled": () => /* binding */ loggingEnabled,
 /* harmony export */   "init": () => /* binding */ init,
@@ -22241,7 +22263,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "sidePanel": () => /* binding */ sidePanel,
 /* harmony export */   "panelDoc": () => /* binding */ panelDoc,
 /* harmony export */   "styleSheet": () => /* binding */ styleSheet,
-/* harmony export */   "getStores": () => /* binding */ getStores,
 /* harmony export */   "viewStr": () => /* binding */ viewStr,
 /* harmony export */   "viewBool": () => /* binding */ viewBool,
 /* harmony export */   "viewInt": () => /* binding */ viewInt,
@@ -22256,27 +22277,33 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "viewOptions": () => /* binding */ viewOptions,
 /* harmony export */   "makeStore": () => /* binding */ makeStore,
 /* harmony export */   "view": () => /* binding */ view,
-/* harmony export */   "initialisePanel": () => /* binding */ initialisePanel,
-/* harmony export */   "unInitialisePanel": () => /* binding */ unInitialisePanel,
-/* harmony export */   "initPanel": () => /* binding */ initPanel
+/* harmony export */   "initialiseConnectedApp": () => /* binding */ initialiseConnectedApp,
+/* harmony export */   "startMessageHandlers": () => /* binding */ startMessageHandlers,
+/* harmony export */   "createMainPanel": () => /* binding */ createMainPanel
 /* harmony export */ });
 /* harmony import */ var _fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Types.js */ "./src/DevTools/.fable/fable-library.3.0.5/Types.js");
 /* harmony import */ var _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Reflection.js */ "./src/DevTools/.fable/fable-library.3.0.5/Reflection.js");
-/* harmony import */ var _Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Fable.Sveltish/Types.fs.js */ "./src/Fable.Sveltish/Types.fs.js");
-/* harmony import */ var _Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Chrome.Devtools.fs.js */ "./src/DevTools/Chrome.Devtools.fs.js");
-/* harmony import */ var _inject_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./inject.js */ "./src/DevTools/inject.js");
-/* harmony import */ var _fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Util.js */ "./src/DevTools/.fable/fable-library.3.0.5/Util.js");
-/* harmony import */ var _Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Fable.Sveltish/Styling.fs.js */ "./src/Fable.Sveltish/Styling.fs.js");
-/* harmony import */ var _Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Fable.Sveltish/Attr.fs.js */ "./src/Fable.Sveltish/Attr.fs.js");
-/* harmony import */ var _fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/List.js */ "./src/DevTools/.fable/fable-library.3.0.5/List.js");
-/* harmony import */ var _Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Fable.Sveltish/Html.fs.js */ "./src/Fable.Sveltish/Html.fs.js");
-/* harmony import */ var _Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Fable.Sveltish/DOM.fs.js */ "./src/Fable.Sveltish/DOM.fs.js");
-/* harmony import */ var _fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Seq.js */ "./src/DevTools/.fable/fable-library.3.0.5/Seq.js");
-/* harmony import */ var _Fable_Sveltish_Bindings_fs_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Fable.Sveltish/Bindings.fs.js */ "./src/Fable.Sveltish/Bindings.fs.js");
-/* harmony import */ var _fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/String.js */ "./src/DevTools/.fable/fable-library.3.0.5/String.js");
+/* harmony import */ var _Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Chrome.Devtools.fs.js */ "./src/DevTools/Chrome.Devtools.fs.js");
+/* harmony import */ var _inject_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./inject.js */ "./src/DevTools/inject.js");
+/* harmony import */ var _Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Fable.Sveltish/Types.fs.js */ "./src/Fable.Sveltish/Types.fs.js");
+/* harmony import */ var _Fable_Sveltish_Promise_fs_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Fable.Sveltish/Promise.fs.js */ "./src/Fable.Sveltish/Promise.fs.js");
+/* harmony import */ var _fable_fable_library_3_0_5_Array_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Array.js */ "./src/DevTools/.fable/fable-library.3.0.5/Array.js");
+/* harmony import */ var _fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Util.js */ "./src/DevTools/.fable/fable-library.3.0.5/Util.js");
+/* harmony import */ var _Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Fable.Sveltish/Styling.fs.js */ "./src/Fable.Sveltish/Styling.fs.js");
+/* harmony import */ var _Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Fable.Sveltish/Attr.fs.js */ "./src/Fable.Sveltish/Attr.fs.js");
+/* harmony import */ var _fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/List.js */ "./src/DevTools/.fable/fable-library.3.0.5/List.js");
+/* harmony import */ var _Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../Fable.Sveltish/Html.fs.js */ "./src/Fable.Sveltish/Html.fs.js");
+/* harmony import */ var _Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Fable.Sveltish/DOM.fs.js */ "./src/Fable.Sveltish/DOM.fs.js");
+/* harmony import */ var _fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Seq.js */ "./src/DevTools/.fable/fable-library.3.0.5/Seq.js");
 /* harmony import */ var _Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../Fable.Sveltish/Store.fs.js */ "./src/Fable.Sveltish/Store.fs.js");
-/* harmony import */ var _Fable_Sveltish_ObservableStore_fs_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../Fable.Sveltish/ObservableStore.fs.js */ "./src/Fable.Sveltish/ObservableStore.fs.js");
-/* harmony import */ var _Fable_Sveltish_Transition_fs_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../Fable.Sveltish/Transition.fs.js */ "./src/Fable.Sveltish/Transition.fs.js");
+/* harmony import */ var _Fable_Sveltish_Bindings_fs_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../Fable.Sveltish/Bindings.fs.js */ "./src/Fable.Sveltish/Bindings.fs.js");
+/* harmony import */ var _fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/String.js */ "./src/DevTools/.fable/fable-library.3.0.5/String.js");
+/* harmony import */ var _Fable_Sveltish_ObservableStore_fs_js__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../Fable.Sveltish/ObservableStore.fs.js */ "./src/Fable.Sveltish/ObservableStore.fs.js");
+/* harmony import */ var _Fable_Sveltish_Transition_fs_js__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../Fable.Sveltish/Transition.fs.js */ "./src/Fable.Sveltish/Transition.fs.js");
+/* harmony import */ var _fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./.fable/fable-library.3.0.5/Option.js */ "./src/DevTools/.fable/fable-library.3.0.5/Option.js");
+
+
+
 
 
 
@@ -22318,6 +22345,33 @@ function GetStoresResult$reflection() {
     return (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.record_type)("Sveltish.Devtools.GetStoresResult", [], GetStoresResult, () => [["Data", (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.array_type)(StoreIdVal$reflection())]]);
 }
 
+function dispatchPromise(success, failure, p) {
+    const pr_1 = p.then(success);
+    return pr_1.then(void 0, failure);
+}
+
+function getStores() {
+    return (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_2__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_3__.GetStores, void 0);
+}
+
+function getOptions() {
+    return (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_2__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_3__.GetOptions, void 0);
+}
+
+function getLogCategories() {
+    return (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_2__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_3__.GetLogCategories, void 0);
+}
+
+function writeLogCategories(lcs) {
+    const value = (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_2__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_3__.SetLogCategories, lcs);
+    void value;
+}
+
+function writeOptions(opt) {
+    const value = (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_2__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_3__.SetOptions, opt);
+    void value;
+}
+
 class Page extends _fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_0__.Union {
     constructor(tag, ...fields) {
         super();
@@ -22334,16 +22388,20 @@ function Page$reflection() {
 }
 
 class Model extends _fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_0__.Record {
-    constructor(Page, Options) {
+    constructor(Page, LogCategories, Stores, Options) {
         super();
         this.Page = Page;
+        this.LogCategories = LogCategories;
+        this.Stores = Stores;
         this.Options = Options;
     }
 }
 
 function Model$reflection() {
-    return (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.record_type)("Sveltish.Devtools.Model", [], Model, () => [["Page", Page$reflection()], ["Options", (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_2__.DevToolsControl_SveltishOptions$reflection)()]]);
+    return (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.record_type)("Sveltish.Devtools.Model", [], Model, () => [["Page", Page$reflection()], ["LogCategories", (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.array_type)((0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.tuple_type)(_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.string_type, _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.bool_type))], ["Stores", (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.array_type)(StoreIdVal$reflection())], ["Options", (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.DevToolsControl_SveltishOptions$reflection)()]]);
 }
+
+const connectedStores = (0,_Fable_Sveltish_Promise_fs_js__WEBPACK_IMPORTED_MODULE_5__.ObservablePromise$1_$ctor)();
 
 class Message extends _fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_0__.Union {
     constructor(tag, ...fields) {
@@ -22352,16 +22410,24 @@ class Message extends _fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODU
         this.fields = fields;
     }
     cases() {
-        return ["ViewPage", "SetSlowAnimations", "SetLoggingEnabled", "SetLoggingOption"];
+        return ["ViewPage", "SetSlowAnimations", "SetLoggingEnabled", "SetLogCategory", "StoresFromApp", "LogCategoriesFromApp", "OptionsFromApp"];
     }
 }
 
 function Message$reflection() {
-    return (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.union_type)("Sveltish.Devtools.Message", [], Message, () => [[["Item", Page$reflection()]], [["Item", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.bool_type]], [["Item", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.bool_type]], [["Item1", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.string_type], ["Item2", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.bool_type]]]);
+    return (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.union_type)("Sveltish.Devtools.Message", [], Message, () => [[["Item", Page$reflection()]], [["Item", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.bool_type]], [["Item", _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.bool_type]], [["Item", (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.tuple_type)(_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.string_type, _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.bool_type)]], [["Item", (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.array_type)(StoreIdVal$reflection())]], [["Item", (0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.array_type)((0,_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.tuple_type)(_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.string_type, _fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_1__.bool_type))]], [["Item", (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.DevToolsControl_SveltishOptions$reflection)()]]]);
 }
 
 function page(m) {
     return m.Page;
+}
+
+function logCategories(m) {
+    return m.LogCategories;
+}
+
+function stores(m) {
+    return m.Stores;
 }
 
 function slowAnimations(m) {
@@ -22373,72 +22439,87 @@ function loggingEnabled(m) {
 }
 
 function init() {
-    return new Model(new Page(0), new _Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_2__.DevToolsControl_SveltishOptions(false, false));
+    return [new Model(new Page(1), [], [], new _Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.DevToolsControl_SveltishOptions(false, false)), (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.Cmd_none)()];
 }
 
 function update(msg, model) {
     switch (msg.tag) {
+        case 4: {
+            const s = msg.fields[0];
+            return [new Model(model.Page, model.LogCategories, s, model.Options), (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.Cmd_none)()];
+        }
+        case 5: {
+            const lcs = msg.fields[0];
+            return [new Model(model.Page, lcs, model.Stores, model.Options), (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.Cmd_none)()];
+        }
+        case 0: {
+            const p = msg.fields[0];
+            return [new Model(p, model.LogCategories, model.Stores, model.Options), (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.Cmd_none)()];
+        }
         case 1: {
             const f = msg.fields[0];
-            const m = new Model(model.Page, new _Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_2__.DevToolsControl_SveltishOptions(f, model.Options.LoggingEnabled));
-            const value = (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_3__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_4__.SetOptions, m.Options);
-            void value;
-            return m;
+            const m = new Model(model.Page, model.LogCategories, model.Stores, new _Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.DevToolsControl_SveltishOptions(f, model.Options.LoggingEnabled));
+            writeOptions(m.Options);
+            return [m, (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.Cmd_none)()];
         }
         case 2: {
             const f_1 = msg.fields[0];
-            const m_1 = new Model(model.Page, new _Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_2__.DevToolsControl_SveltishOptions(model.Options.SlowAnimations, f_1));
-            const value_1 = (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_3__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_4__.SetOptions, m_1.Options);
-            void value_1;
-            return m_1;
+            const m_1 = new Model(model.Page, model.LogCategories, model.Stores, new _Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.DevToolsControl_SveltishOptions(model.Options.SlowAnimations, f_1));
+            writeOptions(m_1.Options);
+            return [m_1, (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.Cmd_none)()];
         }
         case 3: {
-            const state = msg.fields[1];
-            const name = msg.fields[0];
-            const value_2 = (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_3__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_4__.SetLogCategory, [name, state]);
-            void value_2;
-            return model;
+            const state = msg.fields[0][1];
+            const name = msg.fields[0][0];
+            const m_2 = new Model(model.Page, (0,_fable_fable_library_3_0_5_Array_js__WEBPACK_IMPORTED_MODULE_6__.map)((tupledArg) => {
+                const n = tupledArg[0];
+                const s_1 = tupledArg[1];
+                if (n === name) {
+                    return [name, state];
+                }
+                else {
+                    return [n, s_1];
+                }
+            }, model.LogCategories), model.Stores, model.Options);
+            writeLogCategories(m_2.LogCategories);
+            return [m_2, (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.Cmd_none)()];
         }
         default: {
-            const p = msg.fields[0];
-            return new Model(p, model.Options);
+            const op = msg.fields[0];
+            return [new Model(model.Page, model.LogCategories, model.Stores, op), (0,_Fable_Sveltish_Types_fs_js__WEBPACK_IMPORTED_MODULE_4__.Cmd_none)()];
         }
     }
 }
 
-const panel = (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_5__.createAtom)(null);
+const panel = (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_7__.createAtom)(null);
 
-const sidePanel = (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_5__.createAtom)(null);
+const sidePanel = (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_7__.createAtom)(null);
 
-const panelDoc = (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_5__.createAtom)(null);
+const panelDoc = (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_7__.createAtom)(null);
 
-const styleSheet = (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofArray)([(0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".sv-container", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.padding)("12px"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.minHeight)("100vh")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".sv-main", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.background)("white"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.minHeight)("100vh")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".sv-sidebar", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.background)("#eeeeee"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.borderRight)("1pt solid #cccccc")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)("#sv-title", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.marginBottom)("4px"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".sv-menu li", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.fontSize)("90%"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.cursor)("pointer")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".sv-menu li:hover", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.textDecoration)("underline"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".sv-menu li.active", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.fontWeight)("bold"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".o-val", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.color)("#1F618D"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".o-str", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.color)("#B03A2E"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".o-bool", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.color)("#3498DB"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".o-int", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.color)("#117864"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".o-float", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.color)("#117864"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".table", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.fontSize)("8pt"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.fontFamily)("Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".log-categories", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.fontSize)("80%"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.marginLeft)("16px")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.rule)(".log-categories .field", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.marginBottom)("0.5rem")))]);
-
-function getStores() {
-    return (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_3__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_4__.GetStores, void 0);
-}
+const styleSheet = (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofArray)([(0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".sv-container", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.padding)("12px"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.minHeight)("100vh")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".sv-main", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.background)("white"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.minHeight)("100vh")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".sv-sidebar", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.background)("#eeeeee"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.borderRight)("1pt solid #cccccc"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.paddingRight)("0")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)("#sv-title", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.marginBottom)("4px"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".sv-menu li", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.fontSize)("90%"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.cursor)("pointer"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.paddingLeft)("4px")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".sv-menu li:hover", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.textDecoration)("underline"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".sv-menu li.active", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.borderTop)("1pt solid #cccccc"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.borderLeft)("1pt solid #cccccc"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.borderBottom)("1pt solid #cccccc"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.borderTopLeftRadius)("4px"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.borderBottomLeftRadius)("4px"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.background)("white"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.marginRight)("-1px"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.marginLeft)("-4px"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.paddingLeft)("8px")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".o-val", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.color)("#1F618D"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".o-str", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.color)("#B03A2E"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".o-bool", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.color)("#3498DB"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".o-int", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.color)("#117864"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".o-float", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.color)("#117864"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".table", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.fontSize)("8pt"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.fontFamily)("Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif")])), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".options", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.fontSize)("80%"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".log-categories", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.marginLeft)("16px"))), (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.rule)(".log-categories .field", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.marginBottom)("0.5rem")))]);
 
 function viewStr(s) {
     let clo1;
-    const clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.span)([(ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("\"", ctx), (clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.span)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("o-str"), (ctx_1) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)(s, ctx_1)]), clo1), (ctx_2) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("\"", ctx_2)]);
+    const clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.span)([(ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("\"", ctx), (clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.span)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("o-str"), (ctx_1) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)(s, ctx_1)]), clo1), (ctx_2) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("\"", ctx_2)]);
     return clo1_1;
 }
 
 function viewBool(b) {
     let clo1, value;
-    const clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.span)([(clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.span)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("o-bool"), (value = (0,_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_0__.toString)(b), (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)(value, ctx))]), clo1)]);
+    const clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.span)([(clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.span)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("o-bool"), (value = (0,_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_0__.toString)(b), (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)(value, ctx))]), clo1)]);
     return clo1_1;
 }
 
 function viewInt(i) {
     let clo1;
-    const clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.span)([(clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.span)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("o-int"), (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)(i, ctx)]), clo1)]);
+    const clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.span)([(clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.span)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("o-int"), (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)(i, ctx)]), clo1)]);
     return clo1_1;
 }
 
 function viewFlt(f) {
     let clo1;
-    const clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.span)([(clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.span)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("o-float"), (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)(f, ctx)]), clo1)]);
+    const clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.span)([(clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.span)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("o-float"), (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)(f, ctx)]), clo1)]);
     return clo1_1;
 }
 
@@ -22458,121 +22539,166 @@ function viewObject(x) {
     else {
         const x_1 = x;
         const value = JSON.stringify(x_1);
-        return (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)(value, ctx);
+        return (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)(value, ctx);
     }
 }
 
 function buildStoresTable(idVals) {
     let clo1_8, clo1_3, clo1_2, clo1, clo1_1, clo1_7;
-    const clo1_9 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.div)([(clo1_8 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.table)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("table"), (clo1_3 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.thead)([(clo1_2 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.tr)([(clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.th)([(ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Id", ctx)]), clo1), (clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.th)([(ctx_1) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Val", ctx_1)]), clo1_1)]), clo1_2)]), clo1_3), (clo1_7 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.tbody)((0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofSeq)((0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_11__.delay)(() => (0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_11__.map)((item) => {
+    const clo1_9 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.div)([(clo1_8 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.table)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("table"), (clo1_3 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.thead)([(clo1_2 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.tr)([(clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.th)([(ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("Id", ctx)]), clo1), (clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.th)([(ctx_1) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("Val", ctx_1)]), clo1_1)]), clo1_2)]), clo1_3), (clo1_7 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.tbody)((0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofSeq)((0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_13__.delay)(() => (0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_13__.map)((item) => {
         let clo1_5, value_2, clo1_6;
-        const clo1_4 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.tr)([(clo1_5 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.td)([(value_2 = (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_5__.int32ToString)(item.Id), (ctx_2) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)(value_2, ctx_2))]), clo1_5), (clo1_6 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.td)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("o-val"), viewObject(item.Val)]), clo1_6)]);
+        const clo1_4 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.tr)([(clo1_5 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.td)([(value_2 = (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_7__.int32ToString)(item.Id), (ctx_2) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)(value_2, ctx_2))]), clo1_5), (clo1_6 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.td)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("o-val"), viewObject(item.Val)]), clo1_6)]);
         return clo1_4;
     }, idVals)))), clo1_7)]), clo1_8)]);
     return clo1_9;
 }
 
 function viewStores(model, dispatch) {
-    const clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.div)([(0,_Fable_Sveltish_Bindings_fs_js__WEBPACK_IMPORTED_MODULE_12__.bindPromise)(getStores(), (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Waiting", ctx), (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_5__.uncurry)(2, (r) => buildStoresTable(r.Data)), (_arg1, ctx_1) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Error", ctx_1))]);
+    let store;
+    const clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.div)([(store = (0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.StoreOperators_op_DotGreater)(model, stores), (ctx) => (0,_Fable_Sveltish_Bindings_fs_js__WEBPACK_IMPORTED_MODULE_15__.bind)(store, (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_7__.uncurry)(2, buildStoresTable), ctx))]);
     return clo1;
 }
 
 function divc(name, children) {
-    const clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.div)((0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.cons)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()(name), children));
+    const clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.div)((0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.cons)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()(name), children));
     return clo1;
 }
 
 function labelc(name, children) {
-    const clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.label)((0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.cons)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()(name), children));
+    const clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.label)((0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.cons)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()(name), children));
     return clo1;
 }
 
 function inputc(name, children) {
-    const clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.input)((0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.cons)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()(name), children));
+    const clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.input)((0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.cons)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()(name), children));
     return clo1;
 }
 
 function bindCheckboxField(label, model, dispatch) {
-    let value;
-    return divc("field is-small", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.singleton)(labelc("checkbox is-small", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofArray)([inputc("is-small", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofArray)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.type$0027)("checkbox"), (ctx) => (0,_Fable_Sveltish_Bindings_fs_js__WEBPACK_IMPORTED_MODULE_12__.bindAttrNotify)("checked", model, dispatch, ctx)])), (value = (0,_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_13__.toText)((0,_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_13__.interpolate)(" %P()", [label])), (ctx_1) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)(value, ctx_1))]))));
+    let clo1, value;
+    return divc("field", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.singleton)(labelc("checkbox", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofArray)([(clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.input)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.type$0027)("checkbox"), (ctx) => (0,_Fable_Sveltish_Bindings_fs_js__WEBPACK_IMPORTED_MODULE_15__.bindAttrNotify)("checked", model, dispatch, ctx)]), clo1), (value = (0,_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_16__.toText)((0,_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_16__.interpolate)(" %P()", [label])), (ctx_1) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)(value, ctx_1))]))));
 }
 
 function viewOptions(model, dispatch) {
-    const clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.div)([bindCheckboxField("Slow Animations", (0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.StoreOperators_op_DotGreater)(model, slowAnimations), (arg) => {
+    let store;
+    return divc("options", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofArray)([bindCheckboxField("Slow Animations", (0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.StoreOperators_op_DotGreater)(model, slowAnimations), (arg) => {
         dispatch(new Message(1, arg));
     }), bindCheckboxField("Logging Enabled", (0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.StoreOperators_op_DotGreater)(model, loggingEnabled), (arg_1) => {
         dispatch(new Message(2, arg_1));
-    }), (0,_Fable_Sveltish_Bindings_fs_js__WEBPACK_IMPORTED_MODULE_12__.bindPromise)((0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_3__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_4__.GetLogCategories, void 0), (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Waiting", ctx), (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_5__.uncurry)(2, (lcs) => {
-        const clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.div)((0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofSeq)((0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_11__.delay)(() => (0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_11__.append)((0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_11__.singleton)((0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("log-categories")), (0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_11__.delay)(() => (0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_11__.collect)((matchValue) => {
-            let clo3;
-            const state = matchValue[1];
-            const name = matchValue[0];
-            return (0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_11__.singleton)((clo3 = bindCheckboxField(name, (0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.Store_make)(state), (v) => {
-                let tupledArg;
-                dispatch((tupledArg = [name, v], new Message(3, tupledArg[0], tupledArg[1])));
-            }), clo3));
-        }, lcs))))));
-        return clo1;
-    }), (x, ctx_1) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Error", ctx_1))]);
-    return clo1_1;
+    }), (store = (0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.StoreOperators_op_DotGreater)(model, logCategories), (ctx) => (0,_Fable_Sveltish_Bindings_fs_js__WEBPACK_IMPORTED_MODULE_15__.bind)(store, (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_7__.uncurry)(2, (lcs) => divc("log-categories", (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofSeq)((0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_13__.delay)(() => (0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_13__.collect)((matchValue) => {
+        let clo3;
+        const state = matchValue[1];
+        const name = matchValue[0];
+        return (0,_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_13__.singleton)((clo3 = bindCheckboxField(name, (0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.Store_make)(state), (v) => {
+            dispatch(new Message(3, [name, v]));
+        }), clo3));
+    }, lcs))))), ctx))]));
 }
 
 function makeStore(doc) {
-    return (0,_Fable_Sveltish_ObservableStore_fs_js__WEBPACK_IMPORTED_MODULE_15__.makeElmishSimpleWithDocument)(doc, init, update, (value) => {
+    return (0,_Fable_Sveltish_ObservableStore_fs_js__WEBPACK_IMPORTED_MODULE_17__.makeElmishWithDocument)(doc, init, update, (value) => {
         void value;
     });
 }
 
-function view(doc) {
-    let clo1_10, clo1_8, clo1, clo1_7, clo1_1, clo1_2, clo1_3, clo1_4, clo1_5, clo1_6, clo1_9, options, clo2;
-    const patternInput = makeStore(doc)();
-    const model = patternInput[0];
-    const dispatch = patternInput[1];
+function view(model, dispatch) {
+    let clo1_10, clo1_8, clo1, clo1_7, clo1_1, clo1_2, clo1_3, clo1_4, clo1_5, clo1_6, clo1_9, options;
+    const activeWhen = (p) => (0,_Fable_Sveltish_Bindings_fs_js__WEBPACK_IMPORTED_MODULE_15__.bindClass)((0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.StoreOperators_op_DotGreater)(model, (arg) => (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_7__.equals)(p, page(arg))), "active");
     let element;
-    const clo1_11 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.div)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("sv-container"), (clo1_10 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.div)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("columns"), (clo1_8 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.div)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("sv-sidebar column is-one-fifth"), (clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.h4)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.id$0027)("sv-title"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("title is-5"), (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Sveltish", ctx)]), clo1), (clo1_7 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.ul)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("sv-menu"), (clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.li)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.onClick)((_arg1) => {
-        dispatch(new Message(0, new Page(0)));
-    }, (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.empty)()), (ctx_1) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Stores", ctx_1)]), clo1_1), (clo1_2 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.li)([(ctx_2) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Styles", ctx_2)]), clo1_2), (clo1_3 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.li)([(ctx_3) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Maps", ctx_3)]), clo1_3), (clo1_4 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.li)([(ctx_4) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Element Bindings", ctx_4)]), clo1_4), (clo1_5 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.li)([(ctx_5) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Attribute Bindings", ctx_5)]), clo1_5), (clo1_6 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.li)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.onClick)((_arg2) => {
+    const clo1_11 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.div)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("sv-container"), (clo1_10 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.div)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("columns"), (clo1_8 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.div)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("sv-sidebar column is-one-fifth"), (clo1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.h4)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.id$0027)("sv-title"), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("title is-5"), (ctx) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("Sveltish", ctx)]), clo1), (clo1_7 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.ul)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("sv-menu"), (clo1_1 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.li)([activeWhen(new Page(1)), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.onClick)((_arg1) => {
         dispatch(new Message(0, new Page(1)));
-    }, (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.empty)()), (ctx_6) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.text)("Options", ctx_6)]), clo1_6)]), clo1_7)]), clo1_8), (clo1_9 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_9__.div)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_7__.class$0027)()("sv-main column is-four-fifths"), (options = (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_8__.ofArray)([[(y) => (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_5__.equals)(new Page(0), y), viewStores(model, dispatch), void 0], [(y_1) => (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_5__.equals)(new Page(1), y_1), (clo2 = viewOptions(model, dispatch), clo2), void 0]]), (0,_Fable_Sveltish_Transition_fs_js__WEBPACK_IMPORTED_MODULE_16__.transitionMatch)((0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.StoreOperators_op_DotGreater)(model, page), options))]), clo1_9)]), clo1_10)]);
+    }, (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.empty)()), (ctx_1) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("Options", ctx_1)]), clo1_1), (clo1_2 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.li)([activeWhen(new Page(0)), (0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.onClick)((_arg2) => {
+        dispatch(new Message(0, new Page(0)));
+    }, (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.empty)()), (ctx_2) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("Stores", ctx_2)]), clo1_2), (clo1_3 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.li)([(ctx_3) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("Styles", ctx_3)]), clo1_3), (clo1_4 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.li)([(ctx_4) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("Maps", ctx_4)]), clo1_4), (clo1_5 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.li)([(ctx_5) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("Element Bindings", ctx_5)]), clo1_5), (clo1_6 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.li)([(ctx_6) => (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.text)("Attribute Bindings", ctx_6)]), clo1_6)]), clo1_7)]), clo1_8), (clo1_9 = (0,_Fable_Sveltish_Html_fs_js__WEBPACK_IMPORTED_MODULE_11__.div)([(0,_Fable_Sveltish_Attr_fs_js__WEBPACK_IMPORTED_MODULE_9__.class$0027)()("sv-main column is-four-fifths"), (options = (0,_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_10__.ofArray)([[(y_1) => (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_7__.equals)(new Page(0), y_1), viewStores(model, dispatch), void 0], [(y_2) => (0,_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_7__.equals)(new Page(1), y_2), viewOptions(model, dispatch), void 0]]), (0,_Fable_Sveltish_Transition_fs_js__WEBPACK_IMPORTED_MODULE_18__.transitionMatch)((0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.StoreOperators_op_DotGreater)(model, page), options))]), clo1_9)]), clo1_10)]);
     element = (clo1_11);
-    return (ctx_7) => (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_6__.withStyle)(styleSheet, element, ctx_7);
+    return (ctx_7) => (0,_Fable_Sveltish_Styling_fs_js__WEBPACK_IMPORTED_MODULE_8__.withStyle)(styleSheet, element, ctx_7);
 }
 
-function initialisePanel(win) {
-    panelDoc(win.document, true);
-    const app = view(panelDoc());
-    (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_10__.mountElementOnDocument)(panelDoc(), "sveltish-app", app);
+function initialiseConnectedApp(model, dispatch) {
+    let pr;
+    const value = dispatchPromise((arg) => {
+        dispatch(new Message(4, arg));
+    }, (_arg1) => {
+        dispatch(new Message(4, []));
+    }, (pr = getStores(), pr.then(((r) => r.Data))));
+    void value;
+    const m = (0,_Fable_Sveltish_Store_fs_js__WEBPACK_IMPORTED_MODULE_14__.Store_current)(model);
+    if (m.LogCategories.length === 0) {
+        const value_2 = dispatchPromise((arg_1) => {
+            dispatch(new Message(6, arg_1));
+        }, (value_1) => {
+            void value_1;
+        }, getOptions());
+        void value_2;
+        const value_4 = dispatchPromise((arg_2) => {
+            dispatch(new Message(5, arg_2));
+        }, (value_3) => {
+            void value_3;
+        }, getLogCategories());
+        void value_4;
+    }
+    else {
+        writeOptions(m.Options);
+        writeLogCategories(m.LogCategories);
+    }
 }
 
-function unInitialisePanel(win) {
-}
-
-function initPanel(p) {
-    panel(p, true);
-    panel().onShown.addListener((win) => {
-        initialisePanel(win);
+function startMessageHandlers(model, dispatch) {
+    (chrome.devtools.panels.elements).onSelectionChanged.addListener(() => {
+        const pr = (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_2__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_3__.Dollar0, void 0);
+        pr.then(((dollar0) => {
+            sidePanel().setObject(dollar0, "Selected", () => {
+                void undefined;
+            });
+        }));
     });
-    panel().onHidden.addListener((win_1) => {
-        unInitialisePanel(win_1);
+    (chrome.devtools.panels.elements).createSidebarPane("Sveltish", (sidebarPanel) => {
+        sidePanel(sidebarPanel, true);
+    });
+    const backgroundPageConnection = chrome.runtime.connect({
+        name: "devtools-page",
+    });
+    backgroundPageConnection.onMessage.addListener((msg) => {
+        if (msg.name === "content-page-connected") {
+            console.log((0,_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_19__.some)("content page connected"));
+            initialiseConnectedApp(model, dispatch);
+        }
+        else {
+            console.log((0,_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_19__.some)((0,_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_16__.toText)((0,_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_16__.interpolate)("unhandled message: %P()", [msg.name]))));
+        }
+    });
+    backgroundPageConnection.postMessage({
+        name: "hello",
+    });
+    backgroundPageConnection.postMessage({
+        name: "init",
+        tabId: chrome.devtools.inspectedWindow.tabId,
     });
 }
 
-chrome.devtools.panels.create("Sveltish", "/icon.png", "/html/panel.html", ((p) => {
-    initPanel(p);
-}));
-
-(chrome.devtools.panels.elements).onSelectionChanged.addListener(() => {
-    const pr = (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_3__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_4__.Dollar0, void 0);
-    pr.then(((dollar0) => {
-        sidePanel().setObject(dollar0, "Selected", () => {
-            void undefined;
-        });
+function createMainPanel() {
+    const initialisePanel = (win) => {
+        panelDoc(win.document, true);
+        const patternInput = makeStore(panelDoc())();
+        const model = patternInput[0];
+        const dispatch = patternInput[1];
+        let app;
+        const clo2 = view(model, dispatch);
+        app = (clo2);
+        (0,_Fable_Sveltish_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.mountElementOnDocument)(panelDoc(), "sveltish-app", app);
+        startMessageHandlers(model, dispatch);
+        initialiseConnectedApp(model, dispatch);
+    };
+    const unInitialisePanel = (win_1) => {
+    };
+    chrome.devtools.panels.create("Sveltish", "/icon.png", "/html/panel.html", ((p) => {
+        panel(p, true);
+        panel().onShown.addListener(initialisePanel);
+        panel().onHidden.addListener(unInitialisePanel);
     }));
-});
+}
 
-(chrome.devtools.panels.elements).createSidebarPane("Sveltish", (sidebarPanel) => {
-    sidePanel(sidebarPanel, true);
-});
+createMainPanel();
 
 
 
@@ -22592,10 +22718,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "SetOptions": () => /* binding */ SetOptions,
 /* harmony export */   "GetOptions": () => /* binding */ GetOptions,
 /* harmony export */   "GetLogCategories": () => /* binding */ GetLogCategories,
-/* harmony export */   "SetLogCategory": () => /* binding */ SetLogCategory,
+/* harmony export */   "SetLogCategories": () => /* binding */ SetLogCategories,
 /* harmony export */   "Dollar0": () => /* binding */ Dollar0
 /* harmony export */ });
-// This code runs in the context of the inspected window
 
 function ControlBlockVersion() {
     return document.__sveltish_cb.ControlBlockVersion;
@@ -22626,9 +22751,8 @@ function GetLogCategories() {
     return document.__sveltish_cb.GetLogCategories();
 }
 
-function SetLogCategory( nameState ) {
-    console.log("SetLogCategory " + nameState[0] + "=" + nameState[1]);
-    document.__sveltish_cb.SetLogCategory( nameState[0], nameState[1] );
+function SetLogCategories( nameStates ) {
+    document.__sveltish_cb.SetLogCategories( nameStates );
     return true;
 }
 
@@ -22704,6 +22828,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "border": () => /* binding */ border,
 /* harmony export */   "background": () => /* binding */ background,
 /* harmony export */   "borderRadius": () => /* binding */ borderRadius,
+/* harmony export */   "borderTopLeftRadius": () => /* binding */ borderTopLeftRadius,
+/* harmony export */   "borderTopRightRadius": () => /* binding */ borderTopRightRadius,
+/* harmony export */   "borderBottomLeftRadius": () => /* binding */ borderBottomLeftRadius,
+/* harmony export */   "borderBottomRightRadius": () => /* binding */ borderBottomRightRadius,
 /* harmony export */   "boxShadow": () => /* binding */ boxShadow,
 /* harmony export */   "zIndex": () => /* binding */ zIndex,
 /* harmony export */   "display": () => /* binding */ display,
@@ -22730,6 +22858,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "resize": () => /* binding */ resize,
 /* harmony export */   "overflow": () => /* binding */ overflow,
 /* harmony export */   "textDecoration": () => /* binding */ textDecoration,
+/* harmony export */   "textDecorationStyle": () => /* binding */ textDecorationStyle,
+/* harmony export */   "textDecorationColor": () => /* binding */ textDecorationColor,
 /* harmony export */   "borderSpacing": () => /* binding */ borderSpacing,
 /* harmony export */   "borderBottom": () => /* binding */ borderBottom,
 /* harmony export */   "borderRight": () => /* binding */ borderRight,
@@ -22740,11 +22870,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "addClass": () => /* binding */ addClass,
 /* harmony export */   "useGlobal": () => /* binding */ useGlobal
 /* harmony export */ });
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/String.js */ "./src/DevTools/.fable/fable-library.3.0.5/String.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/String.js */ "./src/App/.fable/fable-library.3.0.5/String.js");
 /* harmony import */ var _DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DOM.fs.js */ "./src/Fable.Sveltish/DOM.fs.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Types.js */ "./src/DevTools/.fable/fable-library.3.0.5/Types.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Reflection.js */ "./src/DevTools/.fable/fable-library.3.0.5/Reflection.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Seq.js */ "./src/DevTools/.fable/fable-library.3.0.5/Seq.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Types.js */ "./src/App/.fable/fable-library.3.0.5/Types.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Reflection.js */ "./src/App/.fable/fable-library.3.0.5/Reflection.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Seq.js */ "./src/App/.fable/fable-library.3.0.5/Seq.js");
 
 
 
@@ -22762,13 +22892,13 @@ function accept(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -22782,7 +22912,7 @@ function accept(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -22799,13 +22929,13 @@ function name(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -22819,7 +22949,7 @@ function name(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -22836,13 +22966,13 @@ function className(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -22856,7 +22986,7 @@ function className(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -22873,13 +23003,13 @@ function placeholder(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -22893,7 +23023,7 @@ function placeholder(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -22910,13 +23040,13 @@ function target(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -22930,7 +23060,7 @@ function target(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -22947,13 +23077,13 @@ function href(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -22967,7 +23097,7 @@ function href(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -22984,13 +23114,13 @@ function src(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23004,7 +23134,7 @@ function src(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23021,13 +23151,13 @@ function alt(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23041,7 +23171,7 @@ function alt(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23058,13 +23188,13 @@ function disabled(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23078,7 +23208,7 @@ function disabled(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23095,13 +23225,13 @@ function min(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23115,7 +23245,7 @@ function min(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23132,13 +23262,13 @@ function max(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23152,7 +23282,7 @@ function max(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23169,13 +23299,13 @@ function value(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23189,7 +23319,7 @@ function value(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23206,13 +23336,13 @@ function style(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23226,7 +23356,7 @@ function style(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23243,13 +23373,13 @@ const multiple = (() => {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23263,7 +23393,7 @@ const multiple = (() => {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23280,13 +23410,13 @@ function rows(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23300,7 +23430,7 @@ function rows(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23317,13 +23447,13 @@ function cols(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23337,7 +23467,7 @@ function cols(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23352,13 +23482,13 @@ const readonly = (ctx) => {
     try {
         const e = ctx_1.Parent;
         if (name_2 === "class") {
-            e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_2)));
+            (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_2));
         }
         else if (name_2 === "class-") {
-            e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_2)));
+            (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_2));
         }
         else {
-            ctx_1.SetAttribute(e, name_2, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_2));
+            ctx_1.SetAttribute(e, name_2, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_2));
         }
         if (name_2 === "value") {
             e["__value"] = value_2;
@@ -23372,7 +23502,7 @@ const readonly = (ctx) => {
         }
     }
     catch (matchValue_1) {
-        throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_2)(parent)(arg30)(arg40)))));
+        throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_2)(parent)(arg30)(arg40)))));
     }
     return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
 };
@@ -23398,13 +23528,13 @@ function id$0027(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23418,7 +23548,7 @@ function id$0027(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23435,13 +23565,13 @@ function type$0027(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23455,7 +23585,7 @@ function type$0027(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23472,13 +23602,13 @@ function for$0027(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23492,7 +23622,7 @@ function for$0027(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23513,13 +23643,13 @@ function unclass(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23533,7 +23663,7 @@ function unclass(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
@@ -23550,13 +23680,13 @@ function unclass$0027(n) {
         try {
             const e = ctx_1.Parent;
             if (name_1 === "class") {
-                e.classList.add(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.addToClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else if (name_1 === "class-") {
-                e.classList.remove(...(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.splitBySpace)((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1)));
+                (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.removeFromClasslist)(e, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             else {
-                ctx_1.SetAttribute(e, name_1, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
+                ctx_1.SetAttribute(e, name_1, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(value_1));
             }
             if (name_1 === "value") {
                 e["__value"] = value_1;
@@ -23570,13 +23700,13 @@ function unclass$0027(n) {
             }
         }
         catch (matchValue_1) {
-            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
+            throw (new Error((arg40 = parent.tagName, (arg30 = parent.nodeType, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_0__.printf)("Cannot set attribute %s on a %A %f %s"))(name_1)(parent)(arg30)(arg40)))));
         }
         return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_1__.unitResult)();
     };
 }
 
-class EventModifier extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Union {
+class EventModifier extends _App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Union {
     constructor(tag, ...fields) {
         super();
         this.tag = (tag | 0);
@@ -23588,13 +23718,13 @@ class EventModifier extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPAC
 }
 
 function EventModifier$reflection() {
-    return (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_3__.union_type)("Sveltish.Attr.EventModifier", [], EventModifier, () => [[], [], [], []]);
+    return (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_3__.union_type)("Sveltish.Attr.EventModifier", [], EventModifier, () => [[], [], [], []]);
 }
 
 function on(event, fn, options, ctx) {
     const el = ctx.Parent;
     const h = (e) => {
-        const enumerator = (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_4__.getEnumerator)(options);
+        const enumerator = (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_4__.getEnumerator)(options);
         try {
             while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
                 const opt = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
@@ -23750,6 +23880,22 @@ function borderRadius(n) {
     return cssAttr()(["border-radius", n]);
 }
 
+function borderTopLeftRadius(n) {
+    return cssAttr()(["border-top-left-radius", n]);
+}
+
+function borderTopRightRadius(n) {
+    return cssAttr()(["border-top-right-radius", n]);
+}
+
+function borderBottomLeftRadius(n) {
+    return cssAttr()(["border-bottom-left-radius", n]);
+}
+
+function borderBottomRightRadius(n) {
+    return cssAttr()(["border-bottom-right-radius", n]);
+}
+
 function boxShadow(n) {
     return cssAttr()(["box-shadow", n]);
 }
@@ -23807,7 +23953,7 @@ function verticalAlign(n) {
 }
 
 function fontWeight(n) {
-    return cssAttr()(["font-height", n]);
+    return cssAttr()(["font-weight", n]);
 }
 
 function float$0027(n) {
@@ -23852,6 +23998,14 @@ function overflow(n) {
 
 function textDecoration(n) {
     return cssAttr()(["text-decoration", n]);
+}
+
+function textDecorationStyle(n) {
+    return cssAttr()(["text-decoration-style", n]);
+}
+
+function textDecorationColor(n) {
+    return cssAttr()(["text-decoration-color", n]);
 }
 
 function borderSpacing(n) {
@@ -23917,6 +24071,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "getId": () => /* binding */ getId,
 /* harmony export */   "bindGroup": () => /* binding */ bindGroup,
 /* harmony export */   "bindRadioGroup": () => /* binding */ bindRadioGroup,
+/* harmony export */   "bindClass": () => /* binding */ bindClass,
 /* harmony export */   "bindAttrIn": () => /* binding */ bindAttrIn,
 /* harmony export */   "attrNotify": () => /* binding */ attrNotify,
 /* harmony export */   "bindAttrNotify": () => /* binding */ bindAttrNotify,
@@ -24202,6 +24357,17 @@ function bindRadioGroup(store, ctx) {
         updateChecked(arg00_1);
     });
     return (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_4__.unitResult)();
+}
+
+function bindClass(toggle, classes) {
+    return (ctx) => bindSub(toggle, (ctx_1, active) => {
+        if (active) {
+            (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_4__.addToClasslist)((0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_4__.BuildContext__get_ParentElement)(ctx_1), classes);
+        }
+        else {
+            (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_4__.removeFromClasslist)((0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_4__.BuildContext__get_ParentElement)(ctx_1), classes);
+        }
+    }, ctx);
 }
 
 function bindAttrIn(attrName, store, ctx) {
@@ -24500,6 +24666,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "BuildContext": () => /* binding */ BuildContext,
 /* harmony export */   "BuildContext$reflection": () => /* binding */ BuildContext$reflection,
 /* harmony export */   "BuildContext__get_Document": () => /* binding */ BuildContext__get_Document,
+/* harmony export */   "BuildContext__get_ParentElement": () => /* binding */ BuildContext__get_ParentElement,
 /* harmony export */   "makeContext": () => /* binding */ makeContext,
 /* harmony export */   "withStyleSheet": () => /* binding */ withStyleSheet,
 /* harmony export */   "withParent": () => /* binding */ withParent,
@@ -24531,6 +24698,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "el": () => /* binding */ el,
 /* harmony export */   "findSvIdElement": () => /* binding */ findSvIdElement,
 /* harmony export */   "splitBySpace": () => /* binding */ splitBySpace,
+/* harmony export */   "addToClasslist": () => /* binding */ addToClasslist,
+/* harmony export */   "removeFromClasslist": () => /* binding */ removeFromClasslist,
 /* harmony export */   "textNode": () => /* binding */ textNode,
 /* harmony export */   "text": () => /* binding */ text,
 /* harmony export */   "idSelector": () => /* binding */ idSelector,
@@ -24574,15 +24743,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Logging_fs_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Logging.fs.js */ "./src/Fable.Sveltish/Logging.fs.js");
 /* harmony import */ var _Helpers_fs_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Helpers.fs.js */ "./src/Fable.Sveltish/Helpers.fs.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Types.js */ "./src/DevTools/.fable/fable-library.3.0.5/Types.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/String.js */ "./src/DevTools/.fable/fable-library.3.0.5/String.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Reflection.js */ "./src/DevTools/.fable/fable-library.3.0.5/Reflection.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/List.js */ "./src/DevTools/.fable/fable-library.3.0.5/List.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Array_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Array.js */ "./src/DevTools/.fable/fable-library.3.0.5/Array.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Seq.js */ "./src/DevTools/.fable/fable-library.3.0.5/Seq.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Option.js */ "./src/DevTools/.fable/fable-library.3.0.5/Option.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Util.js */ "./src/DevTools/.fable/fable-library.3.0.5/Util.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Int32_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Int32.js */ "./src/DevTools/.fable/fable-library.3.0.5/Int32.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Types.js */ "./src/App/.fable/fable-library.3.0.5/Types.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/String.js */ "./src/App/.fable/fable-library.3.0.5/String.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Reflection.js */ "./src/App/.fable/fable-library.3.0.5/Reflection.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/List.js */ "./src/App/.fable/fable-library.3.0.5/List.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Array_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Array.js */ "./src/App/.fable/fable-library.3.0.5/Array.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Seq.js */ "./src/App/.fable/fable-library.3.0.5/Seq.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Option.js */ "./src/App/.fable/fable-library.3.0.5/Option.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Util.js */ "./src/App/.fable/fable-library.3.0.5/Util.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Int32_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Int32.js */ "./src/App/.fable/fable-library.3.0.5/Int32.js");
 
 
 
@@ -24618,7 +24787,7 @@ const SvIdKey = "_svid";
 function setSvId(n, id) {
     n[SvIdKey] = id;
     if (isElementNode(n)) {
-        n.setAttribute(SvIdKey, (0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(id));
+        n.setAttribute(SvIdKey, (0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(id));
     }
 }
 
@@ -24635,13 +24804,13 @@ function nodeStr(node) {
     switch (matchValue) {
         case 1: {
             const e = node;
-            return (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("\u003c%P()\u003e#%P() \"%P()\"", [e.tagName.toLocaleLowerCase(), svId(node), node.textContent]));
+            return (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("\u003c%P()\u003e#%P() \"%P()\"", [e.tagName.toLocaleLowerCase(), svId(node), node.textContent]));
         }
         case 3: {
-            return (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("\"%P()\"#%P()", [node.textContent, svId(node)]));
+            return (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("\"%P()\"#%P()", [node.textContent, svId(node)]));
         }
         default: {
-            return (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("?\u0027%P()\u0027#%P()", [node.textContent, svId(node)]));
+            return (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("?\u0027%P()\u0027#%P()", [node.textContent, svId(node)]));
         }
     }
 }
@@ -24684,7 +24853,7 @@ function once(event, target, fn) {
     return listen(event, target, inner);
 }
 
-class CssSelector extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Union {
+class CssSelector extends _App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Union {
     constructor(tag, ...fields) {
         super();
         this.tag = (tag | 0);
@@ -24696,7 +24865,7 @@ class CssSelector extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_
 }
 
 function CssSelector$reflection() {
-    return (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.union_type)("Sveltish.DOM.CssSelector", [], CssSelector, () => [[["Item", _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type]], [["Item", _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type]], [["Item", _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type]], [["Item", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.list_type)(CssSelector$reflection())]], [["Item", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.list_type)(CssSelector$reflection())]], [["Item1", CssSelector$reflection()], ["Item2", _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type], ["Item3", _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type]], []]);
+    return (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.union_type)("Sveltish.DOM.CssSelector", [], CssSelector, () => [[["Item", _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type]], [["Item", _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type]], [["Item", _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type]], [["Item", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.list_type)(CssSelector$reflection())]], [["Item", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.list_type)(CssSelector$reflection())]], [["Item1", CssSelector$reflection()], ["Item2", _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type], ["Item3", _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type]], []]);
 }
 
 function CssSelector__Match_4C3D2741(this$, el_1) {
@@ -24726,7 +24895,7 @@ function CssSelector__Match_4C3D2741(this$, el_1) {
         }
         case 3: {
             const rules = this$.fields[0];
-            return (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.fold)((a, r) => {
+            return (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.fold)((a, r) => {
                 if (a) {
                     return CssSelector__Match_4C3D2741(r, el_1);
                 }
@@ -24737,7 +24906,7 @@ function CssSelector__Match_4C3D2741(this$, el_1) {
         }
         case 4: {
             const rules_1 = this$.fields[0];
-            return (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.fold)((a_1, r_1) => {
+            return (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.fold)((a_1, r_1) => {
                 if (a_1) {
                     return true;
                 }
@@ -24752,7 +24921,7 @@ function CssSelector__Match_4C3D2741(this$, el_1) {
     }
 }
 
-class StyleRule extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Record {
+class StyleRule extends _App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Record {
     constructor(SelectorSpec, Selector, Style) {
         super();
         this.SelectorSpec = SelectorSpec;
@@ -24762,10 +24931,10 @@ class StyleRule extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IM
 }
 
 function StyleRule$reflection() {
-    return (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.record_type)("Sveltish.DOM.StyleRule", [], StyleRule, () => [["SelectorSpec", _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type], ["Selector", CssSelector$reflection()], ["Style", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.list_type)((0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.tuple_type)(_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type, _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.obj_type))]]);
+    return (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.record_type)("Sveltish.DOM.StyleRule", [], StyleRule, () => [["SelectorSpec", _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type], ["Selector", CssSelector$reflection()], ["Style", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.list_type)((0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.tuple_type)(_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type, _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.obj_type))]]);
 }
 
-class NamedStyleSheet extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Record {
+class NamedStyleSheet extends _App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Record {
     constructor(Name, StyleSheet, Parent) {
         super();
         this.Name = Name;
@@ -24775,10 +24944,10 @@ class NamedStyleSheet extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBP
 }
 
 function NamedStyleSheet$reflection() {
-    return (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.record_type)("Sveltish.DOM.NamedStyleSheet", [], NamedStyleSheet, () => [["Name", _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type], ["StyleSheet", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.list_type)(StyleRule$reflection())], ["Parent", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.option_type)(NamedStyleSheet$reflection())]]);
+    return (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.record_type)("Sveltish.DOM.NamedStyleSheet", [], NamedStyleSheet, () => [["Name", _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type], ["StyleSheet", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.list_type)(StyleRule$reflection())], ["Parent", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.option_type)(NamedStyleSheet$reflection())]]);
 }
 
-class BuildContext extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Record {
+class BuildContext extends _App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Record {
     constructor(Parent, Replace, MakeName, StyleSheet, AppendChild, ReplaceChild, SetAttribute) {
         super();
         this.Parent = Parent;
@@ -24792,18 +24961,22 @@ class BuildContext extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK
 }
 
 function BuildContext$reflection() {
-    return (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.record_type)("Sveltish.DOM.BuildContext", [], BuildContext, () => [["Parent", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node")], ["Replace", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.option_type)((0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"))], ["MakeName", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)(_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type, _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type)], ["StyleSheet", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.option_type)(NamedStyleSheet$reflection())], ["AppendChild", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"), (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"), (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node")))], ["ReplaceChild", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"), (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"), (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"), (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"))))], ["SetAttribute", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Element"), (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)(_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type, (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)(_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type, _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.unit_type)))]]);
+    return (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.record_type)("Sveltish.DOM.BuildContext", [], BuildContext, () => [["Parent", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node")], ["Replace", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.option_type)((0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"))], ["MakeName", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)(_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type, _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type)], ["StyleSheet", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.option_type)(NamedStyleSheet$reflection())], ["AppendChild", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"), (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"), (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node")))], ["ReplaceChild", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"), (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"), (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"), (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"))))], ["SetAttribute", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)((0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Element"), (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)(_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type, (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)(_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.string_type, _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.unit_type)))]]);
 }
 
 function BuildContext__get_Document(this$) {
     return documentOf(this$.Parent);
 }
 
+function BuildContext__get_ParentElement(this$) {
+    return this$.Parent;
+}
+
 function makeContext(parent) {
     const gen = (0,_Helpers_fs_js__WEBPACK_IMPORTED_MODULE_1__.makeIdGenerator)();
     return new BuildContext(parent, void 0, (baseName) => {
         const arg20 = gen() | 0;
-        return (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("%s-%d"))(baseName)(arg20);
+        return (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("%s-%d"))(baseName)(arg20);
     }, void 0, (parent_1, child) => parent_1.appendChild(child), (parent_2, newChild, oldChild) => parent_2.replaceChild(newChild, oldChild), (parent_3, name, value) => {
         parent_3.setAttribute(name, value);
     });
@@ -24821,7 +24994,7 @@ function withReplace(toReplace, ctx) {
     return new BuildContext(ctx.Parent, (toReplace == null) ? (void 0) : toReplace, ctx.MakeName, ctx.StyleSheet, ctx.AppendChild, ctx.ReplaceChild, ctx.SetAttribute);
 }
 
-class NodeRef extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Union {
+class NodeRef extends _App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Union {
     constructor(tag, ...fields) {
         super();
         this.tag = (tag | 0);
@@ -24833,7 +25006,7 @@ class NodeRef extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPO
 }
 
 function NodeRef$reflection() {
-    return (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.union_type)("Sveltish.DOM.NodeRef", [], NodeRef, () => [[["Item", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node")]], [["Item", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Sveltish.DOM.INode")]]]);
+    return (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.union_type)("Sveltish.DOM.NodeRef", [], NodeRef, () => [[["Item", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node")]], [["Item", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Sveltish.DOM.INode")]]]);
 }
 
 function NodeRef__get_Node(this$) {
@@ -24883,7 +25056,7 @@ function NodeRef__Replace_Z129D0740(this$, parent, newChild) {
     }
 }
 
-class BuildResult extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Union {
+class BuildResult extends _App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Union {
     constructor(tag, ...fields) {
         super();
         this.tag = (tag | 0);
@@ -24895,7 +25068,7 @@ class BuildResult extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_
 }
 
 function BuildResult$reflection() {
-    return (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.union_type)("Sveltish.DOM.BuildResult", [], BuildResult, () => [[], [["Item", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node")]], [["Item", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.list_type)((0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"))]], [["Item", NodeRef$reflection()]]]);
+    return (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.union_type)("Sveltish.DOM.BuildResult", [], BuildResult, () => [[], [["Item", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node")]], [["Item", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.list_type)((0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Browser.Types.Node"))]], [["Item", NodeRef$reflection()]]]);
 }
 
 function nodeResult(node) {
@@ -24917,7 +25090,7 @@ function bindResult(r) {
 function errorNode(parent, message) {
     const doc = documentOf(parent);
     const d = doc.createElement("div");
-    const value = d.appendChild(doc.createTextNode((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("sveltish-error: %P()", [message]))));
+    const value = d.appendChild(doc.createTextNode((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("sveltish-error: %P()", [message]))));
     void value;
     const value_1 = parent.appendChild(d);
     void value_1;
@@ -24944,7 +25117,7 @@ function expectSolitary(f, ctx) {
             void value;
             const value_1 = ctx.Parent.appendChild(tmpDiv);
             void value_1;
-            (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.iterate)((arg) => {
+            (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.iterate)((arg) => {
                 const value_2 = tmpDiv.appendChild(arg);
                 void value_2;
             }, xs);
@@ -24961,10 +25134,10 @@ function collectFragment(result) {
     switch (result.tag) {
         case 3: {
             const b = result.fields[0];
-            return (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.singleton)(NodeRef__get_Node(b));
+            return (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.singleton)(NodeRef__get_Node(b));
         }
         case 0: {
-            return (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.empty)();
+            return (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.empty)();
         }
         case 2: {
             const xs = result.fields[0];
@@ -24972,7 +25145,7 @@ function collectFragment(result) {
         }
         default: {
             const n = result.fields[0];
-            return (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.singleton)(n);
+            return (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.singleton)(n);
         }
     }
 }
@@ -24984,18 +25157,18 @@ function buildSolitary(f, ctx) {
 function appendAttribute(e, attrName, attrValue) {
     if (attrValue !== "") {
         const currentValue = e.getAttribute(attrName);
-        e.setAttribute(attrName, ((currentValue == null) ? true : (currentValue === "")) ? attrValue : (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("%s %s"))(currentValue)(attrValue));
+        e.setAttribute(attrName, ((currentValue == null) ? true : (currentValue === "")) ? attrValue : (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("%s %s"))(currentValue)(attrValue));
     }
 }
 
 function parseSelector(source) {
-    const trimQuotes = (s) => (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.trim)(s.trim(), "\u0027", "\"");
+    const trimQuotes = (s) => (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.trim)(s.trim(), "\u0027", "\"");
     const parseSingle = (token) => {
         if (token.indexOf(".") === 0) {
-            return new CssSelector(1, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.substring)(token, 1));
+            return new CssSelector(1, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.substring)(token, 1));
         }
         else if (token.indexOf("#") === 0) {
-            return new CssSelector(2, (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.substring)(token, 1));
+            return new CssSelector(2, (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.substring)(token, 1));
         }
         else if (((token.indexOf(":") >= 0) ? true : (token.indexOf("\u003e") >= 0)) ? true : (token.indexOf("[") >= 0)) {
             return new CssSelector(6);
@@ -25005,11 +25178,11 @@ function parseSelector(source) {
         }
     };
     const parseAttr = (token_1) => {
-        if ((token_1.indexOf("[") >= 0) ? (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.endsWith)(token_1, "]") : false) {
+        if ((token_1.indexOf("[") >= 0) ? (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.endsWith)(token_1, "]") : false) {
             const i = token_1.indexOf("[") | 0;
-            const single = parseSingle((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.substring)(token_1, 0, i).trim());
-            const attrExpr = (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.substring)(token_1, i + 1, (token_1.length - i) - 2);
-            const attrTokens = (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.split)(attrExpr, ["="], 2);
+            const single = parseSingle((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.substring)(token_1, 0, i).trim());
+            const attrExpr = (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.substring)(token_1, i + 1, (token_1.length - i) - 2);
+            const attrTokens = (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.split)(attrExpr, ["="], 2);
             if (attrTokens.length === 2) {
                 return new CssSelector(5, single, attrTokens[0].trim(), trimQuotes(attrTokens[1]));
             }
@@ -25022,12 +25195,12 @@ function parseSelector(source) {
         }
     };
     const parseAll = (token_2) => {
-        const spacedItems = (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.split)(token_2, [" "], null, 1);
+        const spacedItems = (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.split)(token_2, [" "], null, 1);
         if (spacedItems.length === 1) {
             return parseAttr(spacedItems[0]);
         }
         else {
-            return new CssSelector(4, (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.ofArray)((0,_DevTools_fable_fable_library_3_0_5_Array_js__WEBPACK_IMPORTED_MODULE_6__.map)(parseAttr, spacedItems)));
+            return new CssSelector(4, (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.ofArray)((0,_App_fable_fable_library_3_0_5_Array_js__WEBPACK_IMPORTED_MODULE_6__.map)(parseAttr, spacedItems)));
         }
     };
     const items = source.split(",");
@@ -25035,7 +25208,7 @@ function parseSelector(source) {
         return parseAll(items[0]);
     }
     else {
-        return new CssSelector(3, (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.ofArray)((0,_DevTools_fable_fable_library_3_0_5_Array_js__WEBPACK_IMPORTED_MODULE_6__.map)(parseAll, items)));
+        return new CssSelector(3, (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.ofArray)((0,_App_fable_fable_library_3_0_5_Array_js__WEBPACK_IMPORTED_MODULE_6__.map)(parseAll, items)));
     }
 }
 
@@ -25065,18 +25238,18 @@ function rootStyleName(sheet) {
 }
 
 function getSveltishClasses(e) {
-    const classes = (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.filter)((cls) => (cls.indexOf("sveltish") === 0), (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.map)((i) => (e.classList[i]), (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.ofSeq)((0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.rangeNumber)(0, 1, e.classList.length - 1))));
+    const classes = (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.filter)((cls) => (cls.indexOf("sveltish") === 0), (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.map)((i) => (e.classList[i]), (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.ofSeq)((0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.rangeNumber)(0, 1, e.classList.length - 1))));
     return classes;
 }
 
 function applyCustomRules(e, namedSheet) {
     let v_1, nm_1, copyOfStruct, v_3, nm_3, v_5, nm_5, copyOfStruct_1;
     const sheet = namedSheet.StyleSheet;
-    const enumerator = (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.getEnumerator)((0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.filter)((rule) => ruleMatchEl(e, rule), sheet));
+    const enumerator = (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.getEnumerator)((0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.filter)((rule) => ruleMatchEl(e, rule), sheet));
     try {
         while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
             const rule_1 = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
-            const enumerator_1 = (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.getEnumerator)((0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.filter)((tupledArg) => {
+            const enumerator_1 = (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.getEnumerator)((0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.filter)((tupledArg) => {
                 const nm = tupledArg[0];
                 const v = tupledArg[1];
                 return nm.indexOf("sveltish") === 0;
@@ -25100,10 +25273,10 @@ function applyCustomRules(e, namedSheet) {
                     else if (v_5 = custom[1], (nm_5 = custom[0], nm_5 === "sveltish-add-class")) {
                         const v_6 = custom[1];
                         const nm_6 = custom[0];
-                        (copyOfStruct_1 = e, copyOfStruct_1.classList).add((0,_DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(v_6));
+                        (copyOfStruct_1 = e, copyOfStruct_1.classList).add((0,_App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.toString)(v_6));
                     }
                     else {
-                        log((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("Unimplemented: %P()", [custom[0]])));
+                        log((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("Unimplemented: %P()", [custom[0]])));
                     }
                 }
             }
@@ -25141,7 +25314,7 @@ function appendReplaceChild(node, ctx) {
 function el(tag, xs, ctx) {
     const e = BuildContext__get_Document(ctx).createElement(tag);
     setSvId(e, domId());
-    const enumerator = (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.getEnumerator)(xs);
+    const enumerator = (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.getEnumerator)(xs);
     try {
         while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
             const x = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
@@ -25168,11 +25341,19 @@ function el(tag, xs, ctx) {
 }
 
 function findSvIdElement(doc, id) {
-    return doc.querySelector((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("[_svid=\u0027%P()\u0027]", [id])));
+    return doc.querySelector((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("[_svid=\u0027%P()\u0027]", [id])));
 }
 
 function splitBySpace(s) {
-    return (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.split)(s, [" "], null, 1);
+    return (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.split)(s, [" "], null, 1);
+}
+
+function addToClasslist(e, classes) {
+    e.classList.add(...splitBySpace(classes));
+}
+
+function removeFromClasslist(e, classes) {
+    e.classList.remove(...splitBySpace(classes));
 }
 
 function textNode(doc, value) {
@@ -25187,12 +25368,12 @@ function text(value, ctx) {
 }
 
 const idSelector = (() => {
-    const clo1 = (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("#%s"));
+    const clo1 = (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("#%s"));
     return clo1;
 })();
 
 const classSelector = (() => {
-    const clo1 = (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)(".%s"));
+    const clo1 = (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)(".%s"));
     return clo1;
 })();
 
@@ -25222,7 +25403,7 @@ function findNode(parent, f) {
             result = findNode(child, f);
         }
         if (result != null) {
-            const x = (0,_DevTools_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_8__.value)(result);
+            const x = (0,_App_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_8__.value)(result);
             child = null;
         }
         else {
@@ -25244,8 +25425,8 @@ function visitElementChildren(parent, f) {
 function findNodeWithSvId(doc, id) {
     const getId = (n) => {
         const r = svId(n);
-        if ((0,_DevTools_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_9__.equals)(r, id)) {
-            return (0,_DevTools_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_8__.some)(n);
+        if ((0,_App_fable_fable_library_3_0_5_Util_js__WEBPACK_IMPORTED_MODULE_9__.equals)(r, id)) {
+            return (0,_App_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_8__.some)(n);
         }
         else {
             return void 0;
@@ -25269,7 +25450,7 @@ function html(text_1, ctx) {
 }
 
 function mountElementOnDocument(doc, id, app) {
-    const host = doc.querySelector((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("#%P()", [id])));
+    const host = doc.querySelector((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.interpolate)("#%P()", [id])));
     const value = app(makeContext(host));
     void value;
 }
@@ -25279,16 +25460,16 @@ function mountElement(id, app) {
 }
 
 function children(node) {
-    const visit = (child) => (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.delay)(() => ((!(child == null)) ? (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.append)((0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.singleton)(child), (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.delay)(() => visit(child.nextSibling))) : (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.empty)()));
+    const visit = (child) => (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.delay)(() => ((!(child == null)) ? (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.append)((0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.singleton)(child), (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.delay)(() => visit(child.nextSibling))) : (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.empty)()));
     return visit(node.firstChild);
 }
 
 function descendants(node) {
-    return (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.delay)(() => (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.collect)((child) => (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.append)((0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.singleton)(child), (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.delay)(() => descendants(child))), children(node)));
+    return (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.delay)(() => (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.collect)((child) => (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.append)((0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.singleton)(child), (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.delay)(() => descendants(child))), children(node)));
 }
 
 function clearWithDispose(node, dispose) {
-    (0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.iterate)((arg) => {
+    (0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.iterate)((arg) => {
         dispose(node.removeChild(arg));
     }, children(node));
 }
@@ -25321,7 +25502,7 @@ function addTransform(node, a) {
         const transform = (s.transform === "none") ? "" : s.transform;
         const arg30 = a.top - b.top;
         const arg20 = a.left - b.left;
-        (node.style).transform = (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("%s translate(%fpx, %fpx)"))(transform)(arg20)(arg30);
+        (node.style).transform = (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("%s translate(%fpx, %fpx)"))(transform)(arg20)(arg30);
         log((node.style).transform);
     }
 }
@@ -25349,18 +25530,18 @@ function clientRect(el_1) {
 
 function removeNode(node) {
     let arg10, copyOfStruct, copyOfStruct_1;
-    log((arg10 = (copyOfStruct = node, copyOfStruct.textContent), (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("removing node %A"))(arg10)));
+    log((arg10 = (copyOfStruct = node, copyOfStruct.textContent), (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("removing node %A"))(arg10)));
     const value = (copyOfStruct_1 = node, copyOfStruct_1.parentNode).removeChild(node);
     void value;
 }
 
 function fragment(elements, ctx) {
-    return fragmentResult((0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.ofSeq)((0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.collect)((e) => collectFragment(e(ctx)), elements)));
+    return fragmentResult((0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.ofSeq)((0,_App_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_7__.collect)((e) => collectFragment(e(ctx)), elements)));
 }
 
 const isCrossOrigin = false;
 
-class ResizeSubscriber extends _DevTools_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Record {
+class ResizeSubscriber extends _App_fable_fable_library_3_0_5_Types_js__WEBPACK_IMPORTED_MODULE_2__.Record {
     constructor(Callback, Id) {
         super();
         this.Callback = Callback;
@@ -25369,7 +25550,7 @@ class ResizeSubscriber extends _DevTools_fable_fable_library_3_0_5_Types_js__WEB
 }
 
 function ResizeSubscriber$reflection() {
-    return (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.record_type)("Sveltish.DOM.ResizeSubscriber", [], ResizeSubscriber, () => [["Callback", (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)(_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.unit_type, _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.unit_type)], ["Id", _DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.int32_type]]);
+    return (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.record_type)("Sveltish.DOM.ResizeSubscriber", [], ResizeSubscriber, () => [["Callback", (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.lambda_type)(_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.unit_type, _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.unit_type)], ["Id", _App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.int32_type]]);
 }
 
 class ResizeObserver {
@@ -25377,11 +25558,11 @@ class ResizeObserver {
         this.iframe = null;
         this.subId = 0;
         this.unsubscribe = null;
-        this.subscribers = (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.empty)();
+        this.subscribers = (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.empty)();
         const computedStyle = window.getComputedStyle(el_1);
         const zIndex = ((() => {
             try {
-                return (0,_DevTools_fable_fable_library_3_0_5_Int32_js__WEBPACK_IMPORTED_MODULE_10__.parse)(computedStyle.zIndex, 511, false, 32) | 0;
+                return (0,_App_fable_fable_library_3_0_5_Int32_js__WEBPACK_IMPORTED_MODULE_10__.parse)(computedStyle.zIndex, 511, false, 32) | 0;
             }
             catch (matchValue) {
                 return 0;
@@ -25391,7 +25572,7 @@ class ResizeObserver {
             (el_1.style).position = "relative";
         }
         this.iframe = documentOf(el_1).createElement("iframe");
-        const style = (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("%sz-index: %i;"))("display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; border: 0; opacity: 0; pointer-events: none;")(zIndex);
+        const style = (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_3__.printf)("%sz-index: %i;"))("display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; border: 0; opacity: 0; pointer-events: none;")(zIndex);
         this.iframe.setAttribute("style", style);
         this.iframe.setAttribute("aria-hidden", "true");
         this.iframe.setAttribute("tabindex", "-1");
@@ -25427,7 +25608,7 @@ class ResizeObserver {
 }
 
 function ResizeObserver$reflection() {
-    return (0,_DevTools_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Sveltish.DOM.ResizeObserver", void 0, ResizeObserver);
+    return (0,_App_fable_fable_library_3_0_5_Reflection_js__WEBPACK_IMPORTED_MODULE_4__.class_type)("Sveltish.DOM.ResizeObserver", void 0, ResizeObserver);
 }
 
 function ResizeObserver_$ctor_4C3D2741(el_1) {
@@ -25437,9 +25618,9 @@ function ResizeObserver_$ctor_4C3D2741(el_1) {
 function ResizeObserver__Subscribe_3A5B6456(_, callback) {
     const sub = new ResizeSubscriber(callback, _.subId);
     _.subId = (_.subId + 1);
-    _.subscribers = (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.cons)(sub, _.subscribers);
+    _.subscribers = (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.cons)(sub, _.subscribers);
     return (0,_Helpers_fs_js__WEBPACK_IMPORTED_MODULE_1__.disposable)(() => {
-        _.subscribers = (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.filter)((s) => (s.Id !== sub.Id), _.subscribers);
+        _.subscribers = (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.filter)((s) => (s.Id !== sub.Id), _.subscribers);
     });
 }
 
@@ -25455,7 +25636,7 @@ function ResizeObserver__Dispose(_) {
 }
 
 function ResizeObserver__notify_1505(this$, _arg1) {
-    (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.iterate)((sub) => {
+    (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.iterate)((sub) => {
         sub.Callback();
     }, this$.subscribers);
 }
@@ -25470,7 +25651,7 @@ function NodeKey_get(node, key) {
         return void 0;
     }
     else {
-        return (0,_DevTools_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_8__.some)(v);
+        return (0,_App_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_8__.some)(v);
     }
 }
 
@@ -25482,14 +25663,14 @@ function NodeKey_getCreate(node, key, cons) {
         return newVal;
     }
     else {
-        const v = (0,_DevTools_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_8__.value)(matchValue);
+        const v = (0,_App_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_8__.value)(matchValue);
         return v;
     }
 }
 
 function registerUnsubscribe(node, d) {
-    const disposables = NodeKey_getCreate(node, NodeKey_Disposables, _DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.empty);
-    node[NodeKey_Disposables] = (0,_DevTools_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.cons)(d, disposables);
+    const disposables = NodeKey_getCreate(node, NodeKey_Disposables, _App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.empty);
+    node[NodeKey_Disposables] = (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.cons)(d, disposables);
 }
 
 function registerDisposable(node, d) {
@@ -25755,11 +25936,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "error": () => /* binding */ error
 /* harmony export */ });
 /* harmony import */ var _Types_fs_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Types.fs.js */ "./src/Fable.Sveltish/Types.fs.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_MapUtil_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/MapUtil.js */ "./src/DevTools/.fable/fable-library.3.0.5/MapUtil.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Long_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Long.js */ "./src/DevTools/.fable/fable-library.3.0.5/Long.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Date_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Date.js */ "./src/DevTools/.fable/fable-library.3.0.5/Date.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/String.js */ "./src/DevTools/.fable/fable-library.3.0.5/String.js");
-/* harmony import */ var _DevTools_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.0.5/Option.js */ "./src/DevTools/.fable/fable-library.3.0.5/Option.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_MapUtil_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/MapUtil.js */ "./src/App/.fable/fable-library.3.0.5/MapUtil.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Long_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Long.js */ "./src/App/.fable/fable-library.3.0.5/Long.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Date_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Date.js */ "./src/App/.fable/fable-library.3.0.5/Date.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/String.js */ "./src/App/.fable/fable-library.3.0.5/String.js");
+/* harmony import */ var _App_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../App/.fable/fable-library.3.0.5/Option.js */ "./src/App/.fable/fable-library.3.0.5/Option.js");
 
 
 
@@ -25773,21 +25954,21 @@ function le() {
     return (0,_Types_fs_js__WEBPACK_IMPORTED_MODULE_0__.DevToolsControl_Options)().LoggingEnabled;
 }
 
-const init = (enabled.set("store", false), (enabled.set("trans", true), (enabled.set("dom", true), (enabled.set("style", false), enabled.set("bind", true)))));
+const init = (enabled.set("store", false), (enabled.set("trans", false), (enabled.set("dom", false), (enabled.set("style", false), enabled.set("bind", false)))));
 
 function log(source, message) {
     let arg10, copyOfStruct;
-    if (le() ? ((!enabled.has(source)) ? true : (0,_DevTools_fable_fable_library_3_0_5_MapUtil_js__WEBPACK_IMPORTED_MODULE_1__.getItemFromDict)(enabled, source)) : false) {
-        console.log((0,_DevTools_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_5__.some)((arg10 = (((0,_DevTools_fable_fable_library_3_0_5_Long_js__WEBPACK_IMPORTED_MODULE_2__.toNumber)((copyOfStruct = (0,_DevTools_fable_fable_library_3_0_5_Date_js__WEBPACK_IMPORTED_MODULE_3__.now)(), (0,_DevTools_fable_fable_library_3_0_5_Date_js__WEBPACK_IMPORTED_MODULE_3__.getTicks)(copyOfStruct))) / 10000000) % 60), (0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.printf)("%0.3f: %s: %s"))(arg10)(source)(message))));
+    if (le() ? ((!enabled.has(source)) ? true : (0,_App_fable_fable_library_3_0_5_MapUtil_js__WEBPACK_IMPORTED_MODULE_1__.getItemFromDict)(enabled, source)) : false) {
+        console.log((0,_App_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_5__.some)((arg10 = (((0,_App_fable_fable_library_3_0_5_Long_js__WEBPACK_IMPORTED_MODULE_2__.toNumber)((copyOfStruct = (0,_App_fable_fable_library_3_0_5_Date_js__WEBPACK_IMPORTED_MODULE_3__.now)(), (0,_App_fable_fable_library_3_0_5_Date_js__WEBPACK_IMPORTED_MODULE_3__.getTicks)(copyOfStruct))) / 10000000) % 60), (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.printf)("%0.3f: %s: %s"))(arg10)(source)(message))));
     }
 }
 
 function warning(message) {
-    console.log((0,_DevTools_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_5__.some)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.printf)("warning: %s"))(message)));
+    console.log((0,_App_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_5__.some)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.printf)("warning: %s"))(message)));
 }
 
 function error(message) {
-    console.log((0,_DevTools_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_5__.some)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.toText)((0,_DevTools_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.printf)("error: %s"))(message)));
+    console.log((0,_App_fable_fable_library_3_0_5_Option_js__WEBPACK_IMPORTED_MODULE_5__.some)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_4__.printf)("error: %s"))(message)));
 }
 
 
@@ -25940,8 +26121,13 @@ function Registry_controlBlock() {
         GetLogCategories() {
             return Array.from((0,_DevTools_fable_fable_library_3_0_5_Seq_js__WEBPACK_IMPORTED_MODULE_5__.map)((k) => [k[0], k[1]], _Logging_fs_js__WEBPACK_IMPORTED_MODULE_6__.enabled));
         }
-        SetLogCategory(name, state) {
-            _Logging_fs_js__WEBPACK_IMPORTED_MODULE_6__.enabled.set(name, state);
+        SetLogCategories(states) {
+            for (let idx = 0; idx <= (states.length - 1); idx++) {
+                const forLoopVar = states[idx];
+                const state = forLoopVar[1];
+                const name = forLoopVar[0];
+                _Logging_fs_js__WEBPACK_IMPORTED_MODULE_6__.enabled.set(name, state);
+            }
         }
     }
     )();
@@ -26866,11 +27052,13 @@ function runTasks() {
     }
 }
 
-function waitAnimationFrame(f) {
+function waitAnimationFrame(tag, f) {
     const init = tasks().tail == null;
     tasks((0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.cons)(f, tasks()), true);
+    log((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.interpolate)("raf task %P()", [tag])));
     if (init) {
         const value = window.requestAnimationFrame((_arg1) => {
+            log("Running raf tasks");
             runTasks();
         });
         void value;
@@ -26930,6 +27118,7 @@ function createRule(node, a, b, trfn, uid) {
     const arg10_2 = ((uid === 0) ? nextRuleId() : uid) | 0;
     name = (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.printf)("__sveltish_%d"))(arg10_2);
     const keyframeText = (0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.printf)("@keyframes %s %s"))(name)(rule);
+    log((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.interpolate)("createRule %P() %P()ms for %P()", [name, durn, (0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.nodeStr)(node)])));
     const stylesheet = getSveltishStylesheet((0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.documentOf)(node));
     const value = stylesheet.insertRule(keyframeText, stylesheet.cssRules.length);
     void value;
@@ -27206,28 +27395,23 @@ function createAnimation(node, from, animateFn, props) {
     }
 }
 
-function waitAnimationEnd(el, f) {
+function waitAnimationEnd(tag, el, f) {
     const cb = (_arg1) => {
-        log((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.interpolate)("animationend: %P()", [f])));
         el.removeEventListener("animationend", cb);
         f();
     };
-    log((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.interpolate)("waitAnimationEnd: %P()", [f])));
     el.addEventListener("animationend", cb);
 }
 
 function animateNode(node, from) {
-    waitAnimationFrame(() => {
-        const value = window.requestAnimationFrame((_arg2) => {
-            log("starting animation...");
-            const name = createAnimation(node, from, flip, (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.empty)());
-            log((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.interpolate)("Animation is %P()", [name])));
-            waitAnimationEnd(node, () => {
-                log("animation finished");
-                deleteRule(node, name);
-            });
+    waitAnimationFrame((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.interpolate)("animateNode %P()", [(0,_DOM_fs_js__WEBPACK_IMPORTED_MODULE_12__.nodeStr)(node)])), () => {
+        log("animateNode: start");
+        const name = createAnimation(node, from, flip, (0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.empty)());
+        log((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.toText)((0,_App_fable_fable_library_3_0_5_String_js__WEBPACK_IMPORTED_MODULE_6__.interpolate)("Animation is %P()", [name])));
+        waitAnimationEnd("deleteRule", node, () => {
+            log("animateNode: end");
+            deleteRule(node, name);
         });
-        void value;
     });
 }
 
@@ -27287,16 +27471,16 @@ function transitionNode(el, trans, transProps, isVisible, complete) {
         deleteRule(el, "");
         if (isVisible) {
             const trans_1 = tr_1((0,_App_fable_fable_library_3_0_5_List_js__WEBPACK_IMPORTED_MODULE_5__.append)(transProps, trProps))(el);
-            waitAnimationFrame(() => {
-                waitAnimationEnd(el, show);
+            waitAnimationFrame("show", () => {
+                waitAnimationEnd("show", el, show);
                 (0,_Styling_fs_js__WEBPACK_IMPORTED_MODULE_15__.showEl)(el, true);
                 ruleName = createRule(el, 0, 1, trans_1, 0);
             });
         }
         else {
             const trans_2 = tr_1(transProps)(el);
-            waitAnimationFrame(() => {
-                waitAnimationEnd(el, hide);
+            waitAnimationFrame("hide", () => {
+                waitAnimationEnd("hide", el, hide);
                 ruleName = createRule(el, 1, 0, trans_2, 0);
             });
         }

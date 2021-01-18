@@ -5,7 +5,7 @@ open Fable.Mocha
 
 let tests = testList "Sveltish.DOM" [
 
-    testCase "Create a drawing" <| fun () ->
+    testCase "Dummy test" <| fun () ->
         Expect.areEqual 1 1
 
 ]

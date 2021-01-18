@@ -119,11 +119,13 @@ let runTasks() =
         log($"- - - Tasks: running {copy.Length} tasks - - - - - - - - - - - - - -")
     for f in copy do f()
 
-let waitAnimationFrame f =
+let waitAnimationFrame tag f =
     let init = tasks.IsEmpty
     tasks <- f :: tasks
+    log $"raf task {tag}"
     if init then
         window.requestAnimationFrame( fun _ ->
+            log "Running raf tasks"
             runTasks()
         ) |> ignore
 
@@ -146,6 +148,7 @@ let toEmptyStr s = if System.String.IsNullOrEmpty(s) then "" else s
 
 let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transition) (uid:int) =
     let tr = trfn()
+
     registerDoc (documentOf node)
 
     let durn =
@@ -165,7 +168,8 @@ let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transiti
 
     let name = sprintf "__sveltish_%d" (if uid = 0 then nextRuleId() else uid)
     let keyframeText = sprintf "@keyframes %s %s" name rule
-    //log <| sprintf "keyframe: %s" (keyframes |> List.skip (keyframes.Length / 2) |> List.head)
+    log <| sprintf "keyframe: %s" (keyframes |> List.skip (keyframes.Length / 2) |> List.head)
+    log($"createRule {name} {durn}ms for {nodeStr node}")
 
     let stylesheet = getSveltishStylesheet (documentOf node)
     stylesheet.insertRule( keyframeText, stylesheet.cssRules.length) |> ignore
@@ -177,6 +181,9 @@ let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transiti
     node.style.animation <- animations |> String.concat ", "
     numActiveAnimations <- numActiveAnimations + 1
     name
+
+let clearAnimations (node:HTMLElement) =
+    node.style.animation <-""
 
 let clearRules() =
     window.requestAnimationFrame( fun _ ->
@@ -381,6 +388,7 @@ let flip (node:Element) (animation:Animation) props =
     let dx = (animation.From.left - animation.To.left) / scaleX
     let dy = (animation.From.top - animation.To.top) / scaleY
     let d = System.Math.Sqrt(dx * dx + dy * dy)
+    log $"flip: {dx},{dy} {transform} {animation.From} -> {animation.To}"
     {
         tr with
             Duration = match tr.DurationFn with
@@ -416,29 +424,32 @@ let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element ->
             //log(sprintf "No animation for %s" node.innerText)
             ""
 
-let waitAnimationEnd (el : HTMLElement) (f : unit -> unit) =
+let waitAnimationEnd tag (el : HTMLElement) (f : unit -> unit) =
     let rec cb _ =
-        log($"animationend: {f}")
+        //log($"animationend: {tag}")
         el.removeEventListener("animationend",cb)
         f()
-    log($"waitAnimationEnd: {f}")
+    //log($"waitAnimationEnd: {tag}")
     el.addEventListener("animationend", cb)
 
 let animateNode (node : HTMLElement) from =
     //let from = node.getBoundingClientRect()
-    waitAnimationFrame <| fun () ->
-        window.requestAnimationFrame( fun _ ->
-            log("starting animation...")
-            let name = createAnimation node from flip []
-            log($"Animation is {name}")
-            waitAnimationEnd node <|
-                fun _ ->
-                    log("animation finished")
-                    deleteRule node name
-            ) |> ignore
+    waitAnimationFrame $"animateNode {nodeStr node} {rectStr from} {rectStr <| node.getBoundingClientRect()}" <| fun () ->
+        //window.requestAnimationFrame( fun _ ->
+        log("animateNode: start")
+        let name = createAnimation node from flip []
+        log($"Animation is {name}")
+        waitAnimationEnd "deleteRule" node <|
+            fun _ ->
+                log("animateNode: end")
+                deleteRule node name
 
-
-let transitionNode (el : HTMLElement) (trans : TransitionAttribute option) (transProps : TransitionProp list) (isVisible :bool) (complete: HTMLElement -> unit)=
+let transitionNode  (el : HTMLElement)
+                    (trans : TransitionAttribute option)
+                    (transProps : TransitionProp list)
+                    (isVisible :bool)
+                    (start: HTMLElement -> unit)
+                    (complete: HTMLElement -> unit) =
     let mutable ruleName = ""
 
     let hide() =
@@ -469,14 +480,16 @@ let transitionNode (el : HTMLElement) (trans : TransitionAttribute option) (tran
         deleteRule el ""
         if isVisible then
             let trans = (tr (transProps @ trProps) el)
-            waitAnimationFrame <| fun () ->
-                waitAnimationEnd el show
-                showEl el true
+            waitAnimationFrame "show" <| fun () ->
+                start el
+                waitAnimationEnd "show" el show
+                showEl el true // Check: we're doing this again at animationEnd
                 ruleName <- createRule el 0.0 1.0 trans 0
         else
             let trans = (tr transProps el)
-            waitAnimationFrame <| fun () ->
-                waitAnimationEnd el hide
+            waitAnimationFrame "hide" <| fun () ->
+                start el
+                waitAnimationEnd "hide" el hide
                 ruleName <- createRule el 1.0 0.0 trans 0
 
 type Hideable = {
@@ -510,7 +523,7 @@ let transitionList (list : Hideable list) : NodeFactory = fun ctx ->
 
             if (rt.cache <> show) then
                 rt.cache <- show
-                transitionNode (rt.target :?> HTMLElement) rt.hideable.transOpt [] show ignore
+                transitionNode (rt.target :?> HTMLElement) rt.hideable.transOpt [] show ignore ignore
         )
     unitResult()
 
@@ -524,7 +537,10 @@ let makeHideable guard element transOpt = {
 let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> list) =
     options |> List.map (fun (p,e,t) -> makeHideable (store |> Store.map p) e t) |> transitionList
 
-let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool>) (element: NodeFactory) (elseElement : NodeFactory option): NodeFactory = fun ctx ->
+let transitionOpt   (trans : TransitionAttribute option)
+                    (store : IObservable<bool>)
+                    (element: NodeFactory)
+                    (elseElement : NodeFactory option) : NodeFactory = fun ctx ->
     let mutable target : Node = null
     let mutable cache = false
     let mutable targetElse : Node = null
@@ -539,12 +555,10 @@ let transitionOpt (trans : TransitionAttribute option) (store : IObservable<bool
 
         if cache <> isVisible then
             cache <- isVisible
-            transitionNode (target :?> HTMLElement) trans [] isVisible ignore
+            transitionNode (target :?> HTMLElement) trans [] isVisible ignore ignore
             if not (isNull targetElse) then
-                transitionNode (targetElse :?> HTMLElement) trans [] (not isVisible) ignore
+                transitionNode (targetElse :?> HTMLElement) trans [] (not isVisible) ignore ignore
     )
-    // Not sure about this. Something is wrong in the design, since we (might) have created two elements
-    // We could create a container div to hold them and return that div.
     unitResult()
 
 // Show or hide according to a Store<bool> using a transition

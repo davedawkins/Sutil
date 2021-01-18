@@ -46,12 +46,12 @@ let makeAppendChild (ctx:BuildContext) (current:Node) = fun p c ->
 #endif
 
 let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = fun ctx ->
-    let mutable node = Unchecked.defaultof<_>
+    let mutable node = null
 
     let unsub = Store.subscribe store ( fun next ->
         try
             //buildSolitary (element(next)) { ctx with AppendChild = (makeAppendChild ctx node.Value) }
-            node <- buildSolitary (element(next)) (ctx |> withReplace node)
+            node <- buildSolitary (element(next)) (if isNull node then ctx else ctx |> withReplace node)
         with
         | x -> Logging.error $"Exception in bind: {x.Message} parent {nodeStr ctx.Parent} node {nodeStr node} node.Parent "
     )
@@ -80,12 +80,6 @@ let bindPromise<'T>  (p : JS.Promise<'T>)
 
 type BindFn<'T> = IObservable<'T> -> ('T -> NodeFactory) -> NodeFactory
 
-//let binde<'T when 'T : equality>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) =
-//    bind store element
-
-//let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) =
-//    binda store element Helpers.fastNotEquals
-
 let bind2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) = fun ctx ->
     let mutable node = Unchecked.defaultof<_>
 
@@ -99,12 +93,6 @@ let bind2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) 
 
     DOM.registerDisposable ctx.Parent unsub
     bindResult (RealNode(node))
-
-//let bind2<'A,'B>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory =
-//    bind2a a b element Helpers.fastNotEquals
-
-//let bind2e<'A,'B  when 'A : equality and 'B : equality>  (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) : NodeFactory =
-//    bind2a a b element (<>)
 
 let getInputChecked el = Interop.get el "checked"
 let setInputChecked (el : Node) (v:obj) = Interop.set el "checked" v
@@ -239,6 +227,13 @@ let bindRadioGroup<'T> (store:Store<'T>) : NodeFactory = fun ctx ->
 
     unitResult()
 
+let bindClass (toggle:IObservable<bool>) (classes:string) =
+    bindSub toggle <| fun ctx active ->
+        if active then
+            addToClasslist ctx.ParentElement classes
+        else
+            removeFromClasslist ctx.ParentElement classes
+
 // Bind a store value to an element attribute. Updates to the element are unhandled
 let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : NodeFactory = fun ctx ->
     let unsub = Store.subscribe store ( fun value -> Interop.set ctx.Parent attrName value )
@@ -311,7 +306,7 @@ let bindPropOut<'T> (attrName:string) (store : Store<'T>) : NodeFactory = fun ct
 
 type KeyedStoreItem<'T,'K> = {
     Key : 'K
-    Node : Node
+    Element : HTMLElement
     SvId : int
     Position : IStore<int>
     Value: IStore<'T>
@@ -331,190 +326,106 @@ let private findCurrentNode (current:Node) (id:int) =
     else
         current
 
-#if COMMENTED
-type KeyedItem<'T,'K> = {
-    Key : 'K
-    Node : Node
-    SvId : int
-    Position : int
-    Rect: ClientRect
-}
+let private findCurrentElement (current:Node) (id:int) =
+    let node = findCurrentNode current id
+    match node with
+    | null -> null
+    | n when isElementNode n -> n :?> HTMLElement
+    | x ->  log $"each: Disaster: found node but it's not an HTMLElement"
+            null
 
-type UnkeyedItem<'T> = {
-    Node : Node
-    SvId : int
-    Position : int
-    Rect: ClientRect
-}
-
-let eachik (items:IObservable<list<'T>>) (view : int * 'T -> NodeFactory) (key:'T -> 'K) (trans : TransitionAttribute option) : NodeFactory =
-    fun ctx ->
-        let mutable state : KeyedItem<'T,'K> list = []
-        let unsub = Store.subscribe items (fun value ->
-
-            log("-- Each Block Render -------------------------------------")
-            log($"each: caching exist rects for render {state.Length} items")
-
-            state <- state |> List.map (fun ki ->
-                let node = findCurrentNode ki.Node ki.SvId
-                { ki with Node = node; Rect = clientRect node })
-
-            let newItems = value //|> List.filter filter
-            log($"each: rendering {newItems.Length} items")
-            log($"each: parent is {svId parent}")
-
-            let mutable newState  = [ ]
-            let mutable enteringNodes = []
-
-            let blockPrevNode = // First node before this collection
-                match state with
-                | [] -> null
-                | x::xs -> x.Node.previousSibling
-
-            // I bet I can do all this in one pass, I will come back to this
-            // and improve it. Let's get it working first.
-
-            newItems |> List.mapi (fun itemIndex item ->
-                let itemKey = key item
-                let optKi = state |> List.tryFind (fun x -> x.Key = itemKey)
-                match optKi with
-                | None ->
-                    log($"Building item {itemIndex} {item}")
-                    let itemNode = buildSolitary (view (itemIndex,item)) ctx parent
-                    // Item appears, maybe in wrong place
-                    log($"Item built {nodeStr itemNode}")
-                    transitionNode (itemNode :?> HTMLElement) trans [Key (string itemKey)] true ignore
-                    let newKi = {
-                        SvId = svId itemNode
-                        Key = itemKey
-                        Node = itemNode
-                        Position = itemIndex
-                        Rect = clientRect itemNode
-                    }
-                    newState <- newState @ [ newKi ]
-                    enteringNodes <- newKi :: enteringNodes
-                | Some ki ->
-                    let r = (ki.Node :?> HTMLElement).getBoundingClientRect()
-                    newState <- newState @ [ { ki with Position = itemIndex; Rect = r } ]
-            ) |> ignore
-
-            // Remove old items
-            for oldItem in state do
-                if not (newState |> List.exists (fun x -> x.Key = oldItem.Key)) then
-                    log($"each: removing key {oldItem.Key}")
-                    fixPosition (asEl oldItem.Node)
-                    transitionNode (asEl oldItem.Node) trans [Key (string oldItem.Key)] false
-                        removeNode
-
-            // Existence is now synced. Now to reorder
-
-            let wantAnimate = true
-            let mutable last = blockPrevNode
-            newState |> List.mapi (fun pos ki ->
-                // Can only re-order this way when all exiting nodes have been removed
-                //if pos <> ki.Position then
-                //    parent.removeChild(ki.Node) |> ignore
-                //    parent.insertBefore(ki.Node, last.nextSibling) |> ignore
-                if wantAnimate && not (enteringNodes |> List.exists (fun en -> en.Key = ki.Key)) then
-                    animateNode (ki.Node :?> HTMLElement) (ki.Rect)
-                last <- ki.Node
-                ()
-            ) |> ignore
-
-            state <- newState
-        )
-        unitResult()
-//        parent :> Node
-#endif
+let genEachId = Helpers.makeIdGenerator()
 
 let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable<'T> -> NodeFactory) (key:int*'T->'K) (trans : TransitionAttribute option) : NodeFactory =
     fun ctx ->
+        let log s = Logging.log "each" s
         let mutable state : KeyedStoreItem<'T,'K> list = []
-        let unsub = Store.subscribe items (fun value ->
+        let eachId = genEachId()
+        let idKey = "svEachId"
+        let hasEid (n : Node) = Interop.exists n idKey
+        let eachIdOf n : int = if hasEid n then  Interop.get n idKey else -1
+        let setEid n = Interop.set n idKey eachId
+
+        let unsub = Store.subscribe items (fun newItems ->
+            let wantAnimate = true
 
             log("-- Each Block Render -------------------------------------")
-            log($"each: caching exist rects for render {state.Length} items")
+            log($"caching rects for render. Previous: {state.Length} items. Current {newItems.Length} items")
 
             state <- state |> List.map (fun ki ->
-                let node = findCurrentNode ki.Node ki.SvId
-                { ki with Node = node; Rect = clientRect node })
+                let el = findCurrentElement ki.Element ki.SvId
+                { ki with Element = el; Rect = clientRect el })
 
-            let newItems = value //|> List.filter filter
-            log($"each: rendering {newItems.Length} items")
+            // Last child that doesn't have our eachId
+            let mutable prevNode : Node = lastChildWhere ctx.Parent ((<>) eachId << eachIdOf)
 
-            let mutable newState  = [ ]
-            let mutable enteringNodes = []
-
-            let blockPrevNode = // First node before this collection
-                match state with
-                | [] -> null
-                | x::_ -> x.Node.previousSibling
-
-            newItems |> List.mapi (fun itemIndex item ->
+            let newState = newItems |> List.mapi (fun itemIndex item ->
                 let itemKey = key(itemIndex,item)
                 let optKi = state |> List.tryFind (fun x -> x.Key = itemKey)
                 match optKi with
                 | None ->
                     let storePos = Store.make itemIndex
                     let storeVal = Store.make item
-                    let itemNode = buildSolitary (view (storePos,storeVal)) ctx
-                    transitionNode (itemNode :?> HTMLElement) trans [Key (string itemKey)] true ignore
+                    let ctx2 = ctx |> withAfter prevNode
+                    log $"creating new item after {nodeStr prevNode} action={ctx2.Action}"
+                    let itemNode = buildSolitaryElement (view (storePos,storeVal)) ctx2
+                    setEid itemNode
+                    transitionNode itemNode trans [Key (string itemKey)] true ignore ignore
                     let newKi = {
                         SvId = svId itemNode
                         Key = itemKey
-                        Node = itemNode
+                        Element = itemNode
                         Position = storePos
                         Rect = clientRect itemNode
                         Value = storeVal
                     }
-                    newState <- newState @ [ newKi ]
-                    enteringNodes <- newKi :: enteringNodes
+                    log $"new item {newKi.SvId} {itemKey} {rectStr newKi.Rect}"
+                    prevNode <- itemNode
+                    newKi
                 | Some ki ->
-                    let r = (ki.Node :?> HTMLElement).getBoundingClientRect()
                     ki.Position |> Store.modify (fun _ -> itemIndex)
                     ki.Value |> Store.modify (fun _ -> item)
-                    newState <- newState @ [ ki ]
-            ) |> ignore
+                    log $"existing item {ki.SvId} {ki.Key} {rectStr ki.Rect}"
+                    if wantAnimate then
+                        clearAnimations ki.Element
+                        animateNode ki.Element (ki.Rect)
+                    prevNode <- ki.Element
+                    ki
+            )
 
             // Remove old items
             for oldItem in state do
                 if not (newState |> List.exists (fun x -> x.Key = oldItem.Key)) then
-                    log($"each: removing key {oldItem.Key}")
-                    fixPosition (asEl oldItem.Node)
-                    transitionNode (asEl oldItem.Node) trans [Key (string oldItem.Key)] false
-                        removeNode
+                    log($"removing key {oldItem.Key}")
+                    transitionNode oldItem.Element trans [Key (string oldItem.Key)] false
+                        fixPosition
+                        (fun e ->
+                            oldItem.Position.Dispose()
+                            oldItem.Value.Dispose()
+                            removeNode e)
 
-            // Existence is now synced. Now to reorder
-
-            let wantAnimate = true
-            let mutable last = blockPrevNode
-            newState |> List.mapi (fun pos ki ->
-                // Can only re-order this way when all exiting nodes have been removed
-                //if pos <> ki.Position then
-                //    parent.removeChild(ki.Node) |> ignore
-                //    parent.insertBefore(ki.Node, last.nextSibling) |> ignore
-                if wantAnimate && not (enteringNodes |> List.exists (fun en -> en.Key = ki.Key)) then
-                    log("Animate node")
-                    animateNode (ki.Node :?> HTMLElement) (ki.Rect)
-                last <- ki.Node
-                ()
-            ) |> ignore
+            // TODO: Reordering
 
             state <- newState
         )
         unitResult()
 
+let private duc = ObservableX.distinctUntilChanged
 
 let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory) (trans : TransitionAttribute option) =
-    eachiko items (fun (_,item) -> bind item view) (fun (_,v) -> v.GetHashCode()) trans
+    eachiko items (fun (_,item) -> bind (duc item) view) (fun (_,v) -> v.GetHashCode()) trans
 
 let eachi (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)  (trans : TransitionAttribute option) : NodeFactory =
-    eachiko items (fun (index,item) -> bind2 index item view) fst trans
+    eachiko items (fun (index,item) -> bind2 (duc index) (duc item) view) fst trans
 
 let eachio (items:IObservable<list<'T>>) (view : (IObservable<int>*IObservable<'T>) -> NodeFactory)  (trans : TransitionAttribute option) =
     eachiko items view fst trans
 
 let eachk (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
-    eachiko items (fun (_,item) -> bind item view) (snd>>key) trans
+    eachiko
+        items
+        (fun (_,item) -> bind (duc item) view)
+        (snd>>key)
+        trans
 
 let (|=>) a b = bind a b

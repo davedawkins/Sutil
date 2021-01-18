@@ -8,11 +8,10 @@
 
   <ItemGroup>
     <Compile Include="Util.fs" />
+    <Compile Include="Test.Store.fs" />
     <Compile Include="Test.DOM.fs" />
     <Compile Include="AllTests.fs" />
   </ItemGroup>
-
-  <ItemGroup />
 
   <ItemGroup>
     <ProjectReference Include="..\src\Fable.Sveltish\Fable.Sveltish.fsproj" />

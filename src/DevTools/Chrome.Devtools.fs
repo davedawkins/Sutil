@@ -5,15 +5,35 @@ open Fable.Core
 open Browser.Types
 open Browser.Dom
 
+type Event<'T> = interface
+    abstract addListener: ('T -> unit ) -> unit
+    end
+
+type MessageSender = interface end
+
+type Port = interface
+    abstract disconnect : unit -> unit
+    abstract name : string
+    abstract onDisconnect : Event<unit>
+    abstract onMessage : Event<obj>
+    abstract postMessage: obj -> unit
+    end
+
+type Runtime() =
+    [<Emit("chrome.runtime.connect($0)")>]
+    static member connect (connectInfo: obj) : Port = jsNative
+
+    [<Emit("chrome.runtime.connect($0,$1)")>]
+    static member connectToId (extensionId : string, connectInfo: obj) : obj = jsNative
+
+    [<Emit("chrome.runtime.onConnect")>]
+    static member onConnect : Event<obj> = jsNative
+
 [<RequireQualifiedAccess>]
 module Devtools =
 
     [<RequireQualifiedAccess>]
     module Panels =
-        type Event<'T> = interface
-            abstract addListener: ('T -> unit ) -> unit
-            end
-
         type ExtensionPanel = interface
             abstract onShown : Event<Window>
             abstract onHidden : Event<Window>
@@ -39,6 +59,7 @@ module Devtools =
         [<Emit("chrome.devtools.panels.elements")>]
         let elements : ElementsPanel = jsNative
 
+    // https://developer.chrome.com/docs/extensions/reference/devtools_inspectedWindow
     [<RequireQualifiedAccess>]
     module InspectedWindow =
         // Chrome: Documented return value when eval fails, but I only see a "Some undefined"
@@ -59,13 +80,20 @@ module Devtools =
         [<Emit("chrome.devtools.inspectedWindow.eval($0,$1,$2)")>]
         let eval<'T> (expression:string) (options:obj) (callback : EvalCallback<'T>) : unit = jsNative
 
+        [<Emit("chrome.devtools.inspectedWindow.tabId")>]
+        let tabId : int = jsNative
+
 module Helpers =
     let inject<'T,'A> (fn : 'A -> 'T) (arg:'A) : JS.Promise<'T> =
-        console.log($"({fn})({JS.JSON.stringify arg})")
+        //console.log($"({fn})({JS.JSON.stringify arg})")
         Promise.create( fun fulfil fail ->
             Devtools.InspectedWindow.eval
                 $"({fn})({JS.JSON.stringify arg})"
                 {| |}
-                (fun result -> if Sveltish.Interop.isUndefined result then (fail <| Exception("Unknown error")) else fulfil result)
+                (fun result ->
+                        //console.dir(result)
+                        if Sveltish.Interop.isUndefined result
+                            then (fail <| Exception("Unknown error"))
+                            else fulfil result)
         )
 

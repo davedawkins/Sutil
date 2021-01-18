@@ -32,7 +32,7 @@ module DevToolsControl =
         abstract GetStores : unit -> int array
         abstract GetStoreById : int -> IGenericStore
         abstract GetLogCategories: unit -> (string * bool) array
-        abstract SetLogCategory: string * bool -> unit
+        abstract SetLogCategories: (string * bool) array -> unit
         end
 
     let getControlBlock doc : IControlBlock = Interop.get doc "__sveltish_cb"
@@ -44,6 +44,7 @@ module DevToolsControl =
 
 type IStore<'T> = interface
     inherit IObservable<'T>
+    inherit IDisposable
     abstract Update: f:('T -> 'T) -> unit
     abstract Value: 'T
     end

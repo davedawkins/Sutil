@@ -2,6 +2,7 @@
 
 ## Changelog (most recent first)
 
+- Repository renamed
 - Add Mountpoints tab in DevTools - allows a page remount without refresh
 - Bug fixes, events for intros and outros
 - Transitions section in app

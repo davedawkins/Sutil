@@ -418,7 +418,7 @@ let addToClasslist (e:HTMLElement) classes =
 let removeFromClasslist (e:HTMLElement) classes =
     e.classList.remove( classes |> splitBySpace )
 
-let inline attr (name,value:obj) : NodeFactory = fun ctx ->
+let attr (name,value:obj) : NodeFactory = fun ctx ->
     let parent = ctx.Parent
     try
         let e = ctx.Parent :?> HTMLElement

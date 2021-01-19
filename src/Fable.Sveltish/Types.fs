@@ -24,6 +24,11 @@ module DevToolsControl =
     }
     with override v.ToString() = $"{v.Major}.{v.Minor}.{v.Patch}"
 
+    type IMountPoint = interface
+        abstract Id : string
+        abstract Remount : unit -> unit
+        end
+
     type IControlBlock = interface
         abstract ControlBlockVersion : int
         abstract Version: Version
@@ -33,6 +38,7 @@ module DevToolsControl =
         abstract GetStoreById : int -> IGenericStore
         abstract GetLogCategories: unit -> (string * bool) array
         abstract SetLogCategories: (string * bool) array -> unit
+        abstract GetMountPoints: unit -> IMountPoint array
         end
 
     let getControlBlock doc : IControlBlock = Interop.get doc "__sveltish_cb"

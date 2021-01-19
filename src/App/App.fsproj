@@ -38,6 +38,11 @@
     <Compile Include="Evaluator.fs" />
     <Compile Include="Spreadsheet.fs" />
     <Compile Include="Cells.fs" />
+    <Compile Include="Transition.fs" />
+    <Compile Include="TransitionParameters.fs" />
+    <Compile Include="TransitionEvents.fs" />
+    <Compile Include="TransitionInOut.fs" />
+    <Compile Include="TransitionCustomCss.fs" />
     <Compile Include="Todos.fs" />
     <Compile Include="Counter.fs" />
     <Compile Include="CounterWithTransition.fs" />

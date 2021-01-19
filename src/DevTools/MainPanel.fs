@@ -21,8 +21,15 @@ open Fable.Core.JsInterop
 
 type StoreIdVal = {  Id : int; Val : obj }
 type GetStoresResult = { Data: StoreIdVal array }
+type GetMountPointsResult = DevToolsControl.IMountPoint array
 type LogState = string * bool
 type LogOptions = LogState array
+
+[<Import("GetMountPoints", from="./inject.js")>]
+let jsGetMountPoints() : GetMountPointsResult = jsNative
+
+[<Import("Remount", from="./inject.js")>]
+let jsRemount(id: string) : bool = jsNative
 
 [<Import("GetStores", from="./inject.js")>]
 let jsGetStores() : GetStoresResult = jsNative
@@ -49,21 +56,25 @@ let dispatchPromise (success: 'a -> unit) failure p =
     p   |> Promise.map success
         |> Promise.catch failure
 
+let getMountPoints() = Chrome.Helpers.inject jsGetMountPoints ()
 let getStores() = Chrome.Helpers.inject jsGetStores ()
 let getOptions() = Chrome.Helpers.inject jsGetOptions ()
 let getLogCategories() = Chrome.Helpers.inject jsGetLogCategories ()
 let writeLogCategories lcs = Chrome.Helpers.inject jsSetLogCategories lcs |> ignore
 let writeOptions opt = Chrome.Helpers.inject jsSetOptions opt |> ignore
+let remount mountId = Chrome.Helpers.inject jsRemount mountId |> ignore
 
 type Page =
     |Stores
     |Options
+    |MountPoints
 
 type Model = {
     Page : Page
     LogCategories : LogState array
     Stores : StoreIdVal array
     Options : DevToolsControl.SveltishOptions
+    MountPoints : DevToolsControl.IMountPoint array
     }
 
 let connectedStores = ObservablePromise<GetStoresResult>()
@@ -75,6 +86,7 @@ type Message =
     | SetLoggingEnabled of bool
     | SetLogCategory of LogState
     // Incoming from the app
+    | MountPointsFromApp of DevToolsControl.IMountPoint array
     | StoresFromApp of StoreIdVal array
     | LogCategoriesFromApp of LogState array
     | OptionsFromApp of DevToolsControl.SveltishOptions
@@ -82,6 +94,7 @@ type Message =
 let page m = m.Page
 let logCategories m = m.LogCategories
 let stores m = m.Stores
+let mountPoints m = m.MountPoints |> Array.toList
 let slowAnimations m = m.Options.SlowAnimations
 let loggingEnabled m = m.Options.LoggingEnabled
 
@@ -94,11 +107,14 @@ let init() =
         }
         LogCategories = [| |]
         Stores = [| |]
+        MountPoints = [| |]
     }, Cmd.none
 
 let update msg model : Model * Cmd<Message> =
     //console.log($"update: {msg}\n{model}")
     match msg with
+    | MountPointsFromApp mps ->
+        { model with MountPoints = mps }, Cmd.none
     | OptionsFromApp op ->
         { model with Options = op }, Cmd.none
     | StoresFromApp s ->
@@ -144,7 +160,7 @@ let styleSheet = [
         borderTopLeftRadius "4px"
         borderBottomLeftRadius "4px"
         background "white"
-        marginRight "-1px"
+        marginRight "-2px"
         marginLeft "-4px"
         paddingLeft "8px" ]
     rule ".o-val" [ color "#1F618D" ]
@@ -225,6 +241,23 @@ let viewStores model dispatch =
         bind (model .> stores) buildStoresTable
     ]
 
+let viewMountPoints model dispatch =
+    Html.div [
+        Html.ul [
+            each (model .> mountPoints) (fun mp ->
+                Html.li [
+                    text mp.Id
+                    Html.button [
+                        class' "button is-small"
+                        style "margin-left: 12px"
+                        text "Remount"
+                        onClick (fun _ -> remount mp.Id) []
+                    ]
+                ]
+            ) None
+        ]
+    ]
+
 let divc name children = class' name :: children |> Html.div
 let labelc name children = class' name :: children |> Html.label
 let inputc name children = class' name :: children |> Html.input
@@ -278,6 +311,10 @@ let view model dispatch =
                         activeWhen Stores
                         onClick (fun _ -> Stores |> ViewPage |> dispatch ) []
                         text "Stores" ]
+                    Html.li [
+                        activeWhen MountPoints
+                        onClick (fun _ -> MountPoints |> ViewPage |> dispatch ) []
+                        text "Mount Points" ]
                     Html.li [ text "Styles" ]
                     Html.li [ text "Maps" ]
                     Html.li [ text "Element Bindings" ]
@@ -288,8 +325,9 @@ let view model dispatch =
                 class' "sv-main column is-four-fifths"
 
                 transitionMatch (model .> page) <| [
-                    ((=) Stores,  viewStores  model dispatch, None)
-                    ((=) Options, viewOptions model dispatch, None)
+                    ((=) Stores,        viewStores  model dispatch, None)
+                    ((=) Options,       viewOptions model dispatch, None)
+                    ((=) MountPoints,   viewMountPoints model dispatch, None)
                 ]
 
             ] ] ] |> withStyle styleSheet
@@ -298,6 +336,10 @@ let initialiseConnectedApp (model:IObservable<Model>) dispatch =
     getStores()
         |> Promise.map (fun r -> r.Data)
         |> dispatchPromise (dispatch << StoresFromApp) (fun _ -> [| |] |> StoresFromApp |> dispatch)
+        |> ignore
+
+    getMountPoints()
+        |> dispatchPromise (dispatch << MountPointsFromApp) (fun _ -> [| |] |> MountPointsFromApp |> dispatch)
         |> ignore
 
     let m = Store.current model

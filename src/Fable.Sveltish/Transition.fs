@@ -20,6 +20,13 @@ module Easing =
         f * f * f + 1.0
     let cubicInOut t =
         if t < 0.5 then 4.0 * t * t * t else 0.5 * System.Math.Pow(2.0 * t - 2.0, 3.0) + 1.0
+
+    let elasticIn t =
+        Math.Sin((13.0 * t * Math.PI) / 2.0) * Math.Pow(2.0, 10.0 * (t - 1.0))
+
+    let elasticOut t =
+        Math.Sin((-13.0 * (t + 1.0) * Math.PI) / 2.0) * Math.Pow(2.0, -10.0 * t) + 1.0
+
     // ... loads more
 
 type TransitionProp =
@@ -92,7 +99,7 @@ let private applyProp (r:Transition) (prop : TransitionProp) =
     | Opacity n -> { r with Opacity = n }
     | Key f -> { r with Key = f }
 
-let private applyProps (props : TransitionProp list) (tr:Transition) = props |> List.fold applyProp tr
+let applyProps (props : TransitionProp list) (tr:Transition) = props |> List.fold applyProp tr
 
 let private computedStyleOpacity e =
     try
@@ -272,9 +279,23 @@ let draw (props : TransitionProp list) (node : SVGPathElement) =
     fun () -> { tr with
                     Duration = duration
                     Css = fun t u -> sprintf "stroke-dasharray: %f %f" (t*len) (u*len) }
-
+(*
+function fly(node, { delay = 0, duration = 400, easing: easing$1 = easing.cubicOut, x = 0, y = 0, opacity = 0 }) {
+    const style = getComputedStyle(node);
+    const target_opacity = +style.opacity;
+    const transform = style.transform === 'none' ? '' : style.transform;
+    const od = target_opacity * (1 - opacity);
+    return {
+        delay,
+        duration,
+        easing: easing$1,
+        css: (t, u) => `
+			transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);
+			opacity: ${target_opacity - (od * u)}`
+    };
+} *)
 let fly (props : TransitionProp list) (node : Element) =
-    let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut }
+    let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut; X = 0.0; Y = 0.0 }
     let style = window.getComputedStyle(node)
     let targetOpacity = computedStyleOpacity node
     let transform = if style.transform = "none" then "" else style.transform
@@ -457,12 +478,14 @@ let transitionNode  (el : HTMLElement)
         showEl el false
         complete el
         deleteRule el ruleName
+        dispatchSimple el "outroend"
 
     let rec show() =
         log $"show {nodeStr el}"
         showEl el true
         complete el
         deleteRule el ruleName
+        dispatchSimple el "introend"
 
     let tr = trans |> Option.bind (fun x ->
         match x with
@@ -478,18 +501,21 @@ let transitionNode  (el : HTMLElement)
         complete el
     | Some (tr,trProps) ->
         deleteRule el ""
+        let trans = (tr (transProps @ trProps) el)
         if isVisible then
-            let trans = (tr (transProps @ trProps) el)
             waitAnimationFrame "show" <| fun () ->
+                dispatchSimple el "introstart"
                 start el
                 waitAnimationEnd "show" el show
                 showEl el true // Check: we're doing this again at animationEnd
+                log $"creating intro rule"
                 ruleName <- createRule el 0.0 1.0 trans 0
         else
-            let trans = (tr transProps el)
             waitAnimationFrame "hide" <| fun () ->
+                dispatchSimple el "outrostart"
                 start el
                 waitAnimationEnd "hide" el hide
+                log $"creating outro rule"
                 ruleName <- createRule el 1.0 0.0 trans 0
 
 type Hideable = {

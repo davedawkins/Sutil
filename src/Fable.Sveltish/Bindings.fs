@@ -350,7 +350,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
             let wantAnimate = true
 
             log("-- Each Block Render -------------------------------------")
-            log($"caching rects for render. Previous: {state.Length} items. Current {newItems.Length} items")
+            log($"caching rects for render. Previous: {state |> List.length} items. Current {newItems |> List.length} items")
 
             state <- state |> List.map (fun ki ->
                 let el = findCurrentElement ki.Element ki.SvId
@@ -361,7 +361,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
 
             let newState = newItems |> List.mapi (fun itemIndex item ->
                 let itemKey = key(itemIndex,item)
-                let optKi = state |> List.tryFind (fun x -> x.Key = itemKey)
+                let optKi = state |> Seq.tryFind (fun x -> x.Key = itemKey)
                 match optKi with
                 | None ->
                     let storePos = Store.make itemIndex
@@ -395,7 +395,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
 
             // Remove old items
             for oldItem in state do
-                if not (newState |> List.exists (fun x -> x.Key = oldItem.Key)) then
+                if not (newState |> Seq.exists (fun x -> x.Key = oldItem.Key)) then
                     log($"removing key {oldItem.Key}")
                     transitionNode oldItem.Element trans [Key (string oldItem.Key)] false
                         fixPosition

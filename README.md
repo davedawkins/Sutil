@@ -1,10 +1,10 @@
-# Sveltish
+# Sutil (was Sveltish)
 
 An experiment in applying the design principles from [Svelte](https://svelte.dev/) to native Fable. At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself.
 
-See the [Sveltish website](https://davedawkins.github.io/Fable.Sveltish/) for demos.
+See the [Sutil website](https://davedawkins.github.io/Fable.Sveltish/) for demos.
 
-Here's how the Sveltish Todos app looks. This is an augmented port of the [Svelte animate example](https://svelte.dev/examples#animate)
+Here's how the Sutil Todos app looks. This is an augmented port of the [Svelte animate example](https://svelte.dev/examples#animate)
 
 <img src="images/todosGoodJob.gif" width="400" alt="Screenshot of Todos app from Svelte">
 
@@ -15,7 +15,7 @@ Implementing this app is pushing the library. As each new demo example is added,
 
 # Getting Started
 
-The following will help you get started with the Sveltish features. (work in progress)
+The following will help you get started with the Sutil features. (work in progress)
 
 An additional reference manual is required provide full details of each feature. (not started)
 
@@ -367,7 +367,7 @@ I ended up preferring Chrome to get the basics working, it was a much easier wor
 ### Possibilities
 
 - Write the extension in Sveltish. It's currently in JS to get it out of the ground, but it already calls back into Fable code
-- Sveltish-focused DOM tree
+- Sutil-focused DOM tree
 - Show mapping expressions (understand the dependency expression graph)
 - Show subscribers (help to understand if cleanup is working, etc)
 - Live update

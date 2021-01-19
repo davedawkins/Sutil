@@ -72,6 +72,12 @@ module ObservableStore =
                 member _.GetLogCategories() = Logging.enabled |> Seq.map (fun k -> k.Key , k.Value) |> Seq.toArray
                 member _.SetLogCategories(states) =
                     Logging.initWith states
+                member _.GetMountPoints() =
+                    DOM.allMountPoints()
+                        |> List.map (fun mp -> { new DevToolsControl.IMountPoint with
+                                            member _.Id = mp.MountId
+                                            member _.Remount() = mp.Mount() |> ignore })
+                        |> List.toArray
         }
 
         let initialise (doc:Document) =

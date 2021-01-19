@@ -50,7 +50,12 @@ type Demo = {
         { Category = "Logic"; Title = "Await blocks"; Create = make AwaitBlocks.view; Sources = ["AwaitBlocks.fs"] }
         { Category = "Events"; Title = "DOM events"; Create = make DomEvents.view; Sources = ["DomEvents.fs"] }
         { Category = "Events"; Title = "Event modifiers"; Create = make EventModifiers.view; Sources = ["EventModifiers.fs"] }
-        { Category = "Transitions"; Title = "Transitions w/ animation"; Create = make Todos.view; Sources = ["Todos.fs"] }
+        { Category = "Transitions"; Title = "Transition"; Create = make Transition.view; Sources = ["Transition.fs"] }
+        { Category = "Transitions"; Title = "Adding parameters"; Create = make TransitionParameters.view; Sources = ["TransitionParameters.fs"] }
+        { Category = "Transitions"; Title = "In and out"; Create = make TransitionInOut.view; Sources = ["TransitionInOut.fs"] }
+        { Category = "Transitions"; Title = "Custom CSS"; Create = make TransitionCustomCss.view; Sources = ["TransitionCustomCss.fs"] }
+        { Category = "Transitions"; Title = "Transition events"; Create = make TransitionEvents.view; Sources = ["TransitionEvents.fs"] }
+        { Category = "Transitions"; Title = "Animation"; Create = make Todos.view; Sources = ["Todos.fs"] }
         { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}
         { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
         { Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
@@ -101,6 +106,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
         width "100vw"
         backgroundColor "white"
         padding "12px"
+        //paddingBottom "4px"
         boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
         marginBottom "4px"
         zIndex "100"
@@ -118,6 +124,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".app-contents .title" [
         color "white"
+        //padding "12px"
         marginLeft "12px"
         marginBottom "8px"
         marginTop "16px"
@@ -164,6 +171,48 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule "pre" [
         padding 0
+    ]
+
+    rule ".logo" [
+        fontFamily "'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif"
+        //fontFamily "'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif"
+        fontWeight  "400"
+        fontSize    "42px"
+        letterSpacing "2px"
+    ]
+
+    rule ".logo:hover" [
+        textDecoration "underline"
+        textDecorationColor "#bbbbbb"
+        textDecorationThickness "0.01em"
+    ]
+
+    rule ".logo .lt, .logo .gt" [
+        fontSize "40%"
+        color "#bbbbbb"
+        color "white"
+    ]
+
+    rule ".logo .stl" [
+        color "#804041"
+    ]
+
+    rule ".logo .ui" [
+        color "#804041"
+        fontStyle "italic"
+        color "#757575"
+        fontWeight "400"
+    ]
+
+    rule ".slogo" [
+        display "inline-flex"
+        fontFamily "'Coda Caption'"
+        alignItems "center"
+        justifyContent "center"
+        width "32px"
+        height "24px"
+        background "#444444"
+        color "white"
     ]
 ]
 
@@ -222,13 +271,32 @@ let appMain () =
     let currentDemo = model |> Store.map findDemo
     let tab = model |> Store.map (fun m -> m.Tab)
 
+    let logo = Html.span [
+        class' "logo"
+        //Html.span [ class' "lt";  text "<" ]
+        Html.span [ class' "stl"; text "s" ]
+        Html.span [ class' "ui";  text "u" ]
+        Html.span [ class' "stl"; text "t" ]
+        Html.span [ class' "ui";  text "i" ]
+        Html.span [ class' "stl"; text "l" ]
+        //Html.span [ class' "gt";  text ">" ]
+    ]
+
     withStyle mainStyleSheet <|
         Html.div [
             class' "app-main"
 
             Html.div [
                 class' "app-heading"
-                Html.h1 [ class' "title is-4"; Html.a [ href "https://github.com/davedawkins/Fable.Sveltish"; text "sveltish" ] ]
+                //Html.a [ href "https://github.com/davedawkins/Fable.Sveltish"; logo ]
+                Html.h1 [
+                    class' "title is-4"
+                    Html.a [
+                        href "https://github.com/davedawkins/Fable.Sveltish"
+                        Html.div [ class' "slogo"; Html.span [ text "<>" ] ]
+                        text " SUTIL"
+                    ]
+                ]
             ]
 
             Html.div [

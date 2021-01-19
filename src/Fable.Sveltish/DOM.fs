@@ -363,6 +363,9 @@ let appendReplaceChild (node : Node) (ctx : BuildContext) =
         setSvId node (svId existing)
     node
 
+let dispatchSimple (node:Node) name =
+    node.dispatchEvent( Interop.customEvent name {| |}) |> ignore
+
 let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
 
     let e  = ctx.Document.createElement tag
@@ -393,10 +396,9 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
     appendReplaceChild e ctx |> ignore
 
     // Effect 5
-    e.dispatchEvent( Interop.customEvent Event.ElementReady {| |}) |> ignore
+    dispatchSimple e Event.ElementReady
 
     nodeResult e
-
 
 let buildSolitaryElement (f : NodeFactory) ctx : HTMLElement =
     log $"buildSolitaryElement: {ctx.Action}"
@@ -418,7 +420,7 @@ let addToClasslist (e:HTMLElement) classes =
 let removeFromClasslist (e:HTMLElement) classes =
     e.classList.remove( classes |> splitBySpace )
 
-let inline attr (name,value:obj) : NodeFactory = fun ctx ->
+let attr (name,value:obj) : NodeFactory = fun ctx ->
     let parent = ctx.Parent
     try
         let e = ctx.Parent :?> HTMLElement
@@ -526,15 +528,7 @@ let html text : NodeFactory = fun ctx ->
                                         applyCustomRules ch ns)
     nodeResult el
 
-//
-// Mount a top-level application NodeFactory into an existing document
-//
-let rec mountElementOnDocument (doc : Document) id (app : NodeFactory)  =
-    let host = doc.querySelector($"#{id}")
-    (app (makeContext host)) |> ignore
 
-let rec mountElement id (app : NodeFactory)  =
-    mountElementOnDocument document id app
 
 let children (node:Node) =
     let rec visit (child:Node) =
@@ -691,3 +685,35 @@ let updateCustom (el:HTMLElement) (name:string) (property:string) (value:obj) =
     Interop.set r property value
     Interop.set el name r
 
+type MountPoint = {
+        Doc : Document
+        MountId : string
+        App : NodeFactory
+    }
+    with
+        member this.Mount() =
+            let host = this.Doc.querySelector($"#{this.MountId}")
+            build (exclusive this.App) (makeContext host)
+
+// Tried to make these into static members, but get error
+// "These element declarations are not permitted in an augmentation F# compiler"
+// MountPoint is passed to DevTools
+let mutable private _allMountPoints = []
+
+let allMountPoints() = _allMountPoints
+
+let createMountPoint doc id app =
+    let self = { Doc = doc; MountId = id; App = app }
+    _allMountPoints <- self :: _allMountPoints
+    console.log($"Mount points: {allMountPoints()}")
+    self
+
+//
+// Mount a top-level application NodeFactory into an existing document
+//
+let rec mountElementOnDocument (doc : Document) id (app : NodeFactory)  =
+    let mp = createMountPoint doc id app
+    mp.Mount() |> ignore
+
+let rec mountElement id (app : NodeFactory)  =
+    mountElementOnDocument document id app

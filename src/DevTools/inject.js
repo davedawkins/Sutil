@@ -28,6 +28,17 @@ export function GetLogCategories() {
     return document.__sveltish_cb.GetLogCategories();
 }
 
+export function GetMountPoints() {
+    return document.__sveltish_cb.GetMountPoints();
+}
+
+export function Remount( id ) {
+    let mps = document.__sveltish_cb.GetMountPoints();
+    const mp = mps.find(x => x.Id === id);
+    mp.Remount();
+    return true;
+}
+
 export function SetLogCategories( nameStates ) {
     document.__sveltish_cb.SetLogCategories( nameStates );
     return true;

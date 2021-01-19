@@ -1,7 +1,11 @@
-# Sveltish
+# Sutil
 
 ## Changelog (most recent first)
 
+- Add Mountpoints tab in DevTools - allows a page remount without refresh
+- Bug fixes, events for intros and outros
+- Transitions section in app
+- Start renaming to sutil
 - Unit tests
 - Fix animation regression in App/Todos.fs. DevTools made this a lot easier, being able to switch logging options on and off
 - Implement ordering for each blocks

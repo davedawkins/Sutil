@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Coda+Caption:wght@800&display=swap" rel="stylesheet">
   <style>
-    html, body, #sveltish-app {
+    html, body, #Sutil-app {
       width: 100%;
       height: 100%;
     }
@@ -18,10 +18,10 @@
   <script src="highlight.min.js"></script>
 </head>
 <body>
-    <div id="sveltish-app"></div>
+    <div id="Sutil-app"></div>
     <script src="bundle.js"></script>
     <script>
-        document.addEventListener('sveltish-updated', (event) => {
+        document.addEventListener('Sutil-updated', (event) => {
             document.querySelectorAll('pre code').forEach((block) => {
                 hljs.highlightBlock(block);
             });

@@ -1,9 +1,9 @@
 module FileInputs
 
-open Sveltish
-open Sveltish.DOM
-open Sveltish.Attr
-open Sveltish.Bindings
+open Sutil
+open Sutil.DOM
+open Sutil.Attr
+open Sutil.Bindings
 open Browser.Types
 open Browser.Dom
 

@@ -1,9 +1,9 @@
 module NestedComponents
 
-open Sveltish
-open Sveltish.Styling
-open Sveltish.Attr
-open Sveltish.DOM
+open Sutil
+open Sutil.Styling
+open Sutil.Attr
+open Sutil.DOM
 open Nested
 
 let css = [

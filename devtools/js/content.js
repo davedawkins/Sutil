@@ -1,4 +1,4 @@
-console.log("Sveltish content page loaded");
+console.log("Sutil content page loaded");
 
 chrome.runtime.onConnect.addListener(function (port) {
     alert("Content.onConnect " + port.name);

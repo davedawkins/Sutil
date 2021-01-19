@@ -12,8 +12,8 @@
 - Implement ordering for each blocks
 - Logging options in DevTools. Rework of promise bindings. Cleaner interface between app and devtools.
   Intermediate check-in
-- Options window in DevTools, communicating with Sveltish core. Still debugging, but *almost* working.
-- Converted DevTools panel to Sveltish-Fable. This will make it easier and faster to develop. I want to use it to help
+- Options window in DevTools, communicating with Sutil core. Still debugging, but *almost* working.
+- Converted DevTools panel to Sutil-Fable. This will make it easier and faster to develop. I want to use it to help
 diagnose recent regression with the animation of the todos.
 - Reworking of Cells example to try and make the reactive bindings neater. It's a challenge.
 - NodeFactory is now "BuildContext -> BuildResult"
@@ -33,7 +33,7 @@ diagnose recent regression with the animation of the todos.
 - Rework on binding and each block. Better tracking of created elements and reference fixing when bound elements changed etc
 - More "each" block examples. Covered a few more cases than are given in Svelte, due to differences in F# and JS. Still a w.i.p.
 - Browser DevTools plugin. Only *just* got the stores view working. See section `DevTools` further down.
-<img src="images/devtools.png" width="400" alt="Screenshot of Sveltish DevTools plugin">
+<img src="images/devtools.png" width="400" alt="Screenshot of Sutil DevTools plugin">
 
 - More examples: FileInputs, Dimensions, If/Else/If-Else. Ported resize observer from Svelte (very clever stuff)
 - Textarea example. Introduces `html` element to inject raw HTML, using an imported JS markdown library.

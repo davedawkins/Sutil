@@ -1,10 +1,10 @@
 ﻿module Test.Store
 
-open Sveltish
+open Sutil
 open Util
 open Fable.Mocha
 
-let tests = testList "Sveltish.Store" [
+let tests = testList "Sutil.Store" [
 
     testCase "Immediate initialisation upon subscription" <| fun () ->
         let s = Store.make 42

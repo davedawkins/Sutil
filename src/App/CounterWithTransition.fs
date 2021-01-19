@@ -1,11 +1,11 @@
 module CounterWithTransition
 
-open Sveltish
-open Sveltish.Bindings
-open Sveltish.DOM
-open Sveltish.Attr
-open Sveltish.Styling
-open Sveltish.Transition
+open Sutil
+open Sutil.Bindings
+open Sutil.DOM
+open Sutil.Attr
+open Sutil.Styling
+open Sutil.Transition
 
 //
 // Private styling for the counter
@@ -54,7 +54,7 @@ let private counterStyle = [
     ]
 ]
 
-open Sveltish.Transition
+open Sutil.Transition
 open Browser.Dom
 
 //

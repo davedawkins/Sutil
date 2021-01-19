@@ -1,14 +1,14 @@
 
 export function ControlBlockVersion() {
-    return document.__sveltish_cb.ControlBlockVersion;
+    return document.__Sutil_cb.ControlBlockVersion;
 }
 
 export function Version() {
-    return document.__sveltish_cb.Version;
+    return document.__Sutil_cb.Version;
 }
 
 export function GetStores() {
-    let cb = document.__sveltish_cb;
+    let cb = document.__Sutil_cb;
     let stores = cb.GetStores();
     return {
         Data: Array.from(stores).map( i => { return { Id: i, Val: cb.GetStoreById(i).Value } } )
@@ -16,31 +16,31 @@ export function GetStores() {
 }
 
 export function SetOptions( options ) {
-    document.__sveltish_cb.SetOptions(options);
+    document.__Sutil_cb.SetOptions(options);
     return true;
 }
 
 export function GetOptions() {
-    return document.__sveltish_cb.GetOptions();
+    return document.__Sutil_cb.GetOptions();
 }
 
 export function GetLogCategories() {
-    return document.__sveltish_cb.GetLogCategories();
+    return document.__Sutil_cb.GetLogCategories();
 }
 
 export function GetMountPoints() {
-    return document.__sveltish_cb.GetMountPoints();
+    return document.__Sutil_cb.GetMountPoints();
 }
 
 export function Remount( id ) {
-    let mps = document.__sveltish_cb.GetMountPoints();
+    let mps = document.__Sutil_cb.GetMountPoints();
     const mp = mps.find(x => x.Id === id);
     mp.Remount();
     return true;
 }
 
 export function SetLogCategories( nameStates ) {
-    document.__sveltish_cb.SetLogCategories( nameStates );
+    document.__Sutil_cb.SetLogCategories( nameStates );
     return true;
 }
 

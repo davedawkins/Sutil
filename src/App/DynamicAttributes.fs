@@ -1,6 +1,6 @@
 module DynamicAttributes
 
-open Sveltish
+open Sutil
 
 let src = "https://i.gifer.com/K9s.gif"
 let name = "Minion"

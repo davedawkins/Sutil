@@ -7,7 +7,7 @@
     <Compile Include="MainPanel.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Fable.Sveltish\Fable.Sveltish.fsproj" />
+    <ProjectReference Include="..\Sutil\Sutil.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Fable.Browser.Css" Version="2.0.0" />

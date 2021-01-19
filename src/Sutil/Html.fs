@@ -1,6 +1,6 @@
-module Sveltish.Html
+module Sutil.Html
 
-open Sveltish.DOM
+open Sutil.DOM
 open Browser.Types
 
 let div xs : NodeFactory = el "div" xs

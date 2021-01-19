@@ -1,9 +1,9 @@
 module TextArea
 
-open Sveltish
-open Sveltish.Attr
-open Sveltish.DOM
-open Sveltish.Styling
+open Sutil
+open Sutil.Attr
+open Sutil.DOM
+open Sutil.Styling
 open Fable.Core
 
 [<ImportAll("./marked.min.js")>]

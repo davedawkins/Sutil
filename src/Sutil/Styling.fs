@@ -1,8 +1,8 @@
-module Sveltish.Styling
+module Sutil.Styling
 
     open System
     open Browser.Types
-    open Sveltish.DOM
+    open Sutil.DOM
     open Browser.Dom
 
     let log s = Logging.log "style" s
@@ -59,10 +59,10 @@ module Sveltish.Styling
         splitMapJoin ',' (splitMapJoin ' ' (splitMapJoin ':' trans)) selectors
 
     let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheet) =
-        let isSveltishRule (nm:string,v) = nm.StartsWith("sveltish")
+        let isSutilRule (nm:string,v) = nm.StartsWith("Sutil")
         let style = newStyleElement doc
         for rule in styleSheet do
-            let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSveltishRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
+            let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSutilRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
             [ specifySelector styleName rule.SelectorSpec; " {"; styleText; "}" ] |> String.concat "" |> doc.createTextNode |> style.appendChild |> ignore
 
     let headStylesheet (url : string) : NodeFactory = fun ctx ->
@@ -105,7 +105,7 @@ module Sveltish.Styling
         unitResult()
 
     let withStyle styleSheet (element : NodeFactory) : NodeFactory = fun ctx ->
-        let name = ctx.MakeName "sveltish"
+        let name = ctx.MakeName "Sutil"
         addStyleSheet ctx.Document name styleSheet
         ctx |> withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } |> element
 

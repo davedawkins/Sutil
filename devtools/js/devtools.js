@@ -1,4 +1,4 @@
-//browser.devtools.panels.create("Sveltish", null, "panel.html", null);
+//browser.devtools.panels.create("Sutil", null, "panel.html", null);
 
 // https://stackoverflow.com/questions/4532236/how-to-access-the-webpage-dom-rather-than-the-extension-page-dom
 // http://galadriel.cs.utsa.edu/plugin_study/injected_apps/brave_injected/sources/browser-android-tabs/chrome/common/extensions/docs/templates/intros/devtools_inspectedWindow.html
@@ -7,7 +7,7 @@
 // This has been ported to Fable. See src/DevTools/Chrome.Devtools.fs
 
 let p = chrome.devtools.panels.create(
-    "Sveltish",         // title
+    "Sutil",         // title
     "/icon.png",        // icon
     "/html/panel.html",
     init                // Chrome
@@ -37,7 +37,7 @@ function initialisePanel(win)
     }
 
     function injectedGetStores() {
-        let stores = document.body.__sveltish_global.stores;
+        let stores = document.body.__Sutil_global.stores;
         return {
             Data: Array.from(stores).map( i => { return { Id: i, Val: window.sv_get_store(i).Get } } )
         }

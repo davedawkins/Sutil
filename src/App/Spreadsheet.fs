@@ -2,11 +2,11 @@ module Spreadsheet
 
 // Based on http://tomasp.net/blog/2018/write-your-own-excel/
 
-open Sveltish
-open Sveltish.Styling
-open Sveltish.Attr
-open Sveltish.DOM
-open Sveltish.Bindings
+open Sutil
+open Sutil.Styling
+open Sutil.Attr
+open Sutil.DOM
+open Sutil.Bindings
 open Fable.Core.JsInterop
 open Evaluator
 

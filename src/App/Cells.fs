@@ -5,11 +5,11 @@ module SevenGuisCells
 //
 // Still being refactored. Gets better on each pass
 //
-open Sveltish
-open Sveltish.Styling
-open Sveltish.Attr
-open Sveltish.DOM
-open Sveltish.Bindings
+open Sutil
+open Sutil.Styling
+open Sutil.Attr
+open Sutil.DOM
+open Sutil.Bindings
 open Fable.Core.JsInterop
 open Evaluator
 open Browser.Dom
@@ -23,7 +23,7 @@ let filterSome (source : IObservable<'T option>) =
 
 let nodeOfCell pos = document.querySelector($"[x-id='{positionStr pos}'") :> Node
 
-type Sheet = Map<Position, Sveltish.IStore<string> >
+type Sheet = Map<Position, Sutil.IStore<string> >
 
 type Message =
   | UpdateValue of Position * string

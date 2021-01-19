@@ -1,10 +1,10 @@
 module KeyedEachBlocks
 
-open Sveltish
-open Sveltish.Attr
-open Sveltish.DOM
-open Sveltish.Bindings
-open Sveltish.Styling
+open Sutil
+open Sutil.Attr
+open Sutil.DOM
+open Sutil.Bindings
+open Sutil.Styling
 open System
 open Browser.Dom
 open Browser.Types

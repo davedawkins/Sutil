@@ -1,10 +1,10 @@
 module Dimensions
 
-open Sveltish
-open Sveltish.Attr
-open Sveltish.Bindings
-open Sveltish.Styling
-open Sveltish.Html
+open Sutil
+open Sutil.Attr
+open Sutil.Bindings
+open Sutil.Styling
+open Sutil.Html
 
 let w = Store.make 0.0
 let h = Store.make 0.0

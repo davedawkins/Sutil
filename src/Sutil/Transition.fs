@@ -1,15 +1,15 @@
-module Sveltish.Transition
+module Sutil.Transition
 // Adapted from svelte/transitions/index.js
 
 open Browser.Dom
 open Browser.CssExtensions
 open Browser.Types
-open Sveltish.Styling
-open Sveltish.DOM
+open Sutil.Styling
+open Sutil.DOM
 open System.Collections.Generic
 open System
 
-let log = Sveltish.Logging.log "trans"
+let log = Sutil.Logging.log "trans"
 
 module Easing =
     // Adapted from svelte/easing/index.js
@@ -82,8 +82,8 @@ type TransitionAttribute =
     | Out of TransitionFactory
     | InOut of (TransitionFactory * TransitionFactory)
 
-let overrideDuration d = if Sveltish.DevToolsControl.Options.SlowAnimations then 10.0 * d else d
-let overrideDurationFn fo = if Sveltish.DevToolsControl.Options.SlowAnimations then (fo |> Option.map (fun f -> ((*)10.0 << f))) else fo
+let overrideDuration d = if Sutil.DevToolsControl.Options.SlowAnimations then 10.0 * d else d
+let overrideDurationFn fo = if Sutil.DevToolsControl.Options.SlowAnimations then (fo |> Option.map (fun f -> ((*)10.0 << f))) else fo
 
 let private applyProp (r:Transition) (prop : TransitionProp) =
     match prop with
@@ -136,18 +136,18 @@ let waitAnimationFrame tag f =
             runTasks()
         ) |> ignore
 
-let getSveltishStyleElement (doc : Document) =
-    let mutable e = doc.querySelector("head style#__sveltish_keyframes")
+let getSutilStyleElement (doc : Document) =
+    let mutable e = doc.querySelector("head style#__Sutil_keyframes")
     if (isNull e) then
         e <- element doc "style"
-        e.setAttribute("id", "__sveltish_keyframes")
+        e.setAttribute("id", "__Sutil_keyframes")
         doc.head.appendChild(e) |> ignore
     e
 
 let dotSheet styleElem : CSSStyleSheet = Interop.get styleElem "sheet"
 
-let getSveltishStylesheet (doc : Document) =
-    getSveltishStyleElement doc |> dotSheet
+let getSutilStylesheet (doc : Document) =
+    getSutilStyleElement doc |> dotSheet
 
 let nextRuleId = Helpers.makeIdGenerator()
 
@@ -173,12 +173,12 @@ let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transiti
 
     let rule = keyframes @ [ sprintf "100%% {%s}\n" (tr.Css b (1.0 - b)) ] |> String.concat ""
 
-    let name = sprintf "__sveltish_%d" (if uid = 0 then nextRuleId() else uid)
+    let name = sprintf "__Sutil_%d" (if uid = 0 then nextRuleId() else uid)
     let keyframeText = sprintf "@keyframes %s %s" name rule
     log <| sprintf "keyframe: %s" (keyframes |> List.skip (keyframes.Length / 2) |> List.head)
     log($"createRule {name} {durn}ms for {nodeStr node}")
 
-    let stylesheet = getSveltishStylesheet (documentOf node)
+    let stylesheet = getSutilStylesheet (documentOf node)
     stylesheet.insertRule( keyframeText, stylesheet.cssRules.length) |> ignore
 
     let animations =
@@ -197,7 +197,7 @@ let clearRules() =
         if (numActiveAnimations = 0) then
             for kv in activeDocs do
                 let doc = kv.Value
-                let stylesheet = getSveltishStylesheet doc
+                let stylesheet = getSutilStylesheet doc
                 log <| sprintf "clearing %d rules" (int stylesheet.cssRules.length)
                 for i in [(int stylesheet.cssRules.length-1) .. -1 .. 0] do
                     stylesheet.deleteRule( float i )
@@ -211,7 +211,7 @@ let deleteRule (node:HTMLElement) (name:string) =
         previous |> Array.filter
             (if System.String.IsNullOrEmpty(name)
                 then (fun anim -> anim.IndexOf(name) < 0) // remove specific animation
-                else (fun anim -> anim.IndexOf("__sveltish") < 0)) // remove all Svelte animations
+                else (fun anim -> anim.IndexOf("__Sutil") < 0)) // remove all Svelte animations
     let deleted = previous.Length - next.Length
     if (deleted > 0) then
         //log <| sprintf "Deleted rule(s) %s (%d removed)" name deleted

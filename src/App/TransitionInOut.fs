@@ -1,10 +1,10 @@
 module TransitionInOut
 
-open Sveltish
-open Sveltish.Attr
-open Sveltish.DOM
-open Sveltish.Bindings
-open Sveltish.Transition
+open Sutil
+open Sutil.Attr
+open Sutil.DOM
+open Sutil.Bindings
+open Sutil.Transition
 
 let visible = Store.make true
 

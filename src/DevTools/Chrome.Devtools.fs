@@ -92,7 +92,7 @@ module Helpers =
                 {| |}
                 (fun result ->
                         //console.dir(result)
-                        if Sveltish.Interop.isUndefined result
+                        if Sutil.Interop.isUndefined result
                             then (fail <| Exception("Unknown error"))
                             else fulfil result)
         )

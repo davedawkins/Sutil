@@ -1,9 +1,9 @@
 module AwaitBlocks
 
-open Sveltish
-open Sveltish.Attr
-open Sveltish.DOM
-open Sveltish.Bindings
+open Sutil
+open Sutil.Attr
+open Sutil.DOM
+open Sutil.Bindings
 open Browser.Dom
 
 module RandomUser =

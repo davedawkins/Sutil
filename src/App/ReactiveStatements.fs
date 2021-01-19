@@ -1,9 +1,9 @@
 module ReactiveStatements
 
-open Sveltish
-open Sveltish.DOM
-open Sveltish.Bindings
-open Sveltish.Attr
+open Sutil
+open Sutil.DOM
+open Sutil.Bindings
+open Sutil.Attr
 open Browser.Dom
 
 let count = Store.make 0

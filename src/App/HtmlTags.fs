@@ -1,7 +1,7 @@
 module HtmlTags
 
-open Sveltish
-open Sveltish.DOM
+open Sutil
+open Sutil.DOM
 
 let stringOfHtml = "here's some <strong>HTML!!!</strong>"
 

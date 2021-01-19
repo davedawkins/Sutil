@@ -1,4 +1,4 @@
-module Sveltish.Bindings
+module Sutil.Bindings
 
 open Transition
 open DOM
@@ -258,7 +258,7 @@ let bindAttrNotify<'T> (attrName:string) (store : IObservable<'T>) (onchange : '
 
 let bindAttrListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : NodeFactory = fun ctx ->
     let parent = ctx.Parent
-    let unsubA = Sveltish.DOM.listen event parent handler
+    let unsubA = Sutil.DOM.listen event parent handler
     let unsubB = Store.subscribe store ( Interop.set parent attrName )
     unitResult()
 

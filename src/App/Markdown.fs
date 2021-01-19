@@ -1,8 +1,8 @@
-module Sveltish.Markdown
+module Sutil.Markdown
 
-open Sveltish.Styling
-open Sveltish.DOM
-open Sveltish.Attr
+open Sutil.Styling
+open Sutil.DOM
+open Sutil.Attr
 
 let style = [
     rule "h1" [ all "revert" ]

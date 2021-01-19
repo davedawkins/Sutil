@@ -1,8 +1,8 @@
 module SelectMultiple
 
-open Sveltish
-open Sveltish.DOM
-open Sveltish.Attr
+open Sutil
+open Sutil.DOM
+open Sutil.Attr
 
 let menu = [
     "Cookies and cream"

@@ -1,9 +1,9 @@
-namespace Sveltish
+namespace Sutil
 open System
 
 module DevToolsControl =
 
-    type SveltishOptions = {
+    type SutilOptions = {
         SlowAnimations : bool
         LoggingEnabled : bool
     }
@@ -32,8 +32,8 @@ module DevToolsControl =
     type IControlBlock = interface
         abstract ControlBlockVersion : int
         abstract Version: Version
-        abstract GetOptions : unit -> SveltishOptions
-        abstract SetOptions : SveltishOptions -> unit
+        abstract GetOptions : unit -> SutilOptions
+        abstract SetOptions : SutilOptions -> unit
         abstract GetStores : unit -> int array
         abstract GetStoreById : int -> IGenericStore
         abstract GetLogCategories: unit -> (string * bool) array
@@ -41,8 +41,8 @@ module DevToolsControl =
         abstract GetMountPoints: unit -> IMountPoint array
         end
 
-    let getControlBlock doc : IControlBlock = Interop.get doc "__sveltish_cb"
-    let setControlBlock doc (cb : IControlBlock)  = Interop.set doc "__sveltish_cb" cb
+    let getControlBlock doc : IControlBlock = Interop.get doc "__Sutil_cb"
+    let setControlBlock doc (cb : IControlBlock)  = Interop.set doc "__Sutil_cb" cb
 
     let initialise doc controlBlock =
         setControlBlock doc controlBlock

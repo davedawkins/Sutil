@@ -1,4 +1,4 @@
-module Sveltish.Logging
+module Sutil.Logging
 
 open System.Collections.Generic
 open Browser.Dom

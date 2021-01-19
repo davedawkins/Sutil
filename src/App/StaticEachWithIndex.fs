@@ -1,8 +1,8 @@
 module StaticEachWithIndex
 
-open Sveltish
-open Sveltish.DOM
-open Sveltish.Attr
+open Sutil
+open Sutil.DOM
+open Sutil.Attr
 
 type Cat = { Id : string; Name : string }
 

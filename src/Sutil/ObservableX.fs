@@ -1,4 +1,4 @@
-namespace Sveltish
+namespace Sutil
 
 open System
 

@@ -1,15 +1,15 @@
 module App
 
 open Fetch
-open Sveltish
-open Sveltish.Attr
-open Sveltish.Styling
-open Sveltish.DOM
-open Sveltish.Bindings
-open Sveltish.Transition
+open Sutil
+open Sutil.Attr
+open Sutil.Styling
+open Sutil.DOM
+open Sutil.Bindings
+open Sutil.Transition
 open Browser.Dom
 
-let urlBase = "https://raw.githubusercontent.com/davedawkins/Fable.Sveltish/main/src/App"
+let urlBase = "https://raw.githubusercontent.com/davedawkins/Sutil/main/src/App"
 //let log s = console.log(s)
 let make v = v
 
@@ -256,7 +256,7 @@ let viewSource (model : IStore<Model>) dispatch =
         Html.pre [
             Html.code [
                 class' "fsharp"
-                on "sveltish-show" (fun e -> log($"2show source {e.target}")) [StopPropagation]
+                on "Sutil-show" (fun e -> log($"2show source {e.target}")) [StopPropagation]
                 bind source text
             ]
         ]
@@ -288,11 +288,11 @@ let appMain () =
 
             Html.div [
                 class' "app-heading"
-                //Html.a [ href "https://github.com/davedawkins/Fable.Sveltish"; logo ]
+                //Html.a [ href "https://github.com/davedawkins/Sutil"; logo ]
                 Html.h1 [
                     class' "title is-4"
                     Html.a [
-                        href "https://github.com/davedawkins/Fable.Sveltish"
+                        href "https://github.com/davedawkins/Sutil"
                         Html.div [ class' "slogo"; Html.span [ text "<>" ] ]
                         text " SUTIL"
                     ]
@@ -339,7 +339,7 @@ let appMain () =
 let app() =
     Html.app [
         // Page title
-        headTitle "Sveltish"
+        headTitle "Sutil"
 
         // Bulma style framework
         headStylesheet "https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
@@ -348,4 +348,4 @@ let app() =
         appMain()
     ]
 
-app() |> mountElement "sveltish-app"
+app() |> mountElement "Sutil-app"

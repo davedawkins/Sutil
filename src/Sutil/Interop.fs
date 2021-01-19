@@ -1,4 +1,4 @@
-module Sveltish.Interop
+module Sutil.Interop
 
 open Fable.Core
 open Fable.Core.JsInterop
@@ -24,8 +24,8 @@ let exists (ob:obj) (name:string) : bool= jsNative
 [<Emit("$0 === undefined")>]
 let isUndefined (x: 'a) : bool = jsNative
 
-//[<ImportAll("../Fable.Sveltish/proxy.js")>]
-let makeProxy<'T>  ((a:'T),(b: obj -> unit )) : 'T = importMember "../Fable.Sveltish/proxy.js"
+//[<ImportAll("../Sutil/proxy.js")>]
+let makeProxy<'T>  ((a:'T),(b: obj -> unit )) : 'T = importMember "../Sutil/proxy.js"
 
 module Browser =
     // From https://gist.github.com/MangelMaxime/f9fbaa4d63bc649a283becfa7b6c3368

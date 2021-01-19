@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Fable.Sveltish\Fable.Sveltish.fsproj" />
+    <ProjectReference Include="..\src\Sutil\Sutil.fsproj" />
   </ItemGroup>
 
   <ItemGroup>

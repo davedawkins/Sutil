@@ -1,10 +1,10 @@
 module DomEvents
 
-open Sveltish
-open Sveltish.DOM
-open Sveltish.Attr
-open Sveltish.Styling
-open Sveltish.Bindings
+open Sutil
+open Sutil.DOM
+open Sutil.Attr
+open Sutil.Styling
+open Sutil.Bindings
 open Browser.Types
 
 let m = Store.make (0.0,0.0)

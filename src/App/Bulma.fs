@@ -1,8 +1,8 @@
-module Sveltish.Bulma
+module Sutil.Bulma
 
-open Sveltish.Styling
-open Sveltish.DOM
-open Sveltish.Attr
+open Sutil.Styling
+open Sutil.DOM
+open Sutil.Attr
 
 let styleHelpers = [
     rule "h1" [ addClass "title"; addClass "is-1" ]

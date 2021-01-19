@@ -1,10 +1,10 @@
 module SelectBindings
 
 open Browser
-open Sveltish
-open Sveltish.DOM
-open Sveltish.Attr
-open Sveltish.Styling
+open Sutil
+open Sutil.DOM
+open Sutil.Attr
+open Sutil.Styling
 
 type Question = {
     Id : int

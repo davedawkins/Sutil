@@ -1,13 +1,13 @@
 module Todos
 
-open Sveltish
-open Sveltish.Styling
-open Sveltish.Attr
-open Sveltish.DOM
-open Sveltish.Bindings
+open Sutil
+open Sutil.Styling
+open Sutil.Attr
+open Sutil.DOM
+open Sutil.Bindings
 open Browser.Types
 
-open Sveltish.Transition
+open Sutil.Transition
 
 type Todo = {
         Id : int

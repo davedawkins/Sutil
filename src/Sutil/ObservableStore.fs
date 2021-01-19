@@ -1,4 +1,4 @@
-namespace Sveltish
+namespace Sutil
 
 open System
 open Browser.Dom
@@ -117,7 +117,7 @@ module ObservableStore =
             // TODO: Is this the right way to report the model to the subscriber immediately?
             //Fable.Core.JS.setTimeout (fun _ -> observer.OnNext(model)) 0 |> ignore
 
-            // Sveltish depends on an immediate callback
+            // Sutil depends on an immediate callback
             observer.OnNext(model())
 
             Helpers.disposable <| fun () -> subscribers.Remove(id) |> ignore

@@ -1,8 +1,8 @@
 module EventModifiers
 
-open Sveltish
-open Sveltish.DOM
-open Sveltish.Attr
+open Sutil
+open Sutil.DOM
+open Sutil.Attr
 open Browser.Dom
 
 let handleClick _ =

@@ -1,9 +1,9 @@
 module EachBlocks
 
-open Sveltish
-open Sveltish.DOM
-open Sveltish.Bindings
-open Sveltish.Attr
+open Sutil
+open Sutil.DOM
+open Sutil.Bindings
+open Sutil.Attr
 
 type Cat = { Id : string; Name : string }
 

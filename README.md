@@ -1,8 +1,8 @@
-# Sutil (was Sveltish)
+# Sutil (was Sutil)
 
 An experiment in applying the design principles from [Svelte](https://svelte.dev/) to native Fable. At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself.
 
-See the [Sutil website](https://davedawkins.github.io/Fable.Sveltish/) for demos.
+See the [Sutil website](https://davedawkins.github.io/Sutil/) for demos.
 
 Here's how the Sutil Todos app looks. This is an augmented port of the [Svelte animate example](https://svelte.dev/examples#animate)
 
@@ -21,51 +21,51 @@ An additional reference manual is required provide full details of each feature.
 
 ## DOM builder
 
-The simplest Sveltish app:
+The simplest Sutil app:
 
 ```f#
-    open Sveltish.DOM
+    open Sutil.DOM
 
-    mountElement "sveltish-app" (text "Hello World")
+    mountElement "Sutil-app" (text "Hello World")
 ```
 
 where your `index.html` contains
 ```html
-    <div id="sveltish-app"/>
+    <div id="Sutil-app"/>
 ```
 
 Introducing `div`, `p` and a view function:
 
 ```f#
-    open Sveltish.Html
-    open Sveltish.DOM
+    open Sutil.Html
+    open Sutil.DOM
 
     let view = div [
         p [ text "Hello World" ]
     ]
 
-    mountElement "sveltish-app" view
+    mountElement "Sutil-app" view
 ```
 
 Use a prefix for elements if you prefer:
 
 ```f#
-    open Sveltish
-    open Sveltish.DOM
+    open Sutil
+    open Sutil.DOM
 
     let view = Html.div [
         Html.p [ text "Hello World" ]
     ]
 
-    mountElement "sveltish-app" view
+    mountElement "Sutil-app" view
 ```
 
 Setting attributes. Note the trailing `'` for attributes that are F# keywords or core functions (such as `id` and `type`)
 
 ```f#
-    open Sveltish
-    open Sveltish.DOM
-    open Sveltish.Attr
+    open Sutil
+    open Sutil.DOM
+    open Sutil.Attr
 
     let view = Html.div [
         class' "container"
@@ -76,15 +76,15 @@ Setting attributes. Note the trailing `'` for attributes that are F# keywords or
         ]
     ]
 
-    mountElement "sveltish-app" view
+    mountElement "Sutil-app" view
 ```
 
 Handling events:
 
 ```f#
-    open Sveltish
-    open Sveltish.DOM
-    open Sveltish.Attr
+    open Sutil
+    open Sutil.DOM
+    open Sutil.Attr
     open Browser.Types
 
     let view = Html.div [
@@ -92,7 +92,7 @@ Handling events:
         onClick (fun e -> console.log("Clicked")) []
     ]
 
-    mountElement "sveltish-app" view
+    mountElement "Sutil-app" view
 ```
 
 ## Styling
@@ -100,9 +100,9 @@ Handling events:
 You can apply specific styling to your components:
 
 ```f#
-    open Sveltish
-    open Sveltish.DOM
-    open Sveltish.Attr
+    open Sutil
+    open Sutil.DOM
+    open Sutil.Attr
 
     let exampleCss = [
         rule "p" [
@@ -115,7 +115,7 @@ You can apply specific styling to your components:
         Html.p [ "This is styled locally" ]
     ] |> withStyle exampleCss
 
-    mountElement "sveltish-app" view
+    mountElement "Sutil-app" view
 ```
 
 Alternative F# syntax:
@@ -172,7 +172,7 @@ Note that you can still use `withStyle`, which will override framework styling.
     ] <| withStyle localCss
 ```
 
-Sveltish introduces `addClass` as an experimental pseudo-style, which can provide a kind of style inheritance.
+Sutil introduces `addClass` as an experimental pseudo-style, which can provide a kind of style inheritance.
 
 ```f#
     let localCss = [
@@ -196,7 +196,7 @@ Sveltish introduces `addClass` as an experimental pseudo-style, which can provid
 Similar to Svelte stores, using the same API
 
 ```f#
-    let count = Sveltish.makeStore 0
+    let count = Sutil.makeStore 0
     button [
       class' "button"
       onClick (fun _ -> Store.modify (fun n -> n + 1)) []
@@ -209,7 +209,7 @@ Similar to Svelte stores, using the same API
 We can react to count being updated:
 
 ```f#
-    let count = Sveltish.makeStore 0
+    let count = Sutil.makeStore 0
     button [
       class' "button"
       onClick (fun _ -> Store.modify (fun n -> n + 1)) []
@@ -299,7 +299,7 @@ let todosList title filter tin tout model dispatch =
 
 ## Model-View-Update (Elmish) support
 
-A Sveltish program can support Elmish MVU as in the following example.
+A Sutil program can support Elmish MVU as in the following example.
 
 Notice that the view function is called only once, and mutates the DOM according to model bindings
 
@@ -329,19 +329,19 @@ let view() =
         ]
     ]
 
-view() |> Sveltish.DOM.mountElement "sveltish-app"
+view() |> Sutil.DOM.mountElement "Sutil-app"
 ```
 
 ## Interaction with 3rd-party libraries
 
 The app now has syntax highlighting, in the form of highlight.js (a dependency of the app, and not the library). This required a few enhancements:
-- custom events from Sveltish that can be used to tell highlight.js to reformat
-- resilience to DOM nodes disappearing that were being watched by Sveltish (this will be an ongoing challenge).
+- custom events from Sutil that can be used to tell highlight.js to reformat
+- resilience to DOM nodes disappearing that were being watched by Sutil (this will be an ongoing challenge).
 - relaxation of the idea that all edits to index.html happen programmatically - you can add stylesheet and script tags to the head programmatically
 but things like highlight.js needed a short JS fragment. (However, writing this just now, I think I see how I can actually just write that in Fable
 with a minor interop edit. Fable is fantastic with JS interop.)
 
-The problem I had was because I was Sveltish-binding to a `text` node, which would be replaced by highlight.js. Sveltish handles this, but can't be
+The problem I had was because I was Sutil-binding to a `text` node, which would be replaced by highlight.js. Sutil handles this, but can't be
 100% sure on the recovery strategy. It's a good test case so I've left it this way in the way, but a quicker fix by far would have been to bind to the
 outer `<code>` or `<pre>` elements.
 
@@ -366,7 +366,7 @@ I ended up preferring Chrome to get the basics working, it was a much easier wor
 
 ### Possibilities
 
-- Write the extension in Sveltish. It's currently in JS to get it out of the ground, but it already calls back into Fable code
+- Write the extension in Sutil. It's currently in JS to get it out of the ground, but it already calls back into Fable code
 - Sutil-focused DOM tree
 - Show mapping expressions (understand the dependency expression graph)
 - Show subscribers (help to understand if cleanup is working, etc)

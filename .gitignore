@@ -294,7 +294,7 @@ __pycache__/
 .ionide
 .DS_Store
 public/bundle.js
-src/Fable.Sveltish/Scratch.txt
+src/Sutil/Scratch.txt
 examples/HelloWorld/package-lock.json
 examples/HelloWorld/public/bundle.js
 devtools/js/bundle.js

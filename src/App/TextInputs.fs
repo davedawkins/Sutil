@@ -1,8 +1,8 @@
 module TextInputs
 
-open Sveltish
-open Sveltish.Attr
-open Sveltish.DOM
+open Sutil
+open Sutil.Attr
+open Sutil.DOM
 
 let name = Store.make("")
 

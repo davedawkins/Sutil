@@ -1,9 +1,9 @@
 module LogicElseIf
 
-open Sveltish
-open Sveltish.Bindings
-open Sveltish.DOM
-open Sveltish.Attr
+open Sutil
+open Sutil.Bindings
+open Sutil.DOM
+open Sutil.Attr
 
 let x = 7;
 

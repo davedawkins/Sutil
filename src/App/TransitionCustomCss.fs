@@ -1,13 +1,13 @@
 module TransitionCustomCss
 
 open System
-open Sveltish
-open Sveltish.Attr
-open Sveltish.DOM
-open Sveltish.Bindings
-open Sveltish.Transition
+open Sutil
+open Sutil.Attr
+open Sutil.DOM
+open Sutil.Bindings
+open Sutil.Transition
 open Browser.Types
-open Sveltish.Styling
+open Sutil.Styling
 
 let visible = Store.make true
 

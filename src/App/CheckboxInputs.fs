@@ -1,9 +1,9 @@
 module CheckboxInputs
 
-open Sveltish
-open Sveltish.DOM
-open Sveltish.Attr
-open Sveltish.Transition
+open Sutil
+open Sutil.DOM
+open Sutil.Attr
+open Sutil.Transition
 
 let yes = Store.make(false)
 

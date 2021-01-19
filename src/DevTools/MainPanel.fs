@@ -1,4 +1,4 @@
-module Sveltish.Devtools
+module Sutil.Devtools
 
 // https://github.com/mdn/webextensions-examples/tree/master/devtools-panels
 // https://stackoverflow.com/questions/4532236/how-to-access-the-webpage-dom-rather-than-the-extension-page-dom
@@ -8,12 +8,12 @@ module Sveltish.Devtools
 
 open System
 open Browser.Types
-open Sveltish
-open Sveltish.DOM
-open Sveltish.Attr
-open Sveltish.Styling
-open Sveltish.Bindings
-open Sveltish.Transition
+open Sutil
+open Sutil.DOM
+open Sutil.Attr
+open Sutil.Styling
+open Sutil.Bindings
+open Sutil.Transition
 open Browser.Dom
 
 open Fable.Core
@@ -41,10 +41,10 @@ let jsDollar0() : obj = jsNative
 let jsVersion() : DevToolsControl.Version = jsNative
 
 [<Import("GetOptions", from="./inject.js")>]
-let jsGetOptions() : DevToolsControl.SveltishOptions = jsNative
+let jsGetOptions() : DevToolsControl.SutilOptions = jsNative
 
 [<Import("SetOptions", from="./inject.js")>]
-let jsSetOptions( options : DevToolsControl.SveltishOptions ) : bool = jsNative
+let jsSetOptions( options : DevToolsControl.SutilOptions ) : bool = jsNative
 
 [<Import("GetLogCategories", from="./inject.js")>]
 let jsGetLogCategories() : LogState array = jsNative
@@ -73,7 +73,7 @@ type Model = {
     Page : Page
     LogCategories : LogState array
     Stores : StoreIdVal array
-    Options : DevToolsControl.SveltishOptions
+    Options : DevToolsControl.SutilOptions
     MountPoints : DevToolsControl.IMountPoint array
     }
 
@@ -89,7 +89,7 @@ type Message =
     | MountPointsFromApp of DevToolsControl.IMountPoint array
     | StoresFromApp of StoreIdVal array
     | LogCategoriesFromApp of LogState array
-    | OptionsFromApp of DevToolsControl.SveltishOptions
+    | OptionsFromApp of DevToolsControl.SutilOptions
 
 let page m = m.Page
 let logCategories m = m.LogCategories
@@ -299,7 +299,7 @@ let view model dispatch =
                 Html.h4 [
                     id' "sv-title"
                     class' "title is-5"
-                    text "Sveltish"
+                    text "Sutil"
                 ]
                 Html.ul [
                     class' "sv-menu"
@@ -354,7 +354,7 @@ let initialiseConnectedApp (model:IObservable<Model>) dispatch =
             |> ignore
     else
         // assume user refreshed the app so push the options into the new app
-        // small risk that it's a different version of the Sveltish core.
+        // small risk that it's a different version of the Sutil core.
         writeOptions m.Options
         writeLogCategories m.LogCategories
 
@@ -366,7 +366,7 @@ let startMessageHandlers (model : IObservable<Model>) dispatch =
             |> Promise.iter (fun dollar0 -> sidePanel.setObject( dollar0, "Selected", ignore) ))
 
     Chrome.Devtools.Panels.elements.createSidebarPane(
-        "Sveltish",
+        "Sutil",
         fun sidebarPanel -> sidePanel <- sidebarPanel
         )
 
@@ -399,7 +399,7 @@ let createMainPanel() =
         let model, dispatch = makeStore panelDoc ()
 
         view model dispatch
-            |> mountElementOnDocument panelDoc "sveltish-app"
+            |> mountElementOnDocument panelDoc "Sutil-app"
 
         startMessageHandlers model dispatch
         initialiseConnectedApp model dispatch
@@ -407,7 +407,7 @@ let createMainPanel() =
     let unInitialisePanel (win: Window) = ()
 
     Chrome.Devtools.Panels.create
-        "Sveltish" // title
+        "Sutil" // title
         "/icon.png" // icon
         "/html/panel.html"
         (fun p ->

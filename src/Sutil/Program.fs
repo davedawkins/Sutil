@@ -1,13 +1,13 @@
-module Sveltish.Program
+module Sutil.Program
 
-    open Sveltish.DOM
+    open Sutil.DOM
 
     //let makeComponent name (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
     //    element( { ctx with StyleName = "" }, parent )
 
     //
-    // Sveltish Elmish
-    // The model mutates in Sveltish, so the function signatures are slightly different to Elmish.
+    // Sutil Elmish
+    // The model mutates in Sutil, so the function signatures are slightly different to Elmish.
     // This approach isn't necessary, but it could be helpful in that it encourages the view to
     // dispatch messages that are then processed only in the update function.
     //
@@ -20,4 +20,4 @@ module Sveltish.Program
                 update msg model
                 DOM.Event.notifyUpdated doc)
 
-        Sveltish.DOM.mountElementOnDocument doc host <| view model (makeDispatcher update)
+        Sutil.DOM.mountElementOnDocument doc host <| view model (makeDispatcher update)

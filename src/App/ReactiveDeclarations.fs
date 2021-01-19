@@ -1,9 +1,9 @@
 module ReactiveDeclarations
 
-open Sveltish
-open Sveltish.Attr
-open Sveltish.DOM
-open Sveltish.Bindings
+open Sutil
+open Sutil.Attr
+open Sutil.DOM
+open Sutil.Bindings
 
 let count      = Store.make 1
 let doubled    = count |> Store.map ((*) 2)

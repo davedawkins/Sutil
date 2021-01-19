@@ -37,7 +37,7 @@ function initialisePanel(win)
     }
 
     function injectedGetStores() {
-        let stores = document.body.__Sutil_global.stores;
+        let stores = document.body.__sutil_global.stores;
         return {
             Data: Array.from(stores).map( i => { return { Id: i, Val: window.sv_get_store(i).Get } } )
         }

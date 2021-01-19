@@ -41,8 +41,8 @@ module DevToolsControl =
         abstract GetMountPoints: unit -> IMountPoint array
         end
 
-    let getControlBlock doc : IControlBlock = Interop.get doc "__Sutil_cb"
-    let setControlBlock doc (cb : IControlBlock)  = Interop.set doc "__Sutil_cb" cb
+    let getControlBlock doc : IControlBlock = Interop.get doc "__sutil_cb"
+    let setControlBlock doc (cb : IControlBlock)  = Interop.set doc "__sutil_cb" cb
 
     let initialise doc controlBlock =
         setControlBlock doc controlBlock

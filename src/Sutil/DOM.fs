@@ -47,12 +47,12 @@ let nodeStr (node : Node) =
 
 
 module Event =
-    let ElementReady = "Sutil-element-ready"
-    let Show = "Sutil-show"
-    let Hide = "Sutil-hide"
-    let Updated = "Sutil-updated"
-    //let NewStore = "Sutil-new-store"
-    //let DisposeStore = "Sutil-dispose-store"
+    let ElementReady = "sutil-element-ready"
+    let Show = "sutil-show"
+    let Hide = "sutil-hide"
+    let Updated = "sutil-updated"
+    //let NewStore = "sutil-new-store"
+    //let DisposeStore = "sutil-dispose-store"
 
     let notifyEvent (doc : Document) name data =
         doc.dispatchEvent( Interop.customEvent name data ) |> ignore
@@ -222,7 +222,7 @@ let bindResult r = Binding r
 let errorNode (parent:Node) message : Node=
     let doc = documentOf parent
     let d = doc.createElement("div")
-    d.appendChild(doc.createTextNode($"Sutil-error: {message}")) |> ignore
+    d.appendChild(doc.createTextNode($"sutil-error: {message}")) |> ignore
     parent.appendChild(d) |> ignore
     d.setAttribute("style", "color: red; padding: 4px; font-size: 10px;")
     upcast d
@@ -323,17 +323,17 @@ let rec applyCustomRules e (namedSheet:NamedStyleSheet) =
     // TODO: Store them in a custom attribute on 'e'
     let sheet = namedSheet.StyleSheet
     for rule in sheet |> List.filter (ruleMatchEl e) do
-        for custom in rule.Style |> List.filter (fun (nm,v) -> nm.StartsWith("Sutil")) do
+        for custom in rule.Style |> List.filter (fun (nm,v) -> nm.StartsWith("sutil")) do
             match custom with
-            | (nm,v) when nm = "Sutil-use-global" ->
+            | (nm,v) when nm = "sutil-use-global" ->
                 let root = rootStyle namedSheet
                 if root.Name <> namedSheet.Name then
                     e.classList.add(root.Name)
                     applyCustomRules e root
                 ()
-            | (nm,v) when nm = "Sutil-use-parent" ->
+            | (nm,v) when nm = "sutil-use-parent" ->
                 ()
-            | (nm,v) when nm = "Sutil-add-class" ->
+            | (nm,v) when nm = "sutil-add-class" ->
                 //log($"Matches: {e.tagName} '%A{e.classList}' -> %A{rule.Selector}")
                 //log($"Adding class {v}")
                 e.classList.add(string v)
@@ -652,8 +652,8 @@ type ResizeObserver( el : HTMLElement ) =
 
 [<RequireQualifiedAccessAttribute>]
 module NodeKey =
-    let Disposables = "__Sutil_disposables"
-    let ResizeObserver = "__Sutil_resizeObserver"
+    let Disposables = "__sutil_disposables"
+    let ResizeObserver = "__sutil_resizeObserver"
 
     let get<'T> (node:Node) key : 'T option  =
         let v : obj = Interop.get node key

@@ -256,7 +256,7 @@ let viewSource (model : IStore<Model>) dispatch =
         Html.pre [
             Html.code [
                 class' "fsharp"
-                on "Sutil-show" (fun e -> log($"2show source {e.target}")) [StopPropagation]
+                on "sutil-show" (fun e -> log($"2show source {e.target}")) [StopPropagation]
                 bind source text
             ]
         ]
@@ -348,4 +348,4 @@ let app() =
         appMain()
     ]
 
-app() |> mountElement "Sutil-app"
+app() |> mountElement "sutil-app"

@@ -26,12 +26,12 @@ The simplest Sutil app:
 ```f#
     open Sutil.DOM
 
-    mountElement "Sutil-app" (text "Hello World")
+    mountElement "sutil-app" (text "Hello World")
 ```
 
 where your `index.html` contains
 ```html
-    <div id="Sutil-app"/>
+    <div id="sutil-app"/>
 ```
 
 Introducing `div`, `p` and a view function:
@@ -44,7 +44,7 @@ Introducing `div`, `p` and a view function:
         p [ text "Hello World" ]
     ]
 
-    mountElement "Sutil-app" view
+    mountElement "sutil-app" view
 ```
 
 Use a prefix for elements if you prefer:
@@ -57,7 +57,7 @@ Use a prefix for elements if you prefer:
         Html.p [ text "Hello World" ]
     ]
 
-    mountElement "Sutil-app" view
+    mountElement "sutil-app" view
 ```
 
 Setting attributes. Note the trailing `'` for attributes that are F# keywords or core functions (such as `id` and `type`)
@@ -76,7 +76,7 @@ Setting attributes. Note the trailing `'` for attributes that are F# keywords or
         ]
     ]
 
-    mountElement "Sutil-app" view
+    mountElement "sutil-app" view
 ```
 
 Handling events:
@@ -92,7 +92,7 @@ Handling events:
         onClick (fun e -> console.log("Clicked")) []
     ]
 
-    mountElement "Sutil-app" view
+    mountElement "sutil-app" view
 ```
 
 ## Styling
@@ -115,7 +115,7 @@ You can apply specific styling to your components:
         Html.p [ "This is styled locally" ]
     ] |> withStyle exampleCss
 
-    mountElement "Sutil-app" view
+    mountElement "sutil-app" view
 ```
 
 Alternative F# syntax:
@@ -329,7 +329,7 @@ let view() =
         ]
     ]
 
-view() |> Sutil.DOM.mountElement "Sutil-app"
+view() |> Sutil.DOM.mountElement "sutil-app"
 ```
 
 ## Interaction with 3rd-party libraries
@@ -341,7 +341,7 @@ The app now has syntax highlighting, in the form of highlight.js (a dependency o
 but things like highlight.js needed a short JS fragment. (However, writing this just now, I think I see how I can actually just write that in Fable
 with a minor interop edit. Fable is fantastic with JS interop.)
 
-The problem I had was because I was Sutil-binding to a `text` node, which would be replaced by highlight.js. Sutil handles this, but can't be
+The problem I had was because I was sutil-binding to a `text` node, which would be replaced by highlight.js. Sutil handles this, but can't be
 100% sure on the recovery strategy. It's a good test case so I've left it this way in the way, but a quicker fix by far would have been to bind to the
 outer `<code>` or `<pre>` elements.
 
@@ -367,7 +367,7 @@ I ended up preferring Chrome to get the basics working, it was a much easier wor
 ### Possibilities
 
 - Write the extension in Sutil. It's currently in JS to get it out of the ground, but it already calls back into Fable code
-- Sutil-focused DOM tree
+- sutil-focused DOM tree
 - Show mapping expressions (understand the dependency expression graph)
 - Show subscribers (help to understand if cleanup is working, etc)
 - Live update

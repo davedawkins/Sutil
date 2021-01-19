@@ -399,7 +399,7 @@ let createMainPanel() =
         let model, dispatch = makeStore panelDoc ()
 
         view model dispatch
-            |> mountElementOnDocument panelDoc "Sutil-app"
+            |> mountElementOnDocument panelDoc "sutil-app"
 
         startMessageHandlers model dispatch
         initialiseConnectedApp model dispatch

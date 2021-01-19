@@ -13,7 +13,7 @@
 - Logging options in DevTools. Rework of promise bindings. Cleaner interface between app and devtools.
   Intermediate check-in
 - Options window in DevTools, communicating with Sutil core. Still debugging, but *almost* working.
-- Converted DevTools panel to Sutil-Fable. This will make it easier and faster to develop. I want to use it to help
+- Converted DevTools panel to sutil-Fable. This will make it easier and faster to develop. I want to use it to help
 diagnose recent regression with the animation of the todos.
 - Reworking of Cells example to try and make the reactive bindings neater. It's a challenge.
 - NodeFactory is now "BuildContext -> BuildResult"

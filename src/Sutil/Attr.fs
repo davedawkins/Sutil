@@ -148,5 +148,5 @@ let flex           (n:obj) = cssAttr("flex",n)
 let flexDirection  (n:obj) = cssAttr("flex-direction",n)
 let transform      (n:obj) = cssAttr("transform",n)
 
-let addClass       (n:obj) = cssAttr("Sutil-add-class",n)
-let useGlobal              = cssAttr("Sutil-use-global","" :> obj)
+let addClass       (n:obj) = cssAttr("sutil-add-class",n)
+let useGlobal              = cssAttr("sutil-use-global","" :> obj)

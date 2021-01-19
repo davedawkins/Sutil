@@ -7,5 +7,5 @@ open Sutil.DOM
 //    text "Hello World!"
 //]
 
-//mountElement "Sutil-app" <| helloWorld()
-mountElement "Sutil-app" (text "Hello World")
+//mountElement "sutil-app" <| helloWorld()
+mountElement "sutil-app" (text "Hello World")

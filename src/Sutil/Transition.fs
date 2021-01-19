@@ -137,10 +137,10 @@ let waitAnimationFrame tag f =
         ) |> ignore
 
 let getSutilStyleElement (doc : Document) =
-    let mutable e = doc.querySelector("head style#__Sutil_keyframes")
+    let mutable e = doc.querySelector("head style#__sutil_keyframes")
     if (isNull e) then
         e <- element doc "style"
-        e.setAttribute("id", "__Sutil_keyframes")
+        e.setAttribute("id", "__sutil_keyframes")
         doc.head.appendChild(e) |> ignore
     e
 
@@ -173,7 +173,7 @@ let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transiti
 
     let rule = keyframes @ [ sprintf "100%% {%s}\n" (tr.Css b (1.0 - b)) ] |> String.concat ""
 
-    let name = sprintf "__Sutil_%d" (if uid = 0 then nextRuleId() else uid)
+    let name = sprintf "__sutil_%d" (if uid = 0 then nextRuleId() else uid)
     let keyframeText = sprintf "@keyframes %s %s" name rule
     log <| sprintf "keyframe: %s" (keyframes |> List.skip (keyframes.Length / 2) |> List.head)
     log($"createRule {name} {durn}ms for {nodeStr node}")

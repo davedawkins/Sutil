@@ -2,6 +2,9 @@
 
 ## Changelog (most recent first)
 
+- More easing functions. Implemented Fallback for crossfade, nicer outro now in Todos app.
+- Fix for source display
+- Clean up TransitionProp API
 - Repository renamed
 - Add Mountpoints tab in DevTools - allows a page remount without refresh
 - Bug fixes, events for intros and outros

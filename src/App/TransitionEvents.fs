@@ -22,7 +22,7 @@ let view() =
             ]
             text " visible"
         ]
-        transition (Both(fly, [ Duration 2000.0; Y 200.0 ])) visible <|
+        transition (Both(fly |> withProps [ Duration 2000.0; Y 200.0 ])) visible <|
             Html.p [
                 on "introstart" (fun _ -> status <~ "intro started") []
                 on "introend" (fun _ -> status <~ "intro ended") []

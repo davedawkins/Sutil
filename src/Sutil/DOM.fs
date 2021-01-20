@@ -37,13 +37,15 @@ let nodeStr (node : Node) =
     if isNull node then
         "null"
     else
+        let mutable tc = node.textContent
+        if  tc.Length > 80 then tc <- tc.Substring(0,80)
         match node.nodeType with
         | ElementNodeType ->
             let e = node :?> HTMLElement
-            $"<{e.tagName.ToLower()}>#{svId node} \"{node.textContent}\""
+            $"<{e.tagName.ToLower()}>#{svId node} \"{tc}\""
         | TextNodeType ->
-            $"\"{node.textContent}\"#{svId node}"
-        | _ -> $"?'{node.textContent}'#{svId node}"
+            $"\"{tc}\"#{svId node}"
+        | _ -> $"?'{tc}'#{svId node}"
 
 
 module Event =
@@ -547,7 +549,7 @@ let rec descendants (node:Node) =
     }
 
 let clearWithDispose (node:Node) (dispose:Node->unit)=
-    children node |> Seq.iter (node.removeChild >> dispose)
+    children node |> List.ofSeq |> List.iter (node.removeChild >> dispose)
 
 let clear (node:Node) =
     clearWithDispose node ignore
@@ -717,3 +719,15 @@ let rec mountElementOnDocument (doc : Document) id (app : NodeFactory)  =
 
 let rec mountElement id (app : NodeFactory)  =
     mountElementOnDocument document id app
+
+let computedStyleOpacity e =
+    try
+        float (window.getComputedStyle(e).opacity)
+    with
+    | _ ->
+        log(sprintf "parse error: '%A'" (window.getComputedStyle(e).opacity))
+        1.0
+
+let computedStyleTransform node =
+    let style = window.getComputedStyle(node)
+    if style.transform = "none" then "" else style.transform

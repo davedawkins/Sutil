@@ -11,26 +11,8 @@ open System
 
 let log = Sutil.Logging.log "trans"
 
-module Easing =
-    // Adapted from svelte/easing/index.js
-    let linear = id
-    let cubicIn t = t * t * t
-    let cubicOut t =
-        let f = t - 1.0
-        f * f * f + 1.0
-    let cubicInOut t =
-        if t < 0.5 then 4.0 * t * t * t else 0.5 * System.Math.Pow(2.0 * t - 2.0, 3.0) + 1.0
-
-    let elasticIn t =
-        Math.Sin((13.0 * t * Math.PI) / 2.0) * Math.Pow(2.0, 10.0 * (t - 1.0))
-
-    let elasticOut t =
-        Math.Sin((-13.0 * (t + 1.0) * Math.PI) / 2.0) * Math.Pow(2.0, -10.0 * t) + 1.0
-
-    // ... loads more
-
 type TransitionProp =
-    | Key of string // Come back to this
+    | Key of string
     | X of float
     | Y of float
     | Opacity of float
@@ -41,10 +23,9 @@ type TransitionProp =
     | Css of (float -> float -> string )
     | Tick of (float -> float -> unit)
     | Speed of float
+    | Fallback of TransitionBuilder
 
-// Beginning to think this needs to be a dynamic object in order to be forward compatible
-// with new transitions
-type Transition =
+and Transition =
     {
         Key : string
         X : float
@@ -56,31 +37,45 @@ type Transition =
         Speed : float
         Ease : (float -> float)
         Css : (float -> float -> string )
-        Tick: (float -> float -> unit)
-    }
-    with
-    static member Default = {
-        Key =""
-        X = 0.0
-        Y = 0.0
-        Delay = 0.0
-        Opacity = 0.0
-        Duration = 0.0
-        DurationFn = None
-        Speed = 0.0
-        Ease = Easing.linear
-        Css = fun a b -> ""
-        Tick = fun a b -> () }
+        Tick: (float -> float -> unit) option
+        Fallback: TransitionBuilder option
+    } with
+            static member Default = {
+                Key =""
+                X = 0.0
+                Y = 0.0
+                Delay = 0.0
+                Opacity = 0.0
+                Duration = 0.0
+                DurationFn = None
+                Speed = 0.0
+                Ease = Easing.linear
+                Css = fun a b -> ""
+                Fallback = None
+                Tick = None }
 
-type TransitionFn = (TransitionProp list -> HTMLElement -> unit -> Transition)
+and CreateTransition =
+    unit -> Transition
 
-type TransitionFactory = TransitionFn * (TransitionProp list)
+and TransitionBuilder = TransitionProp list -> HTMLElement -> CreateTransition
+
+type Animation = {
+    From: ClientRect
+    To: ClientRect
+}
+
+let mergeProps newerProps existingProps : TransitionProp list =
+    existingProps @ newerProps
+
+let withProps (userProps : TransitionProp list) (f : TransitionBuilder) : TransitionBuilder =
+    fun (initProps : TransitionProp list) ->
+        initProps |> mergeProps userProps |> f
 
 type TransitionAttribute =
-    | Both of TransitionFactory
-    | In of TransitionFactory
-    | Out of TransitionFactory
-    | InOut of (TransitionFactory * TransitionFactory)
+    | Both of TransitionBuilder
+    | In of TransitionBuilder
+    | Out of TransitionBuilder
+    | InOut of (TransitionBuilder * TransitionBuilder)
 
 let overrideDuration d = if Sutil.DevToolsControl.Options.SlowAnimations then 10.0 * d else d
 let overrideDurationFn fo = if Sutil.DevToolsControl.Options.SlowAnimations then (fo |> Option.map (fun f -> ((*)10.0 << f))) else fo
@@ -92,22 +87,15 @@ let private applyProp (r:Transition) (prop : TransitionProp) =
     | DurationFn fo -> { r with DurationFn = fo; Duration = 0.0 }
     | Ease f -> { r with Ease = f }
     | Css f -> { r with Css = f }
-    | Tick f -> { r with Tick = f }
+    | Tick f -> { r with Tick = Some f }
     | Speed s -> { r with Speed = s }
     | X n -> { r with X = n }
     | Y n -> { r with Y = n }
     | Opacity n -> { r with Opacity = n }
     | Key f -> { r with Key = f }
+    | Fallback f -> { r with Fallback = Some f }
 
 let applyProps (props : TransitionProp list) (tr:Transition) = props |> List.fold applyProp tr
-
-let private computedStyleOpacity e =
-    try
-        float (window.getComputedStyle(e).opacity)
-    with
-    | _ ->
-        log(sprintf "parse error: '%A'" (window.getComputedStyle(e).opacity))
-        1.0
 
 let element (doc:Document) tag = doc.createElement(tag)
 
@@ -153,9 +141,7 @@ let nextRuleId = Helpers.makeIdGenerator()
 
 let toEmptyStr s = if System.String.IsNullOrEmpty(s) then "" else s
 
-let createRule (node : HTMLElement) (a:float) (b:float) (trfn : unit -> Transition) (uid:int) =
-    let tr = trfn()
-
+let createRule (node : HTMLElement) (a:float) (b:float) tr (uid:int) =
     registerDoc (documentOf node)
 
     let durn =
@@ -219,182 +205,6 @@ let deleteRule (node:HTMLElement) (name:string) =
         numActiveAnimations <- numActiveAnimations - deleted
         if (numActiveAnimations = 0) then clearRules()
 
-let fade (props : TransitionProp list) (node : Element) =
-    let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.linear }
-    fun () -> { tr with Css = (fun t _ -> sprintf "opacity: %f" (t* computedStyleOpacity node)) }
-
-let parseFloat (s:string, name) =
-    if isNull s
-        then 0.0
-        else
-            let s' = s.Replace("px","")
-            let (success, num) = System.Double.TryParse s'
-            if (success) then num else 0.0
-
-let slide (props : TransitionProp list) (node : HTMLElement) =
-    let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut }
-
-    let style = window.getComputedStyle(node)
-
-    let opacity = parseFloat (style.opacity, "opacity")
-    let height = parseFloat (style.height, "height")
-    let padding_top = parseFloat(style.paddingTop, "paddingTop")
-    let padding_bottom = parseFloat(style.paddingBottom, "paddingBottom")
-    let margin_top = parseFloat(style.marginTop, "marginTop")
-    let margin_bottom = parseFloat(style.marginBottom, "marginBottom")
-    let border_top_width = parseFloat(style.borderTopWidth, "borderTopWidth")
-    let border_bottom_width = parseFloat(style.borderBottomWidth, "borderBottomWidth")
-
-    let set (name,value,units) = sprintf "%s: %s%s;" name value units
-
-    fun () -> { tr with Css = (fun t _ ->
-                            let result = ([
-                                    ("overflow", "hidden", "")
-                                    ("opacity",  (min (t * 20.0) 1.0) * opacity  |> string, "")
-                                    ("height",  t * height|> string, "px")
-                                    ("padding-top",  t * padding_top|> string, "px")
-                                    ("padding-bottom",  t * padding_bottom|> string, "px")
-                                    ("margin-top",  t * margin_top|> string, "px")
-                                    ("margin-bottom",  t * margin_bottom|> string, "px")
-                                    ("border-top-width",  t * border_top_width|> string, "px")
-                                    ("border-bottom-width",  t * border_bottom_width|> string, "px")
-                                ] |> List.map set |> String.concat "")
-                            result )
-    }
-
-//function draw(node, { delay = 0, speed, duration, easing: easing$1 = easing.cubicInOut }) {
-let draw (props : TransitionProp list) (node : SVGPathElement) =
-    let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 800.0; Ease = Easing.cubicInOut }
-
-    let len = node.getTotalLength()
-
-    // TODO:
-    // Use optional duration & speed (original compares to undefined not 0.0)
-    // USe optional duration function (if present, it's a function of len)
-    let duration =
-        match tr.Duration with
-        | 0.0 -> if tr.Speed = 0.0 then 800.0 else len / tr.Speed
-        | d -> d
-
-    fun () -> { tr with
-                    Duration = duration
-                    Css = fun t u -> sprintf "stroke-dasharray: %f %f" (t*len) (u*len) }
-(*
-function fly(node, { delay = 0, duration = 400, easing: easing$1 = easing.cubicOut, x = 0, y = 0, opacity = 0 }) {
-    const style = getComputedStyle(node);
-    const target_opacity = +style.opacity;
-    const transform = style.transform === 'none' ? '' : style.transform;
-    const od = target_opacity * (1 - opacity);
-    return {
-        delay,
-        duration,
-        easing: easing$1,
-        css: (t, u) => `
-			transform: ${transform} translate(${(1 - t) * x}px, ${(1 - t) * y}px);
-			opacity: ${target_opacity - (od * u)}`
-    };
-} *)
-let fly (props : TransitionProp list) (node : Element) =
-    let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut; X = 0.0; Y = 0.0 }
-    let style = window.getComputedStyle(node)
-    let targetOpacity = computedStyleOpacity node
-    let transform = if style.transform = "none" then "" else style.transform
-    let od = targetOpacity * (1.0 - tr.Opacity)
-
-    fun () -> {
-        tr with
-            Css = (fun t u ->
-                sprintf "transform: %s translate(%fpx, %fpx); opacity: %f;"
-                        transform
-                        ((1.0 - t) * tr.X)
-                        ((1.0 - t) * tr.Y)
-                        (targetOpacity - (od * u)))
-    }
-
-let crossfade userProps =
-    //let commonTr = applyProps commonProps Transition.Default
-    //log $"crossfade userProps {userProps}"
-
-    let toReceive = Dictionary<string,ClientRect>()
-    let toSend = Dictionary<string,ClientRect>()
-
-    let dump() =
-        let ks (d:Dictionary<string,ClientRect>) = System.String.Join(", ", d.Keys)
-        log($"toReceive = {ks toReceive}")
-        log($"toSend    = {ks toSend}")
-
-    let crossfadeInner ( from : ClientRect, node : Element, props, intro) =
-        let tr =
-                { Transition.Default with Ease = Easing.cubicOut; DurationFn = Some (fun d -> System.Math.Sqrt(d) * 30.0) }
-                |> applyProps props
-                |> applyProps userProps
-        //log($"crossfade props: {tr} from {props}")
-        let tgt = node.getBoundingClientRect() // was "to"
-        let dx = from.left - tgt.left
-        let dy = from.top - tgt.top
-        let dw = from.width / tgt.width
-        let dh = from.height / tgt.height
-        //if (intro) then
-        log(sprintf "crossfade from %f,%f -> %f,%f" from.left from.top tgt.left tgt.top)
-        let d = System.Math.Sqrt(dx * dx + dy * dy)
-        let style = window.getComputedStyle(node)
-        let transform = if style.transform = "none" then "" else style.transform
-        let opacity = computedStyleOpacity node
-        let duration = match tr.DurationFn with
-                        | Some f -> f(d)
-                        | None -> tr.Duration
-        {
-            tr with
-                DurationFn = None
-                Duration = duration
-                Css = fun t u ->
-                    sprintf """
-                      opacity: %f;
-                      transform-origin: top left;
-                      transform: %s translate(%fpx,%fpx) scale(%f, %f);"""
-                        (t * opacity)
-                        transform
-                        (u * dx)
-                        (u * dy)
-                        (t + (1.0 - t) * dw)
-                        (t + (1.0 - t) * dh)
-        }
-
-    let transition( items : Dictionary<string,ClientRect>, counterparts : Dictionary<string,ClientRect>, intro : bool) =
-        fun (props : TransitionProp list) (node : Element) ->
-            //log $"crossfade.transition props {props}"
-            let tmpRec = applyProps props Transition.Default // Just to retrieve key
-            let key = tmpRec.Key
-            let r = node.getBoundingClientRect()
-            let action = if intro then "receiving" else "sending"
-            log($"{action} {key} (adding)")
-            items.[ key ] <- r
-
-            let trfac()  =
-                if (counterparts.ContainsKey(key)) then
-                    let rect = counterparts.[key]
-                    log($"{action} {key} (removing from counterparts)")
-
-                    counterparts.Remove(key) |> ignore
-                    crossfadeInner(rect, node, props, intro)
-                else
-                    // if the node is disappearing altogether
-                    // (i.e. wasn't claimed by the other list)
-                    // then we need to supply an outro
-                    items.Remove(key) |> ignore
-                    log($"{action} falling back for {key}")
-                    (fade props node)()
-                    //fallback && fallback(node, props, intro);
-            trfac
-    (
-        transition(toSend, toReceive, false),
-        transition(toReceive, toSend, true)
-    )
-
-type Animation = {
-    From: ClientRect
-    To: ClientRect
-}
 
 let flip (node:Element) (animation:Animation) props =
     let tr = applyProps props  {
@@ -440,7 +250,7 @@ let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element ->
     if (shouldCreate)
         then
             //log(sprintf "Creating animation for %s" node.innerText)
-            createRule node 0.0 1.0 (fun () -> r) 0
+            createRule node 0.0 1.0 r 0
         else
             //log(sprintf "No animation for %s" node.innerText)
             ""
@@ -467,7 +277,7 @@ let animateNode (node : HTMLElement) from =
 
 let transitionNode  (el : HTMLElement)
                     (trans : TransitionAttribute option)
-                    (transProps : TransitionProp list)
+                    (initProps : TransitionProp list) // Likely to just be Key, if anything
                     (isVisible :bool)
                     (start: HTMLElement -> unit)
                     (complete: HTMLElement -> unit) =
@@ -499,9 +309,9 @@ let transitionNode  (el : HTMLElement)
     | None ->
         showEl el isVisible
         complete el
-    | Some (tr,trProps) ->
+    | Some init ->
         deleteRule el ""
-        let trans = (tr (transProps @ trProps) el)
+        let createTrans = (init initProps el)
         if isVisible then
             waitAnimationFrame "show" <| fun () ->
                 dispatchSimple el "introstart"
@@ -509,14 +319,14 @@ let transitionNode  (el : HTMLElement)
                 waitAnimationEnd "show" el show
                 showEl el true // Check: we're doing this again at animationEnd
                 log $"creating intro rule"
-                ruleName <- createRule el 0.0 1.0 trans 0
+                ruleName <- createRule el 0.0 1.0 (createTrans()) 0
         else
             waitAnimationFrame "hide" <| fun () ->
                 dispatchSimple el "outrostart"
                 start el
                 waitAnimationEnd "hide" el hide
                 log $"creating outro rule"
-                ruleName <- createRule el 1.0 0.0 trans 0
+                ruleName <- createRule el 1.0 0.0 (createTrans()) 0
 
 type Hideable = {
     predicate : IObservable<bool>

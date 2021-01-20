@@ -257,7 +257,7 @@ let viewSource (model : IStore<Model>) dispatch =
             Html.code [
                 class' "fsharp"
                 on "sutil-show" (fun e -> log($"2show source {e.target}")) [StopPropagation]
-                bind source text
+                bind source (exclusive << text)
             ]
         ]
     ]

@@ -15,8 +15,8 @@ let view() =
                 type' "checkbox"
                 bindAttr "checked" visible
             ]
-            text "visible"
+            text " visible"
         ]
-        transition (Both(fade, [])) visible <|
+        transition (Both(fade)) visible <|
             Html.p [ text "Fades in and out" ]
     ]

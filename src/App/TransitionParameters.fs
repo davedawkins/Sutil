@@ -17,6 +17,6 @@ let view() =
             ]
             text " visible"
         ]
-        transition (Both(fly, [ Duration 2000.0; Y 200.0 ])) visible <|
+        transition (Both(fly |> withProps [ Duration 2000.0; Y 200.0 ])) visible <|
             Html.p [ text "Flies in and out" ]
     ]

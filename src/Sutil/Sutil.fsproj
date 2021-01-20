@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Easing.fs" />
     <Compile Include="Interop.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="Logging.fs" />
@@ -14,6 +15,7 @@
     <Compile Include="Promise.fs" />
     <Compile Include="Styling.fs" />
     <Compile Include="Transition.fs" />
+    <Compile Include="TransitionFunctions.fs" />
     <Compile Include="Html.fs" />
     <Compile Include="Attr.fs" />
     <Compile Include="Bindings.fs" />

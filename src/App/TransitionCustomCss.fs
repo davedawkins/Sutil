@@ -6,6 +6,7 @@ open Sutil.Attr
 open Sutil.DOM
 open Sutil.Bindings
 open Sutil.Transition
+//open Sutil.Easing
 open Browser.Types
 open Sutil.Styling
 
@@ -61,8 +62,8 @@ let view() =
             text " visible"
         ]
 
-        let flyIn = (spin, [ Duration 8000.0 ])
-        let fadeOut = (fade, [])
+        let flyIn = spin |> withProps [ Duration 8000.0 ]
+        let fadeOut = fade
 
         transition (InOut(flyIn,fadeOut)) visible <|
             Html.div [

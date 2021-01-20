@@ -158,8 +158,8 @@ let update (message : Message) (model : Model) : Model =
         { model with Todos = model.Todos |> List.map (fun t -> { t with Done = true }) }
 
 
-let fader  x = transition <| Both (fade,[ Duration 300.0 ]) <| x
-let slider x = transition <| Both (slide,[ Duration 300.0 ])  <| x
+let fader  x = transition <| Both (fade  |> withProps [ Duration 300.0 ]) <| x
+let slider x = transition <| Both (slide |> withProps [ Duration 300.0 ])  <| x
 
 let todosList title (filter : Todo -> bool) tin tout model dispatch =
     let filteredTodos = model |> Store.map (fun x -> x.Todos |> List.filter filter)
@@ -184,10 +184,16 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
 
 let makeStore = Store.makeElmishSimple init update ignore
 
+let fallback (props : TransitionProp list) (node : HTMLElement) = fun _ ->
+    let transform = computedStyleTransform node
+
+    { (applyProps props Transition.Default) with
+            Duration = 600.0
+            Ease = Easing.quintOut
+            Css = (fun t _ -> $"transform: {transform} scale({t}); opacity: {t}") }
+
 let view () : NodeFactory =
-    let (send,recv) = Transition.crossfade [ ]
-    let tsend = send, [ ]
-    let trecv = recv, [ ]
+    let (send,recv) = crossfade [ Fallback fallback ]
 
     let model, dispatch = makeStore()
 
@@ -222,7 +228,7 @@ let view () : NodeFactory =
 
         Html.div [
             class' "row"
-            todosList "todo" isPending trecv tsend model dispatch
-            todosList "done" isDone trecv tsend model dispatch
+            todosList "todo" isPending recv send model dispatch
+            todosList "done" isDone recv send model dispatch
         ]
     ]

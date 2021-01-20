@@ -18,9 +18,8 @@ let view() =
             text " visible"
         ]
 
-        let flyIn = (fly, [ Duration 2000.0; Y 200.0 ])
-        let fadeOut = (fade, [])
+        let flyIn = fly |> withProps [ Duration 2000.0; Y 200.0 ]
 
-        transition (InOut(flyIn, fadeOut)) visible <|
+        transition (InOut(flyIn, fade)) visible <|
             Html.p [ text "Flies in and fades out" ]
     ]

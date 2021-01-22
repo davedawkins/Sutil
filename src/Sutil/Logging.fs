@@ -19,6 +19,7 @@ let init =
         enabled.["style"] <- false
         enabled.["bind" ] <- false
         enabled.["each" ] <- false
+        enabled.["tick" ] <- false
 
 let initWith states =
     console.log("logging:init with states")

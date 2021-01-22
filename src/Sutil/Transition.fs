@@ -8,8 +8,51 @@ open Sutil.Styling
 open Sutil.DOM
 open System.Collections.Generic
 open System
+open Fable.Core
 
 let log = Sutil.Logging.log "trans"
+
+module LoopTasks =
+
+    type private Task = { C : float -> bool; F : unit -> unit }
+
+    type LoopTask = { Promise : JS.Promise<unit>; Abort: (unit -> unit) }
+
+    let mutable private tasks = new HashSet<Task>()
+
+    let rec runTasks(now) =
+        tasks |> Array.ofSeq |> Array.iter (fun task ->
+            if not (task.C(now)) then
+                tasks.Remove(task) |> ignore
+                task.F()
+        )
+        if tasks.Count <> 0 then
+            raf runTasks |> ignore
+
+    (**
+     * For testing purposes only!
+     *)
+    let clearLoops =
+        tasks.Clear()
+
+    (**
+     * Creates a new task that runs on each raf frame
+     * until it returns a falsy value or is aborted
+     *)
+    let loop (callback: float -> bool) =
+        let mutable task = Unchecked.defaultof<Task>
+
+        if tasks.Count = 0 then
+            raf runTasks |> ignore
+
+        {
+            Promise = Promise.create( fun fulfill _ ->
+                let task = { C = callback;  F = fulfill }
+                tasks.Add(task) |> ignore
+            )
+
+            Abort = fun _ -> tasks.Remove (task) |> ignore
+        }
 
 type TransitionProp =
     | Key of string
@@ -18,7 +61,7 @@ type TransitionProp =
     | Opacity of float
     | Delay of float
     | Duration of float
-    | DurationFn of (float -> float) option
+    | DurationFn of (float -> float)
     | Ease of (float -> float)
     | Css of (float -> float -> string )
     | Tick of (float -> float -> unit)
@@ -36,7 +79,7 @@ and Transition =
         DurationFn : (float->float) option
         Speed : float
         Ease : (float -> float)
-        Css : (float -> float -> string )
+        Css : (float -> float -> string ) option
         Tick: (float -> float -> unit) option
         Fallback: TransitionBuilder option
     } with
@@ -50,7 +93,7 @@ and Transition =
                 DurationFn = None
                 Speed = 0.0
                 Ease = Easing.linear
-                Css = fun a b -> ""
+                Css = None
                 Fallback = None
                 Tick = None }
 
@@ -84,9 +127,9 @@ let private applyProp (r:Transition) (prop : TransitionProp) =
     match prop with
     | Delay d -> { r with Delay = d }
     | Duration d -> { r with Duration = d; DurationFn = None }
-    | DurationFn fo -> { r with DurationFn = fo; Duration = 0.0 }
+    | DurationFn fo -> { r with DurationFn = Some fo; Duration = 0.0 }
     | Ease f -> { r with Ease = f }
-    | Css f -> { r with Css = f }
+    | Css f -> { r with Css = Some f }
     | Tick f -> { r with Tick = Some f }
     | Speed s -> { r with Speed = s }
     | X n -> { r with X = n }
@@ -96,6 +139,9 @@ let private applyProp (r:Transition) (prop : TransitionProp) =
     | Fallback f -> { r with Fallback = Some f }
 
 let applyProps (props : TransitionProp list) (tr:Transition) = props |> List.fold applyProp tr
+let makeTransition (props : TransitionProp list) = applyProps props Transition.Default
+let mapTrans (f: Transition -> TransitionProp list) t = applyProps (f t) t
+
 
 let element (doc:Document) tag = doc.createElement(tag)
 
@@ -144,20 +190,23 @@ let toEmptyStr s = if System.String.IsNullOrEmpty(s) then "" else s
 let createRule (node : HTMLElement) (a:float) (b:float) tr (uid:int) =
     registerDoc (documentOf node)
 
-    let durn =
-        match tr.DurationFn with
-            | Some f -> f(a)
-            | None -> tr.Duration
-        |> overrideDuration
+    let css = match tr.Css with
+                | Some f -> f
+                | None -> failwith "No CSS function supplied"
+
+    if (tr.DurationFn.IsSome) then
+        failwith "Duration function not permitted in createRule"
+
+    let durn = tr.Duration |> overrideDuration
 
     let step = 16.666 / durn
     let mutable keyframes = [ "{\n" ];
 
     for p in [0.0 ..step.. 1.0] do
         let t = a + (b - a) * tr.Ease(p)
-        keyframes <- keyframes @ [ sprintf "%f%%{%s}\n" (p * 100.0) (tr.Css t (1.0 - t)) ]
+        keyframes <- keyframes @ [ sprintf "%f%%{%s}\n" (p * 100.0) (css t (1.0 - t)) ]
 
-    let rule = keyframes @ [ sprintf "100%% {%s}\n" (tr.Css b (1.0 - b)) ] |> String.concat ""
+    let rule = keyframes @ [ sprintf "100%% {%s}\n" (css b (1.0 - b)) ] |> String.concat ""
 
     let name = sprintf "__sutil_%d" (if uid = 0 then nextRuleId() else uid)
     let keyframeText = sprintf "@keyframes %s %s" name rule
@@ -226,7 +275,7 @@ let flip (node:Element) (animation:Animation) props =
                         | None -> tr.Duration //
                         | Some f -> f(d) // Use user's function or our default
             DurationFn = None  // Original converts any function into a scalar value
-            Css = fun _t u -> sprintf "transform: %s translate(%fpx, %fpx);`" transform (u * dx) (u * dy)
+            Css = Some (fun t u -> sprintf "transform: %s translate(%fpx, %fpx);`" transform (u * dx) (u * dy))
     }
 
 let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element -> Animation -> TransitionProp list -> Transition) props =
@@ -283,18 +332,58 @@ let transitionNode  (el : HTMLElement)
                     (complete: HTMLElement -> unit) =
     let mutable ruleName = ""
 
+    let runTick tr b durn =
+        let log = Logging.log "tick"
+
+        let a = if b = 0.0 then 1.0 else 0.0
+        let d = b - a
+        let tick = match tr.Tick with|Some f -> f|None -> failwith "No tick function supplied"
+        let ease = tr.Ease
+        let delay = tr.Delay
+
+        let mutable t = a
+        let mutable start = 0.0
+        let mutable finish = 0.0
+        let mutable started = false
+        let mutable finished = false
+
+        log $"run b={b} durn={durn}"
+        if (b > 0.0) then
+            tick 0.0 1.0
+
+        LoopTasks.loop <| fun now ->
+            if not started then
+                start <- now + delay
+                finish <- start + durn
+                log $"start: start={start} finish={finish}"
+                started <- true
+
+            if now >= finish then
+                log $"finish: t={t}"
+                t <- b
+                tick t (1.0 - t)
+                finished <- true
+            else if now >= start then
+                let e = now - start
+                let t0 = e / durn
+                t <- a + d * (ease t0)
+                log $"tick: t={t} t0={t0} e={e}"
+                tick t (1.0 - t)
+
+            not finished
+
     let hide() =
         log $"hide {nodeStr el}"
         showEl el false
         complete el
-        deleteRule el ruleName
+        if ruleName <> "" then deleteRule el ruleName
         dispatchSimple el "outroend"
 
     let rec show() =
         log $"show {nodeStr el}"
         showEl el true
         complete el
-        deleteRule el ruleName
+        if ruleName <> "" then deleteRule el ruleName
         dispatchSimple el "introend"
 
     let tr = trans |> Option.bind (fun x ->
@@ -305,6 +394,26 @@ let transitionNode  (el : HTMLElement)
         | InOut (tin,tout) -> if isVisible then Some tin else Some tout
         )
 
+    let startTransition createTrans =
+        let tag   = if isVisible then "show"       else "hide"
+        let event = if isVisible then "introstart" else "outrostart"
+        let (a,b) = if isVisible then (0.0, 1.0)   else (1.0,0.0)
+        let onEnd = if isVisible then show         else hide
+
+        waitAnimationFrame tag <| fun () ->
+            dispatchSimple el event
+            start el
+            waitAnimationEnd tag el onEnd
+            if (isVisible) then
+                showEl el true // Check: we're doing this again at animationEnd
+            let tr = createTrans()
+            if tr.DurationFn.IsSome then failwith "Duration function not permitted"
+            let d = tr.Duration
+            if tr.Css.IsSome then
+                ruleName <- createRule el a b tr 0
+            if tr.Tick.IsSome then
+                runTick tr b d |> ignore
+
     match tr with
     | None ->
         showEl el isVisible
@@ -312,6 +421,8 @@ let transitionNode  (el : HTMLElement)
     | Some init ->
         deleteRule el ""
         let createTrans = (init initProps el)
+        startTransition createTrans
+        (*
         if isVisible then
             waitAnimationFrame "show" <| fun () ->
                 dispatchSimple el "introstart"
@@ -319,14 +430,27 @@ let transitionNode  (el : HTMLElement)
                 waitAnimationEnd "show" el show
                 showEl el true // Check: we're doing this again at animationEnd
                 log $"creating intro rule"
-                ruleName <- createRule el 0.0 1.0 (createTrans()) 0
+                let tr = createTrans()
+                if tr.DurationFn.IsSome then failwith "Duration function not permitted"
+                let d = tr.Duration
+                if tr.Css.IsSome then
+                    ruleName <- createRule el 0.0 1.0 tr 0
+                if tr.Tick.IsSome then
+                    runTick tr 1.0 d |> ignore
         else
             waitAnimationFrame "hide" <| fun () ->
                 dispatchSimple el "outrostart"
                 start el
                 waitAnimationEnd "hide" el hide
                 log $"creating outro rule"
-                ruleName <- createRule el 1.0 0.0 (createTrans()) 0
+                let tr = createTrans()
+                if tr.DurationFn.IsSome then failwith "Duration function not permitted"
+                let d = tr.Duration
+                if tr.Css.IsSome then
+                    ruleName <- createRule el 1.0 0.0 tr 0
+                if tr.Tick.IsSome then
+                    runTick tr 0.0 d |> ignore
+        *)
 
 type Hideable = {
     predicate : IObservable<bool>

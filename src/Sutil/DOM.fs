@@ -555,6 +555,7 @@ let clear (node:Node) =
     clearWithDispose node ignore
 
 let exclusive (f : NodeFactory) = fun ctx ->
+    log $"exclusive {nodeStr ctx.Parent}"
     clear ctx.Parent
     ctx |> build f
 

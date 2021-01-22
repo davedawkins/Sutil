@@ -190,7 +190,7 @@ let fallback (props : TransitionProp list) (node : HTMLElement) = fun _ ->
     { (applyProps props Transition.Default) with
             Duration = 600.0
             Ease = Easing.quintOut
-            Css = (fun t _ -> $"transform: {transform} scale({t}); opacity: {t}") }
+            Css = Some(fun t _ -> $"transform: {transform} scale({t}); opacity: {t}") }
 
 let view () : NodeFactory =
     let (send,recv) = crossfade [ Fallback fallback ]

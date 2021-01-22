@@ -54,6 +54,7 @@ type Demo = {
         { Category = "Transitions"; Title = "Adding parameters"; Create = make TransitionParameters.view; Sources = ["TransitionParameters.fs"] }
         { Category = "Transitions"; Title = "In and out"; Create = make TransitionInOut.view; Sources = ["TransitionInOut.fs"] }
         { Category = "Transitions"; Title = "Custom CSS"; Create = make TransitionCustomCss.view; Sources = ["TransitionCustomCss.fs"] }
+        { Category = "Transitions"; Title = "Custom Code"; Create = make TransitionCustom.view; Sources = ["TransitionCustom.fs"] }
         { Category = "Transitions"; Title = "Transition events"; Create = make TransitionEvents.view; Sources = ["TransitionEvents.fs"] }
         { Category = "Transitions"; Title = "Animation"; Create = make Todos.view; Sources = ["Todos.fs"] }
         { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}

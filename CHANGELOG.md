@@ -2,6 +2,7 @@
 
 ## Changelog (most recent first)
 
+- Example TransitionCustomCode, with the typewriter transition
 - More easing functions. Implemented Fallback for crossfade, nicer outro now in Todos app.
 - Fix for source display
 - Clean up TransitionProp API

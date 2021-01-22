@@ -43,6 +43,7 @@
     <Compile Include="TransitionEvents.fs" />
     <Compile Include="TransitionInOut.fs" />
     <Compile Include="TransitionCustomCss.fs" />
+    <Compile Include="TransitionCustom.fs" />
     <Compile Include="Todos.fs" />
     <Compile Include="Counter.fs" />
     <Compile Include="CounterWithTransition.fs" />

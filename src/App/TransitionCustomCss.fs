@@ -17,7 +17,7 @@ let spin (options : TransitionProp list) node =
         let user = applyProps options Transition.Default
         {
             user with
-                Css = (fun t _ ->
+                Css = Some (fun t _ ->
                 let eased = Easing.elasticOut t
                 [
                     $"transform: scale({eased}) rotate({eased * 1080.0}deg);"

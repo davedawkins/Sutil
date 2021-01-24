@@ -2,8 +2,11 @@
 let devtoolsPort;
 let contentPort;
 
+//console.log("background page running");
+
 chrome.runtime.onConnect.addListener(function (port) {
-    // alert("background.onConnect from " + port.name);
+    //console.log("background.onConnect from " + port.name);
+    //alert("background.onConnect from " + port.name);
 
     if (port.name == "content-page") {
         contentPort = port;
@@ -14,7 +17,13 @@ chrome.runtime.onConnect.addListener(function (port) {
                 "name": "content-page-connected"
             });
         }
+
         port.onMessage.addListener(function(msg) {
+            console.log("background: received from content: ");
+            console.dir(msg);
+            if (devtoolsPort) {
+                devtoolsPort.postMessage(msg);
+            }
         });
 
         port.onDisconnect.addListener(function(port) {

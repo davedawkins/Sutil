@@ -9,8 +9,7 @@ open Fable.Core
 [<ImportAll("./marked.min.js")>]
 let marked text : string = jsNative
 
-let inputText =
-    Store.make
+let sampleText =
      """## Markdown
 
 - Some words are *italic*
@@ -31,7 +30,11 @@ let style = [
 ]
 
 let view() =
+    let inputText = Store.make sampleText
+
     Html.div [
+        disposeOnUnmount [inputText]
+
         Html.textarea [
             rows "5"
             Bindings.bindAttr "value" inputText

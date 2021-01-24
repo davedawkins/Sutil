@@ -7,20 +7,20 @@ open Sutil.Bindings
 open Browser.Types
 open Browser.Dom
 
-let files = Store.make Unchecked.defaultof<FileList>
-let fileSeq = files |> Store.map (Helpers.fileListToSeq >> Seq.toList)
-
-
-fileSeq |> (Store.write (fun fileSeq ->
-    // Note that `files` is of type `FileList`, not an Array:
-    // https://developer.mozilla.org/en-US/docs/Web/API/FileList
-    //console.log(files);
-
-    for file in fileSeq do
-        console.log($"{file.name}: {file.size} bytes")))
-
 let view() =
+    let files = Store.make Unchecked.defaultof<FileList>
+    let fileSeq = files |> Store.map (Helpers.fileListToSeq >> Seq.toList)
+
+    fileSeq |> (Store.write (fun fileSeq ->
+        // Note that `files` is of type `FileList`, not an Array:
+        // https://developer.mozilla.org/en-US/docs/Web/API/FileList
+        //console.log(files);
+
+        for file in fileSeq do
+            console.log($"{file.name}: {file.size} bytes")))
+
     Html.div [
+        disposeOnUnmount [ files ]
 
         Html.div [
             class' "block"

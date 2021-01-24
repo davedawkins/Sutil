@@ -6,11 +6,6 @@ open Sutil.Bindings
 open Sutil.Styling
 open Sutil.Html
 
-let w = Store.make 0.0
-let h = Store.make 0.0
-let size = Store.make 42.0
-let text = Store.make "Edit me, slide him ↑"
-
 let style = Bulma.withBulmaHelpers [
     rule "input" [
         display "block"
@@ -25,6 +20,13 @@ let style = Bulma.withBulmaHelpers [
 
 let view() =
     div [
+        let w = Store.make 0.0
+        let h = Store.make 0.0
+        let size = Store.make 42.0
+        let text = Store.make "Edit me, slide him ↑"
+
+        DOM.disposeOnUnmount [w; h; size; text ]
+
         div [
             class' "block"
             input [ type' "range"; bindAttr "value" size ]

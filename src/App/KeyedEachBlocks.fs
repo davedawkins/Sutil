@@ -15,14 +15,6 @@ type Thing = { Id : int; Color : string }
 let Color t = t.Color
 let Id t = t.Id
 
-let things = Store.make [
-    { Id = 1; Color = "darkblue" }
-    { Id = 2; Color = "indigo" }
-    { Id = 3; Color = "deeppink" }
-    { Id = 4; Color = "salmon" }
-    { Id = 5; Color = "gold" }
-]
-
 let ThingView (thing : IObservable<Thing>) : NodeFactory =
         let viewId = nextId() // So we can see the lifetime of this view instance
         let initialColor = thing |> Store.current |> Color
@@ -47,11 +39,21 @@ let ThingView (thing : IObservable<Thing>) : NodeFactory =
                 ] |> withStyle thingStyle
         ]
 
-let handleClick _ =
-    things |> Store.modify List.tail
-
 let view() =
+    let things = Store.make [
+        { Id = 1; Color = "darkblue" }
+        { Id = 2; Color = "indigo" }
+        { Id = 3; Color = "deeppink" }
+        { Id = 4; Color = "salmon" }
+        { Id = 5; Color = "gold" }
+    ]
+
+    let handleClick _ =
+        things |> Store.modify List.tail
+
     Html.div [
+        disposeOnUnmount [things]
+
         Html.button [
             onClick handleClick []
             text "Remove first thing"
@@ -62,12 +64,12 @@ let view() =
 
             Html.div [
                 Html.h2 [ text "Keyed" ]
-                eachiko things (snd>>ThingView) (snd>>Id)  None
+                eachiko things (snd>>ThingView) (snd>>Id) []
             ]
 
             Html.div [
                 Html.h2 [ text "Unkeyed" ]
-                eachio things (snd>>ThingView) None
+                eachio things (snd>>ThingView) []
             ]
         ]
     ]

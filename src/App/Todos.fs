@@ -158,8 +158,8 @@ let update (message : Message) (model : Model) : Model =
         { model with Todos = model.Todos |> List.map (fun t -> { t with Done = true }) }
 
 
-let fader  x = transition <| Both (fade  |> withProps [ Duration 300.0 ]) <| x
-let slider x = transition <| Both (slide |> withProps [ Duration 300.0 ])  <| x
+let fader  x = transition <| [ InOut (fade  |> withProps [ Duration 300.0 ])] <| x
+let slider x = transition <| [ InOut (slide |> withProps [ Duration 300.0 ])]  <| x
 
 let todosList title (filter : Todo -> bool) tin tout model dispatch =
     let filteredTodos = model |> Store.map (fun x -> x.Todos |> List.filter filter)
@@ -179,7 +179,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
                     text "x"
                 ]
             ]
-        ) key (Some (InOut (tin,tout)))
+        ) key [In tin; Out tout]
     ]
 
 let makeStore = Store.makeElmishSimple init update ignore

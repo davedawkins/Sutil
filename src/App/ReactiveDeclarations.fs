@@ -5,15 +5,18 @@ open Sutil.Attr
 open Sutil.DOM
 open Sutil.Bindings
 
-let count      = Store.make 1
-let doubled    = count |> Store.map ((*) 2)
-let quadrupled = doubled |> Store.map ((*)2);
-
-let handleClick _ =
-    count |> Store.modify (fun n -> n + 1)
 
 let view() =
+    let count      = Store.make 1
+    let doubled    = count |> Store.map ((*) 2)
+    let quadrupled = doubled |> Store.map ((*)2);
+
+    let handleClick _ =
+        count |> Store.modify (fun n -> n + 1)
+
     Html.div [
+        disposeOnUnmount [ count ]
+
         Html.button [
             class' "block"
             onClick handleClick []

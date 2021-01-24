@@ -10,8 +10,6 @@ open Sutil.Transition
 open Browser.Types
 open Sutil.Styling
 
-let visible = Store.make true
-
 let spin (options : TransitionProp list) node =
     fun () ->
         let user = applyProps options Transition.Default
@@ -51,7 +49,11 @@ let styleSheet = [
 ]
 
 let view() =
+    let visible = Store.make true
+
     Html.div [
+        disposeOnUnmount [visible]
+
         class' "container"
 
         Html.label [
@@ -65,7 +67,7 @@ let view() =
         let flyIn = spin |> withProps [ Duration 8000.0 ]
         let fadeOut = fade
 
-        transition (InOut(flyIn,fadeOut)) visible <|
+        transition [In flyIn; Out fadeOut] visible <|
             Html.div [
                 class' "centered"
                 Html.span [ text "transitions!" ]

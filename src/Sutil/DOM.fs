@@ -49,6 +49,7 @@ let nodeStr (node : Node) =
 
 
 module Event =
+    let NewStore = "sutil-new-store"
     let ElementReady = "sutil-element-ready"
     let Show = "sutil-show"
     let Hide = "sutil-hide"
@@ -657,6 +658,11 @@ type ResizeObserver( el : HTMLElement ) =
 module NodeKey =
     let Disposables = "__sutil_disposables"
     let ResizeObserver = "__sutil_resizeObserver"
+    let TickTask = "__sutil_tickTask"
+    let Promise = "__sutil_promise"
+
+    let clear (node:Node) (key:string) =
+        Interop.delete node key
 
     let get<'T> (node:Node) key : 'T option  =
         let v : obj = Interop.get node key
@@ -677,6 +683,10 @@ let registerUnsubscribe (node:Node) (d:unit->unit) : unit =
 let registerDisposable (node:Node) (d:IDisposable) : unit =
     registerUnsubscribe node (fun () -> d.Dispose())
 
+let disposeOnUnmount (ds : IDisposable list) = fun ctx ->
+    ds |> List.iter (registerDisposable ctx.Parent)
+    unitResult()
+
 let hasDisposables (node:Node) : bool =
     Interop.exists node NodeKey.Disposables
 
@@ -687,6 +697,19 @@ let updateCustom (el:HTMLElement) (name:string) (property:string) (value:obj) =
     let r = NodeKey.getCreate el name (fun () -> {| |})
     Interop.set r property value
     Interop.set el name r
+
+open Fable.Core.JS
+
+let wait (el:HTMLElement) (andThen : unit -> Promise<unit>) =
+    let key = NodeKey.Promise
+    let run() = andThen() |> Interop.set el key
+    if Interop.exists el key then
+        let p = Interop.get<Promise<unit>> el key
+        console.dir(p)
+        Interop.delete el key
+        p.``then`` run |> ignore
+    else
+        run()
 
 type MountPoint = {
         Doc : Document

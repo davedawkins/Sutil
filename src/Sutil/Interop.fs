@@ -13,10 +13,13 @@ let getter obj name = jsNative
 let setter obj name = jsNative
 
 [<Emit("$0[$1] = $2")>]
-let set ob name value : unit = jsNative
+let set<'T> (ob:obj) (name:string) (value:'T) : unit = jsNative
 
 [<Emit("$0[$1]")>]
-let get ob name = jsNative
+let get<'T> (ob:obj) (name:string) : 'T = jsNative
+
+[<Emit("delete $0[$1]")>]
+let delete ob name = jsNative
 
 [<Emit("$0.hasOwnProperty($1)")>]
 let exists (ob:obj) (name:string) : bool= jsNative

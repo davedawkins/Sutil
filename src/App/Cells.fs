@@ -23,8 +23,6 @@ let filterSome (source : IObservable<'T option>) =
 
 let nodeOfCell pos = document.querySelector($"[x-id='{positionStr pos}'") :> Node
 
-type Sheet = Map<Position, Sutil.IStore<string> >
-
 type Message =
   | UpdateValue of Position * string
   | RefreshCell of Position
@@ -37,34 +35,38 @@ type Message =
 // So far: cellSet, updateValue are write operations
 //         RefreshCell is a message we might receive from the database
 //
-let mutable Cells : Sheet = Map.empty
 
-let valAt pos =
-    match Cells.TryFind pos with
-    | None -> ""
-    | Some s -> s.Value
+type Sheet = Map<Position, Sutil.IStore<string> >
 
-let cellSet pos value =
-    Cells.[pos] <~ value
+module Cells =
+    let mutable cellDb : Sheet = Map.empty
 
-let cellListen toPos dispatch =
-    let store = Cells.[toPos]
-    let unsub = Store.subscribe store dispatch
-    ()
+    let valAt pos =
+        match cellDb.TryFind pos with
+        | None -> ""
+        | Some s -> s.Value
 
-let cellNotify pos =
-    valAt pos |> cellSet pos
+    let cellSet pos value =
+        cellDb.[pos] <~ value
+
+    let cellListen toPos dispatch =
+        let store = cellDb.[toPos]
+        let unsub = Store.subscribe store dispatch
+        ()
+
+    let cellNotify pos =
+        valAt pos |> cellSet pos
+
+    let cellInitialise (dispatch : Position -> unit) pos =
+        if not (cellDb.ContainsKey pos) then
+            cellDb <- cellDb.Add(pos,Store.make "")
 
 let bindCellRefresh pos whenPosUpdated dispatch =
-    cellListen whenPosUpdated (fun _ -> pos |> dispatch)
+    Cells.cellListen whenPosUpdated (fun _ -> pos |> dispatch)
 
 let bindRefresh targetCell dependsOnCells dispatch =
     for dep in dependsOnCells do
         bindCellRefresh targetCell dep dispatch
-
-let cellInitialise (dispatch : Position -> unit) pos =
-    if not (Cells.ContainsKey pos) then
-        Cells <- Cells.Add(pos,Store.make "")
 
 type Model =
   { Rows : int list
@@ -130,9 +132,9 @@ let init() =
 let updateValue pos value d =
     let tcells = findTriggerCells value // Examine expression for cells pos is dependent on
     let refresh = (d << RefreshCell)
-    (pos :: tcells) |> List.iter (cellInitialise refresh) // Make sure all cells involved have stores
+    (pos :: tcells) |> List.iter (Cells.cellInitialise refresh) // Make sure all cells involved have stores
     bindRefresh pos tcells refresh // Make sure pos gets a refresh when any of tcells update
-    cellSet pos value // Finally update the sheet
+    Cells.cellSet pos value // Finally update the sheet
     refresh pos
 
 let update (message : Message) (model : Model) : Model * Cmd<Message> =
@@ -140,7 +142,7 @@ let update (message : Message) (model : Model) : Model * Cmd<Message> =
     match message with
 
     | RefreshCell p ->
-        { model with NeedsRefresh = Some p }, [fun _ -> cellNotify p]
+        { model with NeedsRefresh = Some p }, [fun _ -> Cells.cellNotify p]
 
     | UpdateValue (p,v) ->
         { model with Active = None; NeedsRefresh = None }, [updateValue p v]
@@ -163,14 +165,14 @@ let view () : NodeFactory =
     let model, dispatch = makeStore()
 
     let renderPlainCell pos =
-        let content = valAt pos
+        let content = Cells.valAt pos
         fragment [
             onClick (fun _ -> StartEdit pos |> dispatch) []
-            evalCellAsString valAt content |> text
+            evalCellAsString Cells.valAt content |> text
         ]
 
     let renderActiveCell pos =
-        let content = valAt pos
+        let content = Cells.valAt pos
         Html.div [
             Html.input [
                 type' "text"

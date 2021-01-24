@@ -19,7 +19,7 @@ open Browser.Dom
 open Fable.Core
 open Fable.Core.JsInterop
 
-type StoreIdVal = {  Id : int; Val : obj }
+type StoreIdVal = {  Id : int; Val : obj; NumSubscribers : int }
 type GetStoresResult = { Data: StoreIdVal array }
 type GetMountPointsResult = DevToolsControl.IMountPoint array
 type LogState = string * bool
@@ -221,6 +221,7 @@ let buildStoresTable (idVals : StoreIdVal array) =
                 Html.tr [
                     Html.th [ text "Id" ]
                     Html.th [ text "Val" ]
+                    Html.th [ text "NumSub" ]
                 ]
             ]
             Html.tbody [
@@ -231,6 +232,7 @@ let buildStoresTable (idVals : StoreIdVal array) =
                             class' "o-val"
                             viewObject (item.Val)
                         ]
+                        Html.td [ text (string item.NumSubscribers) ]
                     ]
             ]
         ]
@@ -254,7 +256,7 @@ let viewMountPoints model dispatch =
                         onClick (fun _ -> remount mp.Id) []
                     ]
                 ]
-            ) None
+            ) []
         ]
     ]
 
@@ -325,18 +327,22 @@ let view model dispatch =
                 class' "sv-main column is-four-fifths"
 
                 transitionMatch (model .> page) <| [
-                    ((=) Stores,        viewStores  model dispatch, None)
-                    ((=) Options,       viewOptions model dispatch, None)
-                    ((=) MountPoints,   viewMountPoints model dispatch, None)
+                    ((=) Stores,        viewStores  model dispatch, [])
+                    ((=) Options,       viewOptions model dispatch, [])
+                    ((=) MountPoints,   viewMountPoints model dispatch, [])
                 ]
 
             ] ] ] |> withStyle styleSheet
 
-let initialiseConnectedApp (model:IObservable<Model>) dispatch =
+let updateStoresFromApp dispatch =
     getStores()
         |> Promise.map (fun r -> r.Data)
         |> dispatchPromise (dispatch << StoresFromApp) (fun _ -> [| |] |> StoresFromApp |> dispatch)
         |> ignore
+
+
+let initialiseConnectedApp (model:IObservable<Model>) dispatch =
+    updateStoresFromApp dispatch
 
     getMountPoints()
         |> dispatchPromise (dispatch << MountPointsFromApp) (fun _ -> [| |] |> MountPointsFromApp |> dispatch)
@@ -377,6 +383,10 @@ let startMessageHandlers (model : IObservable<Model>) dispatch =
         |"content-page-connected" ->
             console.log("content page connected")
             initialiseConnectedApp model dispatch
+        |"sutil-new-store" ->
+            console.log("sutil-new-store")
+            updateStoresFromApp dispatch
+            //initialiseConnectedApp model dispatch
         | _ ->
             console.log($"unhandled message: {msg?name}")
             ()
@@ -394,6 +404,7 @@ let startMessageHandlers (model : IObservable<Model>) dispatch =
             |})
 
 let createMainPanel() =
+    console.log("createMainPanel")
     let initialisePanel (win: Window) =
         panelDoc <- win.document
         let model, dispatch = makeStore panelDoc ()

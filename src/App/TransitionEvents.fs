@@ -6,10 +6,13 @@ open Sutil.DOM
 open Sutil.Bindings
 open Sutil.Transition
 
-let visible = Store.make true
-let status  = Store.make "Waiting..."
 let view() =
+    let visible = Store.make true
+    let status  = Store.make "Waiting..."
+
     Html.div [
+        disposeOnUnmount [ visible; status ]
+
         Html.p [
             class' "block"
             text "status: "
@@ -22,7 +25,7 @@ let view() =
             ]
             text " visible"
         ]
-        transition (Both(fly |> withProps [ Duration 2000.0; Y 200.0 ])) visible <|
+        transition [fly |> withProps [ Duration 2000.0; Y 200.0 ] |> InOut] visible <|
             Html.p [
                 on "introstart" (fun _ -> status <~ "intro started") []
                 on "introend" (fun _ -> status <~ "intro ended") []

@@ -52,14 +52,15 @@ module ObservableStore =
             nextId <- nextId + 1
             idToStore.[id] <- s
             storeToId.[s] <- id
+            DOM.dispatchSimple window.document DOM.Event.NewStore
 
         let notifyDisposeStore  s =
             let id = storeToId.[s]
             idToStore.Remove(id) |> ignore
             storeToId.Remove(s) |> ignore
 
-        let getStoreById id : DevToolsControl.IGenericStore =
-            idToStore.[id] :?> DevToolsControl.IGenericStore
+        let getStoreById id : IStoreDebugger =
+            (idToStore.[id] :?> IStore<obj>).Debugger
 
         let controlBlock () : DevToolsControl.IControlBlock = {
             new DevToolsControl.IControlBlock with
@@ -133,6 +134,11 @@ module ObservableStore =
             member this.Subscribe(observer: IObserver<'Model>) = this.Subscribe(observer)
             member this.Update(f) = this.Update(f)
             member this.Value = this.Value
+            member this.Debugger = {
+                    new IStoreDebugger with
+                        member _.Value = upcast this.Value
+                        member _.NumSubscribers = subscribers.Count }
+
         interface IDisposable with
             member this.Dispose() = this.Dispose()
 

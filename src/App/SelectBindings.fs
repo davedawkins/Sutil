@@ -17,15 +17,6 @@ let questions = [
     { Id = 3; Text = "Do you plan to go for a walk later?" }
 ];
 
-let answer   = Store.make("")
-let selected = Store.make( questions |> List.head )
-
-let handleSubmit (e : Types.Event) =
-    e.preventDefault()
-    let a = Store.get answer
-    let q = Store.get selected
-    window.alert($"Answered question {q.Id} ({q.Text}) with '{a}'");
-
 let appStyle = [
     rule "input" [
         addClass "input"
@@ -43,7 +34,17 @@ let block children =
     Html.div <| (class' "block") :: children
 
 let view() =
+    let answer   = Store.make("")
+    let selected = Store.make( questions |> List.head )
+
+    let handleSubmit (e : Types.Event) =
+        e.preventDefault()
+        let a = Store.get answer
+        let q = Store.get selected
+        window.alert($"Answered question {q.Id} ({q.Text}) with '{a}'");
+
     Html.div [
+        disposeOnUnmount [ answer; selected ]
 
         Html.h2 [ text "Health Check" ]
 

@@ -19,13 +19,14 @@ let parseFloat (s:string, name) =
             let (success, num) = System.Double.TryParse s'
             if (success) then num else 0.0
 
-let fade (initProps : TransitionProp list) (node : HTMLElement)  : CreateTransition = fun () ->
-    let tr = applyProps initProps { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.linear }
-    {
-        tr with Css = Some (fun t _ -> sprintf "opacity: %f" (t* computedStyleOpacity node))
-    }
+let fade (initProps : TransitionProp list) (node : HTMLElement) =
+        fun () ->
+        let tr = applyProps initProps { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.linear }
+        {
+            tr with Css = Some (fun t _ -> sprintf "opacity: %f" (t* computedStyleOpacity node))
+        }
 
-let slide (props : TransitionProp list) (node : HTMLElement) =
+let slide (props : TransitionProp list) = fun (node : HTMLElement) ->
     let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut }
 
     let style = window.getComputedStyle(node)
@@ -56,7 +57,7 @@ let slide (props : TransitionProp list) (node : HTMLElement) =
                             result )
     }
 
-let draw (props : TransitionProp list) (node : SVGPathElement) =
+let draw (props : TransitionProp list) = fun (node : SVGPathElement) ->
     let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 800.0; Ease = Easing.cubicInOut }
 
     let len = node.getTotalLength()

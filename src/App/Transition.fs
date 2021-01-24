@@ -6,10 +6,13 @@ open Sutil.DOM
 open Sutil.Bindings
 open Sutil.Transition
 
-let visible = Store.make true
 
 let view() =
+    let visible = Store.make true
+
     Html.div [
+        disposeOnUnmount [visible]
+
         Html.label [
             Html.input [
                 type' "checkbox"
@@ -17,6 +20,6 @@ let view() =
             ]
             text " visible"
         ]
-        transition (Both(fade)) visible <|
+        transition [InOut fade] visible <|
             Html.p [ text "Fades in and out" ]
     ]

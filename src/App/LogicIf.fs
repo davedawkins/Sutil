@@ -5,13 +5,15 @@ open Sutil.Bindings
 open Sutil.DOM
 open Sutil.Attr
 
-let user = Store.make {| loggedIn = false |}
-
-let toggle _ =
-    user |> Store.modify (fun u -> {| u with loggedIn = not u.loggedIn |})
-
 let view() =
+    let user = Store.make {| loggedIn = false |}
+
+    let toggle _ =
+        user |> Store.modify (fun u -> {| u with loggedIn = not u.loggedIn |})
+
     Html.div [
+        disposeOnUnmount [ user ]
+
         bind user <| fun u ->
             Html.div [
                 if u.loggedIn then

@@ -81,6 +81,6 @@ let Counter() =
 
         (Html.div [ class' "hint"; text "Click button to start counting" ])
         |> transition
-                (Both (fly |> withProps [ X 100.0 ]))
+                [InOut (fly |> withProps [ X 100.0 ])]
                 (count .> (=) 0)  // Visible if 'count = 0'
     ]

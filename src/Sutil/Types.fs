@@ -1,6 +1,12 @@
 namespace Sutil
 open System
 
+type IStoreDebugger = interface
+    abstract Value: obj
+    abstract NumSubscribers : int
+    end
+
+
 module DevToolsControl =
 
     type SutilOptions = {
@@ -12,10 +18,6 @@ module DevToolsControl =
         SlowAnimations = false
         LoggingEnabled = false
     }
-
-    type IGenericStore = interface
-        abstract Value: obj
-        end
 
     type Version = {
         Major : int
@@ -35,7 +37,7 @@ module DevToolsControl =
         abstract GetOptions : unit -> SutilOptions
         abstract SetOptions : SutilOptions -> unit
         abstract GetStores : unit -> int array
-        abstract GetStoreById : int -> IGenericStore
+        abstract GetStoreById : int -> IStoreDebugger
         abstract GetLogCategories: unit -> (string * bool) array
         abstract SetLogCategories: (string * bool) array -> unit
         abstract GetMountPoints: unit -> IMountPoint array
@@ -47,12 +49,14 @@ module DevToolsControl =
     let initialise doc controlBlock =
         setControlBlock doc controlBlock
 
+type Unsubscribe = unit -> unit
 
 type IStore<'T> = interface
     inherit IObservable<'T>
     inherit IDisposable
     abstract Update: f:('T -> 'T) -> unit
     abstract Value: 'T
+    abstract Debugger : IStoreDebugger
     end
 
 type Store<'T> = IStore<'T>

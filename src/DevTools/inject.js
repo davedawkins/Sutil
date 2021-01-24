@@ -11,7 +11,10 @@ export function GetStores() {
     let cb = document.__sutil_cb;
     let stores = cb.GetStores();
     return {
-        Data: Array.from(stores).map( i => { return { Id: i, Val: cb.GetStoreById(i).Value } } )
+        Data: Array.from(stores).map( i => {
+            const store = cb.GetStoreById(i);
+            return { Id: i, Val: store.Value, NumSubscribers: store.NumSubscribers }
+        })
     }
 }
 

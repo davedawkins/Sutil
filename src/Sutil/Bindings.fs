@@ -336,7 +336,7 @@ let private findCurrentElement (current:Node) (id:int) =
 
 let genEachId = Helpers.makeIdGenerator()
 
-let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable<'T> -> NodeFactory) (key:int*'T->'K) (trans : TransitionAttribute option) : NodeFactory =
+let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable<'T> -> NodeFactory) (key:int*'T->'K) (trans : TransitionAttribute list) : NodeFactory =
     fun ctx ->
         let log s = Logging.log "each" s
         let mutable state : KeyedStoreItem<'T,'K> list = []
@@ -412,16 +412,16 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
 
 let private duc = ObservableX.distinctUntilChanged
 
-let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory) (trans : TransitionAttribute option) =
+let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory) (trans : TransitionAttribute list) =
     eachiko items (fun (_,item) -> bind (duc item) view) (fun (_,v) -> v.GetHashCode()) trans
 
-let eachi (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)  (trans : TransitionAttribute option) : NodeFactory =
+let eachi (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)  (trans : TransitionAttribute list) : NodeFactory =
     eachiko items (fun (index,item) -> bind2 (duc index) (duc item) view) fst trans
 
-let eachio (items:IObservable<list<'T>>) (view : (IObservable<int>*IObservable<'T>) -> NodeFactory)  (trans : TransitionAttribute option) =
+let eachio (items:IObservable<list<'T>>) (view : (IObservable<int>*IObservable<'T>) -> NodeFactory)  (trans : TransitionAttribute list) =
     eachiko items view fst trans
 
-let eachk (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute option) =
+let eachk (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute list) =
     eachiko
         items
         (fun (_,item) -> bind (duc item) view)

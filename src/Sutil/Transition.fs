@@ -47,7 +47,7 @@ module LoopTasks =
 
         {
             Promise = Promise.create( fun fulfill _ ->
-                let task = { C = callback;  F = fulfill }
+                task <- { C = callback;  F = fulfill }
                 tasks.Add(task) |> ignore
             )
 
@@ -98,7 +98,7 @@ and Transition =
                 Tick = None }
 
 and CreateTransition =
-    unit -> Transition
+     unit -> Transition
 
 and TransitionBuilder = TransitionProp list -> HTMLElement -> CreateTransition
 
@@ -115,10 +115,9 @@ let withProps (userProps : TransitionProp list) (f : TransitionBuilder) : Transi
         initProps |> mergeProps userProps |> f
 
 type TransitionAttribute =
-    | Both of TransitionBuilder
+    | InOut of TransitionBuilder
     | In of TransitionBuilder
     | Out of TransitionBuilder
-    | InOut of (TransitionBuilder * TransitionBuilder)
 
 let overrideDuration d = if Sutil.DevToolsControl.Options.SlowAnimations then 10.0 * d else d
 let overrideDurationFn fo = if Sutil.DevToolsControl.Options.SlowAnimations then (fo |> Option.map (fun f -> ((*)10.0 << f))) else fo
@@ -141,7 +140,6 @@ let private applyProp (r:Transition) (prop : TransitionProp) =
 let applyProps (props : TransitionProp list) (tr:Transition) = props |> List.fold applyProp tr
 let makeTransition (props : TransitionProp list) = applyProps props Transition.Default
 let mapTrans (f: Transition -> TransitionProp list) t = applyProps (f t) t
-
 
 let element (doc:Document) tag = doc.createElement(tag)
 
@@ -304,7 +302,7 @@ let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element ->
             //log(sprintf "No animation for %s" node.innerText)
             ""
 
-let waitAnimationEnd tag (el : HTMLElement) (f : unit -> unit) =
+let private waitAnimationEnd tag (el : HTMLElement) (f : unit -> unit) =
     let rec cb _ =
         //log($"animationend: {tag}")
         el.removeEventListener("animationend",cb)
@@ -324,19 +322,40 @@ let animateNode (node : HTMLElement) from =
                 log("animateNode: end")
                 deleteRule node name
 
+let private tickGen = Helpers.makeIdGenerator()
+
+let private findTransition (intro:bool) (trans : TransitionAttribute list) : TransitionBuilder option =
+    let mutable result : TransitionBuilder option = None
+    for x in trans do
+        result <- match result, x, intro with
+                    | Some _, _, _ -> result
+                    | None, In x, true -> Some x
+                    | None, Out x, false -> Some x
+                    | None, InOut x, _ -> Some x
+                    | _ -> None
+    result
+
 let transitionNode  (el : HTMLElement)
-                    (trans : TransitionAttribute option)
+                    (trans : TransitionAttribute list)
                     (initProps : TransitionProp list) // Likely to just be Key, if anything
-                    (isVisible :bool)
+                    (isVisible : bool)
                     (start: HTMLElement -> unit)
                     (complete: HTMLElement -> unit) =
     let mutable ruleName = ""
+
+    let cancelTick () =
+        match NodeKey.get<Unsubscribe> el NodeKey.TickTask with
+        | Some f ->
+            NodeKey.clear el NodeKey.TickTask
+            f()
+        | None -> ()
 
     let runTick tr b durn =
         let log = Logging.log "tick"
 
         let a = if b = 0.0 then 1.0 else 0.0
         let d = b - a
+        let tickId = tickGen()
         let tick = match tr.Tick with|Some f -> f|None -> failwith "No tick function supplied"
         let ease = tr.Ease
         let delay = tr.Delay
@@ -347,7 +366,12 @@ let transitionNode  (el : HTMLElement)
         let mutable started = false
         let mutable finished = false
 
-        log $"run b={b} durn={durn}"
+        Interop.set el NodeKey.TickTask (fun () ->
+            log $"#{tickId}: cancel"
+            finished <- true
+        )
+
+        log $"#{tickId}: run b={b} durn={durn}"
         if (b > 0.0) then
             tick 0.0 1.0
 
@@ -355,19 +379,20 @@ let transitionNode  (el : HTMLElement)
             if not started then
                 start <- now + delay
                 finish <- start + durn
-                log $"start: start={start} finish={finish}"
+                log $"#{tickId}: start: start={start} finish={finish}"
                 started <- true
 
-            if now >= finish then
-                log $"finish: t={t}"
+            if finished || now >= finish then
+                log $"#{tickId}: finish: t={t}"
                 t <- b
                 tick t (1.0 - t)
                 finished <- true
+
             else if now >= start then
                 let e = now - start
                 let t0 = e / durn
                 t <- a + d * (ease t0)
-                log $"tick: t={t} t0={t0} e={e}"
+                log $"#{tickId}: tick: t={t} t0={t0} e={e}"
                 tick t (1.0 - t)
 
             not finished
@@ -386,19 +411,15 @@ let transitionNode  (el : HTMLElement)
         if ruleName <> "" then deleteRule el ruleName
         dispatchSimple el "introend"
 
-    let tr = trans |> Option.bind (fun x ->
-        match x with
-        | Both t -> Some t
-        | In t -> if isVisible then Some t else None
-        | Out t -> if isVisible then None else Some t
-        | InOut (tin,tout) -> if isVisible then Some tin else Some tout
-        )
+    let tr = findTransition isVisible trans
 
     let startTransition createTrans =
         let tag   = if isVisible then "show"       else "hide"
         let event = if isVisible then "introstart" else "outrostart"
-        let (a,b) = if isVisible then (0.0, 1.0)   else (1.0,0.0)
+        let (a,b) = if isVisible then (0.0, 1.0)   else (1.0, 0.0)
         let onEnd = if isVisible then show         else hide
+
+        cancelTick()
 
         waitAnimationFrame tag <| fun () ->
             dispatchSimple el event
@@ -412,7 +433,10 @@ let transitionNode  (el : HTMLElement)
             if tr.Css.IsSome then
                 ruleName <- createRule el a b tr 0
             if tr.Tick.IsSome then
-                runTick tr b d |> ignore
+                // Wait for the cancelled runTick to finish
+                DOM.wait el (fun () ->
+                    let t = runTick tr b d
+                    t.Promise)
 
     match tr with
     | None ->
@@ -420,42 +444,13 @@ let transitionNode  (el : HTMLElement)
         complete el
     | Some init ->
         deleteRule el ""
-        let createTrans = (init initProps el)
+        let createTrans = (init initProps) el
         startTransition createTrans
-        (*
-        if isVisible then
-            waitAnimationFrame "show" <| fun () ->
-                dispatchSimple el "introstart"
-                start el
-                waitAnimationEnd "show" el show
-                showEl el true // Check: we're doing this again at animationEnd
-                log $"creating intro rule"
-                let tr = createTrans()
-                if tr.DurationFn.IsSome then failwith "Duration function not permitted"
-                let d = tr.Duration
-                if tr.Css.IsSome then
-                    ruleName <- createRule el 0.0 1.0 tr 0
-                if tr.Tick.IsSome then
-                    runTick tr 1.0 d |> ignore
-        else
-            waitAnimationFrame "hide" <| fun () ->
-                dispatchSimple el "outrostart"
-                start el
-                waitAnimationEnd "hide" el hide
-                log $"creating outro rule"
-                let tr = createTrans()
-                if tr.DurationFn.IsSome then failwith "Duration function not permitted"
-                let d = tr.Duration
-                if tr.Css.IsSome then
-                    ruleName <- createRule el 1.0 0.0 tr 0
-                if tr.Tick.IsSome then
-                    runTick tr 0.0 d |> ignore
-        *)
 
 type Hideable = {
     predicate : IObservable<bool>
     element   : NodeFactory
-    transOpt  : TransitionAttribute option
+    transOpt  : TransitionAttribute list
 }
 
 type HideableRuntime = {
@@ -487,17 +482,18 @@ let transitionList (list : Hideable list) : NodeFactory = fun ctx ->
         )
     unitResult()
 
-type MatchOption<'T> = ('T -> bool) *  NodeFactory * TransitionAttribute option
+type MatchOption<'T> = ('T -> bool) *  NodeFactory * TransitionAttribute list
 
 let makeHideable guard element transOpt = {
     element = element
     transOpt = transOpt
     predicate = guard
 }
+
 let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> list) =
     options |> List.map (fun (p,e,t) -> makeHideable (store |> Store.map p) e t) |> transitionList
 
-let transitionOpt   (trans : TransitionAttribute option)
+let transitionOpt   (trans : TransitionAttribute list)
                     (store : IObservable<bool>)
                     (element: NodeFactory)
                     (elseElement : NodeFactory option) : NodeFactory = fun ctx ->
@@ -522,20 +518,20 @@ let transitionOpt   (trans : TransitionAttribute option)
     unitResult()
 
 // Show or hide according to a Store<bool> using a transition
-let transition<'T> (trans : TransitionAttribute) store element =
-    transitionOpt (Some trans) store element None
+let transition<'T> (trans : TransitionAttribute list) store element =
+    transitionOpt trans store element None
 
 // Alternate between a pair of elements according to a Store<bool> with no transition
-let transitionElse<'T> (trans : TransitionAttribute) store element otherElement=
-    transitionOpt (Some trans) store element (Some otherElement)
+let transitionElse<'T> (trans : TransitionAttribute list) store element otherElement=
+    transitionOpt trans store element (Some otherElement)
 
 // Show or hide according to a Store<bool> with no transition
 let showIf<'T> store element =
-    transitionOpt None store element None
+    transitionOpt [] store element None
 
 // Alternate between a pair of elements according to a Store<bool> with no transition
 let showIfElse<'T> store element otherElement=
-    transitionOpt None store element (Some otherElement)
+    transitionOpt [] store element (Some otherElement)
 
 
 

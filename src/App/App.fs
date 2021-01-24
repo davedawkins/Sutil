@@ -8,6 +8,8 @@ open Sutil.DOM
 open Sutil.Bindings
 open Sutil.Transition
 open Browser.Dom
+open System
+open System.Collections.Generic
 
 let urlBase = "https://raw.githubusercontent.com/davedawkins/Sutil/main/src/App"
 //let log s = console.log(s)
@@ -125,7 +127,6 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".app-contents .title" [
         color "white"
-        //padding "12px"
         marginLeft "12px"
         marginBottom "8px"
         marginTop "16px"
@@ -176,33 +177,9 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".logo" [
         fontFamily "'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif"
-        //fontFamily "'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif"
         fontWeight  "400"
         fontSize    "42px"
         letterSpacing "2px"
-    ]
-
-    rule ".logo:hover" [
-        textDecoration "underline"
-        textDecorationColor "#bbbbbb"
-        textDecorationThickness "0.01em"
-    ]
-
-    rule ".logo .lt, .logo .gt" [
-        fontSize "40%"
-        color "#bbbbbb"
-        color "white"
-    ]
-
-    rule ".logo .stl" [
-        color "#804041"
-    ]
-
-    rule ".logo .ui" [
-        color "#804041"
-        fontStyle "italic"
-        color "#757575"
-        fontWeight "400"
     ]
 
     rule ".slogo" [
@@ -217,11 +194,22 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     ]
 ]
 
+let selectApp (selectors : (IObservable<bool> * (unit ->NodeFactory)) list) = fun ctx ->
+    let s = selectors |> List.map fst |> firstOf
+    let apps = selectors |> List.map snd |> Array.ofList
+
+    let u = s.Subscribe(fun i ->
+        if i >= 0 then
+            build (exclusive (apps.[i]())) ctx |> ignore
+    )
+
+    unitResult()
+
 let demos (model : IStore<Model>) =
+    let selectDemo d = model .> (fun m -> m.Demo = d.Title)
     Html.div [
         class' "column app-demo"
-        for d in Demo.All do
-            d.Create() |> showIf (model .> (fun m -> m.Demo = d.Title))
+        Demo.All |> List.map (fun d -> (selectDemo d, d.Create)) |> selectApp
     ]
 
 let Section (name:string) model dispatch = fragment [
@@ -272,24 +260,12 @@ let appMain () =
     let currentDemo = model |> Store.map findDemo
     let tab = model |> Store.map (fun m -> m.Tab)
 
-    let logo = Html.span [
-        class' "logo"
-        //Html.span [ class' "lt";  text "<" ]
-        Html.span [ class' "stl"; text "s" ]
-        Html.span [ class' "ui";  text "u" ]
-        Html.span [ class' "stl"; text "t" ]
-        Html.span [ class' "ui";  text "i" ]
-        Html.span [ class' "stl"; text "l" ]
-        //Html.span [ class' "gt";  text ">" ]
-    ]
-
     withStyle mainStyleSheet <|
         Html.div [
             class' "app-main"
 
             Html.div [
                 class' "app-heading"
-                //Html.a [ href "https://github.com/davedawkins/Sutil"; logo ]
                 Html.h1 [
                     class' "title is-4"
                     Html.a [
@@ -330,8 +306,8 @@ let appMain () =
                     ]
 
                     transitionMatch tab <| [
-                        ((fun t -> t = "demo"),  demos model,      None)
-                        ((fun t -> t <> "demo"), viewSource model dispatch, None)
+                        ((fun t -> t = "demo"),  demos model,      [])
+                        ((fun t -> t <> "demo"), viewSource model dispatch, [])
                     ]
                 ]
             ]

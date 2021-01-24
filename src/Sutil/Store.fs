@@ -4,6 +4,7 @@ open System
 open Browser.Dom
 open Microsoft.FSharp.Core
 open Browser.Types
+open System.Collections.Generic
 
 module internal StoreHelpers =
     let disposable f =
@@ -101,3 +102,30 @@ module StoreOperators =
     let (<~=) store map = Store.modify map store
     let (=~>) map store = Store.modify map store
 
+[<AutoOpen>]
+module StoreExtensions =
+
+    let firstOf (selectors : IObservable<bool> list) =
+        let matches = new HashSet<int>()
+        let mutable current = -1
+        let s = Store.make current
+
+        let setMatch i state =
+            if state then
+                matches.Add(i) |> ignore
+            else
+                matches.Remove(i) |> ignore
+
+        let scan() =
+            let next = matches |> Seq.fold (fun a i -> if a < 0 || i < a then i else a) -1
+            if (next <> current) then
+                s <~ next
+                current <- next
+
+        selectors |> List.iteri (fun i pred ->
+            let u = pred.Subscribe( fun state ->
+                setMatch i state
+                scan()
+            )
+            () )
+        s

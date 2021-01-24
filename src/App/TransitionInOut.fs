@@ -6,10 +6,12 @@ open Sutil.DOM
 open Sutil.Bindings
 open Sutil.Transition
 
-let visible = Store.make true
-
 let view() =
+    let visible = Store.make true
+
     Html.div [
+        disposeOnUnmount [visible]
+
         Html.label [
             Html.input [
                 type' "checkbox"
@@ -20,6 +22,6 @@ let view() =
 
         let flyIn = fly |> withProps [ Duration 2000.0; Y 200.0 ]
 
-        transition (InOut(flyIn, fade)) visible <|
+        transition [ In flyIn; Out fade ] visible <|
             Html.p [ text "Flies in and fades out" ]
     ]

@@ -7,8 +7,6 @@ open Sutil.Bindings
 open Sutil.Transition
 open Browser.Types
 
-let visible = Store.make true
-
 let typewriter (userProps : TransitionProp list) (node: HTMLElement) = fun _ ->
     let valid = node.childNodes.length = 1 && DOM.isTextNode(node.childNodes.[0])
 
@@ -30,7 +28,11 @@ let typewriter (userProps : TransitionProp list) (node: HTMLElement) = fun _ ->
             ])
 
 let view() =
+    let visible = Store.make true
+
     Html.div [
+        disposeOnUnmount [visible]
+
         class' "container"
 
         Html.label [
@@ -41,7 +43,7 @@ let view() =
             text " visible"
         ]
 
-        transition (In(typewriter)) visible <|
+        transition [In typewriter] visible <|
             Html.p [
                 text "The quick brown fox jumps over the lazy dog"
             ]

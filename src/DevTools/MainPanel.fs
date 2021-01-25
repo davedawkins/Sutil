@@ -386,7 +386,9 @@ let startMessageHandlers (model : IObservable<Model>) dispatch =
         |"sutil-new-store" ->
             console.log("sutil-new-store")
             updateStoresFromApp dispatch
-            //initialiseConnectedApp model dispatch
+        |"sutil-update-store" ->
+            console.log("sutil-update-store")
+            updateStoresFromApp dispatch
         | _ ->
             console.log($"unhandled message: {msg?name}")
             ()

@@ -47,6 +47,9 @@ module ObservableStore =
         let idToStore = new Dictionary<int,obj>()
         let storeToId = new Dictionary<obj,int>()
 
+        let notifyUpdateStore s v =
+            DOM.dispatch window.document DOM.Event.UpdateStore {| Value = v |}
+
         let notifyMakeStore s =
             let id = nextId
             nextId <- nextId + 1
@@ -113,6 +116,9 @@ module ObservableStore =
         member this.Subscribe(observer: IObserver<'Model>): IDisposable =
             let id = uid
             uid <- uid + 1
+
+            Logging.log "store" $"subscribe {id}"
+
             subscribers.Add(id, observer)
 
             // TODO: Is this the right way to report the model to the subscriber immediately?
@@ -121,7 +127,9 @@ module ObservableStore =
             // Sutil depends on an immediate callback
             observer.OnNext(model())
 
-            Helpers.disposable <| fun () -> subscribers.Remove(id) |> ignore
+            Helpers.disposable <| fun () ->
+                Logging.log "store" $"unsubscribe {id}"
+                subscribers.Remove(id) |> ignore
 
         member this.Dispose() =
             subscribers.Values |> Seq.iter (fun x -> x.OnCompleted())
@@ -150,8 +158,8 @@ module ObservableStore =
 
         let mutable _storeDispatch: ('Store * Dispatch<'Msg>) option = None
 
-        let mutable _cmdHandler =
-            Unchecked.defaultof<Helpers.CmdHandler<'Msg>>
+        let mutable _cmdHandler = new Helpers.CmdHandler<'Msg>(ignore)
+            //Unchecked.defaultof<Helpers.CmdHandler<'Msg>>
 
         fun props ->
             match _storeDispatch with
@@ -183,6 +191,7 @@ module ObservableStore =
     let makeStore<'Model> (init:unit->'Model) (dispose:'Model->unit) =
         let s = new Store<'Model>(init,dispose)
         Registry.notifyMakeStore s
+        let nus = s.Subscribe(Registry.notifyUpdateStore s)
         s
 
     let makeElmishWithDocument (doc:Document) (init: 'Props -> 'Model * Cmd<'Msg>)
@@ -194,7 +203,7 @@ module ObservableStore =
 
         makeElmishWithCons init update dispose (fun i d ->
             let s = makeStore i  d
-            let u f = s.Update(f); DOM.Event.notifyUpdated doc
+            let u = (fun f -> s.Update(f); DOM.Event.notifyUpdated doc)
             upcast s, u)
 
     let makeElmishSimpleWithDocument (doc:Document) (init: 'Props -> 'Model)
@@ -208,7 +217,7 @@ module ObservableStore =
         let update msg model = update msg model, []
         makeElmishWithCons init update dispose (fun i d ->
             let s = makeStore i  d
-            let u f = s.Update(f); DOM.Event.notifyUpdated doc
+            let u = (fun f -> s.Update(f); DOM.Event.notifyUpdated doc)
             upcast s, u)
 
     let makeElmishSimple i u d = makeElmishSimpleWithDocument document i u d

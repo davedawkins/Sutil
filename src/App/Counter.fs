@@ -8,6 +8,7 @@ open Sutil.Attr
 let Counter() =
     let count = Store.make 0
     Html.div [
+        disposeOnUnmount [count]
 
         Html.div [
             class' "block"

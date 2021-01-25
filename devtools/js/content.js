@@ -1,4 +1,4 @@
-console.log("* Sutil content page loaded");
+console.log("Sutil content page loaded");
 
 chrome.runtime.onConnect.addListener(function (port) {
     alert("Content.onConnect " + port.name);
@@ -13,8 +13,17 @@ backgroundPageConnection.onMessage.addListener( msg => {
 
 window.document.addEventListener( "sutil-new-store", e => {
     //backgroundPageConnection.
-    console.log("New store *");
+    //console.log("New store");
     backgroundPageConnection.postMessage({
         "name": "sutil-new-store"
+    });
+})
+
+window.document.addEventListener( "sutil-update-store", e => {
+    //backgroundPageConnection.
+    //console.log("Update store");
+    //console.dir(e)
+    backgroundPageConnection.postMessage({
+        "name": "sutil-update-store"
     });
 })

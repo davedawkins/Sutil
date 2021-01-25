@@ -2,6 +2,8 @@
 
 ## Changelog (most recent first)
 
+- cleanup when unmounting (switching between examples in app)
+- dynamic update of store values
 - firstOf, selectApp used in app to unmount apps and recreate when they are selected. Before, they
 were all created all at once and then just hidden/shown. With unmounting, can begin to test resource
 clean up (eg, disposing registered stores, subscriptions, tasks etc)

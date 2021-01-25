@@ -50,6 +50,7 @@ let nodeStr (node : Node) =
 
 module Event =
     let NewStore = "sutil-new-store"
+    let UpdateStore = "sutil-update-store"
     let ElementReady = "sutil-element-ready"
     let Show = "sutil-show"
     let Hide = "sutil-hide"
@@ -366,8 +367,12 @@ let appendReplaceChild (node : Node) (ctx : BuildContext) =
         setSvId node (svId existing)
     node
 
+let dispatch (node:Node) name (data:obj)=
+    node.dispatchEvent( Interop.customEvent name data) |> ignore
+
+
 let dispatchSimple (node:Node) name =
-    node.dispatchEvent( Interop.customEvent name {| |}) |> ignore
+    dispatch node name {| |}
 
 let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
 
@@ -531,8 +536,6 @@ let html text : NodeFactory = fun ctx ->
                                         applyCustomRules ch ns)
     nodeResult el
 
-
-
 let children (node:Node) =
     let rec visit (child:Node) =
         seq {
@@ -549,11 +552,79 @@ let rec descendants (node:Node) =
             yield! descendants child
     }
 
-let clearWithDispose (node:Node) (dispose:Node->unit)=
-    children node |> List.ofSeq |> List.iter (node.removeChild >> dispose)
+let rec descendantsDepthFirst (node:Node) =
+    seq {
+        for child in children node do
+            yield! descendants child
+            yield child
+    }
+
+[<RequireQualifiedAccessAttribute>]
+module NodeKey =
+    let Disposables = "__sutil_disposables"
+    let ResizeObserver = "__sutil_resizeObserver"
+    let TickTask = "__sutil_tickTask"
+    let Promise = "__sutil_promise"
+
+    let clear (node:Node) (key:string) =
+        Interop.delete node key
+
+    let get<'T> (node:Node) key : 'T option  =
+        let v : obj = Interop.get node key
+        if isNull v then None else v :?> 'T |> Some
+
+    let getCreate<'T> (node:Node) key (cons:unit -> 'T): 'T =
+        match get node key with
+        | Some v -> v
+        | None ->
+            let newVal = cons()
+            Interop.set node key newVal
+            newVal
+
+let registerDisposable (node:Node) (d:IDisposable) : unit =
+    log $"register disposable on {nodeStr node}"
+    let disposables : List<IDisposable> = NodeKey.getCreate node NodeKey.Disposables (fun () -> [])
+    Interop.set node NodeKey.Disposables (d :: disposables)
+
+let registerUnsubscribe (node:Node) (d:unit->unit) : unit =
+    registerDisposable node (Helpers.disposable d)
+    //let disposables : List<unit->unit> = NodeKey.getCreate node NodeKey.Disposables (fun () -> [])
+    //Interop.set node NodeKey.Disposables (d :: disposables)
+
+let disposeOnUnmount (ds : IDisposable list) = fun ctx ->
+    ds |> List.iter (registerDisposable ctx.Parent)
+    unitResult()
+
+let hasDisposables (node:Node) : bool =
+    Interop.exists node NodeKey.Disposables
+
+let getDisposables (node:Node) : IDisposable list =
+    if hasDisposables node then Interop.get node NodeKey.Disposables else []
+
+let clearDisposables (node:Node) : unit =
+    Interop.delete node NodeKey.Disposables
+
+let updateCustom (el:HTMLElement) (name:string) (property:string) (value:obj) =
+    let r = NodeKey.getCreate el name (fun () -> {| |})
+    Interop.set r property value
+    Interop.set el name r
+
+// Call all registered disposables on this node
+let cleanup (node:Node) : unit =
+    let d = getDisposables node
+    log $"cleanup {nodeStr node} - {d.Length} disposable(s)"
+    d |> List.iter (fun d -> d.Dispose())
+    clearDisposables node
+
+// Cleanup all descendants and this node
+// Remove node from parent
+let unmount (node:Node) : unit=
+    descendantsDepthFirst node |> Array.ofSeq |> Array.iter cleanup
+    cleanup node
+    node.parentNode.removeChild node |> ignore
 
 let clear (node:Node) =
-    clearWithDispose node ignore
+    children node |> Array.ofSeq |> Array.iter unmount
 
 let exclusive (f : NodeFactory) = fun ctx ->
     log $"exclusive {nodeStr ctx.Parent}"
@@ -654,49 +725,8 @@ type ResizeObserver( el : HTMLElement ) =
     interface IDisposable with
         member this.Dispose() = this.Dispose()
 
-[<RequireQualifiedAccessAttribute>]
-module NodeKey =
-    let Disposables = "__sutil_disposables"
-    let ResizeObserver = "__sutil_resizeObserver"
-    let TickTask = "__sutil_tickTask"
-    let Promise = "__sutil_promise"
-
-    let clear (node:Node) (key:string) =
-        Interop.delete node key
-
-    let get<'T> (node:Node) key : 'T option  =
-        let v : obj = Interop.get node key
-        if isNull v then None else v :?> 'T |> Some
-
-    let getCreate<'T> (node:Node) key (cons:unit -> 'T): 'T =
-        match get node key with
-        | Some v -> v
-        | None ->
-            let newVal = cons()
-            Interop.set node key newVal
-            newVal
-
-let registerUnsubscribe (node:Node) (d:unit->unit) : unit =
-    let disposables : List<unit->unit> = NodeKey.getCreate node NodeKey.Disposables (fun () -> [])
-    Interop.set node NodeKey.Disposables (d :: disposables)
-
-let registerDisposable (node:Node) (d:IDisposable) : unit =
-    registerUnsubscribe node (fun () -> d.Dispose())
-
-let disposeOnUnmount (ds : IDisposable list) = fun ctx ->
-    ds |> List.iter (registerDisposable ctx.Parent)
-    unitResult()
-
-let hasDisposables (node:Node) : bool =
-    Interop.exists node NodeKey.Disposables
-
 let getResizer (el:HTMLElement) : ResizeObserver =
     NodeKey.getCreate el NodeKey.ResizeObserver (fun () -> new ResizeObserver(el))
-
-let updateCustom (el:HTMLElement) (name:string) (property:string) (value:obj) =
-    let r = NodeKey.getCreate el name (fun () -> {| |})
-    Interop.set r property value
-    Interop.set el name r
 
 open Fable.Core.JS
 

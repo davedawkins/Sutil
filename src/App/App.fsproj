@@ -49,6 +49,7 @@
     <Compile Include="Nested.fs" />
     <Compile Include="NestedComponents.fs" />
     <Compile Include="Styling.fs" />
+    <Compile Include="StudyOfResourceManagement.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -26,10 +26,10 @@ let readonly : NodeFactory = attr("readonly","true" :> obj)
 let autofocus : NodeFactory =
     fun ctx ->
         let e = ctx.Parent
-        DOM.raf (fun _ ->
+        DOM.rafu (fun _ ->
             e?focus()
             e?setSelectionRange(99999,99999)
-            ) |> ignore
+            )
         unitResult()
 
 
@@ -74,6 +74,7 @@ let onMouse event (fn : MouseEvent -> unit) options =
 
 let onClick fn options = on "click" fn options
 
+let onMount fn options = on Event.Mount fn options
 let onShow fn options = on Event.Show fn options
 let onHide fn options = on Event.Hide fn options
 

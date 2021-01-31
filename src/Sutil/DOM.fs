@@ -52,6 +52,7 @@ module Event =
     let NewStore = "sutil-new-store"
     let UpdateStore = "sutil-update-store"
     let ElementReady = "sutil-element-ready"
+    let Mount = "sutil-mount"
     let Show = "sutil-show"
     let Hide = "sutil-hide"
     let Updated = "sutil-updated"
@@ -70,6 +71,7 @@ let listen (event:string) (e:EventTarget) (fn: (Event -> unit)) : (unit -> unit)
     (fun () -> e.removeEventListener(event, fn ) |> ignore)
 
 let raf (f : float -> unit) = window.requestAnimationFrame(f)
+let rafu (f : unit -> unit) = window.requestAnimationFrame( fun _ -> f() ) |> ignore
 
 let once (event:string) (target:EventTarget) (fn : Event->Unit) : (unit -> unit) =
     let rec inner e = target.removeEventListener( event, inner ); fn(e)
@@ -186,8 +188,6 @@ type BuildContext = {
 
 type NodeFactory = BuildContext -> BuildResult
 
-let build (f : NodeFactory) (ctx : BuildContext) =
-    f ctx
 
 let makeContext parent =
     let gen = Helpers.makeIdGenerator()
@@ -231,21 +231,6 @@ let errorNode (parent:Node) message : Node=
     d.setAttribute("style", "color: red; padding: 4px; font-size: 10px;")
     upcast d
 
-let expectSolitary (f : NodeFactory) ctx =
-    match ctx |> build f with
-    | Solitary n -> n
-    | Binding b -> b.Node
-        //errorNode parent "Expected single node, binding found"
-    | Unit ->
-        errorNode ctx.Parent "Expected single node, none found"
-    | Fragment xs ->
-        let doc = ctx.Document
-        let tmpDiv = doc.createElement("div")
-        let en = errorNode tmpDiv "'fragment' not allowed as root for 'each' blocks"
-        tmpDiv.appendChild en |> ignore
-        ctx.Parent.appendChild tmpDiv |> ignore
-        xs |> List.iter (tmpDiv.appendChild >> ignore)
-        upcast tmpDiv
 
 let collectFragment (result : BuildResult) =
     match result with
@@ -253,9 +238,6 @@ let collectFragment (result : BuildResult) =
     | Binding b -> [ b.Node ] // TODO: Hmm..
     | Unit -> []
     | Fragment xs -> xs
-
-let buildSolitary (f : NodeFactory) ctx =
-    expectSolitary f ctx
 
 let appendAttribute (e:Element) attrName attrValue =
     if (attrValue <> "") then
@@ -370,9 +352,37 @@ let appendReplaceChild (node : Node) (ctx : BuildContext) =
 let dispatch (node:Node) name (data:obj)=
     node.dispatchEvent( Interop.customEvent name data) |> ignore
 
-
 let dispatchSimple (node:Node) name =
     dispatch node name {| |}
+
+let build (f : NodeFactory) (ctx : BuildContext) =
+    let result = f ctx
+    match result with
+    | Solitary n -> dispatchSimple n Event.Mount
+    | Fragment ns -> ns |> List.iter (fun n -> dispatchSimple n Event.Mount)
+    | _ -> ()
+    result
+
+
+let expectSolitary (f : NodeFactory) ctx =
+    match ctx |> build f with
+    | Solitary n -> n
+    | Binding b -> b.Node
+        //errorNode parent "Expected single node, binding found"
+    | Unit ->
+        errorNode ctx.Parent "Expected single node, none found"
+    | Fragment xs ->
+        let doc = ctx.Document
+        let tmpDiv = doc.createElement("div")
+        let en = errorNode tmpDiv "'fragment' not allowed as root for 'each' blocks"
+        tmpDiv.appendChild en |> ignore
+        ctx.Parent.appendChild tmpDiv |> ignore
+        xs |> List.iter (tmpDiv.appendChild >> ignore)
+        upcast tmpDiv
+
+
+let buildSolitary (f : NodeFactory) ctx =
+    expectSolitary f ctx
 
 let buildChildren(xs : seq<NodeFactory>)  (ctx:BuildContext) =
     let e = ctx.ParentElement
@@ -653,6 +663,7 @@ let unmount (node:Node) : unit=
 let clear (node:Node) =
     children node |> Array.ofSeq |> Array.iter unmount
 
+
 let exclusive (f : NodeFactory) = fun ctx ->
     log $"exclusive {nodeStr ctx.Parent}"
     clear ctx.Parent
@@ -818,6 +829,7 @@ let declareResource<'T when 'T :> IDisposable> (init : unit -> 'T) (f : 'T -> un
     registerDisposable ctx.Parent r
     f(r)
     unitResult()
+
 
 module Html =
 

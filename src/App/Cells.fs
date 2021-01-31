@@ -16,7 +16,7 @@ open Browser.Dom
 open Browser.Types
 open System
 
-let log s = () // console.log(s)
+let log s = () //console.log(s)
 
 let filterSome (source : IObservable<'T option>) =
     source |> Observable.filter (fun x -> x.IsSome) |> Observable.map (fun x -> x.Value)
@@ -124,12 +124,14 @@ let sample2 = [
 ]
 
 let init() =
+    log("init()")
     {  Rows = [1 .. 15]
        Cols = ['A'.. 'K' ]
        Active = None
        NeedsRefresh = None }, Cmd.batch (sample |> List.map (UpdateValue >> Cmd.ofMsg))
 
 let updateValue pos value d =
+    log("updateValue")
     let tcells = findTriggerCells value // Examine expression for cells pos is dependent on
     let refresh = (d << RefreshCell)
     (pos :: tcells) |> List.iter (Cells.cellInitialise refresh) // Make sure all cells involved have stores
@@ -156,6 +158,7 @@ let makeStore = Store.makeElmish init update ignore
 // Render a NodeFctory at a given cell
 //
 let renderCellAt (renderfn: Position -> NodeFactory) (ctx : BuildContext) (cell:Position) =
+    log($"renderCellAt {cell}")
     let nodeFactory = renderfn >> exclusive
     (nodeFactory cell)( ctx |> withParent (nodeOfCell cell)) |> ignore
     ()
@@ -220,11 +223,13 @@ let view () : NodeFactory =
             // Pairs of (Position option, Position option). Each pair represents a change
             // in the active cell.
             // value : the cell being vacated, must be rendered as normal
-            // next  : the becoming active.
+            // next  : the cell becoming active.
+
             let activeS = (model |> Observable.map (fun m -> m.Active) |> Observable.pairwise)
 
             // bindSub at this location in the DOM feeds us the context from this location
             // In this view, this will include the styling applied further up
+
             bindSub activeS <| fun ctx (value,next) ->
                 value |> Option.iter (renderCellAt renderPlainCell  ctx)
                 next  |> Option.iter (renderCellAt renderActiveCell ctx)

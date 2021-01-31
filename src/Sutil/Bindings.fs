@@ -320,7 +320,7 @@ let listenToProp<'T> (attrName:string) (dispatch: 'T -> unit) : NodeFactory = fu
     else
         DOM.listen "input" parent (fun _ -> notify()) |> DOM.registerUnsubscribe parent
 
-    raf (fun _ -> notify()) |> ignore
+    rafu notify
 
     unitResult()
 
@@ -456,5 +456,8 @@ let bindStore<'T> (init:'T) (app:Store<'T> -> DOM.NodeFactory) : DOM.NodeFactory
     let s = Store.make init
     registerDisposable ctx.Parent s
     ctx |> (s |> app |> build)
+
+let declareStore<'T> (init : 'T) (f : Store<'T> -> unit) =
+    declareResource (fun () -> Store.make init) f
 
 let (|=>) a b = bind a b

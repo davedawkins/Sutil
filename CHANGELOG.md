@@ -2,6 +2,8 @@
 
 ## Changelog (most recent first)
 
+- Fix regression to Cells example
+- Fix regression to Await example, involved adding onMount handler
 - Big changes while integrating with Feliz.Engine, work-in-progress
 - Bar chart SVG example
 - Modal example

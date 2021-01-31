@@ -158,8 +158,8 @@ module ObservableStore =
 
         let mutable _storeDispatch: ('Store * Dispatch<'Msg>) option = None
 
-        let mutable _cmdHandler = new Helpers.CmdHandler<'Msg>(ignore)
-            //Unchecked.defaultof<Helpers.CmdHandler<'Msg>>
+        let mutable _cmdHandler = Unchecked.defaultof<Helpers.CmdHandler<'Msg>>
+            //new Helpers.CmdHandler<'Msg>(ignore)
 
         fun props ->
             match _storeDispatch with
@@ -191,7 +191,8 @@ module ObservableStore =
     let makeStore<'Model> (init:unit->'Model) (dispose:'Model->unit) =
         let s = new Store<'Model>(init,dispose)
         Registry.notifyMakeStore s
-        let nus = s.Subscribe(Registry.notifyUpdateStore s)
+        // We have to delay this, because it will provoke a call through the subscribers, and _cmdHandler isn't set yet
+        DOM.rafu <| fun () -> s.Subscribe(Registry.notifyUpdateStore s) |> ignore
         s
 
     let makeElmishWithDocument (doc:Document) (init: 'Props -> 'Model * Cmd<'Msg>)

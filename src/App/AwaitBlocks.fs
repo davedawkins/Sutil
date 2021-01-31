@@ -37,7 +37,7 @@ let getRandomName _ =
 let view() =
     Html.div [
 
-        onShow getRandomName []
+        onMount getRandomName [ Once ]
 
         Html.button [
             class' "block"

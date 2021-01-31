@@ -1,5 +1,8 @@
 module EachBlocks
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.DOM
 open Sutil.Bindings
@@ -38,7 +41,7 @@ let view() =
                 ]) []
         ]
         Html.button [
-            style "margin-top: 12px"
+            style  [ Css.marginTop "12px" ]
             text "More Cats"
             bindAttrIn "disabled" (cats |> Store.map (fun cats' -> cats'.Length = 4))
             onClick (fun _ -> addCat extraCat) []

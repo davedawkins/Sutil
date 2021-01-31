@@ -1,7 +1,9 @@
 module App
 
 open Fetch
+
 open Sutil
+open Sutil.Html
 open Sutil.Attr
 open Sutil.Styling
 open Sutil.DOM
@@ -68,7 +70,9 @@ type Demo = {
         { Category = "Bindings";   Title = "Select bindings";  Create = make SelectBindings.view ; Sources = ["SelectBindings.fs"]}
         { Category = "Bindings";   Title = "Select multiple";  Create = make SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
         { Category = "Bindings";   Title = "Dimensions";  Create = make Dimensions.view ; Sources = ["Dimensions.fs"]}
+        { Category = "Svg";   Title = "Bar chart";  Create = make BarChart.view ; Sources = ["BarChart.fs"]}
         { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = make Spreadsheet.view ; Sources = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
+        { Category = "Miscellaneous";   Title = "Modal";  Create = make Modal.view ; Sources = ["Modal.fs"]}
         { Category = "7Guis";   Title = "Cells";  Create = make SevenGuisCells.view ; Sources = ["Cells.fs"]}
     ]
 
@@ -101,96 +105,96 @@ let update msg model : Model * Cmd<Message> =
 let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".app-main" [
-        height "100%"
+        Css.height "100%" //(Pct 100.0)
     ]
 
     rule ".app-heading" [
-        position "fixed"
-        width "100vw"
-        backgroundColor "white"
-        padding "12px"
+        Css.position "fixed"
+        Css.width "100vw"
+        Css.backgroundColor "white"
+        Css.padding "12px"
         //paddingBottom "4px"
-        boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
-        marginBottom "4px"
-        zIndex "100"
+        Css.boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
+        Css.marginBottom "4px"
+        //zIndex "100"   // Messes with .modal button
     ]
 
     rule ".app-contents" [
-        backgroundColor "#676778"
-        color "white"
-        overflow "scroll"
+        Css.backgroundColor "#676778"
+        Css.color "white"
+        Css.overflow "scroll"
     ]
 
     rule ".app-contents ul" [
-        paddingLeft "20px"
+        Css.paddingLeft "20px"
     ]
 
     rule ".app-contents .title" [
-        color "white"
-        marginLeft "12px"
-        marginBottom "8px"
-        marginTop "16px"
+        Css.color "white"
+        Css.marginLeft "12px"
+        Css.marginBottom "8px"
+        Css.marginTop "16px"
     ]
 
     rule ".app-contents a" [
-        cursor "pointer"
-        color "white"
-        textDecoration "none"
+        Css.cursor "pointer"
+        Css.color "white"
+        Css.textDecoration "none"
     ]
 
     rule ".app-contents a:hover" [
-        color "white"
-        textDecoration "underline"
+        Css.color "white"
+        Css.textDecoration "underline"
     ]
 
     rule ".app-main-section" [
-        marginTop "0px"
-        paddingTop "50px"
-        height "100%"
+        Css.marginTop "0px"
+        Css.paddingTop "50px"
+        Css.height "100%"
     ]
 
     rule ".app-demo" [
-        backgroundColor "white"
+        Css.backgroundColor "white"
     ]
 
     rule ".app-heading a" [
-        color "#676778"
+        Css.color "#676778"
     ]
 
     rule ".app-toolbar a" [
-        color "#676778"
-        fontSize "80%"
-        padding "12px"
+        Css.color "#676778"
+        Css.fontSize "80%"
+        Css.padding "12px"
     ]
 
     rule ".app-toolbar ul" [
-        display "inline"
+        Css.display "inline"
     ]
 
     rule ".app-toolbar li" [
-        display "inline"
+        Css.display "inline"
     ]
 
     rule "pre" [
-        padding 0
+        Css.padding 0
     ]
 
     rule ".logo" [
-        fontFamily "'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif"
-        fontWeight  "400"
-        fontSize    "42px"
-        letterSpacing "2px"
+        Css.fontFamily "'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif"
+        Css.fontWeight  "400"
+        Css.fontSize    "42px"
+        Css.letterSpacing "2px"
     ]
 
     rule ".slogo" [
-        display "inline-flex"
-        fontFamily "'Coda Caption'"
-        alignItems "center"
-        justifyContent "center"
-        width "32px"
-        height "24px"
-        background "#444444"
-        color "white"
+        Css.display "inline-flex"
+        Css.fontFamily "'Coda Caption'"
+        Css.alignItems "center"
+        Css.justifyContent "center"
+        Css.width "32px"
+        Css.height "24px"
+        Css.background "#444444"
+        Css.color "white"
     ]
 ]
 
@@ -287,6 +291,7 @@ let appMain () =
                     Section "Events" model dispatch
                     Section "Transitions" model dispatch
                     Section "Bindings" model dispatch
+                    Section "Svg" model dispatch
                     Section "Miscellaneous" model dispatch
                     Section "7Guis" model dispatch
                 ]

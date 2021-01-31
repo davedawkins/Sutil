@@ -79,30 +79,30 @@ let cols m = m.Cols
 
 let styleSheet = [
     rule "table" [
-        borderSpacing "0px"
-        borderBottom "1px solid #e0e0e0"
-        borderRight "1px solid #e0e0e0"
+        Css.borderSpacing "0px"
+        Css.borderBottom "1px solid #e0e0e0"
+        Css.borderRight "1px solid #e0e0e0"
     ]
     rule "td, th" [
-        minWidth "50px"
-        borderLeft "1px solid #e0e0e0"
-        borderTop "1px solid #e0e0e0"
-        padding "5px"
+        Css.minWidth "50px"
+        Css.borderLeft "1px solid #e0e0e0"
+        Css.borderTop "1px solid #e0e0e0"
+        Css.padding "5px"
     ]
     rule "td.selected" [
-        padding "0px"
+        Css.padding "0px"
     ]
     rule "td div" [
-        display "flex"
-        flexDirection "row"
+        Css.display "flex"
+        Css.flexDirection "row"
     ]
     rule "td input" [
-        flex "1"
-        width "56px"
-        height "22px"
+        Css.flex "1"
+        Css.width "56px"
+        Css.height "22px"
     ]
     rule "td.active" [
-        backgroundColor "red"
+        Css.backgroundColor "red"
     ]
 ]
 

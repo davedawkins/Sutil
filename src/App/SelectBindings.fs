@@ -1,5 +1,8 @@
 module SelectBindings
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Browser
 open Sutil
 open Sutil.DOM
@@ -20,9 +23,9 @@ let questions = [
 let appStyle = [
     rule "input" [
         addClass "input"
-        display "block"
-        width "620px"
-        maxWidth "100%"
+        Css.display "block"
+        Css.width "620px"
+        Css.maxWidth "100%"
     ]
     rule "button" [ addClass "button" ]
     rule "form" [ addClass "block" ]

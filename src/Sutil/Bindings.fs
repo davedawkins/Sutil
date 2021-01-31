@@ -116,10 +116,9 @@ let bindSelect<'T when 'T : equality> (store:Store<'T>) : NodeFactory = fun ctx 
             o.selected <- (v = (opValue o))
 
     // Update the store when the radio box is clicked on
-    let unsubInput = select.addEventListener("input", (fun _ ->
+    let unsubInput = DOM.listen "input" select <| fun _ ->
         //log($"%A{getValueList()}")
         getValue() |> Store.set store
-    ))
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
@@ -128,6 +127,9 @@ let bindSelect<'T when 'T : equality> (store:Store<'T>) : NodeFactory = fun ctx 
 
     // When store changes make sure check status is synced
     let unsub = Store.subscribe store updateSelected
+
+    DOM.registerUnsubscribe ctx.Parent unsubInput
+    DOM.registerDisposable ctx.Parent unsub
 
     unitResult()
 
@@ -147,10 +149,8 @@ let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) : NodeFact
             o.selected <- v |> List.contains (opValue o)
 
     // Update the store when the radio box is clicked on
-    let unsubInput = select.addEventListener("input", (fun _ ->
-        //log($"%A{getValueList()}")
+    let unsubInput = DOM.listen "input" select <| fun _ ->
         getValueList() |> Store.set store
-    ))
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
@@ -159,6 +159,9 @@ let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) : NodeFact
 
     // When store changes make sure check status is synced
     let unsub = Store.subscribe store (updateSelected)
+
+    DOM.registerDisposable ctx.Parent unsub
+    DOM.registerUnsubscribe ctx.Parent unsubInput
 
     unitResult()
 
@@ -184,10 +187,8 @@ let bindGroup<'T> (store:Store<List<string>>) : NodeFactory = fun ctx ->
         setInputChecked parent ( v |> List.contains (getInputValue parent) )
 
     // Update the store when the radio box is clicked on
-    let unsubInput = parent.addEventListener("input", (fun _ ->
-        //log($"%A{getValueList()}")
+    let unsubInput = DOM.listen "input" parent <| fun _ ->
         getValueList() |> Store.set store
-    ))
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
@@ -196,6 +197,9 @@ let bindGroup<'T> (store:Store<List<string>>) : NodeFactory = fun ctx ->
 
     // When store changes make sure check status is synced
     let unsub = Store.subscribe store (updateChecked)
+
+    DOM.registerDisposable ctx.Parent unsub
+    DOM.registerUnsubscribe ctx.Parent unsubInput
 
     unitResult()
 
@@ -215,7 +219,8 @@ let bindRadioGroup<'T> (store:Store<'T>) : NodeFactory = fun ctx ->
         setInputChecked parent ( (string v) = getInputValue parent )
 
     // Update the store when the radio box is clicked on
-    let inputUnsub = listen "input" parent (fun _ -> Interop.get parent "value" |> Store.set store )
+    let inputUnsub = listen "input" parent <| fun _ ->
+        Interop.get parent "value" |> Store.set store
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
@@ -224,6 +229,9 @@ let bindRadioGroup<'T> (store:Store<'T>) : NodeFactory = fun ctx ->
 
     // When store changes make sure check status is synced
     let unsub = Store.subscribe store updateChecked
+
+    DOM.registerDisposable ctx.Parent unsub
+    DOM.registerUnsubscribe ctx.Parent inputUnsub
 
     unitResult()
 
@@ -237,6 +245,7 @@ let bindClass (toggle:IObservable<bool>) (classes:string) =
 // Bind a store value to an element attribute. Updates to the element are unhandled
 let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : NodeFactory = fun ctx ->
     let unsub = Store.subscribe store ( fun value -> Interop.set ctx.Parent attrName value )
+    DOM.registerDisposable ctx.Parent unsub
     unitResult()
 
 // Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
@@ -246,20 +255,27 @@ let attrNotify<'T> (attrName:string) (v :'T) (onchange : obj -> unit) : NodeFact
     let parent = ctx.Parent
     let unsub = listen "input" parent (fun _ -> Interop.get parent attrName |> onchange )
     Interop.set parent attrName v
+    DOM.registerUnsubscribe ctx.Parent unsub
     unitResult()
 
 // Bind an observable value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function
 let bindAttrNotify<'T> (attrName:string) (store : IObservable<'T>) (onchange : 'T -> unit) : NodeFactory = fun ctx ->
     let parent = ctx.Parent
-    parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> onchange ))
+
+    let unsubInput = DOM.listen "input" parent <| fun _ ->
+        Interop.get parent attrName |> onchange
     let unsub = Store.subscribe store ( Interop.set parent attrName )
+    DOM.registerDisposable parent unsub
+    DOM.registerUnsubscribe parent unsubInput
     unitResult()
 
 let bindAttrListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : NodeFactory = fun ctx ->
     let parent = ctx.Parent
     let unsubA = Sutil.DOM.listen event parent handler
     let unsubB = Store.subscribe store ( Interop.set parent attrName )
+    DOM.registerUnsubscribe ctx.Parent unsubA
+    DOM.registerDisposable ctx.Parent unsubB
     unitResult()
 
 // Bind a store value to an element attribute. Listen for onchange events write the converted
@@ -267,8 +283,11 @@ let bindAttrListen<'T> (attrName:string) (store : IObservable<'T>) (event:string
 let bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T) : NodeFactory = fun ctx ->
     let parent = ctx.Parent
     //let attrName' = if attrName = "value" then "__value" else attrName
-    parent.addEventListener("input", (fun _ -> Interop.get parent attrName |> convert |> Store.set store ))
+    let unsubInput = DOM.listen "input" parent <| fun _ ->
+        Interop.get parent attrName |> convert |> Store.set store
     let unsub = Store.subscribe store ( Interop.set parent attrName )
+    DOM.registerUnsubscribe parent unsubInput
+    DOM.registerDisposable parent unsub
     unitResult()
 
 // Unsure how to safely convert Element.getAttribute():string to 'T
@@ -281,8 +300,10 @@ let bindAttr<'T> (attrName:string) (store : Store<'T>) =
 
 let bindAttrOut<'T> (attrName:string) (store : Store<'T>) : NodeFactory = fun ctx ->
     let parent = ctx.Parent
-    let unsub = DOM.listen "input" parent (fun _ -> Interop.get parent attrName |> convertObj<'T> |> Store.set store)
+    let unsubInput = DOM.listen "input" parent <| fun _ ->
+        Interop.get parent attrName |> convertObj<'T> |> Store.set store
     //(asEl parent).addEventListener("input", (fun _ -> Interop.get parent attrName |> convertObj<'T> |> Store.set store ))
+    DOM.registerUnsubscribe parent unsubInput
     unitResult()
 
 
@@ -290,19 +311,21 @@ let attrIsSizeRelated  (attrName:string) =
     let upr = attrName.ToUpper()
     upr.IndexOf("WIDTH") >= 0 || upr.IndexOf("HEIGHT") >= 0
 
-let bindPropOut<'T> (attrName:string) (store : Store<'T>) : NodeFactory = fun ctx ->
+let listenToProp<'T> (attrName:string) (dispatch: 'T -> unit) : NodeFactory = fun ctx ->
     let parent = ctx.Parent
-    let notify() = Interop.get parent attrName |> convertObj<'T> |> Store.set store
+    let notify() = Interop.get parent attrName |> convertObj<'T> |> dispatch
 
-    let unsub =
-        if attrIsSizeRelated attrName then
-            (getResizer (asEl parent)).Subscribe( notify ) |> Helpers.unsubify
-        else
-            DOM.listen "input" parent (fun _ -> notify())
+    if attrIsSizeRelated attrName then
+        (getResizer (asEl parent)).Subscribe( notify ) |> DOM.registerDisposable parent
+    else
+        DOM.listen "input" parent (fun _ -> notify()) |> DOM.registerUnsubscribe parent
 
-    DOM.registerUnsubscribe parent unsub
+    raf (fun _ -> notify()) |> ignore
 
     unitResult()
+
+let bindPropOut<'T> (attrName:string) (store : Store<'T>) : NodeFactory =
+    listenToProp attrName (Store.set store)
 
 type KeyedStoreItem<'T,'K> = {
     Key : 'K
@@ -408,6 +431,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
 
             state <- newState
         )
+        DOM.registerDisposable ctx.Parent unsub
         unitResult()
 
 let private duc = ObservableX.distinctUntilChanged
@@ -427,5 +451,10 @@ let eachk (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  (key:'T -> '
         (fun (_,item) -> bind (duc item) view)
         (snd>>key)
         trans
+
+let bindStore<'T> (init:'T) (app:Store<'T> -> DOM.NodeFactory) : DOM.NodeFactory = fun ctx ->
+    let s = Store.make init
+    registerDisposable ctx.Parent s
+    ctx |> (s |> app |> build)
 
 let (|=>) a b = bind a b

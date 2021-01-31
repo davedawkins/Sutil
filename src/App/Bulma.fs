@@ -29,13 +29,13 @@ let styleHelpers = [
     rule "input[type='number']" [
         addClass "input"
         addClass "is-small"
-        maxWidth "50%"
+        Css.maxWidth "50%"
     ]
 
     rule "input[type='range']" [
         addClass "input"
         addClass "is-small"
-        maxWidth "50%"
+        Css.maxWidth "50%"
     ]
 ]
 

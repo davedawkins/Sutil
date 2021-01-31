@@ -1,5 +1,8 @@
 module Todos
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.Styling
 open Sutil.Attr
@@ -46,94 +49,94 @@ let newUid = Helpers.makeIdGeneratorFrom(7)
 let styleSheet = [
 
     rule ".new-todo" [
-        fontSize "1.4em"
-        width "100%"
+        Css.fontSize (Em 1.4)
+        Css.width "100%"
         //margin "2em 0 1em 0"
     ]
 
     rule ".board" [
-        maxWidth "36em"
-        margin "0 auto"
+        Css.maxWidth "36em"
+        Css.margin "0 auto"
     ]
 
     rule ".todo, .done" [
         //float' "left"
-        width "50%"
-        padding "0 1em 0 0"
-        boxSizing "border-box"
+        Css.width "50%"
+        Css.padding "0 1em 0 0"
+        Css.boxSizing "border-box"
     ]
 
     rule ".title" [
-        marginTop "24px"
+        Css.marginTop "24px"
     ]
 
     rule "h2" [
-        fontSize "2em"
-        fontWeight  "200"
-        userSelect  "none"
+        Css.fontSize "2em"
+        Css.fontWeight  "200"
+        Css.userSelect  "none"
     ]
 
     rule "label"  [
-        top "0"
-        left "0"
-        display "block"
-        fontSize "1em"
-        lineHeight "1"
-        padding "0.5em"
-        margin "0 auto 0.5em auto"
-        borderRadius "2px"
-        backgroundColor "#eee"
-        userSelect "none"
+        Css.top "0"
+        Css.left "0"
+        Css.display "block"
+        Css.fontSize "1em"
+        Css.lineHeight "1"
+        Css.padding "0.5em"
+        Css.margin "0 auto 0.5em auto"
+        Css.borderRadius "2px"
+        Css.backgroundColor "#eee"
+        Css.userSelect "none"
     ]
 
-    rule "input" [  margin "0" ]
+    rule "input" [  Css.margin "0" ]
 
     rule ".done label" [
-        backgroundColor "rgb(180,240,100)"
+        Css.backgroundColor "rgb(180,240,100)"
     ]
 
     rule "label>button" [
-        float' "right"
-        height "1em"
-        boxSizing "border-box"
-        padding "0 0.5em"
-        lineHeight "1"
-        backgroundColor "transparent"
-        border "none"
-        color "rgb(170,30,30)"
-        opacity "0"
-        Attr.transition "opacity 0.2s"
+        Css.float' "right"
+        Css.height "1em"
+        Css.boxSizing "border-box"
+        Css.padding "0 0.5em"
+        Css.lineHeight "1"
+        Css.backgroundColor "transparent"
+        Css.border "none"
+        Css.color "rgb(170,30,30)"
+        Css.opacity "0"
+        Css.transition "opacity 0.2s"
     ]
 
     rule "label:hover button" [
-        opacity "1"
+        Css.opacity "1"
     ]
 
     rule ".row" [
-        display "flex"
+        Css.display "flex"
     ]
 
     rule ".kudos" [
-        fontSize "80%"
-        color "#888"
+        Css.fontSize "80%"
+        Css.color "#888"
     ]
 
     rule "div.complete-all-container" [
-        display "flex"
-        justifyContent "space-between"
-        marginTop "4px"
+        Css.display "flex"
+        Css.justifyContent "space-between"
+        Css.marginTop "4px"
     ]
 
     rule ".complete-all-container a" [
-        cursor "pointer"
-        textDecoration "none"
+        Css.cursor "pointer"
+        Css.textDecoration "none"
 
-        fontSize "80%"
-        color "#888"
+        Css.fontSize "80%"
+        Css.color "#888"
     ]
 
     rule ".complete-all-container a:hover" [
-        textDecoration "underline"
+        Css.textDecoration "underline"
     ]
 ]
 
@@ -190,7 +193,7 @@ let fallback (props : TransitionProp list) (node : HTMLElement) = fun _ ->
     { (applyProps props Transition.Default) with
             Duration = 600.0
             Ease = Easing.quintOut
-            Css = Some(fun t _ -> $"transform: {transform} scale({t}); opacity: {t}") }
+            CssGen = Some(fun t _ -> $"transform: {transform} scale({t}); opacity: {t}") }
 
 let view () : NodeFactory =
     let (send,recv) = crossfade [ Fallback fallback ]

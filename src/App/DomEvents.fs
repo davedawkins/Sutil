@@ -1,5 +1,8 @@
 module DomEvents
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.DOM
 open Sutil.Attr
@@ -20,8 +23,8 @@ let view() =
         bind m <| fun (x,y) -> text $"The mouse position is {x} x {y}"
     ] |> withStyle [
         rule "div" [
-            width "100vw"
-            height "100vh"
+            Css.width "100vw"
+            Css.height "100vh"
         ]
     ]
 

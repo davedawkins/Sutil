@@ -1,5 +1,8 @@
 module CheckboxInputs
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.DOM
 open Sutil.Attr

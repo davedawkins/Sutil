@@ -147,39 +147,39 @@ let mutable sidePanel : Chrome.Devtools.Panels.ExtensionSidebarPane = Unchecked.
 let mutable panelDoc : Document = Unchecked.defaultof<_>
 
 let styleSheet = [
-    rule ".sv-container" [ padding "12px";minHeight "100vh" ]
-    rule ".sv-main" [ background "white"; minHeight "100vh" ]
-    rule ".sv-sidebar" [ background "#eeeeee";borderRight "1pt solid #cccccc"; paddingRight "0" ]
-    rule "#sv-title" [ marginBottom "4px" ]
-    rule ".sv-menu li" [ fontSize "90%"; cursor "pointer"; paddingLeft "4px" ]
-    rule ".sv-menu li:hover" [ textDecoration "underline" ]
+    rule ".sv-container" [ Css.padding "12px";Css.minHeight "100vh" ]
+    rule ".sv-main" [ Css.background "white"; Css.minHeight "100vh" ]
+    rule ".sv-sidebar" [ Css.background "#eeeeee";Css.borderRight "1pt solid #cccccc"; Css.paddingRight "0" ]
+    rule "#sv-title" [ Css.marginBottom "4px" ]
+    rule ".sv-menu li" [ Css.fontSize "90%"; Css.cursor "pointer"; Css.paddingLeft "4px" ]
+    rule ".sv-menu li:hover" [ Css.textDecoration "underline" ]
     rule ".sv-menu li.active" [
-        borderTop "1pt solid #cccccc"
-        borderLeft "1pt solid #cccccc"
-        borderBottom "1pt solid #cccccc"
-        borderTopLeftRadius "4px"
-        borderBottomLeftRadius "4px"
-        background "white"
-        marginRight "-2px"
-        marginLeft "-4px"
-        paddingLeft "8px" ]
-    rule ".o-val" [ color "#1F618D" ]
-    rule ".o-str" [ color "#B03A2E" ]
-    rule ".o-bool" [ color "#3498DB" ]
-    rule ".o-int" [ color "#117864" ]
-    rule ".o-float" [ color "#117864" ]
+        Css.borderTop "1pt solid #cccccc"
+        Css.borderLeft "1pt solid #cccccc"
+        Css.borderBottom "1pt solid #cccccc"
+        Css.borderTopLeftRadius "4px"
+        Css.borderBottomLeftRadius "4px"
+        Css.background "white"
+        Css.marginRight "-2px"
+        Css.marginLeft "-4px"
+        Css.paddingLeft "8px" ]
+    rule ".o-val"   [ Css.color "#1F618D" ]
+    rule ".o-str"   [ Css.color "#B03A2E" ]
+    rule ".o-bool"  [ Css.color "#3498DB" ]
+    rule ".o-int"   [ Css.color "#117864" ]
+    rule ".o-float" [ Css.color "#117864" ]
     rule ".table" [
-        fontSize "8pt"
-        fontFamily "Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif"
+        Css.fontSize "8pt"
+        Css.fontFamily "Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif"
     ]
     rule ".options" [
-        fontSize "80%"
+        Css.fontSize "80%"
     ]
     rule ".log-categories" [
-        marginLeft "16px"
+        Css.marginLeft "16px"
     ]
     rule ".log-categories .field" [
-        marginBottom "0.5rem"
+        Css.marginBottom "0.5rem"
     ]
 ]
 
@@ -251,7 +251,7 @@ let viewMountPoints model dispatch =
                     text mp.Id
                     Html.button [
                         class' "button is-small"
-                        style "margin-left: 12px"
+                        style [ Css.marginLeft "12px" ]
                         text "Remount"
                         onClick (fun _ -> remount mp.Id) []
                     ]

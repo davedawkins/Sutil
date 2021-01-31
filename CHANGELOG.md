@@ -2,6 +2,9 @@
 
 ## Changelog (most recent first)
 
+- Big changes while integrating with Feliz.Engine, work-in-progress
+- Bar chart SVG example
+- Modal example
 - cleanup when unmounting (switching between examples in app)
 - dynamic update of store values
 - firstOf, selectApp used in app to unmount apps and recreate when they are selected. Before, they

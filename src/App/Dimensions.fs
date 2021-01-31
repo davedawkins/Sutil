@@ -1,25 +1,28 @@
 module Dimensions
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.Attr
-open Sutil.Bindings
+open Sutil.DOM
 open Sutil.Styling
-open Sutil.Html
+open Sutil.Bindings
 
 let style = Bulma.withBulmaHelpers [
     rule "input" [
-        display "block"
-        width "50%"
+        Css.display "block"
+        Css.width "50%"
     ]
     rule "div.resizing" [
-        display "inline-block"
-        border "1pt solid #dddddd"
-        resize "both"
+        Css.display "inline-block"
+        Css.border "1pt solid #dddddd"
+        Css.resize "both"
     ]
 ]
 
 let view() =
-    div [
+    Html.div [
         let w = Store.make 0.0
         let h = Store.make 0.0
         let size = Store.make 42.0
@@ -27,24 +30,24 @@ let view() =
 
         DOM.disposeOnUnmount [w; h; size; text ]
 
-        div [
+        Html.div [
             class' "block"
-            input [ type' "range"; bindAttr "value" size ]
+            Html.input [ type' "range"; bindAttr "value" size ]
         ]
-        div [
+        Html.div [
             class' "block"
-            input [ type' "text"; bindAttr "value" text ]
+            Html.input [ type' "text"; bindAttr "value" text ]
         ]
 
-        div [
+        Html.div [
             bind2 w h <| fun (w',h') -> DOM.text $"Size: {w'}px x {h'}px"
         ]
 
-        div [
+        Html.div [
             class' "resizing block"
             bindPropOut "clientWidth" w
             bindPropOut "clientHeight" h
-            span [
+            Html.span [
                 bindAttrIn "style" (size |> Store.map (fun n -> $"font-size: {n}px"))
                 bind text DOM.text
             ]

@@ -374,9 +374,24 @@ let dispatch (node:Node) name (data:obj)=
 let dispatchSimple (node:Node) name =
     dispatch node name {| |}
 
-let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
+let buildChildren(xs : seq<NodeFactory>)  (ctx:BuildContext) =
+    let e = ctx.ParentElement
 
-    let e  = ctx.Document.createElement tag
+    // Effect 2
+    for x in xs do
+        ctx |> build x |> ignore
+
+    // Effect 3
+    match ctx.StyleSheet with
+    | Some namedSheet ->
+        e.classList.add(namedSheet.Name)
+        applyCustomRules e namedSheet
+    | None -> ()
+    unitResult()
+
+let elns ns tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
+
+    let e : Element = if ns = "" then upcast ctx.Document.createElement(tag) else ctx.Document.createElementNS(ns, tag)
 
     // Considering packing these effects into pipeline that lives on ctx.
     // User can then extend the pipeline, or even re-arrange. No immediate
@@ -387,18 +402,30 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
     log $"create <{tag}> #{id}"
     setSvId e id
 
-    log $"1. el ctx {ctx.Action}"
+    ctx |> withParent e |> buildChildren xs |> ignore
 
-    // Effect 2
-    for x in xs do
-        ctx |> withParent e |> build x |> ignore
+    // Effect 4
+    appendReplaceChild e ctx |> ignore
 
-    // Effect 3
-    match ctx.StyleSheet with
-    | Some namedSheet ->
-        e.classList.add(namedSheet.Name)
-        applyCustomRules e namedSheet
-    | None -> ()
+    // Effect 5
+    dispatchSimple e Event.ElementReady
+
+    nodeResult e
+
+let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
+
+    let e : Element = upcast ctx.Document.createElement(tag)
+
+    // Considering packing these effects into pipeline that lives on ctx.
+    // User can then extend the pipeline, or even re-arrange. No immediate
+    // need for it right now.
+
+    // Effect 1
+    let id = domId()
+    log $"create <{tag}> #{id}"
+    setSvId e id
+
+    ctx |> withParent e |> buildChildren xs |> ignore
 
     // Effect 4
     appendReplaceChild e ctx |> ignore
@@ -785,3 +812,72 @@ let computedStyleOpacity e =
 let computedStyleTransform node =
     let style = window.getComputedStyle(node)
     if style.transform = "none" then "" else style.transform
+
+let declareResource<'T when 'T :> IDisposable> (init : unit -> 'T) (f : 'T -> unit) = fun ctx ->
+    let r = init()
+    registerDisposable ctx.Parent r
+    f(r)
+    unitResult()
+
+module Html =
+
+    #if !USE_POC_HTML
+    let div xs : NodeFactory = el "div" xs
+    let textarea xs = el "textarea" xs
+    let h1  xs = el "h1" xs
+    let h2  xs = el "h2" xs
+    let h3  xs = el "h3" xs
+    let h4  xs = el "h4" xs
+    let h5  xs = el "h5" xs
+    let hr  xs = el "hr" xs
+    let pre  xs = el "pre" xs
+    let code  xs = el "code" xs
+    let p  xs = el "p" xs
+    let span xs = el "span" xs
+    let button  xs = el "button" xs
+    let input  xs = el "input" xs
+    let label  xs = el "label" xs
+    let a  xs = el "a" xs
+    let ul  xs = el "ul" xs
+    let li xs = el "li" xs
+    let img xs = el "img" xs
+    let option xs = el "option" xs
+    let select xs = el "select" xs
+    let form xs = el "form" xs
+    let table xs = el "table" xs
+    let tbody xs = el "tbody" xs
+    let thead xs = el "thead" xs
+    let tr xs = el "tr" xs
+    let th xs = el "th" xs
+    let td xs = el "td" xs
+    #else
+    open Feliz
+    // Dummy type to avoid problems with overload resolution in HtmlEngine
+    type [<Fable.Core.Erase>] NodeAttr = NodeAttr of NodeFactory
+
+    let Html =
+        HtmlEngine
+            { new IConverter<NodeFactory, NodeAttr> with
+                override _.CreateEl(tag, nodes) = el tag (unbox nodes)
+                override _.ChildrenToProp(children) = NodeAttr(fragment children)
+                override _.StringToEl(v) = text v
+
+                override _.EmptyEl = fun _ -> unitResult()
+                override _.FloatToEl(v) = text $"{v}"
+                override _.IntToEl(v) = text $"{v}"
+                override _.BoolToEl(v) = text $"{v}" }
+
+    #endif
+
+    let app (xs : seq<NodeFactory>) : NodeFactory = fragment xs
+
+    let body (xs: seq<NodeFactory>) = fun ctx ->
+        ctx |> withParent (ctx.Document.body) |> buildChildren xs
+
+    let parent (selector:string) (xs: seq<NodeFactory>) = fun ctx ->
+        ctx |> withParent (ctx.Document.querySelector selector) |> buildChildren xs
+
+    //let sval<'T> (init:'T) (xs:seq<NodeFactory>) = fun ctx ->
+    //    let s = Store.make init
+    //    DOM.registerDisposable ctx.Parent s
+    //    unitResult()

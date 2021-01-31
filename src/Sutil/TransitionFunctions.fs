@@ -23,7 +23,7 @@ let fade (initProps : TransitionProp list) (node : HTMLElement) =
         fun () ->
         let tr = applyProps initProps { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.linear }
         {
-            tr with Css = Some (fun t _ -> sprintf "opacity: %f" (t* computedStyleOpacity node))
+            tr with CssGen = Some (fun t _ -> sprintf "opacity: %f" (t* computedStyleOpacity node))
         }
 
 let slide (props : TransitionProp list) = fun (node : HTMLElement) ->
@@ -42,7 +42,7 @@ let slide (props : TransitionProp list) = fun (node : HTMLElement) ->
 
     let set (name,value,units) = sprintf "%s: %s%s;" name value units
 
-    fun () -> { tr with Css = Some(fun t _ ->
+    fun () -> { tr with CssGen = Some(fun t _ ->
                             let result = ([
                                     ("overflow", "hidden", "")
                                     ("opacity",  (min (t * 20.0) 1.0) * opacity  |> string, "")
@@ -72,7 +72,7 @@ let draw (props : TransitionProp list) = fun (node : SVGPathElement) ->
 
     fun () -> { tr with
                     Duration = duration
-                    Css = Some <| fun t u -> sprintf "stroke-dasharray: %f %f" (t*len) (u*len) }
+                    CssGen = Some <| fun t u -> sprintf "stroke-dasharray: %f %f" (t*len) (u*len) }
 
 let fly (props : TransitionProp list) (node : Element) =
     let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut; X = 0.0; Y = 0.0 }
@@ -85,7 +85,7 @@ let fly (props : TransitionProp list) (node : Element) =
     fun () -> {
         // Called when animation ready to run
         tr with
-            Css = Some(fun t u ->
+            CssGen = Some(fun t u ->
                 sprintf "transform: %s translate(%fpx, %fpx); opacity: %f;"
                         transform
                         ((1.0 - t) * tr.X)
@@ -128,7 +128,7 @@ let crossfade userProps =
             tr with
                 DurationFn = None
                 Duration = duration
-                Css = Some <| fun t u ->
+                CssGen = Some <| fun t u ->
                     sprintf """
                       opacity: %f;
                       transform-origin: top left;

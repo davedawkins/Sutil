@@ -1,5 +1,8 @@
 module Transition
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.Attr
 open Sutil.DOM

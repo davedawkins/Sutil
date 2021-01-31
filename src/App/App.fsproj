@@ -26,13 +26,12 @@
     <Compile Include="SelectMultiple.fs" />
     <Compile Include="GroupInputs.fs" />
     <Compile Include="ReactiveStatements.fs" />
-    <Compile Include="Nested.fs" />
-    <Compile Include="NestedComponents.fs" />
-    <Compile Include="Styling.fs" />
     <Compile Include="ReactiveDeclarations.fs" />
     <Compile Include="DynamicAttributes.fs" />
     <Compile Include="HelloWorld.fs" />
+    <Compile Include="Modal.fs" />
     <Compile Include="HtmlTags.fs" />
+    <Compile Include="BarChart.fs" />
     <Compile Include="DomEvents.fs" />
     <Compile Include="EventModifiers.fs" />
     <Compile Include="Evaluator.fs" />
@@ -44,9 +43,12 @@
     <Compile Include="TransitionInOut.fs" />
     <Compile Include="TransitionCustomCss.fs" />
     <Compile Include="TransitionCustom.fs" />
-    <Compile Include="Todos.fs" />
     <Compile Include="Counter.fs" />
     <Compile Include="CounterWithTransition.fs" />
+    <Compile Include="Todos.fs" />
+    <Compile Include="Nested.fs" />
+    <Compile Include="NestedComponents.fs" />
+    <Compile Include="Styling.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>

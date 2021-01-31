@@ -63,7 +63,7 @@ type TransitionProp =
     | Duration of float
     | DurationFn of (float -> float)
     | Ease of (float -> float)
-    | Css of (float -> float -> string )
+    | CssGen of (float -> float -> string )
     | Tick of (float -> float -> unit)
     | Speed of float
     | Fallback of TransitionBuilder
@@ -79,7 +79,7 @@ and Transition =
         DurationFn : (float->float) option
         Speed : float
         Ease : (float -> float)
-        Css : (float -> float -> string ) option
+        CssGen : (float -> float -> string ) option
         Tick: (float -> float -> unit) option
         Fallback: TransitionBuilder option
     } with
@@ -93,7 +93,7 @@ and Transition =
                 DurationFn = None
                 Speed = 0.0
                 Ease = Easing.linear
-                Css = None
+                CssGen = None
                 Fallback = None
                 Tick = None }
 
@@ -128,7 +128,7 @@ let private applyProp (r:Transition) (prop : TransitionProp) =
     | Duration d -> { r with Duration = d; DurationFn = None }
     | DurationFn fo -> { r with DurationFn = Some fo; Duration = 0.0 }
     | Ease f -> { r with Ease = f }
-    | Css f -> { r with Css = Some f }
+    | CssGen f -> { r with CssGen = Some f }
     | Tick f -> { r with Tick = Some f }
     | Speed s -> { r with Speed = s }
     | X n -> { r with X = n }
@@ -188,7 +188,7 @@ let toEmptyStr s = if System.String.IsNullOrEmpty(s) then "" else s
 let createRule (node : HTMLElement) (a:float) (b:float) tr (uid:int) =
     registerDoc (documentOf node)
 
-    let css = match tr.Css with
+    let css = match tr.CssGen with
                 | Some f -> f
                 | None -> failwith "No CSS function supplied"
 
@@ -273,7 +273,7 @@ let flip (node:Element) (animation:Animation) props =
                         | None -> tr.Duration //
                         | Some f -> f(d) // Use user's function or our default
             DurationFn = None  // Original converts any function into a scalar value
-            Css = Some (fun t u -> sprintf "transform: %s translate(%fpx, %fpx);`" transform (u * dx) (u * dy))
+            CssGen = Some (fun t u -> sprintf "transform: %s translate(%fpx, %fpx);`" transform (u * dx) (u * dy))
     }
 
 let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element -> Animation -> TransitionProp list -> Transition) props =
@@ -430,7 +430,7 @@ let transitionNode  (el : HTMLElement)
             let tr = createTrans()
             if tr.DurationFn.IsSome then failwith "Duration function not permitted"
             let d = tr.Duration
-            if tr.Css.IsSome then
+            if tr.CssGen.IsSome then
                 ruleName <- createRule el a b tr 0
             if tr.Tick.IsSome then
                 // Wait for the cancelled runTick to finish

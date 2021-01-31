@@ -1,10 +1,12 @@
 module AwaitBlocks
 
+// Adapted from
+// https://svelte.dev/examples#await-blocks
+
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
 open Sutil.Bindings
-open Browser.Dom
 
 module RandomUser =
     type Name = { title: string; first : string; last : string }
@@ -51,7 +53,7 @@ let view() =
                 | Result n ->
                     text $"Please welcome {n}"
                 | Error x -> Html.p [
-                    style "color: red"
+                    style [ Css.color "red" ]
                     text (string x.Message)
                 ]
         ]

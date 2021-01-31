@@ -1,5 +1,8 @@
 module KeyedEachBlocks
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
@@ -21,21 +24,21 @@ let ThingView (thing : IObservable<Thing>) : NodeFactory =
 
         let thingStyle = [
             rule "span" [
-                display "inline-block"
-                padding "0.2em 0.5em"
-                margin "0 0.2em 0.2em 0"
-                width "8em"
-                textAlign "center"
-                borderRadius "0.2em"
-                color "#eeeeee"
+                Css.display "inline-block"
+                Css.padding "0.2em 0.5em"
+                Css.margin "0 0.2em 0.2em 0"
+                Css.width "8em"
+                Css.textAlign "center"
+                Css.borderRadius "0.2em"
+                Css.color "#eeeeee"
             ]
         ]
 
         Html.div [
             bind thing <| fun t ->
                 Html.p [
-                    Html.span [ style $"background-color: {t.Color};"; text $"{t.Id} {t.Color} #{viewId}" ]
-                    Html.span [ style $"background-color: {initialColor};"; text "initial" ]
+                    Html.span [ style [ Css.backgroundColor t.Color ]; text $"{t.Id} {t.Color} #{viewId}" ]
+                    Html.span [ style [ Css.backgroundColor initialColor ]; text "initial" ]
                 ] |> withStyle thingStyle
         ]
 
@@ -60,7 +63,7 @@ let view() =
         ]
 
         Html.div [
-            style "display: grid; grid-template-columns: 1fr 1fr; grid-gap: 1em"
+            style [ Css.display "grid"; Css.gridTemplateColumns "1fr 1fr"; Css.gridGap "1em" ]
 
             Html.div [
                 Html.h2 [ text "Keyed" ]

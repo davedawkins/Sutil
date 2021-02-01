@@ -51,7 +51,7 @@ let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = fun ctx 
     let unsub = Store.subscribe store ( fun next ->
         try
             //buildSolitary (element(next)) { ctx with AppendChild = (makeAppendChild ctx node.Value) }
-            node <- buildSolitary (element(next)) (if isNull node then ctx else ctx |> withReplace node)
+            node <- buildSolitary (element(next)) (if isNull node then ctx else ctx |> ContextHelpers.withReplace node)
         with
         | x -> Logging.error $"Exception in bind: {x.Message} parent {nodeStr ctx.Parent} node {nodeStr node} node.Parent "
     )
@@ -86,7 +86,7 @@ let bind2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) 
     let unsub = Store.subscribe2 a b (fun next ->
         try
             //buildSolitary (element next) { ctx with AppendChild = (makeAppendChild ctx node.Value) }
-            node <- buildSolitary (element(next)) (ctx |> withReplace node)
+            node <- buildSolitary (element(next)) (ctx |> ContextHelpers.withReplace node)
         with
         | x -> Logging.error $"Exception in bind: {x.Message}"
     )
@@ -389,7 +389,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
                 | None ->
                     let storePos = Store.make itemIndex
                     let storeVal = Store.make item
-                    let ctx2 = ctx |> withAfter prevNode
+                    let ctx2 = ctx |> ContextHelpers.withAfter prevNode
                     log $"creating new item after {nodeStr prevNode} action={ctx2.Action}"
                     let itemNode = buildSolitaryElement (view (storePos,storeVal)) ctx2
                     setEid itemNode

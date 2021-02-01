@@ -201,20 +201,21 @@ let makeContext parent =
         MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
     }
 
-let withStyleSheet sheet ctx : BuildContext =
-    { ctx with StyleSheet = Some sheet }
+module ContextHelpers =
+    let withStyleSheet sheet ctx : BuildContext =
+        { ctx with StyleSheet = Some sheet }
 
-let withParent parent ctx =
-    { ctx with Parent = parent; Action = Append }
+    let withParent parent ctx =
+        { ctx with Parent = parent; Action = Append }
 
-let withReplace toReplace ctx =
-    { ctx with Action = if isNull toReplace then Append else Replace toReplace }
+    let withReplace toReplace ctx =
+        { ctx with Action = if isNull toReplace then Append else Replace toReplace }
 
-let withAfter after ctx =
-    { ctx with Action = After after }
+    let withAfter after ctx =
+        { ctx with Action = After after }
 
-let withBefore before ctx =
-    { ctx with Action = Before before }
+    let withBefore before ctx =
+        { ctx with Action = Before before }
 
 type Fragment = Node list
 
@@ -412,7 +413,7 @@ let elns ns tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
     log $"create <{tag}> #{id}"
     setSvId e id
 
-    ctx |> withParent e |> buildChildren xs |> ignore
+    ctx |> ContextHelpers.withParent e |> buildChildren xs |> ignore
 
     // Effect 4
     appendReplaceChild e ctx |> ignore
@@ -435,7 +436,7 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
     log $"create <{tag}> #{id}"
     setSvId e id
 
-    ctx |> withParent e |> buildChildren xs |> ignore
+    ctx |> ContextHelpers.withParent e |> buildChildren xs |> ignore
 
     // Effect 4
     appendReplaceChild e ctx |> ignore
@@ -884,10 +885,10 @@ module Html =
     let app (xs : seq<NodeFactory>) : NodeFactory = fragment xs
 
     let body (xs: seq<NodeFactory>) = fun ctx ->
-        ctx |> withParent (ctx.Document.body) |> buildChildren xs
+        ctx |> ContextHelpers.withParent (ctx.Document.body) |> buildChildren xs
 
     let parent (selector:string) (xs: seq<NodeFactory>) = fun ctx ->
-        ctx |> withParent (ctx.Document.querySelector selector) |> buildChildren xs
+        ctx |> ContextHelpers.withParent (ctx.Document.querySelector selector) |> buildChildren xs
 
     //let sval<'T> (init:'T) (xs:seq<NodeFactory>) = fun ctx ->
     //    let s = Store.make init

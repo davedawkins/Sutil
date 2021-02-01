@@ -10,7 +10,9 @@ open Sutil.Bindings
 open Fable.Core.JsInterop
 open Evaluator
 
-type Sheet = Map<Position,string>
+type Cell = string
+
+type Sheet = Map<Position,Cell>
 
 type Message =
   | UpdateValue of Position * string
@@ -48,18 +50,21 @@ let styleSheet = [
     ]
 ]
 
-let sample = Map.ofList [
-    ('B',1), "Fibonacci"
-    ('B',2), "1"
-    ('B',3), "1"
-    ('B',4), "=B2 + B3"
-    ('B',5), "=B3 + B4"
-    ('B',6), "=B4 + B5"
-    ('B',7), "=B5 + B6"
-    ('B',8), "=B6 + B7"
-    ('B',9), "=B7 + B8"
-    ('E',3), "Convert:" ; ('F',3), "0"                ; ('G',3), "°C";
-    ('E',4), "Result:"  ; ('F',4), "=32 + F3 * 9 / 5" ; ('G',4), "°F" ]
+
+let sample =
+    let c s = s // { Value = s; Evaluated = ""; NeedsEval = true }
+    Map.ofList [
+        ('B',1), c "Fibonacci"
+        ('B',2), c "1"
+        ('B',3), c "1"
+        ('B',4), c "=B2 + B3"
+        ('B',5), c "=B3 + B4"
+        ('B',6), c "=B4 + B5"
+        ('B',7), c "=B5 + B6"
+        ('B',8), c "=B6 + B7"
+        ('B',9), c "=B7 + B8"
+        ('E',3), c "Convert:" ; ('F',3), c "0"                ; ('G',3), c "°C";
+        ('E',4), c "Result:"  ; ('F',4), c "=32 + F3 * 9 / 5" ; ('G',4), c "°F" ]
 
 let init() =
     {  Rows = [1 .. 15]

@@ -56,7 +56,7 @@ let styleSheet = [
 
     rule ".board" [
         Css.maxWidth "36em"
-        Css.margin "0 auto"
+        Css.margin(Zero,Auto)
     ]
 
     rule ".todo, .done" [
@@ -83,13 +83,13 @@ let styleSheet = [
         Css.fontSize "1em"
         Css.lineHeight "1"
         Css.padding "0.5em"
-        Css.margin "0 auto 0.5em auto"
+        Css.margin(Zero, Auto, Em 0.5, Auto)
         Css.borderRadius "2px"
         Css.backgroundColor "#eee"
         Css.userSelect "none"
     ]
 
-    rule "input" [  Css.margin "0" ]
+    rule "input" [  Css.margin(0) ]
 
     rule ".done label" [
         Css.backgroundColor "rgb(180,240,100)"

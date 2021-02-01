@@ -91,7 +91,7 @@ let styleSheet = [
     rule ".chart" [
         Css.width "100%"
         Css.maxWidth "500px"
-        Css.margin "0 auto"
+        Css.margin(Zero,Auto)
     ]
 
     rule "svg" [

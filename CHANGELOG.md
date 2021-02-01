@@ -2,6 +2,9 @@
 
 ## Changelog (most recent first)
 
+- Don't allow "sutil-add-class" into stylesheet (regression when changing name to Sutil)
+- Hide withStyleSheet, confuses user who is actually looking for withStyle
+- Partial implementation of CssEngine to allow incremental conversion ready for the full implementation
 - Fix regression to Cells example
 - Fix regression to Await example, involved adding onMount handler
 - Big changes while integrating with Feliz.Engine, work-in-progress

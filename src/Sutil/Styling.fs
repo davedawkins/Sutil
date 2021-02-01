@@ -59,7 +59,7 @@ module Sutil.Styling
         splitMapJoin ',' (splitMapJoin ' ' (splitMapJoin ':' trans)) selectors
 
     let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheet) =
-        let isSutilRule (nm:string,v) = nm.StartsWith("Sutil")
+        let isSutilRule (nm:string,v) = nm.StartsWith("sutil")
         let style = newStyleElement doc
         for rule in styleSheet do
             let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSutilRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
@@ -107,7 +107,7 @@ module Sutil.Styling
     let withStyle styleSheet (element : NodeFactory) : NodeFactory = fun ctx ->
         let name = ctx.MakeName "Sutil"
         addStyleSheet ctx.Document name styleSheet
-        ctx |> withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } |> element
+        ctx |> ContextHelpers.withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } |> element
 
     let rule selector style =
         let result = {

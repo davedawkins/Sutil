@@ -26,7 +26,7 @@ let ThingView (thing : IObservable<Thing>) : NodeFactory =
             rule "span" [
                 Css.display "inline-block"
                 Css.padding "0.2em 0.5em"
-                Css.margin(Zero, (Em 0.2), (Em 0.2), Zero)
+                Css.margin(Zero, Em 0.2, Em 0.2, Zero)
                 Css.width "8em"
                 Css.textAlign "center"
                 Css.borderRadius "0.2em"

@@ -2,6 +2,7 @@
 
 ## Changelog (most recent first)
 
+- Navigable wrapper provides IObservable<'T> with a parser (Location -> 'T), allowing (for example) '#' and '?' to control the view
 - Don't allow "sutil-add-class" into stylesheet (regression when changing name to Sutil)
 - Hide withStyleSheet, confuses user who is actually looking for withStyle
 - Partial implementation of CssEngine to allow incremental conversion ready for the full implementation

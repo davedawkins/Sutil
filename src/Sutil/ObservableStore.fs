@@ -223,3 +223,41 @@ module ObservableStore =
 
     let makeElmishSimple i u d = makeElmishSimpleWithDocument document i u d
     let makeElmish       i u d = makeElmishWithDocument       document i u d
+
+
+#if USE_ELMISH_PROGRAM
+type Program<'Arg,'Model,'Msg,'View> = private {
+    Init : 'Arg -> 'Model * Cmd<'Msg>
+    Update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>
+    Dispose: 'Model -> unit
+    View: IStore<'Model> -> Dispatch<'Msg> -> 'View
+}
+
+module Program =
+    let map mapInit mapUpdate mapView mapDispose program = {
+        Init = mapInit program.Init
+        Update = mapUpdate program.Update
+        View = mapView program.View
+        Dispose = mapDispose program.Dispose
+    }
+
+    let mkSimple init update view =
+        {
+            Init = fun () -> init(), Cmd.none
+            Update = fun msg model -> update msg model, Cmd.none
+            Dispose = ignore
+            View = view
+        }
+
+    let mkProgram init update view =
+        {
+            Init = init
+            Update = update
+            Dispose = ignore
+            View = view
+        }
+
+    let run element arg p =
+        let model, dispatch = arg |> ObservableStore.makeElmish p.Init p.Update p.Dispose
+        p.View model dispatch |> DOM.mountElement element
+#endif

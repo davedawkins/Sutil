@@ -21,7 +21,7 @@ let fileListToSeq (files:FileList) : File seq =
     else
         Seq.empty
 
-let internal disposable f =
+let disposable f =
     { new System.IDisposable with
         member _.Dispose() = f () }
 

@@ -11,8 +11,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Sutil", "src\Sutil\Sutil.fs
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "App", "src\App\App.fsproj", "{21F55368-62BD-477F-9CE7-DAE7828F7073}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AppUsingEngine", "src\AppUsingEngine\AppUsingEngine.fsproj", "{21F55368-62BD-477F-9CE7-DAE7828F7076}"
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DevTools", "src\DevTools\DevTools.fsproj", "{21F55368-62BD-477F-9CE7-DAE7828F7074}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Tests", "tests\Tests.fsproj", "{21F55368-62BD-477F-9CE7-DAE7828F7075}"

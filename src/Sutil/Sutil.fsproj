@@ -26,6 +26,7 @@
     <Compile Include="Attr.fs" />
     <Compile Include="Svg.fs" />
     <Compile Include="Bindings.fs" />
+    <Compile Include="Navigable.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

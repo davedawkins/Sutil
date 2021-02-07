@@ -69,6 +69,9 @@ module Cmd =
 
     let none : Cmd<'Msg> = [ ]
 
+    let map (f : 'MsgA -> 'MsgB) (cmd : Cmd<'MsgA>) : Cmd<'MsgB> =
+        cmd |> List.map (fun g -> (fun dispatch -> f >> dispatch) >> g)
+
     let ofMsg msg : Cmd<'Msg> = [ fun d -> d msg ]
 
     let batch (cmds : Cmd<'Msg> list) : Cmd<'Msg> = cmds |> List.concat
@@ -82,4 +85,3 @@ module Cmd =
 
         let attempt (task: 'args -> unit) (a:'args) (error: _ -> 'msg') =
             [ fun d -> try task a with |x -> x |> (error >> d) ]
-

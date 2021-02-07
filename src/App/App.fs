@@ -3,31 +3,28 @@ module App
 open Fetch
 
 open Sutil
-open Sutil.Html
 open Sutil.Attr
 open Sutil.Styling
 open Sutil.DOM
 open Sutil.Bindings
 open Sutil.Transition
-open Browser.Dom
 open System
-open System.Collections.Generic
+open Browser.Types
 
 let urlBase = "https://raw.githubusercontent.com/davedawkins/Sutil/main/src/App"
 //let log s = console.log(s)
-let make v = v
 
 type Model = {
-    Demo : string
-    Tab : string
     Source : string
 }
 
 type Message =
-    | SetDemo of string
-    | SetTab of string
-    | FetchSource
+    //| SetDemo of string
+    //| SetTab of string
+    | FetchSource of string
     | SetSource of string
+
+let toHash (title:string) = title.ToLower().Replace(" ", "-")
 
 type Demo = {
     Title : string
@@ -36,45 +33,53 @@ type Demo = {
     Sources : string list
 } with
     static member All = [
-        { Category = "Introduction";Title = "Hello World";  Create = make HelloWorld.helloWorld ; Sources = ["HelloWorld.fs"]}
-        { Category = "Introduction";Title = "Dynamic attributes";  Create = make DynamicAttributes.view ; Sources = ["DynamicAttributes.fs"]}
-        { Category = "Introduction";Title = "Styling";  Create = make StylingExample.view ; Sources = ["Styling.fs"]}
-        { Category = "Introduction";Title = "Nested components";  Create = make NestedComponents.view ; Sources = ["NestedComponents.fs"; "Nested.fs"]}
-        { Category = "Introduction";Title = "HTML tags";  Create = make HtmlTags.view ; Sources = ["HtmlTags.fs"]}
-        { Category = "Reactivity";Title = "Reactive assignments";  Create = make Counter.Counter ; Sources = ["Counter.fs"]}
-        { Category = "Reactivity";Title = "Reactive declarations";  Create = make ReactiveDeclarations.view ; Sources = ["ReactiveDeclarations.fs"]}
-        { Category = "Reactivity";Title = "Reactive statements";  Create = make ReactiveStatements.view ; Sources = ["ReactiveStatements.fs"]}
-        { Category = "Logic"; Title = "If blocks"; Create = make LogicIf.view; Sources = ["LogicIf.fs"] }
-        { Category = "Logic"; Title = "Else blocks"; Create = make LogicElse.view; Sources = ["LogicElse.fs"] }
-        { Category = "Logic"; Title = "Else-if blocks"; Create = make LogicElseIf.view; Sources = ["LogicElseIf.fs"] }
-        { Category = "Logic"; Title = "Static each blocks"; Create = make StaticEachBlocks.view; Sources = ["StaticEachBlocks.fs"] }
-        { Category = "Logic"; Title = "Static each with index"; Create = make StaticEachWithIndex.view; Sources = ["StaticEachWithIndex.fs"] }
-        { Category = "Logic"; Title = "Each blocks"; Create = make EachBlocks.view; Sources = ["EachBlocks.fs"] }
-        { Category = "Logic"; Title = "Keyed-each blocks"; Create = make KeyedEachBlocks.view; Sources = ["KeyedEachBlocks.fs"] }
-        { Category = "Logic"; Title = "Await blocks"; Create = make AwaitBlocks.view; Sources = ["AwaitBlocks.fs"] }
-        { Category = "Events"; Title = "DOM events"; Create = make DomEvents.view; Sources = ["DomEvents.fs"] }
-        { Category = "Events"; Title = "Event modifiers"; Create = make EventModifiers.view; Sources = ["EventModifiers.fs"] }
-        { Category = "Transitions"; Title = "Transition"; Create = make Transition.view; Sources = ["Transition.fs"] }
-        { Category = "Transitions"; Title = "Adding parameters"; Create = make TransitionParameters.view; Sources = ["TransitionParameters.fs"] }
-        { Category = "Transitions"; Title = "In and out"; Create = make TransitionInOut.view; Sources = ["TransitionInOut.fs"] }
-        { Category = "Transitions"; Title = "Custom CSS"; Create = make TransitionCustomCss.view; Sources = ["TransitionCustomCss.fs"] }
-        { Category = "Transitions"; Title = "Custom Code"; Create = make TransitionCustom.view; Sources = ["TransitionCustom.fs"] }
-        { Category = "Transitions"; Title = "Transition events"; Create = make TransitionEvents.view; Sources = ["TransitionEvents.fs"] }
-        { Category = "Transitions"; Title = "Animation"; Create = make Todos.view; Sources = ["Todos.fs"] }
-        { Category = "Bindings";   Title = "Text inputs";  Create = make TextInputs.view ; Sources = ["TextInputs.fs"]}
-        { Category = "Bindings";   Title = "Numeric inputs";  Create = make NumericInputs.view ; Sources = ["NumericInputs.fs"]}
-        { Category = "Bindings";   Title = "Checkbox inputs";  Create = make CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
-        { Category = "Bindings";   Title = "Group inputs";  Create = make GroupInputs.view ; Sources = ["GroupInputs.fs"]}
-        { Category = "Bindings";   Title = "Textarea inputs";  Create = make TextArea.view ; Sources = ["TextArea.fs"]}
-        { Category = "Bindings";   Title = "File inputs";  Create = make FileInputs.view ; Sources = ["FileInputs.fs"]}
-        { Category = "Bindings";   Title = "Select bindings";  Create = make SelectBindings.view ; Sources = ["SelectBindings.fs"]}
-        { Category = "Bindings";   Title = "Select multiple";  Create = make SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
-        { Category = "Bindings";   Title = "Dimensions";  Create = make Dimensions.view ; Sources = ["Dimensions.fs"]}
-        { Category = "Svg";   Title = "Bar chart";  Create = make BarChart.view ; Sources = ["BarChart.fs"]}
-        { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = make Spreadsheet.view ; Sources = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
-        { Category = "Miscellaneous";   Title = "Modal";  Create = make Modal.view ; Sources = ["Modal.fs"]}
-        { Category = "7Guis";   Title = "Cells";  Create = make SevenGuisCells.view ; Sources = ["Cells.fs"]}
+        { Category = "Introduction";Title = "Hello World";  Create = HelloWorld.helloWorld ; Sources = ["HelloWorld.fs"]}
+        { Category = "Introduction";Title = "Dynamic attributes";  Create = DynamicAttributes.view ; Sources = ["DynamicAttributes.fs"]}
+        { Category = "Introduction";Title = "Styling";  Create = StylingExample.view ; Sources = ["Styling.fs"]}
+        { Category = "Introduction";Title = "Nested components";  Create = NestedComponents.view ; Sources = ["NestedComponents.fs"; "Nested.fs"]}
+        { Category = "Introduction";Title = "HTML tags";  Create = HtmlTags.view ; Sources = ["HtmlTags.fs"]}
+        { Category = "Reactivity";Title = "Reactive assignments";  Create = Counter.Counter ; Sources = ["Counter.fs"]}
+        { Category = "Reactivity";Title = "Reactive declarations";  Create = ReactiveDeclarations.view ; Sources = ["ReactiveDeclarations.fs"]}
+        { Category = "Reactivity";Title = "Reactive statements";  Create = ReactiveStatements.view ; Sources = ["ReactiveStatements.fs"]}
+        { Category = "Logic"; Title = "If blocks"; Create = LogicIf.view; Sources = ["LogicIf.fs"] }
+        { Category = "Logic"; Title = "Else blocks"; Create = LogicElse.view; Sources = ["LogicElse.fs"] }
+        { Category = "Logic"; Title = "Else-if blocks"; Create = LogicElseIf.view; Sources = ["LogicElseIf.fs"] }
+        { Category = "Logic"; Title = "Static each blocks"; Create = StaticEachBlocks.view; Sources = ["StaticEach.fs"] }
+        { Category = "Logic"; Title = "Static each with index"; Create = StaticEachWithIndex.view; Sources = ["StaticEachWithIndex.fs"] }
+        { Category = "Logic"; Title = "Each blocks"; Create = EachBlocks.view; Sources = ["EachBlocks.fs"] }
+        { Category = "Logic"; Title = "Keyed-each blocks"; Create = KeyedEachBlocks.view; Sources = ["KeyedEachBlocks.fs"] }
+        { Category = "Logic"; Title = "Await blocks"; Create = AwaitBlocks.view; Sources = ["AwaitBlocks.fs"] }
+        { Category = "Events"; Title = "DOM events"; Create = DomEvents.view; Sources = ["DomEvents.fs"] }
+        { Category = "Events"; Title = "Event modifiers"; Create = EventModifiers.view; Sources = ["EventModifiers.fs"] }
+        { Category = "Transitions"; Title = "Transition"; Create = Transition.view; Sources = ["Transition.fs"] }
+        { Category = "Transitions"; Title = "Adding parameters"; Create = TransitionParameters.view; Sources = ["TransitionParameters.fs"] }
+        { Category = "Transitions"; Title = "In and out"; Create = TransitionInOut.view; Sources = ["TransitionInOut.fs"] }
+        { Category = "Transitions"; Title = "Custom CSS"; Create = TransitionCustomCss.view; Sources = ["TransitionCustomCss.fs"] }
+        { Category = "Transitions"; Title = "Custom Code"; Create = TransitionCustom.view; Sources = ["TransitionCustom.fs"] }
+        { Category = "Transitions"; Title = "Transition events"; Create = TransitionEvents.view; Sources = ["TransitionEvents.fs"] }
+        { Category = "Transitions"; Title = "Animation"; Create = Todos.view; Sources = ["Todos.fs"] }
+        { Category = "Bindings";   Title = "Text inputs";  Create = TextInputs.view ; Sources = ["TextInputs.fs"]}
+        { Category = "Bindings";   Title = "Numeric inputs";  Create = NumericInputs.view ; Sources = ["NumericInputs.fs"]}
+        { Category = "Bindings";   Title = "Checkbox inputs";  Create = CheckboxInputs.view ; Sources = ["CheckboxInputs.fs"]}
+        { Category = "Bindings";   Title = "Group inputs";  Create = GroupInputs.view ; Sources = ["GroupInputs.fs"]}
+        { Category = "Bindings";   Title = "Textarea inputs";  Create = TextArea.view ; Sources = ["TextArea.fs"]}
+        { Category = "Bindings";   Title = "File inputs";  Create = FileInputs.view ; Sources = ["FileInputs.fs"]}
+        { Category = "Bindings";   Title = "Select bindings";  Create = SelectBindings.view ; Sources = ["SelectBindings.fs"]}
+        { Category = "Bindings";   Title = "Select multiple";  Create = SelectMultiple.view ; Sources = ["SelectMultiple.fs"]}
+        { Category = "Bindings";   Title = "Dimensions";  Create = Dimensions.view ; Sources = ["Dimensions.fs"]}
+        { Category = "Svg";   Title = "Bar chart";  Create = BarChart.view ; Sources = ["BarChart.fs"]}
+        { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = Spreadsheet.view ; Sources = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
+        { Category = "Miscellaneous";   Title = "Modal";  Create = Modal.view ; Sources = ["Modal.fs"]}
+        { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sources = ["Cells.fs"]}
     ]
+
+//
+// I think we could just have
+// type DemoView = { Demo : Demo; File = string opt }
+//
+type DemoView =
+    | DemoApp of Demo
+    | DemoSrc of Demo * string
 
 let fetchSource tab dispatch =
     let url = sprintf "%s/%s" urlBase tab
@@ -85,22 +90,15 @@ let fetchSource tab dispatch =
 
 let init() =
     {
-        Demo = Demo.All.Head.Title
         Source = ""
-        Tab =  "demo"
     }, Cmd.none
 
 let update msg model : Model * Cmd<Message> =
     match msg with
-    | SetTab t ->
-        let cmd = if t = "demo" then Cmd.none else Cmd.ofMsg FetchSource
-        { model with Tab = t }, cmd
-    | SetDemo d ->
-        { model with Demo = d; Source = ""; Tab = "demo" }, Cmd.none
-    | SetSource src ->
-        { model with Source = src }, Cmd.none
-    | FetchSource ->
-        model, [ fetchSource model.Tab ]
+    | SetSource content ->
+        { model with Source = content }, Cmd.none
+    | FetchSource file ->
+        { model with Source = "// Loading..." }, [ fetchSource file ]
 
 let mainStyleSheet = Bulma.withBulmaHelpers [
 
@@ -177,6 +175,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule "pre" [
         Css.padding 0
+        Css.background "white"
     ]
 
     rule ".logo" [
@@ -209,60 +208,56 @@ let selectApp (selectors : (IObservable<bool> * (unit ->NodeFactory)) list) = fu
 
     unitResult()
 
-let demos (model : IStore<Model>) =
-    let selectDemo d = model .> (fun m -> m.Demo = d.Title)
-    Html.div [
-        class' "column app-demo"
-        Demo.All |> List.map (fun d -> (selectDemo d, d.Create)) |> selectApp
-    ]
-
 let Section (name:string) model dispatch = fragment [
     Html.h5 [ class' "title is-6"; text (name.ToUpper()) ]
     Html.ul [
         for d in Demo.All |> List.filter (fun x -> x.Category = name) do
             Html.li [
                 Html.a [
-                    href "#"
+                    href ("#" + (toHash d.Title))
                     text d.Title
-                    onClick (fun _ -> d.Title |> SetDemo |> dispatch ) [PreventDefault]
                 ]
             ]
         ]
     ]
 
-let findDemo (model : Model) =
-    Demo.All |> List.find (fun d -> d.Title = model.Demo)
-
-let tabItem dispatch name  =
+let tabItem dispatch (demo:Demo) name  =
     Html.li [
         Html.a [
-            href "#"
+            href <| "#" + (toHash demo.Title) + (if name = "demo" then "" else "?" + name)
             text name
-            onClick (fun _ -> SetTab name |> dispatch) [PreventDefault]
         ]
     ]
 
-let viewSource (model : IStore<Model>) dispatch =
+let viewSource (model : IStore<Model>) =
     let source = model |> Store.map (fun m -> m.Source)
     Html.div [
-        class' "column"
         Html.pre [
             Html.code [
                 class' "fsharp"
-                on "sutil-show" (fun e -> log($"2show source {e.target}")) [StopPropagation]
+                //on "sutil-show" (fun e -> log($"2show source {e.target}")) [StopPropagation]
                 bind source (exclusive << text)
             ]
         ]
     ]
 
-let makeStore = Store.makeElmish init update ignore
+let demoTab (demoView : IObservable<DemoView>) model dispatch =
+    Html.div [
+        class' "column app-demo"
+        bind demoView (fun dv ->
+            match dv with
+            | DemoApp d -> d.Create()
+            | DemoSrc (d,file) ->
+                if file = "" then
+                    d.Create()
+                else
+                    file |> FetchSource |> dispatch
+                    viewSource model
+            )
+    ]
 
-let appMain () =
-
-    let model,dispatch = makeStore()
-
-    let currentDemo = model |> Store.map findDemo
-    let tab = model |> Store.map (fun m -> m.Tab)
+let appMain (currentDemo : IObservable<DemoView>) =
+    let model, dispatch = () |> Store.makeElmish init update ignore
 
     withStyle mainStyleSheet <|
         Html.div [
@@ -301,24 +296,48 @@ let appMain () =
 
                     Html.div [
                         class' "app-toolbar"
-                        bind currentDemo (fun demo ->
+                        bind currentDemo (fun demoView ->
+                            let demo = match demoView with |DemoApp d -> d|DemoSrc (d,_) -> d
                             Html.ul [
                                 class' "app-tab"
-                                tabItem dispatch "demo"
-                                demo.Sources |> List.map (tabItem dispatch) |> fragment
+                                tabItem dispatch demo "demo"
+                                demo.Sources |> List.map (tabItem dispatch demo) |> fragment
                             ]
                         )
                     ]
 
-                    transitionMatch tab <| [
-                        ((fun t -> t = "demo"),  demos model,      [])
-                        ((fun t -> t <> "demo"), viewSource model dispatch, [])
-                    ]
+                    demoTab currentDemo model dispatch
                 ]
             ]
         ]
 
-let app() =
+let parseUrl (location: Location) =
+    let hash =
+        if location.hash.Length > 1 then location.hash.Substring 1
+        else ""
+    if hash.Contains("?") then
+        let h = hash.Substring(0, hash.IndexOf("?"))
+        h, hash.Substring(h.Length+1)
+    else
+        hash, ""
+
+let parseDemoView (loc:Location) : DemoView =
+    let hash, query = (parseUrl loc)
+
+    //console.log($"Hash={hash} Query={query}")
+    match Demo.All |> List.tryFind (fun d -> toHash d.Title = hash) with
+    | None -> DemoApp (Demo.All.Head)
+    | Some demo ->
+        if query = "" then
+            DemoApp demo
+        else
+            // Don't allow '#?../../../etc/passwd'
+            if demo.Sources |> List.contains query then
+                DemoSrc (demo,query)
+            else
+                DemoApp demo
+
+let app () =
     Html.app [
         // Page title
         headTitle "Sutil"
@@ -327,7 +346,7 @@ let app() =
         headStylesheet "https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
 
         // Build the app
-        appMain()
+        Navigable.navigable parseDemoView appMain
     ]
 
 app() |> mountElement "sutil-app"

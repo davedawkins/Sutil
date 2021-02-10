@@ -12,14 +12,12 @@ open System
 open Browser.Dom
 open Browser.Types
 
-let nextId = Helpers.makeIdGenerator()
 
 type Thing = { Id : int; Color : string }
 let Color t = t.Color
 let Id t = t.Id
 
-let ThingView (thing : IObservable<Thing>) : NodeFactory =
-        let viewId = nextId() // So we can see the lifetime of this view instance
+let ThingView (viewId : int) (thing : IObservable<Thing>) : NodeFactory =
         let initialColor = thing |> Store.current |> Color
 
         let thingStyle = [
@@ -43,6 +41,10 @@ let ThingView (thing : IObservable<Thing>) : NodeFactory =
         ]
 
 let view() =
+    let nextId = Helpers.makeIdGenerator()
+
+    let makeThing thing = ThingView (nextId()) thing
+
     let things = Store.make [
         { Id = 1; Color = "darkblue" }
         { Id = 2; Color = "indigo" }
@@ -67,12 +69,12 @@ let view() =
 
             Html.div [
                 Html.h2 [ text "Keyed" ]
-                eachiko things (snd>>ThingView) (snd>>Id) []
+                eachiko things (snd>>makeThing) (snd>>Id) []
             ]
 
             Html.div [
                 Html.h2 [ text "Unkeyed" ]
-                eachio things (snd>>ThingView) []
+                eachio things (snd>>makeThing) []
             ]
         ]
     ]

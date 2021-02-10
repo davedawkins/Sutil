@@ -14,6 +14,7 @@
     <Compile Include="Logging.fs" />
     <Compile Include="Helpers.fs" />
     <Compile Include="DOM.fs" />
+    <Compile Include="ResizeObserver.fs" />
     <Compile Include="Feliz.fs"/>
     <Compile Include="ObservableStore.fs" />
     <Compile Include="ObservableX.fs" />

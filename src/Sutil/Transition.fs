@@ -12,7 +12,7 @@ open Fable.Core
 
 let log = Sutil.Logging.log "trans"
 
-module LoopTasks =
+module private LoopTasks =
 
     type private Task = { C : float -> bool; F : unit -> unit }
 
@@ -32,7 +32,7 @@ module LoopTasks =
     (**
      * For testing purposes only!
      *)
-    let clearLoops =
+    let private clearLoops =
         tasks.Clear()
 
     (**
@@ -119,8 +119,8 @@ type TransitionAttribute =
     | In of TransitionBuilder
     | Out of TransitionBuilder
 
-let overrideDuration d = if Sutil.DevToolsControl.Options.SlowAnimations then 10.0 * d else d
-let overrideDurationFn fo = if Sutil.DevToolsControl.Options.SlowAnimations then (fo |> Option.map (fun f -> ((*)10.0 << f))) else fo
+let private overrideDuration d = if Sutil.DevToolsControl.Options.SlowAnimations then 10.0 * d else d
+let private overrideDurationFn fo = if Sutil.DevToolsControl.Options.SlowAnimations then (fo |> Option.map (fun f -> ((*)10.0 << f))) else fo
 
 let private applyProp (r:Transition) (prop : TransitionProp) =
     match prop with
@@ -143,32 +143,30 @@ let mapTrans (f: Transition -> TransitionProp list) t = applyProps (f t) t
 
 let element (doc:Document) tag = doc.createElement(tag)
 
-let mutable numActiveAnimations = 0
-let mutable tasks : (unit -> unit) list = []
-let mutable activeDocs : Map<int,Document> = Map.empty
+let mutable private numActiveAnimations = 0
+let mutable private tasks : (unit -> unit) list = []
+let mutable private activeDocs : Map<int,Document> = Map.empty
 
-let registerDoc (doc:Document) =
+let private registerDoc (doc:Document) =
     activeDocs <- activeDocs.Add( doc.GetHashCode(), doc )
     log($"Active docs: {activeDocs.Count}")
 
-let runTasks() =
+let private runTasks() =
     let copy = tasks
     tasks <- []
     if (copy.Length > 0) then
         log($"- - - Tasks: running {copy.Length} tasks - - - - - - - - - - - - - -")
     for f in copy do f()
 
-let waitAnimationFrame tag f =
+let private waitAnimationFrame f =
     let init = tasks.IsEmpty
     tasks <- f :: tasks
-    log $"raf task {tag}"
     if init then
         window.requestAnimationFrame( fun _ ->
-            log "Running raf tasks"
             runTasks()
         ) |> ignore
 
-let getSutilStyleElement (doc : Document) =
+let private getSutilStyleElement (doc : Document) =
     let mutable e = doc.querySelector("head style#__sutil_keyframes")
     if (isNull e) then
         e <- element doc "style"
@@ -176,14 +174,13 @@ let getSutilStyleElement (doc : Document) =
         doc.head.appendChild(e) |> ignore
     e
 
-let dotSheet styleElem : CSSStyleSheet = Interop.get styleElem "sheet"
+let private dotSheet styleElem : CSSStyleSheet = Interop.get styleElem "sheet"
 
-let getSutilStylesheet (doc : Document) =
-    getSutilStyleElement doc |> dotSheet
+let private getSutilStylesheet (doc : Document) = getSutilStyleElement doc |> dotSheet
 
-let nextRuleId = Helpers.makeIdGenerator()
+let private nextRuleId = Helpers.makeIdGenerator()
 
-let toEmptyStr s = if System.String.IsNullOrEmpty(s) then "" else s
+let private toEmptyStr s = if System.String.IsNullOrEmpty(s) then "" else s
 
 let createRule (node : HTMLElement) (a:float) (b:float) tr (uid:int) =
     registerDoc (documentOf node)
@@ -215,17 +212,16 @@ let createRule (node : HTMLElement) (a:float) (b:float) tr (uid:int) =
     stylesheet.insertRule( keyframeText, stylesheet.cssRules.length) |> ignore
 
     let animations =
-        if System.String.IsNullOrEmpty(node.style.animation) then [] else [ node.style.animation ]
+        if String.IsNullOrEmpty(node.style.animation) then [] else [ node.style.animation ]
         @ [ sprintf "%s %fms linear %fms 1 both" name durn tr.Delay ]
 
     node.style.animation <- animations |> String.concat ", "
     numActiveAnimations <- numActiveAnimations + 1
     name
 
-let clearAnimations (node:HTMLElement) =
-    node.style.animation <-""
+let clearAnimations (node:HTMLElement) = node.style.animation <-""
 
-let clearRules() =
+let private clearRules() =
     window.requestAnimationFrame( fun _ ->
         if (numActiveAnimations = 0) then
             for kv in activeDocs do
@@ -238,7 +234,7 @@ let clearRules() =
         activeDocs <- Map.empty
     ) |> ignore
 
-let deleteRule (node:HTMLElement) (name:string) =
+let private deleteRule (node:HTMLElement) (name:string) =
     let previous = (toEmptyStr node.style.animation).Split( ',' )
     let next =
         previous |> Array.filter
@@ -265,7 +261,7 @@ let flip (node:Element) (animation:Animation) props =
     let scaleY = animation.From.height / node.clientHeight
     let dx = (animation.From.left - animation.To.left) / scaleX
     let dy = (animation.From.top - animation.To.top) / scaleY
-    let d = System.Math.Sqrt(dx * dx + dy * dy)
+    let d = Math.Sqrt(dx * dx + dy * dy)
     log $"flip: {dx},{dy} {transform} {animation.From} -> {animation.To}"
     {
         tr with
@@ -281,7 +277,6 @@ let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element ->
     //    return noop;
     let tgt (* to *) = node.getBoundingClientRect()
 
-    //log( sprintf "from=%f,%f to=%f,%f" from.left from.top tgt.left tgt.top)
     let shouldCreate = not (isNull from) && not (from.left = tgt.left && from.right = tgt.right && from.top = tgt.top && from.bottom = tgt.bottom)
     //    return noop;
 
@@ -291,36 +286,24 @@ let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element ->
 
     // TODO : Tick loop
 
-    let a = animateFn node { From = from; To = tgt } props
-    let r = { a with Duration = if (a.Duration = 0.0 && a.DurationFn.IsNone) then 300.0 else a.Duration }
+    if (shouldCreate) then
+        let a = animateFn node { From = from; To = tgt } props
+        let r = { a with Duration = if (a.Duration = 0.0 && a.DurationFn.IsNone) then 300.0 else a.Duration }
+        createRule node 0.0 1.0 r 0
+    else
+        ""
 
-    if (shouldCreate)
-        then
-            //log(sprintf "Creating animation for %s" node.innerText)
-            createRule node 0.0 1.0 r 0
-        else
-            //log(sprintf "No animation for %s" node.innerText)
-            ""
-
-let private waitAnimationEnd tag (el : HTMLElement) (f : unit -> unit) =
+let private waitAnimationEnd (el : HTMLElement) (f : unit -> unit) =
     let rec cb _ =
-        //log($"animationend: {tag}")
         el.removeEventListener("animationend",cb)
         f()
-    //log($"waitAnimationEnd: {tag}")
     el.addEventListener("animationend", cb)
 
 let animateNode (node : HTMLElement) from =
-    //let from = node.getBoundingClientRect()
-    waitAnimationFrame $"animateNode {nodeStr node} {rectStr from} {rectStr <| node.getBoundingClientRect()}" <| fun () ->
-        //window.requestAnimationFrame( fun _ ->
-        log("animateNode: start")
+    waitAnimationFrame <| fun () ->
         let name = createAnimation node from flip []
-        log($"Animation is {name}")
-        waitAnimationEnd "deleteRule" node <|
-            fun _ ->
-                log("animateNode: end")
-                deleteRule node name
+        waitAnimationEnd node <| fun _ ->
+            deleteRule node name
 
 let private tickGen = Helpers.makeIdGenerator()
 
@@ -414,17 +397,16 @@ let transitionNode  (el : HTMLElement)
     let tr = findTransition isVisible trans
 
     let startTransition createTrans =
-        let tag   = if isVisible then "show"       else "hide"
         let event = if isVisible then "introstart" else "outrostart"
         let (a,b) = if isVisible then (0.0, 1.0)   else (1.0, 0.0)
         let onEnd = if isVisible then show         else hide
 
         cancelTick()
 
-        waitAnimationFrame tag <| fun () ->
+        waitAnimationFrame <| fun () ->
             dispatchSimple el event
             start el
-            waitAnimationEnd tag el onEnd
+            waitAnimationEnd el onEnd
             if (isVisible) then
                 showEl el true // Check: we're doing this again at animationEnd
             let tr = createTrans()
@@ -468,7 +450,7 @@ let createHideableRuntime h =
         unsubscribe = null
     }
 
-let transitionList (list : Hideable list) : NodeFactory = fun ctx ->
+let transitionList (list : Hideable list) : NodeFactory = nodeFactory <| fun ctx ->
     let runtimes = list |> List.map createHideableRuntime
     for rt in runtimes do
         rt.unsubscribe <- Store.subscribe rt.hideable.predicate ( fun show ->
@@ -496,7 +478,7 @@ let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> lis
 let transitionOpt   (trans : TransitionAttribute list)
                     (store : IObservable<bool>)
                     (element: NodeFactory)
-                    (elseElement : NodeFactory option) : NodeFactory = fun ctx ->
+                    (elseElement : NodeFactory option) : NodeFactory = nodeFactory <| fun ctx ->
     let mutable target : Node = null
     let mutable cache = false
     let mutable targetElse : Node = null

@@ -2,6 +2,9 @@
 
 ## Changelog (most recent first)
 
+- Better UX for examples App on mobile
+- Consistent event dispatching for onMount
+- Clean-up of stores now working correctly
 - Navigable wrapper provides IObservable<'T> with a parser (Location -> 'T), allowing (for example) '#' and '?' to control the view
 - Don't allow "sutil-add-class" into stylesheet (regression when changing name to Sutil)
 - Hide withStyleSheet, confuses user who is actually looking for withStyle

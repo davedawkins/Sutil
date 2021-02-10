@@ -16,8 +16,7 @@ module Store =
 
     let make (modelInit:'T) : IStore<'T> =
         let init() = modelInit
-        let dispose(m) = ()
-        let s = ObservableStore.makeStore init dispose
+        let s = ObservableStore.makeStore init ignore
         upcast s
 
     let get (s : IStore<'T>) : 'T = s.Value

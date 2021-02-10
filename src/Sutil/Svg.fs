@@ -1,7 +1,6 @@
 module Sutil.Svg
 
 open Sutil.DOM
-open Browser.Types
 
 let svgel (tag:string) (xs:seq<NodeFactory>) =
     elns "http://www.w3.org/2000/svg" tag xs

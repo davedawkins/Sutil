@@ -185,7 +185,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
         ) key [In tin; Out tout]
     ]
 
-let makeStore = Store.makeElmishSimple init update ignore
+let makeStore arg = Store.makeElmishSimple init update ignore arg
 
 let fallback (props : TransitionProp list) (node : HTMLElement) = fun _ ->
     let transform = computedStyleTransform node
@@ -198,13 +198,15 @@ let fallback (props : TransitionProp list) (node : HTMLElement) = fun _ ->
 let view () : NodeFactory =
     let (send,recv) = crossfade [ Fallback fallback ]
 
-    let model, dispatch = makeStore()
+    let model, dispatch = makeStore ()
 
     let completed = model |> Store.map (fun m -> m.Todos |> List.filter isDone)
     let lotsDone  = completed |> Store.map (fun x -> (x |> List.length >= 3))
 
     withStyle styleSheet <| Html.div [
         class' "board"
+
+        disposeOnUnmount [ model ]
 
         Html.input [
             class' "new-todo"

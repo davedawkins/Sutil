@@ -24,7 +24,7 @@ let rows n         = attr("rows",n)
 let cols n         = attr("cols",n)
 let readonly : NodeFactory = attr("readonly","true" :> obj)
 let autofocus : NodeFactory =
-    fun ctx ->
+    nodeFactory <| fun ctx ->
         let e = ctx.Parent
         DOM.rafu (fun _ ->
             e?focus()
@@ -49,7 +49,7 @@ type EventModifier =
     | StopPropagation
     | StopImmediatePropagation
 
-let on (event : string) (fn : Event -> unit) (options : EventModifier list) = fun ctx ->
+let on (event : string) (fn : Event -> unit) (options : EventModifier list) = nodeFactory <| fun ctx ->
     let el = ctx.Parent
     let rec h (e:Event) =
         for opt in options do
@@ -75,6 +75,7 @@ let onMouse event (fn : MouseEvent -> unit) options =
 let onClick fn options = on "click" fn options
 
 let onMount fn options = on Event.Mount fn options
+let onUnmount fn options = on Event.Unmount fn options
 let onShow fn options = on Event.Show fn options
 let onHide fn options = on Event.Hide fn options
 

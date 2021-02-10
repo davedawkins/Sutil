@@ -44,7 +44,7 @@ let view() =
         ]
 
         Html.div [
-            class' "resizing block"
+            class' "resizing"
             bindPropOut "clientWidth" w
             bindPropOut "clientHeight" h
             Html.span [

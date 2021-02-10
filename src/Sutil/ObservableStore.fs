@@ -8,6 +8,8 @@ open Browser.Types
 [<RequireQualifiedAccess>]
 module ObservableStore =
 
+    let log s = Logging.log "store" s
+
     type StoreCons<'Model, 'Store> = (unit -> 'Model) -> ('Model -> unit) -> 'Store * Update<'Model>
 
     module internal Helpers =
@@ -52,6 +54,7 @@ module ObservableStore =
 
         let notifyMakeStore s =
             let id = nextId
+            log $"make store #{id}"
             nextId <- nextId + 1
             idToStore.[id] <- s
             storeToId.[s] <- id
@@ -59,8 +62,12 @@ module ObservableStore =
 
         let notifyDisposeStore  s =
             let id = storeToId.[s]
-            idToStore.Remove(id) |> ignore
-            storeToId.Remove(s) |> ignore
+            log($"dispose store #{id}")
+            try
+                idToStore.Remove(id) |> ignore
+                storeToId.Remove(s) |> ignore
+            with
+            | x -> Logging.error $"disposing store {id}: {x.Message}"
 
         let getStoreById id : IStoreDebugger =
             (idToStore.[id] :?> IStore<obj>).Debugger

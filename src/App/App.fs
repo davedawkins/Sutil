@@ -16,13 +16,15 @@ let urlBase = "https://raw.githubusercontent.com/davedawkins/Sutil/main/src/App"
 
 type Model = {
     Source : string
+    ShowContents : bool
 }
 
+let showContents m = m.ShowContents
+
 type Message =
-    //| SetDemo of string
-    //| SetTab of string
     | FetchSource of string
     | SetSource of string
+    | SetShowContents of bool
 
 let toHash (title:string) = title.ToLower().Replace(" ", "-")
 
@@ -91,10 +93,13 @@ let fetchSource tab dispatch =
 let init() =
     {
         Source = ""
+        ShowContents = false
     }, Cmd.none
 
 let update msg model : Model * Cmd<Message> =
     match msg with
+    | SetShowContents f ->
+        { model with ShowContents = f }, Cmd.none
     | SetSource content ->
         { model with Source = content }, Cmd.none
     | FetchSource file ->
@@ -107,6 +112,9 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     ]
 
     rule ".app-heading" [
+        Css.display "flex"
+        Css.flexDirection "row"
+        Css.justifyContent "space-between"
         Css.position "fixed"
         Css.width "100vw"
         Css.backgroundColor "white"
@@ -115,6 +123,10 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
         Css.boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
         Css.marginBottom "4px"
         //zIndex "100"   // Messes with .modal button
+    ]
+
+    rule ".app-heading h1" [
+       Css.marginBottom "0px"
     ]
 
     rule ".app-contents" [
@@ -178,12 +190,12 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
         Css.background "white"
     ]
 
-    rule ".logo" [
-        Css.fontFamily "'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif"
-        Css.fontWeight  "400"
-        Css.fontSize    "42px"
-        Css.letterSpacing "2px"
-    ]
+    //rule ".logo" [
+    //    Css.fontFamily "'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, 'Lucida Grande', sans-serif"
+    //    Css.fontWeight  "400"
+    //    Css.fontSize    "42px"
+    //    Css.letterSpacing "2px"
+    //]
 
     rule ".slogo" [
         Css.display "inline-flex"
@@ -195,18 +207,12 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
         Css.background "#444444"
         Css.color "white"
     ]
+
+    rule ".show-contents-button" [
+        Css.fontSize "18px"
+    ]
+
 ]
-
-let selectApp (selectors : (IObservable<bool> * (unit ->NodeFactory)) list) = fun ctx ->
-    let s = selectors |> List.map fst |> firstOf
-    let apps = selectors |> List.map snd |> Array.ofList
-
-    let u = s.Subscribe(fun i ->
-        if i >= 0 then
-            build (exclusive (apps.[i]())) ctx |> ignore
-    )
-
-    unitResult()
 
 let Section (name:string) model dispatch = fragment [
     Html.h5 [ class' "title is-6"; text (name.ToUpper()) ]
@@ -246,10 +252,15 @@ let demoTab (demoView : IObservable<DemoView>) model dispatch =
         class' "column app-demo"
         bind demoView (fun dv ->
             match dv with
-            | DemoApp d -> d.Create()
+            | DemoApp d ->
+                SetShowContents false |> dispatch
+                d.Create()
             | DemoSrc (d,file) ->
                 if file = "" then
-                    d.Create()
+                    try
+                        d.Create()
+                    with
+                        |x -> Html.div[ text $"Creating example {d.Title}: {x.Message}" ]
                 else
                     file |> FetchSource |> dispatch
                     viewSource model
@@ -273,13 +284,20 @@ let appMain (currentDemo : IObservable<DemoView>) =
                         text " SUTIL"
                     ]
                 ]
+                bind model <| fun m -> Html.a [
+                    class' "is-hidden-tablet show-contents-button"
+                    href "#"
+                    Html.i [ class' "fa fa-bars" ]
+                    onClick (fun _ -> SetShowContents (not m.ShowContents) |> dispatch) [ PreventDefault ]
+                ]
             ]
 
             Html.div [
                 class' "columns app-main-section"
 
                 Html.div [
-                    class' "column is-one-quarter app-contents"
+                    class' "column is-one-quarter app-contents is-hidden-mobile"
+                    bindClass (model .> showContents .> not) "is-hidden-mobile"
                     Section "Introduction" model dispatch
                     Section "Reactivity" model dispatch
                     Section "Logic" model dispatch

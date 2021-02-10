@@ -65,7 +65,7 @@ module Sutil.Styling
             let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSutilRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
             [ specifySelector styleName rule.SelectorSpec; " {"; styleText; "}" ] |> String.concat "" |> doc.createTextNode |> style.appendChild |> ignore
 
-    let headStylesheet (url : string) : NodeFactory = fun ctx ->
+    let headStylesheet (url : string) : NodeFactory = nodeFactory <| fun ctx ->
         let doc = ctx.Document
         let head = findElement doc "head"
         let styleEl = doc.createElement("link")
@@ -74,7 +74,7 @@ module Sutil.Styling
         styleEl.setAttribute( "href", url ) |> ignore
         unitResult()
 
-    let headScript (url : string) : NodeFactory = fun ctx ->
+    let headScript (url : string) : NodeFactory = nodeFactory <| fun ctx ->
         let doc = ctx.Document
         let head = findElement doc "head"
         let el = doc.createElement("script")
@@ -82,7 +82,7 @@ module Sutil.Styling
         el.setAttribute( "src", url ) |> ignore
         unitResult()
 
-    let headEmbedScript (source : string) : NodeFactory = fun ctx ->
+    let headEmbedScript (source : string) : NodeFactory = nodeFactory <| fun ctx ->
         let doc = ctx.Document
         let head = findElement doc "head"
         let el = doc.createElement("script")
@@ -90,7 +90,7 @@ module Sutil.Styling
         el.appendChild(doc.createTextNode(source)) |> ignore
         unitResult()
 
-    let headTitle (title : string) : NodeFactory = fun ctx ->
+    let headTitle (title : string) : NodeFactory = nodeFactory <| fun ctx ->
         let doc = ctx.Document
         let head = findElement doc "head"
         let existingTitle = findElement doc "head>title"
@@ -104,10 +104,10 @@ module Sutil.Styling
 
         unitResult()
 
-    let withStyle styleSheet (element : NodeFactory) : NodeFactory = fun ctx ->
+    let withStyle styleSheet (element : NodeFactory) : NodeFactory = nodeFactory <| fun ctx ->
         let name = ctx.MakeName "Sutil"
         addStyleSheet ctx.Document name styleSheet
-        ctx |> ContextHelpers.withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } |> element
+        ctx |> ContextHelpers.withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } |> build element
 
     let rule selector style =
         let result = {

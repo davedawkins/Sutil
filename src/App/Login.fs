@@ -54,7 +54,7 @@ module Bulma =
         member _.control (props : NodeFactory list) = Html.div ([ class' "control" ] @ props)
         member _.email (props : NodeFactory list) = Html.input ([ class' "input"; type' "email" ] @ props)
         member _.checkbox (props : NodeFactory list) = Html.input ([ type' "checkbox" ] @ props)
-        member _.password (props : NodeFactory list) = Html.input ([ class' "password"; type' "email" ] @ props)
+        member _.password (props : NodeFactory list) = Html.input ([ class' "input"; type' "password" ] @ props)
         member _.icon (props : NodeFactory list) = Html.span ([ class' "icon"; type' "email" ] @ props)
         member x.labelCheckbox (label:string) = Html.label [ class' "checkbox"; x.checkbox []; text label ]
 
@@ -99,7 +99,7 @@ let viewBulma () =
                                 bulma.label "Password"
                                 bulma.control [
                                     control.hasIconsLeft
-                                    bulma.email [ placeholder "*******"; required ]
+                                    bulma.password [ placeholder "Password"; required ]
                                     bulma.icon [
                                         icon.isSmall
                                         icon.isLeft

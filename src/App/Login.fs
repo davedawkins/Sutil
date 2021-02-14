@@ -16,10 +16,10 @@ module FontAwesome =
 module Bulma =
 
     type ColumnOptions() =
-        member _.is5Tablet = class' "is-5-tablet"
-        member _.is4Desktop = class' "is-4-desktop"
-        member _.is3Widescreen = class' "is-3-widescreen"
-        member _.isCentered = class' "is-centered"
+        member _.is (n:int) = class' ("is-" + string n)
+        member _.tabletIs (n:int) = class' (sprintf "is-%d-tablet" n)
+        member _.desktopIs (n:int) = class' (sprintf "is-%d-desktop" n)
+        member _.widescreenIs (n:int) = class' (sprintf "is-%d-widescreen" n)
 
     type ColumnsOptions() =
         member _.isCentered = class' "is-centered"
@@ -80,7 +80,7 @@ let viewBulma () =
                 bulma.columns [
                     columns.isCentered
                     bulma.column [
-                        column.is5Tablet; column.is4Desktop; column.is3Widescreen
+                        column.tabletIs 10; column.desktopIs 8; column.widescreenIs 6
                         bulma.formBox [
                             action ""
                             bulma.field [

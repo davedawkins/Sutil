@@ -25,6 +25,7 @@ type Message =
     | FetchSource of string
     | SetSource of string
     | SetShowContents of bool
+    | ToggleShowContents
 
 let toHash (title:string) = title.ToLower().Replace(" ", "-")
 
@@ -72,6 +73,7 @@ type Demo = {
         { Category = "Svg";   Title = "Bar chart";  Create = BarChart.view ; Sources = ["BarChart.fs"]}
         { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = Spreadsheet.view ; Sources = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
         { Category = "Miscellaneous";   Title = "Modal";  Create = Modal.view ; Sources = ["Modal.fs"]}
+        { Category = "Miscellaneous";   Title = "Login";  Create = Login.view ; Sources = ["Login.fs"]}
         { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sources = ["Cells.fs"]}
     ]
 
@@ -98,6 +100,8 @@ let init() =
 
 let update msg model : Model * Cmd<Message> =
     match msg with
+    | ToggleShowContents ->
+        { model with ShowContents = not model.ShowContents }, Cmd.none
     | SetShowContents f ->
         { model with ShowContents = f }, Cmd.none
     | SetSource content ->
@@ -122,7 +126,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
         //paddingBottom "4px"
         Css.boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
         Css.marginBottom "4px"
-        //zIndex "100"   // Messes with .modal button
+        Css.zIndex 1   // Messes with .modal button
     ]
 
     rule ".app-heading h1" [
@@ -227,7 +231,7 @@ let Section (name:string) model dispatch = fragment [
         ]
     ]
 
-let tabItem dispatch (demo:Demo) name  =
+let tabItem (demo:Demo) name  =
     Html.li [
         Html.a [
             href <| "#" + (toHash demo.Title) + (if name = "demo" then "" else "?" + name)
@@ -267,8 +271,11 @@ let demoTab (demoView : IObservable<DemoView>) model dispatch =
             )
     ]
 
-let appMain (currentDemo : IObservable<DemoView>) =
+let appMain (currentDemo : IObservable<DemoView>) (isMobile : IObservable<bool>) =
     let model, dispatch = () |> Store.makeElmish init update ignore
+
+    // Show the contents if not on mobile, or model.ShowContents is true
+    let showContents = ObservableX.zip isMobile model .> (fun (mob,mdl) -> not mob || mdl.ShowContents)
 
     withStyle mainStyleSheet <|
         Html.div [
@@ -284,20 +291,19 @@ let appMain (currentDemo : IObservable<DemoView>) =
                         text " SUTIL"
                     ]
                 ]
-                bind model <| fun m -> Html.a [
-                    class' "is-hidden-tablet show-contents-button"
+                transition [InOut fade] isMobile <| Html.a [
+                    class' "show-contents-button"
                     href "#"
                     Html.i [ class' "fa fa-bars" ]
-                    onClick (fun _ -> SetShowContents (not m.ShowContents) |> dispatch) [ PreventDefault ]
+                    onClick (fun _ -> ToggleShowContents |> dispatch) [ PreventDefault ]
                 ]
             ]
 
             Html.div [
                 class' "columns app-main-section"
 
-                Html.div [
-                    class' "column is-one-quarter app-contents is-hidden-mobile"
-                    bindClass (model .> showContents .> not) "is-hidden-mobile"
+                transition [fly |> withProps [ Duration 500.0; X -500.0 ] |> InOut] showContents <| Html.div [
+                    class' "column is-one-quarter app-contents"
                     Section "Introduction" model dispatch
                     Section "Reactivity" model dispatch
                     Section "Logic" model dispatch
@@ -318,8 +324,8 @@ let appMain (currentDemo : IObservable<DemoView>) =
                             let demo = match demoView with |DemoApp d -> d|DemoSrc (d,_) -> d
                             Html.ul [
                                 class' "app-tab"
-                                tabItem dispatch demo "demo"
-                                demo.Sources |> List.map (tabItem dispatch demo) |> fragment
+                                tabItem demo "demo"
+                                demo.Sources |> List.map (tabItem demo) |> fragment
                             ]
                         )
                     ]
@@ -342,7 +348,6 @@ let parseUrl (location: Location) =
 let parseDemoView (loc:Location) : DemoView =
     let hash, query = (parseUrl loc)
 
-    //console.log($"Hash={hash} Query={query}")
     match Demo.All |> List.tryFind (fun d -> toHash d.Title = hash) with
     | None -> DemoApp (Demo.All.Head)
     | Some demo ->
@@ -364,7 +369,8 @@ let app () =
         headStylesheet "https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
 
         // Build the app
-        Navigable.navigable parseDemoView appMain
+        Navigable.navigable parseDemoView <| fun demo ->
+            MediaQuery.media "(max-width: 768px)" id (appMain demo)
     ]
 
 app() |> mountElement "sutil-app"

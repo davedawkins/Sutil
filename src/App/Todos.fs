@@ -23,9 +23,11 @@ let isDone t = t.Done
 let isPending = isDone >> not
 let key r = r.Id
 let hasKey k t = t.Id = k
+let description t = t.Description
 
 type Model = {
     Todos : List<Todo>
+    Sort : bool
 } with
     override this.ToString() = $"The Model: {this.Todos.Length} items"
 
@@ -33,6 +35,7 @@ type Message =
     |AddTodo of desc:string
     |ToggleTodo of id:int
     |DeleteTodo of id:int
+    |SetSort of bool
     |CompleteAll
 
 let makeExampleTodos() = [
@@ -140,12 +143,13 @@ let styleSheet = [
     ]
 ]
 
-let init() = { Todos = makeExampleTodos() }
+let init() = { Todos = makeExampleTodos(); Sort = false }
 
 let toggle id todo = if todo.Id = id then { todo with Done = not todo.Done } else todo
 
 let update (message : Message) (model : Model) : Model =
     match message with
+    | SetSort f -> { model with Sort = f }
     | AddTodo desc ->
         let todo = {
             Id = newUid() + 10
@@ -165,7 +169,12 @@ let fader  x = transition <| [ InOut (fade  |> withProps [ Duration 300.0 ])] <|
 let slider x = transition <| [ InOut (slide |> withProps [ Duration 300.0 ])]  <| x
 
 let todosList title (filter : Todo -> bool) tin tout model dispatch =
-    let filteredTodos = model |> Store.map (fun x -> x.Todos |> List.filter filter)
+    let filteredTodos = model |> Store.map (fun m ->
+        if m.Sort then
+            m.Todos |> List.filter filter |> List.sortBy description
+        else
+            m.Todos |> List.filter filter
+    )
     Html.div [
         class' title
         Html.h2 [ text title ]
@@ -220,6 +229,11 @@ let view () : NodeFactory =
 
         Html.div [
             class' "complete-all-container"
+            bind model <| fun m -> Html.a [
+                href "#"
+                text "toggle sort"
+                onClick (fun _ -> not m.Sort |> SetSort |> dispatch) [ PreventDefault ]
+            ]
             Html.a [
                 href "#"
                 text "complete all"

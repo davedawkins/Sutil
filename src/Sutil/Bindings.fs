@@ -23,7 +23,6 @@ let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = nodeFact
 
     let unsub = Store.subscribe store ( fun next ->
         try
-            //buildSolitary (element(next)) { ctx with AppendChild = (makeAppendChild ctx node.Value) }
             node <- buildSolitary (element(next)) (if isNull node then ctx else ctx |> ContextHelpers.withReplace node)
         with
         | x -> Logging.error $"Exception in bind: {x.Message} parent {nodeStr ctx.Parent} node {nodeStr node} node.Parent "
@@ -354,11 +353,13 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
                 { ki with Element = el; Rect = el.getBoundingClientRect() })
 
             // Last child that doesn't have our eachId
-            let mutable prevNode : Node = lastChildWhere ctx.Parent ((<>) eachId << eachIdOf)
+            let prevNodeInit : Node = lastChildWhere ctx.Parent ((<>) eachId << eachIdOf)
+            let mutable prevNode = prevNodeInit
 
             let newState = newItems |> List.mapi (fun itemIndex item ->
                 let itemKey = key(itemIndex,item)
                 let optKi = state |> Seq.tryFind (fun x -> x.Key = itemKey)
+                console.log($"i={itemIndex} k={itemKey}")
                 match optKi with
                 | None ->
                     let storePos = Store.make itemIndex
@@ -396,14 +397,24 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
             for oldItem in state do
                 if not (newState |> Seq.exists (fun x -> x.Key = oldItem.Key)) then
                     log($"removing key {oldItem.Key}")
+                    fixPosition oldItem.Element
+                    ctx.Parent.removeChild(oldItem.Element) |> ignore
+                    ctx.Parent.insertBefore(oldItem.Element,null) |> ignore
                     transitionNode oldItem.Element trans [Key (string oldItem.Key)] false
-                        fixPosition
+                        ignore //fixPosition
                         (fun e ->
                             oldItem.Position.Dispose()
                             oldItem.Value.Dispose()
                             unmount e)
 
-            // TODO: Reordering
+            // Reorder
+            prevNode <- prevNodeInit
+            for ki in newState do
+                if not(isSameNode prevNode ki.Element.previousSibling) then
+                    log($"reordering key {ki.Key}")
+                    ctx.Parent.removeChild(ki.Element) |> ignore
+                    insertAfter ctx.Parent prevNode ki.Element
+                prevNode <- ki.Element
 
             state <- newState
         )

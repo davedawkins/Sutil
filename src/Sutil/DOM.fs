@@ -675,6 +675,11 @@ let declareResource<'T when 'T :> IDisposable> (init : unit -> 'T) (f : 'T -> un
     f(r)
     unitResult()
 
+let isSameNode (a:Node) (b:Node) =
+    if isNull a then isNull b else a.isSameNode(b)
+
+let insertAfter (parent:Node) (prev:Node) (node:Node) =
+    parent.insertBefore(node, if isNull prev then parent.firstChild else prev.nextSibling) |> ignore
 
 let appendReplaceChild (node : Node) (ctx : BuildContext) =
     log $"appendReplaceChild {ctx.Action}"
@@ -687,7 +692,8 @@ let appendReplaceChild (node : Node) (ctx : BuildContext) =
         ctx.Parent.insertBefore(node,next) |> ignore
     | After prev ->
         log $"insert {nodeStr node} after {nodeStr prev} on {nodeStr ctx.Parent}"
-        ctx.Parent.insertBefore(node, if isNull prev then ctx.Parent.firstChild else prev.nextSibling) |> ignore
+        insertAfter ctx.Parent prev node
+        //ctx.Parent.insertBefore(node, if isNull prev then ctx.Parent.firstChild else prev.nextSibling) |> ignore
     | Replace existing ->
         cleanupDeep existing
 
@@ -802,6 +808,7 @@ module Html =
     #if !USE_POC_HTML
     let div xs : NodeFactory = el "div" xs
     let textarea xs = el "textarea" xs
+    let section xs = el "section" xs
     let i  xs = el "i" xs
     let h1  xs = el "h1" xs
     let h2  xs = el "h2" xs

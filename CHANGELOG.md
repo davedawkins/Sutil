@@ -2,6 +2,9 @@
 
 ## Changelog (most recent first)
 
+- Fix z-order for header
+- Login example with prototype Bulma module
+- Fix sorting for "each" (used in Animation TODOs example)
 - Better UX for examples App on mobile
 - Consistent event dispatching for onMount
 - Clean-up of stores now working correctly

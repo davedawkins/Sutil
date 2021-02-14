@@ -7,6 +7,7 @@ open Fable.Core.JsInterop
 // Attributes
 let accept n       = attr("accept",n)
 let name n         = attr("name",n)
+let action n       = attr("action",n)
 let ariaLabel n    = attr("aria-label",n)
 let className n    = attr("class",n)
 let placeholder n  = attr("placeholder",n)
@@ -23,6 +24,7 @@ let multiple : NodeFactory = attr("multiple","")
 let rows n         = attr("rows",n)
 let cols n         = attr("cols",n)
 let readonly : NodeFactory = attr("readonly","true" :> obj)
+let required : NodeFactory = attr("required","true" :> obj)
 let autofocus : NodeFactory =
     nodeFactory <| fun ctx ->
         let e = ctx.Parent

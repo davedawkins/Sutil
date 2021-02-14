@@ -37,6 +37,7 @@
     <Compile Include="Evaluator.fs" />
     <Compile Include="Spreadsheet.fs" />
     <Compile Include="Login.fs" />
+    <Compile Include="LoginExample.fs" />
     <Compile Include="Cells.fs" />
     <Compile Include="Transition.fs" />
     <Compile Include="TransitionParameters.fs" />

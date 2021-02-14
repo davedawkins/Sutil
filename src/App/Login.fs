@@ -1,80 +1,64 @@
 module Login
 
-// Conversion of https://codepen.io/stevehalford/pen/YeYEOR
+// Converssion of https://codepen.io/stevehalford/pen/YeYEOR
 // Study of how real components look in Sutil. First it was converted to plain Html (see viewHtml() below),
 // and then a Bulma module was created to reduce the noise. See viewBulma(). I will leave the viewHtml() function
 // for comparison.
 //
+open Sutil
 open Sutil.DOM
 open Sutil.Attr
-
-//TODO - Move into library
-module FontAwesome =
-    let fa name = Html.i [ class' ("fa fa-" + name) ]
-
-//TODO - Move into library
-module Bulma =
-
-    type ColumnOptions() =
-        member _.is (n:int) = class' ("is-" + string n)
-        member _.tabletIs (n:int) = class' (sprintf "is-%d-tablet" n)
-        member _.desktopIs (n:int) = class' (sprintf "is-%d-desktop" n)
-        member _.widescreenIs (n:int) = class' (sprintf "is-%d-widescreen" n)
-
-    type ColumnsOptions() =
-        member _.isCentered = class' "is-centered"
-
-    type HeroOptions() =
-        member _.isPrimary = class' "is-primary"
-        member _.isFullheight = class' "is-fullheight"
-
-    type ControlOptions() =
-        member _.hasIconsLeft = class' "has-icons-left"
-
-    type IconOptions() =
-        member _.isSmall = class' "is-small"
-        member _.isLeft = class' "is-left"
-
-    type ButtonOptions() =
-        member _.isSuccess = class' "is-success"
-
-    type BulmaEngine() =
-        member _.heroBody (props : NodeFactory list) = Html.div ([ class' "hero-body" ] @ props)
-        member _.hero (props : NodeFactory list) = Html.section ([ class' "hero" ] @ props)
-        member _.container (props : NodeFactory list) = Html.div ([ class' "container" ] @ props)
-        member _.columns (props : NodeFactory list) = Html.div ([ class' "columns" ] @ props)
-        member _.column (props : NodeFactory list) = Html.div ([ class' "column" ] @ props)
-        member _.formBox (props : NodeFactory list) = Html.form ([ class' "box" ] @ props)
-        member _.box (props : NodeFactory list) = Html.div ([ class' "box" ] @ props)
-        member _.field (props : NodeFactory list) = Html.div ([ class' "field" ] @ props)
-        member _.label (props : NodeFactory list) = Html.label ([ class' "label" ] @ props)
-        member _.label (label:string) = Html.label ([ class' "label" ] @ [ text label ])
-        member _.labelFor (target:string) (label:string) = Html.label [ class' "label"; for' target; text label ]
-        member _.button (props : NodeFactory list) = Html.button ([ class' "button" ] @ props)
-        member _.control (props : NodeFactory list) = Html.div ([ class' "control" ] @ props)
-        member _.email (props : NodeFactory list) = Html.input ([ class' "input"; type' "email" ] @ props)
-        member _.checkbox (props : NodeFactory list) = Html.input ([ type' "checkbox" ] @ props)
-        member _.password (props : NodeFactory list) = Html.input ([ class' "input"; type' "password" ] @ props)
-        member _.icon (props : NodeFactory list) = Html.span ([ class' "icon"; type' "email" ] @ props)
-        member x.labelCheckbox (label:string) = Html.label [ class' "checkbox"; x.checkbox []; text label ]
-
-open Bulma
-open FontAwesome
-
-let bulma = BulmaEngine()
-let hero = HeroOptions()
-let columns = ColumnsOptions()
-let column = ColumnOptions()
-let control = ControlOptions()
-let icon = IconOptions()
-let button = ButtonOptions()
+open Sutil.Bulma
+open Sutil.Bulma.FontAwesome
 
 //
 // Using Bulma module
 //
-let viewBulma () =
+
+type LoginDetails = {
+    Username: string
+    Password: string
+    RememberMe: bool }
+with
+    static member Default = { Username = ""; Password = ""; RememberMe = false }
+
+type private Model = {
+    Message : string
+    Details : LoginDetails
+}
+
+let private username m = m.Details.Username
+let private password m = m.Details.Password
+let private rememberMe m = m.Details.RememberMe
+let private message m = m.Message
+let private messageIsSet m = m.Message <> ""
+
+type private Message =
+    | SetUsername of string
+    | SetPassword of string
+    | SetRememberMe of bool
+    | AttemptLogin
+    | SetMessage of string
+    | CancelLogin
+
+let private init details =
+    {
+        Message = ""
+        Details = details
+    }, Cmd.none
+
+// View function. Responsibilities:
+// - Arrange for cleanup of model on dispose
+// - Present model to user
+// - Handle input according to Message API
+
+let private defaultView model dispatch =
     bulma.hero [
-        hero.isPrimary; hero.isFullheight
+        disposeOnUnmount [ model ]
+
+        hero.isInfo
+        //hero.isFullheight
+
         bulma.heroBody [
             bulma.container [
                 bulma.columns [
@@ -82,12 +66,23 @@ let viewBulma () =
                     bulma.column [
                         column.tabletIs 10; column.desktopIs 8; column.widescreenIs 6
                         bulma.formBox [
+                            on "submit" (fun _ -> AttemptLogin |> dispatch) [PreventDefault]
                             action ""
+
+                            bulma.field [
+                                class' "has-text-danger"
+                                Bindings.bind (model .> message) text
+                            ] |> Transition.showIf (model .> messageIsSet)
+
                             bulma.field [
                                 bulma.label "Email"
                                 bulma.control [
                                     control.hasIconsLeft
-                                    bulma.email [ placeholder "e.g. bobsmith@gmail.com";  required ]
+                                    bulma.email [
+                                        placeholder "Hint: sutil@gmail.com"
+                                        Bindings.bindAttrNotify "value" (model .> username) (SetUsername >> dispatch)
+                                        required
+                                    ]
                                     bulma.icon [
                                         icon.isSmall
                                         icon.isLeft
@@ -99,7 +94,10 @@ let viewBulma () =
                                 bulma.label "Password"
                                 bulma.control [
                                     control.hasIconsLeft
-                                    bulma.password [ placeholder "Password"; required ]
+                                    bulma.password [
+                                        placeholder "Hint: abc123"
+                                        Bindings.bindAttrNotify "value" (model .> password) (SetPassword >> dispatch)
+                                        required ]
                                     bulma.icon [
                                         icon.isSmall
                                         icon.isLeft
@@ -107,63 +105,41 @@ let viewBulma () =
                                     ]
                                 ]
                             ]
-                            bulma.field [ bulma.labelCheckbox " Remember me" ]
-                            bulma.button [ button.isSuccess; text "Login" ]
+                            bulma.field [
+                                bulma.labelCheckbox " Remember me" [
+                                    Bindings.bindAttrNotify "checked" (model .> rememberMe) (SetRememberMe >> dispatch)
+                                ]
+                            ]
+                            bulma.button [
+                                button.isSuccess
+                                text "Login"
+                            ]
+                            bulma.button [
+                                style [ Css.marginLeft "24px" ]
+                                text "Cancel"
+                                onClick (fun _ -> dispatch CancelLogin) [PreventDefault]
+                            ]
                         ] ] ] ] ] ]
 
-//
-// Same as above, but closer to original HTML with classes
-//
-let viewHtml() =
-    Html.section [ class' "hero is-primary is-fullheight"
-                   Html.div [ class' "hero-body"
-                              Html.div [ class' "container"
-                                         Html.div [ class' "columns is-centered"
-                                                    Html.div [ class' "column is-5-tablet is-4-desktop is-3-widescreen"
-                                                               Html.form [ action ""
-                                                                           class' "box"
-                                                                           Html.div [ class' "field"
-                                                                                      Html.label [ for' ""
-                                                                                                   class' "label"
-                                                                                                   text "Email" ]
-                                                                                      Html.div [
-                                                                                            class' "control has-icons-left"
-                                                                                            Html.input [
-                                                                                                type' "email"
-                                                                                                placeholder "e.g. bobsmith@gmail.com"
-                                                                                                class' "input"
-                                                                                                required ]
-                                                                                            Html.span
-                                                                                                     [ class'
-                                                                                                         "icon is-small is-left"
-                                                                                                       Html.i [ class'
-                                                                                                                    "fa fa-envelope" ] ] ] ]
-                                                                           Html.div [ class' "field"
-                                                                                      Html.label [ for' ""
-                                                                                                   class' "label"
-                                                                                                   text "Password" ]
-                                                                                      Html.div [
-                                                                                            class' "control has-icons-left"
-                                                                                            Html.input [
-                                                                                                type' "password"
-                                                                                                placeholder "*******"
-                                                                                                class' "input"
-                                                                                                required ]
-                                                                                            Html.span
-                                                                                                     [ class'
-                                                                                                         "icon is-small is-left"
-                                                                                                       Html.i [ class'
-                                                                                                                    "fa fa-lock" ] ] ] ]
-                                                                           Html.div [ class' "field"
-                                                                                      Html.label [ for' ""
-                                                                                                   class' "checkbox"
-                                                                                                   Html.input [ type'
-                                                                                                                    "checkbox" ]
-                                                                                                   text " Remember me" ] ]
-                                                                           Html.div [ class' "field"
-                                                                                      Html.button [ class'
-                                                                                                        "button is-success"
-                                                                                                    text "Login" ] ] ] ] ] ] ] ]
+let private createWithView initDetails login cancel view =
 
+    // Local to create so we can reference parameter 'login'
+    let update msg model =
+        match msg with
+            |SetUsername name -> { model with Details = { model.Details with Username = name }}, Cmd.none
+            |SetPassword pwd -> { model with Details = { model.Details with Password = pwd}}, Cmd.none
+            |SetRememberMe z -> { model with Details = { model.Details with RememberMe = z }}, Cmd.none
+            |AttemptLogin -> model, Cmd.OfFunc.attempt login model.Details (fun ex -> SetMessage ex.Message)
+            |SetMessage m -> { model with Message = m }, Cmd.none
+            |CancelLogin -> model, Cmd.OfFunc.perform cancel () (fun _ -> SetMessage "")
+    let model, dispatch = initDetails |> Store.makeElmish init update ignore
 
-let view() = viewBulma()
+    // In theory we could use a user-supplied view function that knows how to
+    // - display LoginDetails
+    // - dispatch input events
+    // - register model for cleanup when disposed
+    view model dispatch
+
+let create initDetails login cancel =
+    createWithView initDetails login cancel defaultView
+

@@ -73,7 +73,7 @@ type Demo = {
         { Category = "Svg";   Title = "Bar chart";  Create = BarChart.view ; Sources = ["BarChart.fs"]}
         { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = Spreadsheet.view ; Sources = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
         { Category = "Miscellaneous";   Title = "Modal";  Create = Modal.view ; Sources = ["Modal.fs"]}
-        { Category = "Miscellaneous";   Title = "Login";  Create = Login.view ; Sources = ["Login.fs"]}
+        { Category = "Miscellaneous";   Title = "Login";  Create = LoginExample.create ; Sources = ["LoginExample.fs"; "Login.fs"]}
         { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sources = ["Cells.fs"]}
     ]
 

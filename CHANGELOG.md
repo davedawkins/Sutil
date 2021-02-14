@@ -2,6 +2,7 @@
 
 ## Changelog (most recent first)
 
+- Improved login example
 - Fix z-order for header
 - Login example with prototype Bulma module
 - Fix sorting for "each" (used in Animation TODOs example)

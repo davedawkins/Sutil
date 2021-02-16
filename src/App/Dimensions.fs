@@ -7,7 +7,6 @@ open Sutil
 open Sutil.Attr
 open Sutil.DOM
 open Sutil.Styling
-open Sutil.Bindings
 
 let style = Bulma.withBulmaHelpers [
     rule "input" [
@@ -32,15 +31,15 @@ let view() =
 
         Html.div [
             class' "block"
-            Html.input [ type' "range"; bindAttr "value" size ]
+            Html.input [ type' "range"; Bind.attr("value",size) ]
         ]
         Html.div [
             class' "block"
-            Html.input [ type' "text"; bindAttr "value" text ]
+            Html.input [ type' "text"; Bind.attr("value",text) ]
         ]
 
         Html.div [
-            bind2 w h <| fun (w',h') -> DOM.text $"Size: {w'}px x {h'}px"
+            Bind.fragment2 w h <| fun (w',h') -> DOM.text $"Size: {w'}px x {h'}px"
         ]
 
         Html.div [
@@ -48,8 +47,8 @@ let view() =
             bindPropOut "clientWidth" w
             bindPropOut "clientHeight" h
             Html.span [
-                bindAttrIn "style" (size |> Store.map (fun n -> $"font-size: {n}px"))
-                bind text DOM.text
+                Bind.attr( "style", size |> Store.map (fun n -> $"font-size: {n}px") )
+                Bind.fragment text DOM.text
             ]
         ]
     ] |> withStyle style

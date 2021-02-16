@@ -6,7 +6,6 @@ module TransitionInOut
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
-open Sutil.Bindings
 open Sutil.Transition
 
 let view() =
@@ -18,7 +17,7 @@ let view() =
         Html.label [
             Html.input [
                 type' "checkbox"
-                bindAttr "checked" visible
+                Bind.attr ("checked", visible)
             ]
             text " visible"
         ]

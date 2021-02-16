@@ -4,9 +4,6 @@ open Sutil
 open Sutil.Bulma
 open Sutil.DOM
 open Sutil.Attr
-open Sutil.Bindings
-open Sutil.Transition
-
 open Login
 open Sutil.Styling
 
@@ -73,12 +70,13 @@ let create() =
     bulma.container [
         disposeOnUnmount [ model ]
 
-        bind (model .> page) <| fun p ->
+        Bind.fragment (model .> page) <| fun p ->
             match p with
+
             | Main ->
                 bulma.section [
 
-                    bind model <| fun m ->
+                    Bind.fragment model <| fun m ->
                         match m.User with
                         | Some u ->
                             Html.span [
@@ -100,14 +98,18 @@ let create() =
                                 ]
                             ]
                 ]
+
             | Login ->
                 let onLogin details =
                     let authToken = MockServer.login details.Username details.Password
                     (details.Username, authToken) |> SetUser |> dispatch
+
                 let onCancel() = dispatch CancelSignIn
+
                 Html.div [
-                    bind model <| fun m ->
+                    Bind.fragment model <| fun m ->
                         let init = { LoginDetails.Default with Username = loggedInName "" m }
-                        Login.create init onLogin onCancel
+                        Login.create init onLogin onCancel // The Login component
                 ]
+
         ] |> withStyle appStyleSheet

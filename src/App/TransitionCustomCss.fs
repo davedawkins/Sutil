@@ -7,7 +7,6 @@ open System
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
-open Sutil.Bindings
 open Sutil.Transition
 open Sutil.Styling
 
@@ -60,7 +59,7 @@ let view() =
         Html.label [
             Html.input [
                 type' "checkbox"
-                bindAttr "checked" visible
+                Bind.attr ("checked", visible)
             ]
             text " visible"
         ]

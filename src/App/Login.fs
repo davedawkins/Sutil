@@ -1,19 +1,14 @@
 module Login
 
-// Converssion of https://codepen.io/stevehalford/pen/YeYEOR
-// Study of how real components look in Sutil. First it was converted to plain Html (see viewHtml() below),
-// and then a Bulma module was created to reduce the noise. See viewBulma(). I will leave the viewHtml() function
-// for comparison.
 //
+// Conversion of https://codepen.io/stevehalford/pen/YeYEOR into an example Sutil Login component
+// See LoginExample.fs for usage
+//
+
 open Sutil
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Bulma
-open Sutil.Bulma.FontAwesome
-
-//
-// Using Bulma module
-//
 
 type LoginDetails = {
     Username: string
@@ -24,8 +19,7 @@ with
 
 type private Model = {
     Message : string
-    Details : LoginDetails
-}
+    Details : LoginDetails }
 
 let private username m = m.Details.Username
 let private password m = m.Details.Password
@@ -47,6 +41,14 @@ let private init details =
         Details = details
     }, Cmd.none
 
+module EventHelpers =
+    open Browser.Types
+
+    let inputElement (target:EventTarget) = target |> asElement<HTMLInputElement>
+
+    let validity (e : Event) =
+        inputElement(e.target).validity
+
 // View function. Responsibilities:
 // - Arrange for cleanup of model on dispose
 // - Present model to user
@@ -57,7 +59,6 @@ let private defaultView model dispatch =
         disposeOnUnmount [ model ]
 
         hero.isInfo
-        //hero.isFullheight
 
         bulma.heroBody [
             bulma.container [
@@ -71,7 +72,7 @@ let private defaultView model dispatch =
 
                             bulma.field [
                                 class' "has-text-danger"
-                                Bindings.bind (model .> message) text
+                                Bind.fragment (model .> message) text
                             ] |> Transition.showIf (model .> messageIsSet)
 
                             bulma.field [
@@ -79,8 +80,11 @@ let private defaultView model dispatch =
                                 bulma.control [
                                     control.hasIconsLeft
                                     bulma.email [
+
+                                        bindEvent "input" (fun e -> EventHelpers.validity(e).valid |> not) (fun s -> bindClass s "is-danger")
+
                                         placeholder "Hint: sutil@gmail.com"
-                                        Bindings.bindAttrNotify "value" (model .> username) (SetUsername >> dispatch)
+                                        Bind.attr ("value", model .> username , SetUsername >> dispatch)
                                         required
                                     ]
                                     bulma.icon [
@@ -96,7 +100,7 @@ let private defaultView model dispatch =
                                     control.hasIconsLeft
                                     bulma.password [
                                         placeholder "Hint: abc123"
-                                        Bindings.bindAttrNotify "value" (model .> password) (SetPassword >> dispatch)
+                                        Bind.attr("value", model .> password, SetPassword >> dispatch)
                                         required ]
                                     bulma.icon [
                                         icon.isSmall
@@ -107,23 +111,28 @@ let private defaultView model dispatch =
                             ]
                             bulma.field [
                                 bulma.labelCheckbox " Remember me" [
-                                    Bindings.bindAttrNotify "checked" (model .> rememberMe) (SetRememberMe >> dispatch)
+                                    Bind.attr("checked", model .> rememberMe, SetRememberMe >> dispatch)
                                 ]
                             ]
-                            bulma.button [
-                                button.isSuccess
-                                text "Login"
-                            ]
-                            bulma.button [
-                                style [ Css.marginLeft "24px" ]
-                                text "Cancel"
-                                onClick (fun _ -> dispatch CancelLogin) [PreventDefault]
+                            bulma.field [
+                                field.isGrouped
+                                bulma.control [
+                                    bulma.button [
+                                        button.isSuccess
+                                        text "Login"
+                                    ]
+                                ]
+                                bulma.control [
+                                    bulma.button [
+                                        text "Cancel"
+                                        onClick (fun _ -> dispatch CancelLogin) [PreventDefault]
+                                    ]
+                                ]
                             ]
                         ] ] ] ] ] ]
 
 let private createWithView initDetails login cancel view =
 
-    // Local to create so we can reference parameter 'login'
     let update msg model =
         match msg with
             |SetUsername name -> { model with Details = { model.Details with Username = name }}, Cmd.none
@@ -132,12 +141,9 @@ let private createWithView initDetails login cancel view =
             |AttemptLogin -> model, Cmd.OfFunc.attempt login model.Details (fun ex -> SetMessage ex.Message)
             |SetMessage m -> { model with Message = m }, Cmd.none
             |CancelLogin -> model, Cmd.OfFunc.perform cancel () (fun _ -> SetMessage "")
+
     let model, dispatch = initDetails |> Store.makeElmish init update ignore
 
-    // In theory we could use a user-supplied view function that knows how to
-    // - display LoginDetails
-    // - dispatch input events
-    // - register model for cleanup when disposed
     view model dispatch
 
 let create initDetails login cancel =

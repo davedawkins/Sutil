@@ -229,7 +229,7 @@ let view () : NodeFactory =
 
         Html.div [
             class' "complete-all-container"
-            bind model <| fun m -> Html.a [
+            Bind.fragment model <| fun m -> Html.a [
                 href "#"
                 text "toggle sort"
                 onClick (fun _ -> not m.Sort |> SetSort |> dispatch) [ PreventDefault ]
@@ -241,7 +241,7 @@ let view () : NodeFactory =
             ]
             Html.span [
                 class' "kudos"
-                bind completed (fun x -> text $"{x.Length} tasks completed! Good job!")
+                Bind.fragment completed (fun x -> text $"{x.Length} tasks completed! Good job!")
             ] |> fader lotsDone
         ]
 

@@ -40,10 +40,10 @@ let view() =
 
         Html.textarea [
             rows "5"
-            Bindings.bindAttr "value" inputText
+            Bind.attr("value",inputText)
         ]
 
         Html.span [
-            Bindings.bind inputText <| fun t -> html $"{marked t}"
+            Bind.fragment inputText <| fun t -> html $"{marked t}"
         ] |> withStyle Markdown.style
     ] |> withStyle style

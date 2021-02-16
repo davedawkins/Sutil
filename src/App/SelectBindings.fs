@@ -8,6 +8,8 @@ open Sutil
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Styling
+open Sutil.Bindings
+
 
 type Question = {
     Id : int
@@ -70,13 +72,13 @@ let view() =
             block [
                 Html.input [
                     type' "text"
-                    Bindings.bindAttr "value" answer
+                    Bind.attr ("value",answer)
                 ]
             ]
 
             block [
                 Html.button [
-                    Bindings.bindAttrIn "disabled" (answer |> Store.map (fun a -> a = ""))
+                    Bind.attr ("disabled",answer |> Store.map (fun a -> a = ""))
                     type' "submit"
                     text "Submit"
                 ]
@@ -84,7 +86,7 @@ let view() =
         ]
 
         block [
-            Bindings.bind selected <| fun q ->
+            Bind.fragment selected <| fun q ->
                 Html.p [
                     text $"Selected question {q.Id}"
                 ]

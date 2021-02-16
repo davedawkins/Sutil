@@ -42,10 +42,17 @@ let styleHelpers = [
 let withBulmaHelpers s =
     s @ styleHelpers
 
-
-//TODO - Move into library
+[<AutoOpen>]
 module FontAwesome =
     let fa name = Html.i [ class' ("fa fa-" + name) ]
+
+type IsColorOptions() =
+    member _.isDanger = class' "is-danger"
+    member _.isLink = class' "is-link"
+    member _.isInfo = class' "is-info"
+    member _.isSuccess = class' "is-success"
+    member _.isPrimary = class' "is-primary"
+    member _.isWarning = class' "is-warning"
 
 type ColumnOptions() =
     member _.is (n:int) = class' ("is-" + string n)
@@ -57,20 +64,28 @@ type ColumnsOptions() =
     member _.isCentered = class' "is-centered"
 
 type HeroOptions() =
-    member _.isPrimary = class' "is-primary"
-    member _.isInfo = class' "is-info"
+    inherit IsColorOptions()
     member _.isFullheight = class' "is-fullheight"
 
 type ControlOptions() =
     member _.hasIconsLeft = class' "has-icons-left"
+    member _.hasIconsRight = class' "has-icons-right"
 
 type IconOptions() =
     member _.isSmall = class' "is-small"
     member _.isLeft = class' "is-left"
 
 type ButtonOptions() =
-    member _.isSuccess = class' "is-success"
-    member _.isCancel = class' "is-cancel"
+    inherit IsColorOptions()
+    member _.isRounded = class' "is-rounded"
+    member _.isOutlined = class' "is-outlined"
+    member _.isInverted = class' "is-inverted"
+    member _.isHovered = class' "is-hovered"
+    member _.isActive = class' "is-active"
+    member _.isLoading = class' "is-loading"
+
+type FieldOptions() =
+    member _.isGrouped = class' "is-grouped"
 
 type BulmaEngine() =
     member _.heroBody (props : NodeFactory list) = Html.div ([ class' "hero-body" ] @ props)
@@ -100,3 +115,4 @@ let column = ColumnOptions()
 let control = ControlOptions()
 let icon = IconOptions()
 let button = ButtonOptions()
+let field = FieldOptions()

@@ -23,18 +23,18 @@ let view() =
         Html.button [
             class' "block"
             onClick handleClick []
-            bind count (fun n -> text $"Count: {n}")
+            Bind.fragment count (fun n -> text $"Count: {n}")
         ]
 
         Html.p [
             class' "block"
-            bind2 count doubled
+            Bind.fragment2 count doubled
                 (fun (c,d) -> text $"{c} * 2 = {d}")
         ]
 
         Html.p [
             class' "block"
-            bind2 doubled quadrupled
+            Bind.fragment2 doubled quadrupled
                 (fun (d,q) -> text $"{d} * 2 = {q}")
         ]
     ]

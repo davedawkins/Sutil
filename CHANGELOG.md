@@ -2,6 +2,9 @@
 
 ## Changelog (most recent first)
 
+- Start refactor Bindings to BindAPI with overloads and function documentation
+- More tweaks to login example - outline email field when invalid
+- event-to-store support, allowing input events to end up binding to class "is-danger" for showing email field invalid
 - Improved login example
 - Fix z-order for header
 - Login example with prototype Bulma module

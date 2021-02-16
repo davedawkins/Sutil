@@ -74,6 +74,19 @@ let onKeyboard event (fn : KeyboardEvent -> unit) options =
 let onMouse event (fn : MouseEvent -> unit) options =
     on event (unbox fn) options
 
+let asElement<'T when 'T :> Node> (target:EventTarget) : 'T = (target :?> 'T)
+
+let inline private _event x = (x :> obj :?> Event)
+
+type InputEvent() =
+    member x.event = _event x
+    member x.inputElement =
+        let _event x = (x :> obj :?> Event)
+        asElement<HTMLInputElement> (_event x).target
+
+let onInput (fn : InputEvent -> unit) options =
+    on "input" (unbox fn) options
+
 let onClick fn options = on "click" fn options
 
 let onMount fn options = on Event.Mount fn options

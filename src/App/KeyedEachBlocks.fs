@@ -33,7 +33,7 @@ let ThingView (viewId : int) (thing : IObservable<Thing>) : NodeFactory =
         ]
 
         Html.div [
-            bind thing <| fun t ->
+            Bind.fragment thing <| fun t ->
                 Html.p [
                     Html.span [ style [ Css.backgroundColor t.Color ]; text $"{t.Id} {t.Color} #{viewId}" ]
                     Html.span [ style [ Css.backgroundColor initialColor ]; text "initial" ]

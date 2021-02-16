@@ -246,7 +246,7 @@ let viewSource (model : IStore<Model>) =
             Html.code [
                 class' "fsharp"
                 //on "sutil-show" (fun e -> log($"2show source {e.target}")) [StopPropagation]
-                bind source (exclusive << text)
+                Bind.fragment source (exclusive << text)
             ]
         ]
     ]
@@ -254,7 +254,7 @@ let viewSource (model : IStore<Model>) =
 let demoTab (demoView : IObservable<DemoView>) model dispatch =
     Html.div [
         class' "column app-demo"
-        bind demoView (fun dv ->
+        Bind.fragment demoView (fun dv ->
             match dv with
             | DemoApp d ->
                 SetShowContents false |> dispatch
@@ -320,7 +320,7 @@ let appMain (currentDemo : IObservable<DemoView>) (isMobile : IObservable<bool>)
 
                     Html.div [
                         class' "app-toolbar"
-                        bind currentDemo (fun demoView ->
+                        Bind.fragment currentDemo (fun demoView ->
                             let demo = match demoView with |DemoApp d -> d|DemoSrc (d,_) -> d
                             Html.ul [
                                 class' "app-tab"

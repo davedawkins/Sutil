@@ -10,7 +10,7 @@ let Counter() =
         bindStore 0 <| fun count -> fragment [
             Html.div [
                 class' "block"
-                bind count <| fun n -> text $"Counter = {n}"
+                Bind.fragment count <| fun n -> text $"Counter = {n}"
             ]
 
             Html.div [

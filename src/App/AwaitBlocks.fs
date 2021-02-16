@@ -47,7 +47,7 @@ let view() =
 
         Html.div [
             class' "block"
-            bind randomName <| function
+            Bind.fragment randomName <| function
                 | Waiting ->
                     text "...waiting"
                 | Result n ->

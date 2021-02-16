@@ -19,12 +19,12 @@ let view() =
         Html.p [
             class' "block"
             text "status: "
-            bind status text
+            Bind.fragment status text
         ]
         Html.label [
             Html.input [
                 type' "checkbox"
-                bindAttr "checked" visible
+                Bind.attr ("checked", visible )
             ]
             text " visible"
         ]

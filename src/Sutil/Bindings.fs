@@ -1,3 +1,4 @@
+[<AutoOpen>]
 module Sutil.Bindings
 
 open Transition
@@ -17,7 +18,7 @@ let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit
     registerDisposable ctx.Parent unsub
     unitResult()
 
-let bind<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = nodeFactory <| fun ctx ->
+let bindFragment<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = nodeFactory <| fun ctx ->
     let mutable node = null
 
     let unsub = Store.subscribe store ( fun next ->
@@ -35,7 +36,7 @@ let bindPromiseStore<'T>  (p : ObservablePromise<'T>)
         (result: 'T -> NodeFactory)
         (fail : Exception -> NodeFactory)
         : NodeFactory =
-    bind p <| (function
+    bindFragment p <| (function
         | Waiting -> waiting
         | Result r -> result r
         | Error x -> fail x)
@@ -51,7 +52,7 @@ let bindPromise<'T>  (p : JS.Promise<'T>)
 
 type BindFn<'T> = IObservable<'T> -> ('T -> NodeFactory) -> NodeFactory
 
-let bind2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) = nodeFactory <| fun ctx ->
+let bindFragment2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> NodeFactory) = nodeFactory <| fun ctx ->
     let mutable node = Unchecked.defaultof<_>
 
     let unsub = Store.subscribe2 a b (fun next ->
@@ -214,8 +215,15 @@ let bindClass (toggle:IObservable<bool>) (classes:string) =
 
 // Bind a store value to an element attribute. Updates to the element are unhandled
 let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : NodeFactory = nodeFactory <| fun ctx ->
-    let unsub = Store.subscribe store ( fun value -> Interop.set ctx.Parent attrName value )
+    let unsub = Store.subscribe store (Interop.set ctx.Parent attrName)
     registerDisposable ctx.Parent unsub
+    unitResult()
+
+let bindAttrOut<'T> (attrName:string) (onchange : 'T -> unit) : NodeFactory = nodeFactory <| fun ctx ->
+    let parent = ctx.Parent
+    let unsubInput = listen "input" parent <| fun _ ->
+        Interop.get parent attrName |> onchange
+    registerUnsubscribe parent unsubInput
     unitResult()
 
 // Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
@@ -231,16 +239,11 @@ let attrNotify<'T> (attrName:string) (value :'T) (onchange : 'T -> unit) : NodeF
 
 // Bind an observable value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function
-let bindAttrNotify<'T> (attrName:string) (value : IObservable<'T>) (onchange : 'T -> unit) : NodeFactory = nodeFactory <| fun ctx ->
-    let parent = ctx.Parent
-    let unsubInput = listen "input" parent <| fun _ ->
-        Interop.get parent attrName |> onchange
-    let unsub = Store.subscribe value ( Interop.set parent attrName )
-    registerDisposable parent unsub
-    registerUnsubscribe parent unsubInput
-    unitResult()
+let bindAttrBoth<'T> (attrName:string) (value : IObservable<'T>) (onchange : 'T -> unit) : NodeFactory =
+    bindAttrIn attrName value |> ignore
+    bindAttrOut attrName onchange
 
-let bindAttrListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : NodeFactory = nodeFactory <| fun ctx ->
+let bindListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : NodeFactory = nodeFactory <| fun ctx ->
     let parent = ctx.Parent
     let unsubA = Sutil.DOM.listen event parent handler
     let unsubB = Store.subscribe store ( Interop.set parent attrName )
@@ -250,7 +253,7 @@ let bindAttrListen<'T> (attrName:string) (store : IObservable<'T>) (event:string
 
 // Bind a store value to an element attribute. Listen for onchange events write the converted
 // value back to the store
-let bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T) : NodeFactory = nodeFactory <| fun ctx ->
+let private bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T) : NodeFactory = nodeFactory <| fun ctx ->
     let parent = ctx.Parent
     //let attrName' = if attrName = "value" then "__value" else attrName
     let unsubInput = DOM.listen "input" parent <| fun _ ->
@@ -265,10 +268,10 @@ let private convertObj<'T> (v:obj) : 'T  =
     v :?> 'T
 
 // Bind a store to an attribute in both directions
-let bindAttr<'T> (attrName:string) (store : Store<'T>) =
+let bindAttrStoreBoth<'T> (attrName:string) (store : Store<'T>) =
     bindAttrConvert attrName store convertObj<'T>
 
-let bindAttrOut<'T> (attrName:string) (store : Store<'T>) : NodeFactory = nodeFactory <| fun ctx ->
+let bindAttrStoreOut<'T> (attrName:string) (store : Store<'T>) : NodeFactory = nodeFactory <| fun ctx ->
     let parent = ctx.Parent
     let unsubInput = DOM.listen "input" parent <| fun _ ->
         Interop.get parent attrName |> convertObj<'T> |> Store.set store
@@ -421,10 +424,10 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
 let private duc = ObservableX.distinctUntilChanged
 
 let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory) (trans : TransitionAttribute list) =
-    eachiko items (fun (_,item) -> bind (duc item) view) (fun (_,v) -> v.GetHashCode()) trans
+    eachiko items (fun (_,item) -> bindFragment (duc item) view) (fun (_,v) -> v.GetHashCode()) trans
 
 let eachi (items:IObservable<list<'T>>) (view : (int*'T) -> NodeFactory)  (trans : TransitionAttribute list) : NodeFactory =
-    eachiko items (fun (index,item) -> bind2 (duc index) (duc item) view) fst trans
+    eachiko items (fun (index,item) -> bindFragment2 (duc index) (duc item) view) fst trans
 
 let eachio (items:IObservable<list<'T>>) (view : (IObservable<int>*IObservable<'T>) -> NodeFactory)  (trans : TransitionAttribute list) =
     eachiko items view fst trans
@@ -432,9 +435,23 @@ let eachio (items:IObservable<list<'T>>) (view : (IObservable<int>*IObservable<'
 let eachk (items:IObservable<list<'T>>) (view : 'T -> NodeFactory)  (key:'T -> 'K) (trans : TransitionAttribute list) =
     eachiko
         items
-        (fun (_,item) -> bind (duc item) view)
+        (fun (_,item) -> bindFragment (duc item) view)
         (snd>>key)
         trans
+
+//
+// Turn events into an IObservable using a map function
+// Pass IObservable to NodeFactory function so that containing element can be side-effected (eg, bindClass)
+//
+let bindEvent<'T> (event:string) (map:Event -> 'T) (app:IObservable<'T> -> DOM.NodeFactory) : DOM.NodeFactory = nodeFactory <| fun ctx ->
+    let s = Store.make Unchecked.defaultof<'T>
+    let u = listen event ctx.Parent (map >> Store.set s)
+    registerDisposable ctx.Parent s
+    registerUnsubscribe ctx.Parent u
+    ctx |> (s |> app |> build)
+
+let bindEventU<'T> (event:string) (map:Event -> 'T) (app:IObservable<'T> -> unit) : DOM.NodeFactory =
+     bindEvent event map (fun s -> app(s); fragment[])
 
 let bindStore<'T> (init:'T) (app:Store<'T> -> DOM.NodeFactory) : DOM.NodeFactory = nodeFactory <| fun ctx ->
     let s = Store.make init
@@ -444,7 +461,7 @@ let bindStore<'T> (init:'T) (app:Store<'T> -> DOM.NodeFactory) : DOM.NodeFactory
 let declareStore<'T> (init : 'T) (f : Store<'T> -> unit) =
     declareResource (fun () -> Store.make init) f
 
-let (|=>) a b = bind a b
+let (|=>) a b = bindFragment a b
 
 let selectApp (selectors : (IObservable<bool> * (unit ->NodeFactory)) list) = nodeFactory <| fun ctx ->
     let s = selectors |> List.map fst |> firstOf
@@ -456,3 +473,37 @@ let selectApp (selectors : (IObservable<bool> * (unit ->NodeFactory)) list) = no
     )
 
     unitResult()
+
+
+// BindApi is a way for me to refactor this module into a public-facing documentation API with
+// overloads where appropriate.
+// Some examples will still be referencing Bindings.*
+
+[<AutoOpen>]
+module BindApi =
+    type Bind =
+        /// Dual-binding for a given attribute. Changes to value are written to the attribute, while
+        /// changes to the attribute are written back to the store. Note that an IStore is also
+        /// an IObservable, for which a separate overload exists.
+        static member attr<'T> (name:string, value: IStore<'T>) = bindAttrStoreBoth name value
+
+        /// One-way binding from value to attribute. Note that passing store to this function will
+        /// select the more specific `attr<'T>( string, IStore<'T>)` overload.
+        /// If that looks to be a problem, we'll rename both of them to force a considered choice.
+        static member attr<'T> (name:string, value: IObservable<'T>) = bindAttrIn name value
+
+        /// One-way binding from attribute to dispatch function
+        static member attr<'T> (name:string, dispatch: 'T -> unit) = bindAttrOut name dispatch
+
+        /// Two-way binding from value to attribute and from attribute to dispatch function
+        static member attr<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) = bindAttrBoth name value dispatch
+
+        /// Binding from value to a DOM fragment. Each change in value replaces the current DOM fragment
+        /// with a new one.
+        static member fragment<'T>  (value : IObservable<'T>)  (element: 'T -> NodeFactory) = bindFragment value element
+
+        /// Binding from two values to a DOM fragment. See fragment<'T>
+        static member fragment2<'A,'B>  (valueA : IObservable<'A>) (valueB : IObservable<'B>) (element: 'A * 'B -> NodeFactory) = bindFragment2 valueA valueB element
+
+
+

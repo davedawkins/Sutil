@@ -102,7 +102,7 @@ let view () : NodeFactory =
     let model, dispatch = makeStore()
 
     Html.div [
-        bind model <| fun m -> Html.table [
+        Bind.fragment model <| fun m -> Html.table [
 
             Html.thead [
                 Html.tr [

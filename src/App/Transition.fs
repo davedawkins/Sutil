@@ -19,7 +19,7 @@ let view() =
         Html.label [
             Html.input [
                 type' "checkbox"
-                bindAttr "checked" visible
+                Bind.attr ("checked",visible)
             ]
             text " visible"
         ]

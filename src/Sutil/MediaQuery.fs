@@ -18,7 +18,7 @@ let bindMediaQuery (query:string) (view : bool -> NodeFactory) =
     let u = mediaQuery query (fun m -> s <~ m)
     fragment [
         disposeOnUnmount [ Helpers.disposable u; s ]
-        bind s view
+        Bind.fragment s view
     ]
 
 let showIfMedia2 (query:string) (f:bool->bool) (trans) (view : NodeFactory) =

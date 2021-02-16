@@ -21,7 +21,7 @@ module GlobalStore =
         Html.div [
             Html.div [
                 class' "block"
-                bind count <| fun n -> text $"Counter = {n}"
+                Bind.fragment count <| fun n -> text $"Counter = {n}"
             ]
 
             Html.div [
@@ -58,7 +58,7 @@ module DisposeOnUnmount =
 
             Html.div [
                 class' "block"
-                bind count <| fun n -> text $"Counter = {n}"
+                Bind.fragment count <| fun n -> text $"Counter = {n}"
             ]
 
             Html.div [
@@ -93,7 +93,7 @@ module BindStore =
             bindStore 0 <| fun count -> fragment [
                 Html.div [
                     class' "block"
-                    bind count <| fun n -> text $"Counter = {n}"
+                    Bind.fragment count <| fun n -> text $"Counter = {n}"
                 ]
 
                 Html.div [
@@ -134,7 +134,7 @@ module DeclareResource =
 
             Html.div [
                 class' "block"
-                bind count <| fun n -> text $"Counter = {n}"
+                Bind.fragment count <| fun n -> text $"Counter = {n}"
             ]
 
             Html.div [
@@ -173,7 +173,7 @@ module DeclareStore =
 
             Html.div [
                 class' "block"
-                bind count <| fun n -> text $"Counter = {n}"
+                Bind.fragment count <| fun n -> text $"Counter = {n}"
             ]
 
             Html.div [

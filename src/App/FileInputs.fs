@@ -30,7 +30,7 @@ let view() =
             Html.label [ class' "file-label"; for' "avatar"; text "Upload a picture:" ]
             Html.input [
                 accept "image/png, image/jpeg"
-                bindAttrOut "files" files
+                Bind.attr("files",files)
                 id' "avatar"
                 name "avatar"
                 type' "file"
@@ -41,14 +41,14 @@ let view() =
             class' "block"
             Html.label [ class' "file-label"; for' "many";text "Upload multiple files of any type:" ]
             Html.input [
-                bindAttrOut "files" files
+                Bind.attr("files",files)
                 id' "many"
                 multiple
                 type' "file"
             ]
         ]
 
-        bind fileSeq <| fun _files ->
+        Bind.fragment fileSeq <| fun _files ->
                                 Html.div [
                                     class' "control"
                                     Html.h3 [ text "Selected files" ]

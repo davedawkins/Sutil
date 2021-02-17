@@ -10,7 +10,9 @@ open Sutil.Bindings
 open Fable.Core.JsInterop
 open Evaluator
 
-type Sheet = Map<Position,string>
+type Cell = string
+
+type Sheet = Map<Position,Cell>
 
 type Message =
   | UpdateValue of Position * string
@@ -24,42 +26,45 @@ type Model =
 
 let styleSheet = [
     rule "table" [
-        borderSpacing "0px"
-        borderBottom "1px solid #e0e0e0"
-        borderRight "1px solid #e0e0e0"
+        Css.borderSpacing "0px"
+        Css.borderBottom "1px solid #e0e0e0"
+        Css.borderRight "1px solid #e0e0e0"
     ]
     rule "td, th" [
-        minWidth "50px"
-        borderLeft "1px solid #e0e0e0"
-        borderTop "1px solid #e0e0e0"
-        padding "5px"
+        Css.minWidth "50px"
+        Css.borderLeft "1px solid #e0e0e0"
+        Css.borderTop "1px solid #e0e0e0"
+        Css.padding "5px"
     ]
     rule "td.selected" [
-        padding "0px"
+        Css.padding "0px"
     ]
     rule "td div" [
-        display "flex"
-        flexDirection "row"
+        Css.display "flex"
+        Css.flexDirection "row"
     ]
     rule "td input" [
-        flex "1"
-        width "56px"
-        height "22px"
+        Css.flex "1"
+        Css.width "56px"
+        Css.height "22px"
     ]
 ]
 
-let sample = Map.ofList [
-    ('B',1), "Fibonacci"
-    ('B',2), "1"
-    ('B',3), "1"
-    ('B',4), "=B2 + B3"
-    ('B',5), "=B3 + B4"
-    ('B',6), "=B4 + B5"
-    ('B',7), "=B5 + B6"
-    ('B',8), "=B6 + B7"
-    ('B',9), "=B7 + B8"
-    ('E',3), "Convert:" ; ('F',3), "0"                ; ('G',3), "°C";
-    ('E',4), "Result:"  ; ('F',4), "=32 + F3 * 9 / 5" ; ('G',4), "°F" ]
+
+let sample =
+    let c s = s // { Value = s; Evaluated = ""; NeedsEval = true }
+    Map.ofList [
+        ('B',1), c "Fibonacci"
+        ('B',2), c "1"
+        ('B',3), c "1"
+        ('B',4), c "=B2 + B3"
+        ('B',5), c "=B3 + B4"
+        ('B',6), c "=B4 + B5"
+        ('B',7), c "=B5 + B6"
+        ('B',8), c "=B6 + B7"
+        ('B',9), c "=B7 + B8"
+        ('E',3), c "Convert:" ; ('F',3), c "0"                ; ('G',3), c "°C";
+        ('E',4), c "Result:"  ; ('F',4), c "=32 + F3 * 9 / 5" ; ('G',4), c "°F" ]
 
 let init() =
     {  Rows = [1 .. 15]
@@ -97,7 +102,7 @@ let view () : NodeFactory =
     let model, dispatch = makeStore()
 
     Html.div [
-        bind model <| fun m -> Html.table [
+        Bind.fragment model <| fun m -> Html.table [
 
             Html.thead [
                 Html.tr [

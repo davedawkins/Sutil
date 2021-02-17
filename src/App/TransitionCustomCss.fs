@@ -1,22 +1,21 @@
 module TransitionCustomCss
 
+// Adapted from
+// https://svelte.dev/examples
+
 open System
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
-open Sutil.Bindings
 open Sutil.Transition
-open Browser.Types
 open Sutil.Styling
-
-let visible = Store.make true
 
 let spin (options : TransitionProp list) node =
     fun () ->
         let user = applyProps options Transition.Default
         {
             user with
-                Css = (fun t _ ->
+                CssGen = Some (fun t _ ->
                 let eased = Easing.elasticOut t
                 [
                     $"transform: scale({eased}) rotate({eased * 1080.0}deg);"
@@ -30,41 +29,45 @@ let spin (options : TransitionProp list) node =
 
 let styleSheet = [
     rule ".centered" [
-        position "absolute"
-        left "50%"
-        top "50%"
-        transform "translate(-50%,-50%)"
+        Css.position "absolute"
+        Css.left "50%"
+        Css.top "50%"
+        Css.transform "translate(-50%,-50%)"
     ]
 
     rule "span" [
-        position "absolute"
-        transform "translate(-50%,-50%)"
-        fontSize "4em"
+        Css.position "absolute"
+        Css.transform "translate(-50%,-50%)"
+        Css.fontSize "4em"
     ]
 
     rule ".container" [
-        position "relative"
-        height "60vh"
-        width "100%"
+        Css.position "relative"
+        Css.height "60vh"
+        Css.width "100%"
     ]
 ]
 
 let view() =
+    let visible = Store.make true
+
     Html.div [
+        disposeOnUnmount [visible]
+
         class' "container"
 
         Html.label [
             Html.input [
                 type' "checkbox"
-                bindAttr "checked" visible
+                Bind.attr ("checked", visible)
             ]
             text " visible"
         ]
 
-        let flyIn = (spin, [ Duration 8000.0 ])
-        let fadeOut = (fade, [])
+        let flyIn = spin |> withProps [ Duration 8000.0 ]
+        let fadeOut = fade
 
-        transition (InOut(flyIn,fadeOut)) visible <|
+        transition [In flyIn; Out fadeOut] visible <|
             Html.div [
                 class' "centered"
                 Html.span [ text "transitions!" ]

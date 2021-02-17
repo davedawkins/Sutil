@@ -1,10 +1,15 @@
 module SelectBindings
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Browser
 open Sutil
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Styling
+open Sutil.Bindings
+
 
 type Question = {
     Id : int
@@ -17,21 +22,12 @@ let questions = [
     { Id = 3; Text = "Do you plan to go for a walk later?" }
 ];
 
-let answer   = Store.make("")
-let selected = Store.make( questions |> List.head )
-
-let handleSubmit (e : Types.Event) =
-    e.preventDefault()
-    let a = Store.get answer
-    let q = Store.get selected
-    window.alert($"Answered question {q.Id} ({q.Text}) with '{a}'");
-
 let appStyle = [
     rule "input" [
         addClass "input"
-        display "block"
-        width "620px"
-        maxWidth "100%"
+        Css.display "block"
+        Css.width "620px"
+        Css.maxWidth "100%"
     ]
     rule "button" [ addClass "button" ]
     rule "form" [ addClass "block" ]
@@ -43,7 +39,17 @@ let block children =
     Html.div <| (class' "block") :: children
 
 let view() =
+    let answer   = Store.make("")
+    let selected = Store.make( questions |> List.head )
+
+    let handleSubmit (e : Types.Event) =
+        e.preventDefault()
+        let a = Store.get answer
+        let q = Store.get selected
+        window.alert($"Answered question {q.Id} ({q.Text}) with '{a}'");
+
     Html.div [
+        disposeOnUnmount [ answer; selected ]
 
         Html.h2 [ text "Health Check" ]
 
@@ -66,13 +72,13 @@ let view() =
             block [
                 Html.input [
                     type' "text"
-                    Bindings.bindAttr "value" answer
+                    Bind.attr ("value",answer)
                 ]
             ]
 
             block [
                 Html.button [
-                    Bindings.bindAttrIn "disabled" (answer |> Store.map (fun a -> a = ""))
+                    Bind.attr ("disabled",answer |> Store.map (fun a -> a = ""))
                     type' "submit"
                     text "Submit"
                 ]
@@ -80,7 +86,7 @@ let view() =
         ]
 
         block [
-            Bindings.bind selected <| fun q ->
+            Bind.fragment selected <| fun q ->
                 Html.p [
                     text $"Selected question {q.Id}"
                 ]

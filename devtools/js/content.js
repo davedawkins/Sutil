@@ -7,8 +7,23 @@ chrome.runtime.onConnect.addListener(function (port) {
 let backgroundPageConnection = chrome.runtime.connect( { "name": "content-page" } );
 
 backgroundPageConnection.onMessage.addListener( msg => {
-    console.log("Content.onMessage")
-    console.dir(msg)
+    console.log("Content.onMessage");
+    console.dir(msg);
 });
 
+window.document.addEventListener( "sutil-new-store", e => {
+    //backgroundPageConnection.
+    //console.log("New store");
+    backgroundPageConnection.postMessage({
+        "name": "sutil-new-store"
+    });
+})
 
+window.document.addEventListener( "sutil-update-store", e => {
+    //backgroundPageConnection.
+    //console.log("Update store");
+    //console.dir(e)
+    backgroundPageConnection.postMessage({
+        "name": "sutil-update-store"
+    });
+})

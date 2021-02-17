@@ -1,5 +1,8 @@
 module Todos
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.Styling
 open Sutil.Attr
@@ -20,9 +23,11 @@ let isDone t = t.Done
 let isPending = isDone >> not
 let key r = r.Id
 let hasKey k t = t.Id = k
+let description t = t.Description
 
 type Model = {
     Todos : List<Todo>
+    Sort : bool
 } with
     override this.ToString() = $"The Model: {this.Todos.Length} items"
 
@@ -30,6 +35,7 @@ type Message =
     |AddTodo of desc:string
     |ToggleTodo of id:int
     |DeleteTodo of id:int
+    |SetSort of bool
     |CompleteAll
 
 let makeExampleTodos() = [
@@ -46,103 +52,104 @@ let newUid = Helpers.makeIdGeneratorFrom(7)
 let styleSheet = [
 
     rule ".new-todo" [
-        fontSize "1.4em"
-        width "100%"
+        Css.fontSize (Em 1.4)
+        Css.width "100%"
         //margin "2em 0 1em 0"
     ]
 
     rule ".board" [
-        maxWidth "36em"
-        margin "0 auto"
+        Css.maxWidth "36em"
+        Css.margin(Zero,Auto)
     ]
 
     rule ".todo, .done" [
         //float' "left"
-        width "50%"
-        padding "0 1em 0 0"
-        boxSizing "border-box"
+        Css.width "50%"
+        Css.padding "0 1em 0 0"
+        Css.boxSizing "border-box"
     ]
 
     rule ".title" [
-        marginTop "24px"
+        Css.marginTop "24px"
     ]
 
     rule "h2" [
-        fontSize "2em"
-        fontWeight  "200"
-        userSelect  "none"
+        Css.fontSize "2em"
+        Css.fontWeight  "200"
+        Css.userSelect  "none"
     ]
 
     rule "label"  [
-        top "0"
-        left "0"
-        display "block"
-        fontSize "1em"
-        lineHeight "1"
-        padding "0.5em"
-        margin "0 auto 0.5em auto"
-        borderRadius "2px"
-        backgroundColor "#eee"
-        userSelect "none"
+        Css.top "0"
+        Css.left "0"
+        Css.display "block"
+        Css.fontSize "1em"
+        Css.lineHeight "1"
+        Css.padding "0.5em"
+        Css.margin(Zero, Auto, Em 0.5, Auto)
+        Css.borderRadius "2px"
+        Css.backgroundColor "#eee"
+        Css.userSelect "none"
     ]
 
-    rule "input" [  margin "0" ]
+    rule "input" [  Css.margin(0) ]
 
     rule ".done label" [
-        backgroundColor "rgb(180,240,100)"
+        Css.backgroundColor "rgb(180,240,100)"
     ]
 
     rule "label>button" [
-        float' "right"
-        height "1em"
-        boxSizing "border-box"
-        padding "0 0.5em"
-        lineHeight "1"
-        backgroundColor "transparent"
-        border "none"
-        color "rgb(170,30,30)"
-        opacity "0"
-        Attr.transition "opacity 0.2s"
+        Css.float' "right"
+        Css.height "1em"
+        Css.boxSizing "border-box"
+        Css.padding "0 0.5em"
+        Css.lineHeight "1"
+        Css.backgroundColor "transparent"
+        Css.border "none"
+        Css.color "rgb(170,30,30)"
+        Css.opacity "0"
+        Css.transition "opacity 0.2s"
     ]
 
     rule "label:hover button" [
-        opacity "1"
+        Css.opacity "1"
     ]
 
     rule ".row" [
-        display "flex"
+        Css.display "flex"
     ]
 
     rule ".kudos" [
-        fontSize "80%"
-        color "#888"
+        Css.fontSize "80%"
+        Css.color "#888"
     ]
 
     rule "div.complete-all-container" [
-        display "flex"
-        justifyContent "space-between"
-        marginTop "4px"
+        Css.display "flex"
+        Css.justifyContent "space-between"
+        Css.marginTop "4px"
     ]
 
     rule ".complete-all-container a" [
-        cursor "pointer"
-        textDecoration "none"
+        Css.cursor "pointer"
+        Css.textDecoration "none"
 
-        fontSize "80%"
-        color "#888"
+        Css.fontSize "80%"
+        Css.color "#888"
     ]
 
     rule ".complete-all-container a:hover" [
-        textDecoration "underline"
+        Css.textDecoration "underline"
     ]
 ]
 
-let init() = { Todos = makeExampleTodos() }
+let init() = { Todos = makeExampleTodos(); Sort = false }
 
 let toggle id todo = if todo.Id = id then { todo with Done = not todo.Done } else todo
 
 let update (message : Message) (model : Model) : Model =
     match message with
+    | SetSort f -> { model with Sort = f }
     | AddTodo desc ->
         let todo = {
             Id = newUid() + 10
@@ -158,11 +165,16 @@ let update (message : Message) (model : Model) : Model =
         { model with Todos = model.Todos |> List.map (fun t -> { t with Done = true }) }
 
 
-let fader  x = transition <| Both (fade,[ Duration 300.0 ]) <| x
-let slider x = transition <| Both (slide,[ Duration 300.0 ])  <| x
+let fader  x = transition <| [ InOut (fade  |> withProps [ Duration 300.0 ])] <| x
+let slider x = transition <| [ InOut (slide |> withProps [ Duration 300.0 ])]  <| x
 
 let todosList title (filter : Todo -> bool) tin tout model dispatch =
-    let filteredTodos = model |> Store.map (fun x -> x.Todos |> List.filter filter)
+    let filteredTodos = model |> Store.map (fun m ->
+        if m.Sort then
+            m.Todos |> List.filter filter |> List.sortBy description
+        else
+            m.Todos |> List.filter filter
+    )
     Html.div [
         class' title
         Html.h2 [ text title ]
@@ -179,23 +191,31 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
                     text "x"
                 ]
             ]
-        ) key (Some (InOut (tin,tout)))
+        ) key [In tin; Out tout]
     ]
 
-let makeStore = Store.makeElmishSimple init update ignore
+let makeStore arg = Store.makeElmishSimple init update ignore arg
+
+let fallback (props : TransitionProp list) (node : HTMLElement) = fun _ ->
+    let transform = computedStyleTransform node
+
+    { (applyProps props Transition.Default) with
+            Duration = 600.0
+            Ease = Easing.quintOut
+            CssGen = Some(fun t _ -> $"transform: {transform} scale({t}); opacity: {t}") }
 
 let view () : NodeFactory =
-    let (send,recv) = Transition.crossfade [ ]
-    let tsend = send, [ ]
-    let trecv = recv, [ ]
+    let (send,recv) = crossfade [ Fallback fallback ]
 
-    let model, dispatch = makeStore()
+    let model, dispatch = makeStore ()
 
     let completed = model |> Store.map (fun m -> m.Todos |> List.filter isDone)
     let lotsDone  = completed |> Store.map (fun x -> (x |> List.length >= 3))
 
     withStyle styleSheet <| Html.div [
         class' "board"
+
+        disposeOnUnmount [ model ]
 
         Html.input [
             class' "new-todo"
@@ -209,6 +229,11 @@ let view () : NodeFactory =
 
         Html.div [
             class' "complete-all-container"
+            Bind.fragment model <| fun m -> Html.a [
+                href "#"
+                text "toggle sort"
+                onClick (fun _ -> not m.Sort |> SetSort |> dispatch) [ PreventDefault ]
+            ]
             Html.a [
                 href "#"
                 text "complete all"
@@ -216,13 +241,13 @@ let view () : NodeFactory =
             ]
             Html.span [
                 class' "kudos"
-                bind completed (fun x -> text $"{x.Length} tasks completed! Good job!")
+                Bind.fragment completed (fun x -> text $"{x.Length} tasks completed! Good job!")
             ] |> fader lotsDone
         ]
 
         Html.div [
             class' "row"
-            todosList "todo" isPending trecv tsend model dispatch
-            todosList "done" isDone trecv tsend model dispatch
+            todosList "todo" isPending recv send model dispatch
+            todosList "done" isDone recv send model dispatch
         ]
     ]

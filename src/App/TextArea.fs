@@ -1,5 +1,8 @@
 module TextArea
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
@@ -9,8 +12,7 @@ open Fable.Core
 [<ImportAll("./marked.min.js")>]
 let marked text : string = jsNative
 
-let inputText =
-    Store.make
+let sampleText =
      """## Markdown
 
 - Some words are *italic*
@@ -18,26 +20,30 @@ let inputText =
 
 let style = [
     rule "textarea" [
-        width  "100%"
-        height "100%"
-        fontFamily "monospace"
-        padding "4px"
+        Css.width  "100%"
+        Css.height "100%"
+        Css.fontFamily "monospace"
+        Css.padding "4px"
     ]
 
     rule "span" [
-        display     "block"
-        marginTop   "40px"
+        Css.display     "block"
+        Css.marginTop   "40px"
     ]
 ]
 
 let view() =
+    let inputText = Store.make sampleText
+
     Html.div [
+        disposeOnUnmount [inputText]
+
         Html.textarea [
             rows "5"
-            Bindings.bindAttr "value" inputText
+            Bind.attr("value",inputText)
         ]
 
         Html.span [
-            Bindings.bind inputText <| fun t -> html $"{marked t}"
+            Bind.fragment inputText <| fun t -> html $"{marked t}"
         ] |> withStyle Markdown.style
     ] |> withStyle style

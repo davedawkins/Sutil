@@ -1,9 +1,10 @@
 module LogicElseIf
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
-open Sutil.Bindings
 open Sutil.DOM
-open Sutil.Attr
 
 let x = 7;
 

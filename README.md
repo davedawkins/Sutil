@@ -1,4 +1,4 @@
-# Sutil (was Sutil)
+# Sutil (was Sveltish)
 
 An experiment in applying the design principles from [Svelte](https://svelte.dev/) to native Fable. At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself.
 

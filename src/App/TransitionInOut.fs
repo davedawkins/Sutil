@@ -1,26 +1,29 @@
 module TransitionInOut
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
-open Sutil.Bindings
 open Sutil.Transition
 
-let visible = Store.make true
-
 let view() =
+    let visible = Store.make true
+
     Html.div [
+        disposeOnUnmount [visible]
+
         Html.label [
             Html.input [
                 type' "checkbox"
-                bindAttr "checked" visible
+                Bind.attr ("checked", visible)
             ]
             text " visible"
         ]
 
-        let flyIn = (fly, [ Duration 2000.0; Y 200.0 ])
-        let fadeOut = (fade, [])
+        let flyIn = fly |> withProps [ Duration 2000.0; Y 200.0 ]
 
-        transition (InOut(flyIn, fadeOut)) visible <|
+        transition [ In flyIn; Out fade ] visible <|
             Html.p [ text "Flies in and fades out" ]
     ]

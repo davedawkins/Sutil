@@ -1,10 +1,12 @@
 module AwaitBlocks
 
+// Adapted from
+// https://svelte.dev/examples#await-blocks
+
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
 open Sutil.Bindings
-open Browser.Dom
 
 module RandomUser =
     type Name = { title: string; first : string; last : string }
@@ -35,7 +37,7 @@ let getRandomName _ =
 let view() =
     Html.div [
 
-        onShow getRandomName []
+        onMount getRandomName [ Once ]
 
         Html.button [
             class' "block"
@@ -45,13 +47,13 @@ let view() =
 
         Html.div [
             class' "block"
-            bind randomName <| function
+            Bind.fragment randomName <| function
                 | Waiting ->
                     text "...waiting"
                 | Result n ->
                     text $"Please welcome {n}"
                 | Error x -> Html.p [
-                    style "color: red"
+                    style [ Css.color "red" ]
                     text (string x.Message)
                 ]
         ]

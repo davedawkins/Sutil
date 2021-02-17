@@ -1,8 +1,12 @@
 module Nested
 
-open Sutil
+// Adapted from
+// https://svelte.dev/examples
+
+open Sutil.Html
 open Sutil.DOM
+open Sutil.Styling
 
 let Nested() =
-    Styling.withStyle [] <| Html.p [ text "...don't affect this element" ]
+   Html.p [ text "...don't affect this element" ] |> withStyle []
 

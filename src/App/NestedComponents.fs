@@ -1,16 +1,19 @@
 module NestedComponents
 
-open Sutil
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil.Styling
+open Sutil.Html
 open Sutil.Attr
 open Sutil.DOM
 open Nested
 
 let css = [
         rule "p" [
-            color "orange"
-            fontFamily "'Comic Sans MS', cursive"
-            fontSize "2em"
+            Css.color "orange"
+            Css.fontFamily "'Comic Sans MS', cursive"
+            Css.fontSize (Em 2.0)
         ]
     ]
 

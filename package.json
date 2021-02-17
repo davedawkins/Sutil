@@ -5,16 +5,23 @@
   "private": true,
   "scripts": {
     "postinstall": "dotnet tool restore",
-    "start": "dotnet fable watch src/App --run webpack serve",
-    "build": "dotnet fable src/App --run webpack --mode production",
-    "build:devtools": "dotnet fable src/DevTools --run webpack --config webpack.devtools.js",
-    "watch:devtools": "dotnet fable watch src/DevTools --runWatch webpack --config webpack.devtools.js",
+
     "watch:tests": "dotnet fable watch tests -o dist/tests --runWatch mocha dist/tests -r esm",
     "pretests": "dotnet fable tests -o dist/tests",
     "publish": "node publish.js",
-    "tests": "mocha dist/tests -r esm"
+    "tests": "mocha dist/tests -r esm",
+
+    "start": "dotnet fable watch src/App --run webpack serve",
+    "build": "dotnet fable       src/App --run webpack --mode production",
+
+    "watch:devtools": "dotnet fable watch src/DevTools --runWatch webpack --config webpack.devtools.js",
+    "build:devtools": "dotnet fable       src/DevTools --run      webpack --config webpack.devtools.js",
+
+    "start:e": "dotnet fable watch src/AppUsingEngine --run webpack serve --config webpack.e.js",
+    "build:e": "dotnet fable       src/AppUsingEngine --run webpack --config webpack.e.js --mode production"
   },
   "dependencies": {
+    "d3-scale": "^3.2.3",
     "gh-pages": "^3.1.0",
     "mocha": "^8.2.1",
     "webpack": "^5.11.0",

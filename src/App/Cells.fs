@@ -16,14 +16,12 @@ open Browser.Dom
 open Browser.Types
 open System
 
-let log s = () // console.log(s)
+let log s = () //console.log(s)
 
 let filterSome (source : IObservable<'T option>) =
     source |> Observable.filter (fun x -> x.IsSome) |> Observable.map (fun x -> x.Value)
 
 let nodeOfCell pos = document.querySelector($"[x-id='{positionStr pos}'") :> Node
-
-type Sheet = Map<Position, Sutil.IStore<string> >
 
 type Message =
   | UpdateValue of Position * string
@@ -37,34 +35,38 @@ type Message =
 // So far: cellSet, updateValue are write operations
 //         RefreshCell is a message we might receive from the database
 //
-let mutable Cells : Sheet = Map.empty
 
-let valAt pos =
-    match Cells.TryFind pos with
-    | None -> ""
-    | Some s -> s.Value
+type Sheet = Map<Position, Sutil.IStore<string> >
 
-let cellSet pos value =
-    Cells.[pos] <~ value
+module Cells =
+    let mutable cellDb : Sheet = Map.empty
 
-let cellListen toPos dispatch =
-    let store = Cells.[toPos]
-    let unsub = Store.subscribe store dispatch
-    ()
+    let valAt pos =
+        match cellDb.TryFind pos with
+        | None -> ""
+        | Some s -> s.Value
 
-let cellNotify pos =
-    valAt pos |> cellSet pos
+    let cellSet pos value =
+        cellDb.[pos] <~ value
+
+    let cellListen toPos dispatch =
+        let store = cellDb.[toPos]
+        let unsub = Store.subscribe store dispatch
+        ()
+
+    let cellNotify pos =
+        valAt pos |> cellSet pos
+
+    let cellInitialise (dispatch : Position -> unit) pos =
+        if not (cellDb.ContainsKey pos) then
+            cellDb <- cellDb.Add(pos,Store.make "")
 
 let bindCellRefresh pos whenPosUpdated dispatch =
-    cellListen whenPosUpdated (fun _ -> pos |> dispatch)
+    Cells.cellListen whenPosUpdated (fun _ -> pos |> dispatch)
 
 let bindRefresh targetCell dependsOnCells dispatch =
     for dep in dependsOnCells do
         bindCellRefresh targetCell dep dispatch
-
-let cellInitialise (dispatch : Position -> unit) pos =
-    if not (Cells.ContainsKey pos) then
-        Cells <- Cells.Add(pos,Store.make "")
 
 type Model =
   { Rows : int list
@@ -77,30 +79,30 @@ let cols m = m.Cols
 
 let styleSheet = [
     rule "table" [
-        borderSpacing "0px"
-        borderBottom "1px solid #e0e0e0"
-        borderRight "1px solid #e0e0e0"
+        Css.borderSpacing "0px"
+        Css.borderBottom "1px solid #e0e0e0"
+        Css.borderRight "1px solid #e0e0e0"
     ]
     rule "td, th" [
-        minWidth "50px"
-        borderLeft "1px solid #e0e0e0"
-        borderTop "1px solid #e0e0e0"
-        padding "5px"
+        Css.minWidth "50px"
+        Css.borderLeft "1px solid #e0e0e0"
+        Css.borderTop "1px solid #e0e0e0"
+        Css.padding "5px"
     ]
     rule "td.selected" [
-        padding "0px"
+        Css.padding "0px"
     ]
     rule "td div" [
-        display "flex"
-        flexDirection "row"
+        Css.display "flex"
+        Css.flexDirection "row"
     ]
     rule "td input" [
-        flex "1"
-        width "56px"
-        height "22px"
+        Css.flex "1"
+        Css.width "56px"
+        Css.height "22px"
     ]
     rule "td.active" [
-        backgroundColor "red"
+        Css.backgroundColor "red"
     ]
 ]
 
@@ -122,17 +124,19 @@ let sample2 = [
 ]
 
 let init() =
+    log("init()")
     {  Rows = [1 .. 15]
        Cols = ['A'.. 'K' ]
        Active = None
        NeedsRefresh = None }, Cmd.batch (sample |> List.map (UpdateValue >> Cmd.ofMsg))
 
 let updateValue pos value d =
+    log("updateValue")
     let tcells = findTriggerCells value // Examine expression for cells pos is dependent on
     let refresh = (d << RefreshCell)
-    (pos :: tcells) |> List.iter (cellInitialise refresh) // Make sure all cells involved have stores
+    (pos :: tcells) |> List.iter (Cells.cellInitialise refresh) // Make sure all cells involved have stores
     bindRefresh pos tcells refresh // Make sure pos gets a refresh when any of tcells update
-    cellSet pos value // Finally update the sheet
+    Cells.cellSet pos value // Finally update the sheet
     refresh pos
 
 let update (message : Message) (model : Model) : Model * Cmd<Message> =
@@ -140,7 +144,7 @@ let update (message : Message) (model : Model) : Model * Cmd<Message> =
     match message with
 
     | RefreshCell p ->
-        { model with NeedsRefresh = Some p }, [fun _ -> cellNotify p]
+        { model with NeedsRefresh = Some p }, [fun _ -> Cells.cellNotify p]
 
     | UpdateValue (p,v) ->
         { model with Active = None; NeedsRefresh = None }, [updateValue p v]
@@ -154,23 +158,23 @@ let makeStore = Store.makeElmish init update ignore
 // Render a NodeFctory at a given cell
 //
 let renderCellAt (renderfn: Position -> NodeFactory) (ctx : BuildContext) (cell:Position) =
+    log($"renderCellAt {cell}")
     let nodeFactory = renderfn >> exclusive
-    (nodeFactory cell)( ctx |> withParent (nodeOfCell cell)) |> ignore
-    ()
+    build (nodeFactory cell) (ctx |> ContextHelpers.withParent (nodeOfCell cell)) |> ignore
 
 let view () : NodeFactory =
 
     let model, dispatch = makeStore()
 
     let renderPlainCell pos =
-        let content = valAt pos
+        let content = Cells.valAt pos
         fragment [
             onClick (fun _ -> StartEdit pos |> dispatch) []
-            evalCellAsString valAt content |> text
+            evalCellAsString Cells.valAt content |> text
         ]
 
     let renderActiveCell pos =
-        let content = valAt pos
+        let content = Cells.valAt pos
         Html.div [
             Html.input [
                 type' "text"
@@ -186,7 +190,7 @@ let view () : NodeFactory =
     Html.div [
         let rowsXcols = ObservableX.zip (model .> rows) (model .> cols) |> ObservableX.distinctUntilChanged
 
-        bind rowsXcols <| fun (rows,cols) -> Html.table [
+        Bind.fragment rowsXcols <| fun (rows,cols) -> Html.table [
             do log("Render table")
 
             Html.thead [
@@ -218,11 +222,13 @@ let view () : NodeFactory =
             // Pairs of (Position option, Position option). Each pair represents a change
             // in the active cell.
             // value : the cell being vacated, must be rendered as normal
-            // next  : the becoming active.
+            // next  : the cell becoming active.
+
             let activeS = (model |> Observable.map (fun m -> m.Active) |> Observable.pairwise)
 
             // bindSub at this location in the DOM feeds us the context from this location
             // In this view, this will include the styling applied further up
+
             bindSub activeS <| fun ctx (value,next) ->
                 value |> Option.iter (renderCellAt renderPlainCell  ctx)
                 next  |> Option.iter (renderCellAt renderActiveCell ctx)

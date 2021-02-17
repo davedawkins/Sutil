@@ -1,5 +1,8 @@
 module GroupInputs
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.DOM
 open Sutil.Attr
@@ -15,10 +18,6 @@ let scoopMenu = [
     "Two scoops"
     "Three scoops"
 ]
-
-let flavours = Store.make( [ menu |> List.head ] )
-let numFlavours = flavours |> Store.map (fun x -> x.Length)
-let scoops = Store.make(1)
 
 // Text helpers
 let plural word n =
@@ -46,7 +45,12 @@ let label s = Html.label [ class' "label"; text s ]
 
 // Main component view
 let view() =
+
+    let flavours = Store.make( [ menu |> List.head ] )
+    let scoops   = Store.make(1)
+
     Html.div [
+        disposeOnUnmount [ flavours; scoops ]
 
         block [
             label "Scoops"
@@ -79,7 +83,7 @@ let view() =
         ]
 
         block [
-            Bindings.bind2 scoops flavours (fun (s,f) ->
+            Bind.fragment2 scoops flavours (fun (s,f) ->
                 match (s,f) with
                 | (_,[]) -> text "Please select at least one flavour"
                 | (s,f) when f.Length > s -> text "Can't order more flavours than scoops!"

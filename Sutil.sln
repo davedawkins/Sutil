@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{47B70B46-68FB-44A2-88DE-9884B5D1E101}"
 EndProject
+#Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Feliz.Engine", "Feliz.Engine\Feliz.Engine.fsproj", "{024299B9-4DF0-4A75-9EDA-B048F01BD58B}"
+#EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Sutil", "src\Sutil\Sutil.fsproj", "{024299B9-4DF0-4A75-9EDA-B048F01BD58A}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "App", "src\App\App.fsproj", "{21F55368-62BD-477F-9CE7-DAE7828F7073}"

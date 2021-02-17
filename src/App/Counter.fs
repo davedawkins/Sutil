@@ -12,8 +12,8 @@ type [<Fable.Core.Erase>] NodeAttr = NodeAttr of NodeFactory
 
 let Html =
     HtmlEngine
-        { new IConverter<NodeFactory, NodeAttr> with
-            override _.CreateEl(tag, nodes) = el tag (unbox nodes)
+        { new HtmlHelper<NodeFactory, NodeAttr> with
+            override _.MakeEl(tag, nodes) = el tag (unbox nodes)
             override _.ChildrenToProp(children) = NodeAttr(fragment children)
             override _.StringToEl(v) = text v
 
@@ -23,24 +23,22 @@ let Html =
             override _.BoolToEl(v) = failwith "Not Implemented" }
 
 let Counter() =
-    let count = Store.make 0
-    Html.div [
-
+    bindStore 0 <| fun count -> Html.div [
         Html.div [
             class' "block"
-            bind count (fun n -> text $"Counter = {n}")
+            Bind.fragment count <| fun n -> text $"Counter = {n}"
         ]
 
         Html.div [
             class' "block"
             Html.button [
                 onClick (fun _ -> count <~= (fun n -> n-1)) []
-                Html.text "-"
+                text "-"
             ]
 
             Html.button [
                 onClick (fun _ -> count <~= (fun n -> n+1)) []
-                Html.text "+"
+                text "+"
             ]
         ]
     ]

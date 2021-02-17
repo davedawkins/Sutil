@@ -1,5 +1,8 @@
 module CheckboxInputs
 
+// Adapted from
+// https://svelte.dev/examples
+
 open Sutil
 open Sutil.DOM
 open Sutil.Attr
@@ -13,10 +16,9 @@ let view() =
         Html.div [
             class' "block"
             Html.label [
-                //class' "checkbox"
                 Html.input [
                     type' "checkbox"
-                    Bindings.bindAttr "checked" yes
+                    Bind.attr ("checked",yes)
                 ]
                 text " Enable ejector seat"
             ]
@@ -32,7 +34,7 @@ let view() =
         Html.div [
             class' "block"
             Html.button [
-                Bindings.bindAttrIn "disabled" (yes |> Store.map not)
+                Bind.attr ("disabled", yes |> Store.map not)
                 text "Launch"
             ]
         ]

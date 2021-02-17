@@ -37,17 +37,23 @@ let nodeStr (node : Node) =
     if isNull node then
         "null"
     else
+        let mutable tc = node.textContent
+        if  tc.Length > 80 then tc <- tc.Substring(0,80)
         match node.nodeType with
         | ElementNodeType ->
             let e = node :?> HTMLElement
-            $"<{e.tagName.ToLower()}>#{svId node} \"{node.textContent}\""
+            $"<{e.tagName.ToLower()}>#{svId node} \"{tc}\""
         | TextNodeType ->
-            $"\"{node.textContent}\"#{svId node}"
-        | _ -> $"?'{node.textContent}'#{svId node}"
+            $"\"{tc}\"#{svId node}"
+        | _ -> $"?'{tc}'#{svId node}"
 
 
 module Event =
+    let NewStore = "sutil-new-store"
+    let UpdateStore = "sutil-update-store"
     let ElementReady = "sutil-element-ready"
+    let Mount = "sutil-mount"
+    let Unmount = "sutil-unmount"
     let Show = "sutil-show"
     let Hide = "sutil-hide"
     let Updated = "sutil-updated"
@@ -63,13 +69,14 @@ module Event =
 
 let listen (event:string) (e:EventTarget) (fn: (Event -> unit)) : (unit -> unit)=
     e.addEventListener( event, fn )
-    (fun () -> e.removeEventListener(event, fn ) |> ignore)
+    (fun () -> e.removeEventListener(event, fn) |> ignore)
 
-let raf (f : float -> unit) = window.requestAnimationFrame(f)
+let raf (f : float -> unit) = window.requestAnimationFrame( fun t -> try f t with|x -> Logging.error $"raf: {x.Message}" )
+let rafu (f : unit -> unit) = window.requestAnimationFrame( fun _ -> try f() with|x -> Logging.error $"rafu: {x.Message}" ) |> ignore
 
-let once (event:string) (target:EventTarget) (fn : Event->Unit) : (unit -> unit) =
+let once (event:string) (target:EventTarget) (fn : Event->Unit) : unit =
     let rec inner e = target.removeEventListener( event, inner ); fn(e)
-    listen event target inner
+    listen event target inner |> ignore
 
 type CssSelector =
     | Tag of string
@@ -104,21 +111,6 @@ type NamedStyleSheet = {
     StyleSheet : StyleSheet
     Parent : NamedStyleSheet option
 }
-
-//
-// Required to inflate a NodeFactory into a real DOM element
-//
-// StyleName. If <> "" then a class will be added to each element that keys
-//            a set of CSS rules. See the `style` function
-// MakeName.  A helper that can generate unique names given base name
-//
-// AppendChild/ReplaceChild/SetAttribute
-//            Abstractions on the equivalent document methods. Defaults
-//            are set to the document methods, but particular NodeFactory
-//            functions may override these in the context they pass to their
-//            children so that behaviour can be customized.
-//
-
 
 type INode = interface
     abstract Remove: unit -> unit
@@ -160,32 +152,33 @@ type DomAction =
     | After of Node
     | Before of Node
 
-type BuildContext = {
-    // Parent / replace context
-    Parent : Node
-    Action  : DomAction  // Consider making this "SvId option" and then finding node to replace
+type BuildContext =
+    {
+        // Parent / replace context
+        Parent : Node
+        Action  : DomAction  // Consider making this "SvId option" and then finding node to replace
 
-    // Naming service
-    MakeName : (string -> string)
+        // Naming service
+        MakeName : (string -> string)
 
-    // Style context
-    StyleSheet : NamedStyleSheet option
+        // Style context
+        StyleSheet : NamedStyleSheet option
 
-    // IDom
-    AppendChild: (Node -> Node -> Node)
-    ReplaceChild: (Node -> Node -> Node -> Node)
-    SetAttribute: (Element->string->string->unit) }
+        // IDom
+        AppendChild: (Node -> Node -> Node)
+        ReplaceChild: (Node -> Node -> Node -> Node)
+        SetAttribute: (Element->string->string->unit) }
     with
         member this.Document = documentOf this.Parent
         member this.ParentElement : HTMLElement = downcast this.Parent
         //member this.Create (f : NodeFactory) = f this
 
-type NodeFactory = BuildContext -> BuildResult
+// Private so that we must use build to instantiate the DOM fragment.
+type NodeFactory = private { Builder: BuildContext -> BuildResult }
 
-let build (f : NodeFactory) (ctx : BuildContext) =
-    f ctx
+let nodeFactory f = { Builder = f }
 
-let makeContext parent =
+let private makeContext parent =
     let gen = Helpers.makeIdGenerator()
     {
         Parent = parent
@@ -197,20 +190,21 @@ let makeContext parent =
         MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
     }
 
-let withStyleSheet sheet ctx : BuildContext =
-    { ctx with StyleSheet = Some sheet }
+module ContextHelpers =
+    let withStyleSheet sheet ctx : BuildContext =
+        { ctx with StyleSheet = Some sheet }
 
-let withParent parent ctx =
-    { ctx with Parent = parent; Action = Append }
+    let withParent parent ctx =
+        { ctx with Parent = parent; Action = Append }
 
-let withReplace toReplace ctx =
-    { ctx with Action = if isNull toReplace then Append else Replace toReplace }
+    let withReplace toReplace ctx =
+        { ctx with Action = if isNull toReplace then Append else Replace toReplace }
 
-let withAfter after ctx =
-    { ctx with Action = After after }
+    let withAfter after ctx =
+        { ctx with Action = After after }
 
-let withBefore before ctx =
-    { ctx with Action = Before before }
+    let withBefore before ctx =
+        { ctx with Action = Before before }
 
 type Fragment = Node list
 
@@ -227,31 +221,12 @@ let errorNode (parent:Node) message : Node=
     d.setAttribute("style", "color: red; padding: 4px; font-size: 10px;")
     upcast d
 
-let expectSolitary (f : NodeFactory) ctx =
-    match ctx |> build f with
-    | Solitary n -> n
-    | Binding b -> b.Node
-        //errorNode parent "Expected single node, binding found"
-    | Unit ->
-        errorNode ctx.Parent "Expected single node, none found"
-    | Fragment xs ->
-        let doc = ctx.Document
-        let tmpDiv = doc.createElement("div")
-        let en = errorNode tmpDiv "'fragment' not allowed as root for 'each' blocks"
-        tmpDiv.appendChild en |> ignore
-        ctx.Parent.appendChild tmpDiv |> ignore
-        xs |> List.iter (tmpDiv.appendChild >> ignore)
-        upcast tmpDiv
-
 let collectFragment (result : BuildResult) =
     match result with
     | Solitary n -> [ n ]
     | Binding b -> [ b.Node ] // TODO: Hmm..
     | Unit -> []
     | Fragment xs -> xs
-
-let buildSolitary (f : NodeFactory) ctx =
-    expectSolitary f ctx
 
 let appendAttribute (e:Element) attrName attrValue =
     if (attrValue <> "") then
@@ -341,49 +316,46 @@ let rec applyCustomRules e (namedSheet:NamedStyleSheet) =
                 // TODO: on subsequent calls
             | _ -> log($"Unimplemented: {fst custom}")
 
-let appendReplaceChild (node : Node) (ctx : BuildContext) =
-    log $"appendReplaceChild {ctx.Action}"
-    match ctx.Action with
-    | Append ->
-        log $"append {nodeStr node} to {nodeStr ctx.Parent}"
-        ctx.AppendChild ctx.Parent node |> ignore
-    | Before next ->
-        log $"insert {nodeStr node} before {nodeStr next} on {nodeStr ctx.Parent}"
-        ctx.Parent.insertBefore(node,next) |> ignore
-    | After prev ->
-        log $"insert {nodeStr node} after {nodeStr prev} on {nodeStr ctx.Parent}"
-        ctx.Parent.insertBefore(node, if isNull prev then ctx.Parent.firstChild else prev.nextSibling) |> ignore
-    | Replace existing ->
-        if not (ctx.Parent.isSameNode(existing.parentNode)) then
-            log $"reinstate {nodeStr node} to {nodeStr ctx.Parent} - existing {nodeStr existing} has different parent"
-            ctx.AppendChild ctx.Parent node |> ignore
-        else
-            log $"replace {nodeStr existing} with {nodeStr node} on {nodeStr ctx.Parent}"
-            ctx.ReplaceChild ctx.Parent node existing |> ignore
-        setSvId node (svId existing)
-    node
+let dispatch (node:Node) name (data:obj)=
+    node.dispatchEvent( Interop.customEvent name data) |> ignore
 
 let dispatchSimple (node:Node) name =
-    node.dispatchEvent( Interop.customEvent name {| |}) |> ignore
+    dispatch node name {| |}
 
-let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
+let build (f : NodeFactory) (ctx : BuildContext) =
+    let result = f.Builder ctx
+    match result with
+    | Solitary n -> dispatchSimple n Event.Mount
+    | Fragment ns -> ns |> List.iter (fun n -> dispatchSimple n Event.Mount)
+    | _ -> ()
+    result
 
-    let e  = ctx.Document.createElement tag
+let expectSolitary (f : NodeFactory) ctx =
+    match ctx |> build f with
+    | Solitary n -> n
+    | Binding b -> b.Node
+        //errorNode parent "Expected single node, binding found"
+    | Unit ->
+        errorNode ctx.Parent "Expected single node, none found"
+    | Fragment xs ->
+        let doc = ctx.Document
+        let tmpDiv = doc.createElement("div")
+        let en = errorNode tmpDiv "'fragment' not allowed as root for 'each' blocks"
+        tmpDiv.appendChild en |> ignore
+        ctx.Parent.appendChild tmpDiv |> ignore
+        xs |> List.iter (tmpDiv.appendChild >> ignore)
+        upcast tmpDiv
 
-    // Considering packing these effects into pipeline that lives on ctx.
-    // User can then extend the pipeline, or even re-arrange. No immediate
-    // need for it right now.
 
-    // Effect 1
-    let id = domId()
-    log $"create <{tag}> #{id}"
-    setSvId e id
+let buildSolitary (f : NodeFactory) ctx =
+    expectSolitary f ctx
 
-    log $"1. el ctx {ctx.Action}"
+let buildChildren(xs : seq<NodeFactory>)  (ctx:BuildContext) =
+    let e = ctx.ParentElement
 
     // Effect 2
     for x in xs do
-        ctx |> withParent e |> build x |> ignore
+        ctx |> build x |> ignore
 
     // Effect 3
     match ctx.StyleSheet with
@@ -391,23 +363,8 @@ let el tag (xs : seq<NodeFactory>) : NodeFactory = fun ctx ->
         e.classList.add(namedSheet.Name)
         applyCustomRules e namedSheet
     | None -> ()
+    unitResult()
 
-    // Effect 4
-    appendReplaceChild e ctx |> ignore
-
-    // Effect 5
-    dispatchSimple e Event.ElementReady
-
-    nodeResult e
-
-let buildSolitaryElement (f : NodeFactory) ctx : HTMLElement =
-    log $"buildSolitaryElement: {ctx.Action}"
-    let node = expectSolitary f ctx
-    if isElementNode node then
-        node :?> HTMLElement
-    else
-        let spanWrapper = el "span" [ (fun _ -> nodeResult node) ]
-        (expectSolitary spanWrapper ctx) :?> HTMLElement
 
 let findSvIdElement (doc : Document) id : HTMLElement =
     downcast doc.querySelector($"[_svid='{id}']")
@@ -420,7 +377,7 @@ let addToClasslist (e:HTMLElement) classes =
 let removeFromClasslist (e:HTMLElement) classes =
     e.classList.remove( classes |> splitBySpace )
 
-let attr (name,value:obj) : NodeFactory = fun ctx ->
+let attr (name,value:obj) : NodeFactory = nodeFactory <| fun ctx ->
     let parent = ctx.Parent
     try
         let e = ctx.Parent :?> HTMLElement
@@ -442,18 +399,6 @@ let attr (name,value:obj) : NodeFactory = fun ctx ->
 
     with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A %f %s" name parent parent.nodeType (parent :?> HTMLElement).tagName)
     unitResult()
-
-let textNode (doc : Document) value : Node =
-    let id = domId()
-    log $"create \"{value}\" #{id}"
-    let n = doc.createTextNode(value)
-    setSvId n id
-    upcast n
-
-let text value : NodeFactory =
-    fun ctx ->
-        let doc = ctx.Document
-        nodeResult (appendReplaceChild (textNode doc value) ctx)
 
 let idSelector = sprintf "#%s"
 let classSelector = sprintf ".%s"
@@ -518,18 +463,6 @@ let findNodeWithSvId (doc : Document) id =
         if (r = id) then Some n else None
     findNode doc.body getId
 
-let html text : NodeFactory = fun ctx ->
-    let el = ctx.Parent :?> HTMLElement
-    el.innerHTML <- text
-    match ctx.StyleSheet with
-    | None -> ()
-    | Some ns -> visitElementChildren el (fun ch ->
-                                        ch.classList.add ns.Name
-                                        applyCustomRules ch ns)
-    nodeResult el
-
-
-
 let children (node:Node) =
     let rec visit (child:Node) =
         seq {
@@ -546,21 +479,104 @@ let rec descendants (node:Node) =
             yield! descendants child
     }
 
-let clearWithDispose (node:Node) (dispose:Node->unit)=
-    children node |> Seq.iter (node.removeChild >> dispose)
+let rec descendantsDepthFirst (node:Node) =
+    seq {
+        for child in children node do
+            yield! descendants child
+            yield child
+    }
+
+[<RequireQualifiedAccessAttribute>]
+module NodeKey =
+    let Disposables = "__sutil_disposables"
+    let ResizeObserver = "__sutil_resizeObserver"
+    let TickTask = "__sutil_tickTask"
+    let Promise = "__sutil_promise"
+
+    let clear (node:Node) (key:string) =
+        Interop.delete node key
+
+    let get<'T> (node:Node) key : 'T option  =
+        let v : obj = Interop.get node key
+        if isNull v then None else v :?> 'T |> Some
+
+    let getCreate<'T> (node:Node) key (cons:unit -> 'T): 'T =
+        match get node key with
+        | Some v -> v
+        | None ->
+            let newVal = cons()
+            Interop.set node key newVal
+            newVal
+
+let registerDisposable (node:Node) (d:IDisposable) : unit =
+    log $"register disposable on {nodeStr node}"
+    let disposables : List<IDisposable> = NodeKey.getCreate node NodeKey.Disposables (fun () -> [])
+    Interop.set node NodeKey.Disposables (d :: disposables)
+
+let registerUnsubscribe (node:Node) (d:unit->unit) : unit =
+    registerDisposable node (Helpers.disposable d)
+    //let disposables : List<unit->unit> = NodeKey.getCreate node NodeKey.Disposables (fun () -> [])
+    //Interop.set node NodeKey.Disposables (d :: disposables)
+
+let disposeOnUnmount (ds : IDisposable list) = nodeFactory <| fun ctx ->
+    ds |> List.iter (registerDisposable ctx.Parent)
+    unitResult()
+
+let private hasDisposables (node:Node) : bool =
+    Interop.exists node NodeKey.Disposables
+
+let private getDisposables (node:Node) : IDisposable list =
+    if hasDisposables node then Interop.get node NodeKey.Disposables else []
+
+let private clearDisposables (node:Node) : unit =
+    Interop.delete node NodeKey.Disposables
+
+let private updateCustom (el:HTMLElement) (name:string) (property:string) (value:obj) =
+    let r = NodeKey.getCreate el name (fun () -> {| |})
+    Interop.set r property value
+    Interop.set el name r
+
+// Call all registered disposables on this node
+let private cleanup (node:Node) : unit =
+    let safeDispose (d: IDisposable) =
+        try d.Dispose()
+        with
+            |x ->
+                Logging.error $"Disposing {d}: {x.Message}"
+                console.dir(d)
+
+    let d = getDisposables node
+    log $"cleanup {nodeStr node} - {d.Length} disposable(s)"
+
+    d |> List.iter safeDispose
+
+    clearDisposables node
+    dispatchSimple node Event.Unmount
+
+let private cleanupDeep (node:Node) : unit=
+    descendantsDepthFirst node |> Array.ofSeq |> Array.iter cleanup
+    cleanup node
+
+// Cleanup all descendants and this node
+// Remove node from parent
+let unmount (node:Node) : unit=
+    cleanupDeep node
+    if not(isNull(node.parentNode)) then
+        node.parentNode.removeChild node |> ignore
 
 let clear (node:Node) =
-    clearWithDispose node ignore
+    children node |> Array.ofSeq |> Array.iter unmount
 
-let exclusive (f : NodeFactory) = fun ctx ->
+let exclusive (f : NodeFactory) = nodeFactory <| fun ctx ->
+    log $"exclusive {nodeStr ctx.Parent}"
     clear ctx.Parent
     ctx |> build f
 
-let hookContext (hook: BuildContext -> unit) : NodeFactory = fun ctx ->
+let hookContext (hook: BuildContext -> unit) : NodeFactory = nodeFactory <| fun ctx ->
     hook ctx
     unitResult()
 
-let hookParent (hook: Node -> unit) : NodeFactory = fun ctx ->
+let hookParent (hook: Node -> unit) : NodeFactory = nodeFactory <| fun ctx ->
     hook ctx.Parent
     unitResult()
 
@@ -584,106 +600,29 @@ let fixPosition (node:HTMLElement) =
         node.style.height <- height
         addTransform node a
 
-let asEl (node : Node) = (node :?> HTMLElement)
-
-let clientRect el = (asEl el).getBoundingClientRect()
-
 let removeNode (node:#Node) =
     log <| sprintf "removing node %A" node.textContent
     node.parentNode.removeChild( node ) |> ignore
 
-let fragment (elements : NodeFactory seq) = fun ctx ->
-    fragmentResult (elements |> Seq.collect (fun e -> ctx |> e |> collectFragment) |> Seq.toList)
+let fragment (elements : NodeFactory seq) = nodeFactory <| fun ctx ->
+    fragmentResult (elements |> Seq.collect (fun e -> ctx |> e.Builder |> collectFragment) |> Seq.toList)
 
-let isCrossOrigin = false // TODO
+open Fable.Core.JS
 
-type private ResizeSubscriber = {
-    Callback: unit -> unit
-    Id : int
-}
-
-// Ported from Svelte
-type ResizeObserver( el : HTMLElement ) =
-    let mutable iframe : HTMLIFrameElement = Unchecked.defaultof<_>
-    let mutable subId = 0
-    let mutable unsubscribe : (unit -> unit) = Unchecked.defaultof<_>
-
-    let mutable subscribers = []
-
-    let notify _ =
-        subscribers |> List.iter (fun sub -> sub.Callback())
-    do
-        let computedStyle = window.getComputedStyle(el)
-        let zIndex =  (try int(computedStyle.zIndex) with |_ -> 0) - 1;
-        if computedStyle.position = "static" then
-            el.style.position <- "relative"
-
-        iframe <- downcast (documentOf el).createElement("iframe")
-        let style = sprintf "%sz-index: %i;" "display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; border: 0; opacity: 0; pointer-events: none;" zIndex
-        iframe.setAttribute("style", style)
-        iframe.setAttribute("aria-hidden", "true")
-        iframe.setAttribute("tabindex", "-1")
-
-        if isCrossOrigin then
-            iframe.setAttribute("src", "data:text/html,<script>onresize=function(){parent.postMessage(0,'*')}</script>")
-
-            unsubscribe <- listen "message" window
-                (fun e -> if Helpers.fastEquals (Interop.get e "source") iframe.contentWindow then notify(e))
-        else
-            iframe.setAttribute("src", "about:blank")
-            iframe.onload <- (fun e ->
-                unsubscribe <- listen "resize" iframe.contentWindow notify)
-
-        el.appendChild(iframe) |> ignore
-
-    member _.Subscribe(callback : (unit -> unit)) =
-        let sub = { Callback = callback; Id = subId }
-        subId <- subId + 1
-        subscribers <- sub :: subscribers
-        Helpers.disposable <| fun () -> subscribers <- subscribers |> List.filter (fun s -> s.Id <> sub.Id)
-
-    member _.Dispose() =
-        try unsubscribe() with |_ -> ()
-        if not (isNull iframe) then
-            removeNode iframe
-
-    interface IDisposable with
-        member this.Dispose() = this.Dispose()
-
-[<RequireQualifiedAccessAttribute>]
-module NodeKey =
-    let Disposables = "__sutil_disposables"
-    let ResizeObserver = "__sutil_resizeObserver"
-
-    let get<'T> (node:Node) key : 'T option  =
-        let v : obj = Interop.get node key
-        if isNull v then None else v :?> 'T |> Some
-
-    let getCreate<'T> (node:Node) key (cons:unit -> 'T): 'T =
-        match get node key with
-        | Some v -> v
-        | None ->
-            let newVal = cons()
-            Interop.set node key newVal
-            newVal
-
-let registerUnsubscribe (node:Node) (d:unit->unit) : unit =
-    let disposables : List<unit->unit> = NodeKey.getCreate node NodeKey.Disposables (fun () -> [])
-    Interop.set node NodeKey.Disposables (d :: disposables)
-
-let registerDisposable (node:Node) (d:IDisposable) : unit =
-    registerUnsubscribe node (fun () -> d.Dispose())
-
-let hasDisposables (node:Node) : bool =
-    Interop.exists node NodeKey.Disposables
-
-let getResizer (el:HTMLElement) : ResizeObserver =
-    NodeKey.getCreate el NodeKey.ResizeObserver (fun () -> new ResizeObserver(el))
-
-let updateCustom (el:HTMLElement) (name:string) (property:string) (value:obj) =
-    let r = NodeKey.getCreate el name (fun () -> {| |})
-    Interop.set r property value
-    Interop.set el name r
+// ----------------------------------------------------------------------------
+// Serialize tasks through an element. If the task already has a running task
+// wait for it to complete before starting the new task. Otherwise, run the
+// new task immediately
+//
+let wait (el:HTMLElement) (andThen : unit -> Promise<unit>) =
+    let key = NodeKey.Promise
+    let run() = andThen() |> Interop.set el key
+    if Interop.exists el key then
+        let p = Interop.get<Promise<unit>> el key
+        Interop.delete el key
+        p.``then`` run |> ignore
+    else
+        run()
 
 type MountPoint = {
         Doc : Document
@@ -702,7 +641,7 @@ let mutable private _allMountPoints = []
 
 let allMountPoints() = _allMountPoints
 
-let createMountPoint doc id app =
+let private createMountPoint doc id app =
     let self = { Doc = doc; MountId = id; App = app }
     _allMountPoints <- self :: _allMountPoints
     console.log($"Mount points: {allMountPoints()}")
@@ -717,3 +656,215 @@ let rec mountElementOnDocument (doc : Document) id (app : NodeFactory)  =
 
 let rec mountElement id (app : NodeFactory)  =
     mountElementOnDocument document id app
+
+let computedStyleOpacity e =
+    try
+        float (window.getComputedStyle(e).opacity)
+    with
+    | _ ->
+        log(sprintf "parse error: '%A'" (window.getComputedStyle(e).opacity))
+        1.0
+
+let computedStyleTransform node =
+    let style = window.getComputedStyle(node)
+    if style.transform = "none" then "" else style.transform
+
+let declareResource<'T when 'T :> IDisposable> (init : unit -> 'T) (f : 'T -> unit) = nodeFactory <| fun ctx ->
+    let r = init()
+    registerDisposable ctx.Parent r
+    f(r)
+    unitResult()
+
+let isSameNode (a:Node) (b:Node) =
+    if isNull a then isNull b else a.isSameNode(b)
+
+let insertAfter (parent:Node) (prev:Node) (node:Node) =
+    parent.insertBefore(node, if isNull prev then parent.firstChild else prev.nextSibling) |> ignore
+
+let appendReplaceChild (node : Node) (ctx : BuildContext) =
+    log $"appendReplaceChild {ctx.Action}"
+    match ctx.Action with
+    | Append ->
+        log $"append {nodeStr node} to {nodeStr ctx.Parent}"
+        ctx.AppendChild ctx.Parent node |> ignore
+    | Before next ->
+        log $"insert {nodeStr node} before {nodeStr next} on {nodeStr ctx.Parent}"
+        ctx.Parent.insertBefore(node,next) |> ignore
+    | After prev ->
+        log $"insert {nodeStr node} after {nodeStr prev} on {nodeStr ctx.Parent}"
+        insertAfter ctx.Parent prev node
+        //ctx.Parent.insertBefore(node, if isNull prev then ctx.Parent.firstChild else prev.nextSibling) |> ignore
+    | Replace existing ->
+        cleanupDeep existing
+
+        if not (ctx.Parent.isSameNode(existing.parentNode)) then
+
+            if isNull(existing.parentNode) then
+                log $"reinstate {nodeStr node} to {nodeStr ctx.Parent} - existing {nodeStr existing} was unmounted unexpectedly"
+            else
+                log $"reinstate {nodeStr node} to {nodeStr ctx.Parent} - existing {nodeStr existing} has different parent - unmounting"
+                existing.parentNode.removeChild(existing) |> ignore
+
+            ctx.AppendChild ctx.Parent node |> ignore
+        else
+            log $"replace {nodeStr existing} with {nodeStr node} on {nodeStr ctx.Parent}"
+            ctx.ReplaceChild ctx.Parent node existing |> ignore
+
+        setSvId node (svId existing)
+    node
+
+// ----------------------------------------------------------------------------
+// Element builder with namespace
+
+let elns ns tag (xs : seq<NodeFactory>) : NodeFactory = nodeFactory <| fun ctx ->
+
+    let e : Element = if ns = "" then upcast ctx.Document.createElement(tag) else ctx.Document.createElementNS(ns, tag)
+
+    // Considering packing these effects into pipeline that lives on ctx.
+    // User can then extend the pipeline, or even re-arrange. No immediate
+    // need for it right now.
+
+    // Effect 1
+    let id = domId()
+    log $"create <{tag}> #{id}"
+    setSvId e id
+
+    ctx |> ContextHelpers.withParent e |> buildChildren xs |> ignore
+
+    // Effect 4
+    appendReplaceChild e ctx |> ignore
+
+    // Effect 5
+    dispatchSimple e Event.ElementReady
+
+    nodeResult e
+
+// ----------------------------------------------------------------------------
+// Element builder for DOM
+
+let el tag (xs : seq<NodeFactory>) : NodeFactory = nodeFactory <| fun ctx ->
+
+    let e : Element = upcast ctx.Document.createElement(tag)
+
+    // Considering packing these effects into pipeline that lives on ctx.
+    // User can then extend the pipeline, or even re-arrange. No immediate
+    // need for it right now.
+
+    // Effect 1
+    let id = domId()
+    log $"create <{tag}> #{id}"
+    setSvId e id
+
+    ctx |> ContextHelpers.withParent e |> buildChildren xs |> ignore
+
+    // Effect 4
+    appendReplaceChild e ctx |> ignore
+
+    // Effect 5
+    dispatchSimple e Event.ElementReady
+
+    nodeResult e
+
+let buildSolitaryElement (f : NodeFactory) ctx : HTMLElement =
+    log $"buildSolitaryElement: {ctx.Action}"
+    let node = expectSolitary f ctx
+    if isElementNode node then
+        node :?> HTMLElement
+    else
+        let spanWrapper = el "span" [ nodeFactory <| (fun _ -> nodeResult node) ]
+        (expectSolitary spanWrapper ctx) :?> HTMLElement
+
+// ----------------------------------------------------------------------------
+// Text node
+
+let textNode (doc : Document) value : Node =
+    let id = domId()
+    log $"create \"{value}\" #{id}"
+    let n = doc.createTextNode(value)
+    setSvId n id
+    upcast n
+
+let text value : NodeFactory =
+    nodeFactory <| fun ctx ->
+        let doc = ctx.Document
+        nodeResult (appendReplaceChild (textNode doc value) ctx)
+
+// ----------------------------------------------------------------------------
+// Raw html node
+
+let html text : NodeFactory = nodeFactory <| fun ctx ->
+    let el = ctx.Parent :?> HTMLElement
+    el.innerHTML <- text
+    match ctx.StyleSheet with
+    | None -> ()
+    | Some ns -> visitElementChildren el (fun ch ->
+                                        ch.classList.add ns.Name
+                                        applyCustomRules ch ns)
+    nodeResult el
+
+
+module Html =
+
+    #if !USE_POC_HTML
+    let div xs : NodeFactory = el "div" xs
+    let textarea xs = el "textarea" xs
+    let section xs = el "section" xs
+    let i  xs = el "i" xs
+    let h1  xs = el "h1" xs
+    let h2  xs = el "h2" xs
+    let h3  xs = el "h3" xs
+    let h4  xs = el "h4" xs
+    let h5  xs = el "h5" xs
+    let hr  xs = el "hr" xs
+    let pre  xs = el "pre" xs
+    let code  xs = el "code" xs
+    let p  xs = el "p" xs
+    let span xs = el "span" xs
+    let button  xs = el "button" xs
+    let input  xs = el "input" xs
+    let label  xs = el "label" xs
+    let a  xs = el "a" xs
+    let ul  xs = el "ul" xs
+    let li xs = el "li" xs
+    let img xs = el "img" xs
+    let option xs = el "option" xs
+    let select xs = el "select" xs
+    let form xs = el "form" xs
+    let table xs = el "table" xs
+    let tbody xs = el "tbody" xs
+    let thead xs = el "thead" xs
+    let tr xs = el "tr" xs
+    let th xs = el "th" xs
+    let td xs = el "td" xs
+    #else
+    open Feliz
+    // Dummy type to avoid problems with overload resolution in HtmlEngine
+    type [<Fable.Core.Erase>] NodeAttr = NodeAttr of NodeFactory
+
+    let Html =
+        HtmlEngine
+            { new IConverter<NodeFactory, NodeAttr> with
+                override _.CreateEl(tag, nodes) = el tag (unbox nodes)
+                override _.ChildrenToProp(children) = NodeAttr(fragment children)
+                override _.StringToEl(v) = text v
+
+                override _.EmptyEl = fun _ -> unitResult()
+                override _.FloatToEl(v) = text $"{v}"
+                override _.IntToEl(v) = text $"{v}"
+                override _.BoolToEl(v) = text $"{v}" }
+
+    #endif
+
+    let app (xs : seq<NodeFactory>) : NodeFactory = fragment xs
+
+    let body (xs: seq<NodeFactory>) = nodeFactory <| fun ctx ->
+        ctx |> ContextHelpers.withParent (ctx.Document.body) |> buildChildren xs
+
+    let parent (selector:string) (xs: seq<NodeFactory>) = nodeFactory <| fun ctx ->
+        ctx |> ContextHelpers.withParent (ctx.Document.querySelector selector) |> buildChildren xs
+
+    //let sval<'T> (init:'T) (xs:seq<NodeFactory>) = fun ctx ->
+    //    let s = Store.make init
+    //    DOM.registerDisposable ctx.Parent s
+    //    unitResult()
+

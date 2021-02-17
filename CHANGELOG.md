@@ -2,6 +2,37 @@
 
 ## Changelog (most recent first)
 
+- Start refactor Bindings to BindAPI with overloads and function documentation
+- More tweaks to login example - outline email field when invalid
+- event-to-store support, allowing input events to end up binding to class "is-danger" for showing email field invalid
+- Improved login example
+- Fix z-order for header
+- Login example with prototype Bulma module
+- Fix sorting for "each" (used in Animation TODOs example)
+- Better UX for examples App on mobile
+- Consistent event dispatching for onMount
+- Clean-up of stores now working correctly
+- Navigable wrapper provides IObservable<'T> with a parser (Location -> 'T), allowing (for example) '#' and '?' to control the view
+- Don't allow "sutil-add-class" into stylesheet (regression when changing name to Sutil)
+- Hide withStyleSheet, confuses user who is actually looking for withStyle
+- Partial implementation of CssEngine to allow incremental conversion ready for the full implementation
+- Fix regression to Cells example
+- Fix regression to Await example, involved adding onMount handler
+- Big changes while integrating with Feliz.Engine, work-in-progress
+- Bar chart SVG example
+- Modal example
+- cleanup when unmounting (switching between examples in app)
+- dynamic update of store values
+- firstOf, selectApp used in app to unmount apps and recreate when they are selected. Before, they
+were all created all at once and then just hidden/shown. With unmounting, can begin to test resource
+clean up (eg, disposing registered stores, subscriptions, tasks etc)
+- support in devtools for refresh when new store is created
+- move all Store.make calls into `view` function to scope resource usage
+- disposeOnUnmount to allow components to register the stores and resources they use
+- Example TransitionCustomCode, with the typewriter transition
+- More easing functions. Implemented Fallback for crossfade, nicer outro now in Todos app.
+- Fix for source display
+- Clean up TransitionProp API
 - Repository renamed
 - Add Mountpoints tab in DevTools - allows a page remount without refresh
 - Bug fixes, events for intros and outros

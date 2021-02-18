@@ -804,8 +804,6 @@ let html text : NodeFactory = nodeFactory <| fun ctx ->
 
 
 module Html =
-
-    #if !USE_POC_HTML
     let div xs : NodeFactory = el "div" xs
     let textarea xs = el "textarea" xs
     let section xs = el "section" xs
@@ -836,24 +834,6 @@ module Html =
     let tr xs = el "tr" xs
     let th xs = el "th" xs
     let td xs = el "td" xs
-    #else
-    open Feliz
-    // Dummy type to avoid problems with overload resolution in HtmlEngine
-    type [<Fable.Core.Erase>] NodeAttr = NodeAttr of NodeFactory
-
-    let Html =
-        HtmlEngine
-            { new IConverter<NodeFactory, NodeAttr> with
-                override _.CreateEl(tag, nodes) = el tag (unbox nodes)
-                override _.ChildrenToProp(children) = NodeAttr(fragment children)
-                override _.StringToEl(v) = text v
-
-                override _.EmptyEl = fun _ -> unitResult()
-                override _.FloatToEl(v) = text $"{v}"
-                override _.IntToEl(v) = text $"{v}"
-                override _.BoolToEl(v) = text $"{v}" }
-
-    #endif
 
     let app (xs : seq<NodeFactory>) : NodeFactory = fragment xs
 
@@ -867,4 +847,3 @@ module Html =
     //    let s = Store.make init
     //    DOM.registerDisposable ctx.Parent s
     //    unitResult()
-

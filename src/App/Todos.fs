@@ -3,6 +3,8 @@ module Todos
 // Adapted from
 // https://svelte.dev/examples
 
+open System
+open Feliz
 open Sutil
 open Sutil.Styling
 open Sutil.Attr
@@ -92,23 +94,24 @@ let styleSheet = [
         Css.userSelect "none"
     ]
 
-    rule "input" [  Css.margin(0) ]
+    rule "input" [ Css.margin(0) ]
 
     rule ".done label" [
         Css.backgroundColor "rgb(180,240,100)"
     ]
 
     rule "label>button" [
-        Css.float' "right"
-        Css.height "1em"
-        Css.boxSizing "border-box"
-        Css.padding "0 0.5em"
-        Css.lineHeight "1"
-        Css.backgroundColor "transparent"
-        Css.border "none"
-        Css.color "rgb(170,30,30)"
-        Css.opacity "0"
-        Css.transition "opacity 0.2s"
+        Feliz.Css.float.right
+        Feliz.Css.height.custom(length.em 1)
+        Feliz.Css.boxSizing.borderBox
+        Feliz.Css.padding(length.em 0, length.em 0.5)
+        Feliz.Css.lineHeight 1
+        Feliz.Css.backgroundColor color.transparent
+        Feliz.Css.borderStyle.none
+        Feliz.Css.color(color.rgb(170,30,30))
+        Feliz.Css.opacity 0.
+        Feliz.Css.transitionProperty transitionProperty.opacity
+        Feliz.Css.transitionDuration(TimeSpan.FromSeconds 0.2)
     ]
 
     rule "label:hover button" [

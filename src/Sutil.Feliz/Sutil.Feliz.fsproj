@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Sutil.Feliz.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sutil\Sutil.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Feliz.Engine" Version="1.0.0-beta-001" />
+  </ItemGroup>
+</Project>

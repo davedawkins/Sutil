@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sutil\Sutil.fsproj" />
-    <ProjectReference Include="..\..\..\Feliz.Engine\src\Feliz.Engine.fsproj" />
+    <ProjectReference Include="..\Sutil.Feliz\Sutil.Feliz.fsproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Fable.Browser.Css" Version="2.0.0" />

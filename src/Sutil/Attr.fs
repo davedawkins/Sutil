@@ -99,8 +99,6 @@ let onMouseMove fn options  = onMouse "mousemove" fn options
 
 let cssAttr = id
 
-#if !USE_FELIZ_ENGINE
-
 type ICssUnit = interface end
 
 type Units =
@@ -223,12 +221,6 @@ module CssEngine =
         member _.fill            (n:obj) = h.MakeStyle("fill",n)
         member _.strokeDasharray (n:obj) = h.MakeStyle("stroke-dasharray",n)
         member _.textAnchor      (n:obj) = h.MakeStyle("text-anchor",n)
-
-#else
-
-open Feliz
-
-#endif
 
 let Css =
     CssEngine

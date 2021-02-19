@@ -63,8 +63,6 @@ type Model = {
     Error : string
 }
 
-let names m = m.Names
-
 type Message =
     | Create
     | Update
@@ -87,6 +85,7 @@ let filter m = m.Filter
 let name m = m.Name
 let surname m = m.Surname
 let error m = m.Error
+let names m = m.Names
 
 let selection m = match m.Selected with |None->[] |Some n -> List.singleton n.Id
 let matchName filter (name : Name) = filter = "" || name.Surname.StartsWith(filter)
@@ -100,8 +99,6 @@ let init () =
     { Names = []; Selected = None; Filter = ""; Name = ""; Surname = ""; Error = "" }, Cmd.ofMsg RequestAllNames
 
 let update msg model =
-    Browser.Dom.console.log($"{msg}")
-    //Browser.Dom.console.log($"{model}")
     match msg with
     | ClearError ->
         { model with Error = "" }, Cmd.none

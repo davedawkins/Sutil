@@ -105,9 +105,14 @@ module Sutil.Styling
         unitResult()
 
     let withStyle styleSheet (element : NodeFactory) : NodeFactory = nodeFactory <| fun ctx ->
-        let name = ctx.MakeName "Sutil"
+        let name = ctx.MakeName "sutil"
         addStyleSheet ctx.Document name styleSheet
-        ctx |> ContextHelpers.withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet } |> build element
+        ctx |> ContextHelpers.withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet} |> build element
+
+    let withStyleAppend styleSheet (element : NodeFactory) : NodeFactory = nodeFactory <| fun ctx ->
+        let name = match ctx.StyleSheet with | None -> "" | Some s -> s.Name
+        addStyleSheet ctx.Document name styleSheet
+        ctx |> build element
 
     let rule selector style =
         let result = {

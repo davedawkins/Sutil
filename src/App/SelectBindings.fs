@@ -8,8 +8,6 @@ open Sutil
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Styling
-open Sutil.Bindings
-
 
 type Question = {
     Id : int
@@ -40,13 +38,13 @@ let block children =
 
 let view() =
     let answer   = Store.make("")
-    let selected = Store.make( questions |> List.head )
+    let selected : IStore<Question> = Store.make( questions |> List.head )
 
     let handleSubmit (e : Types.Event) =
         e.preventDefault()
         let a = Store.get answer
         let q = Store.get selected
-        window.alert($"Answered question {q.Id} ({q.Text}) with '{a}'");
+        window.alert($"Answered question {q.Id} ({q.Text}) with '{a}'")
 
     Html.div [
         disposeOnUnmount [ answer; selected ]
@@ -59,7 +57,7 @@ let view() =
             Html.div [
                 class' "select block"
                 Html.select [
-                    Bindings.bindSelect selected
+                    Bind.selected selected
                     on "change" (fun _ -> Store.set answer "") []
                     for question in questions do
                         Html.option [

@@ -75,6 +75,7 @@ type Demo = {
         { Category = "Miscellaneous";   Title = "Modal";  Create = Modal.view ; Sources = ["Modal.fs"]}
         { Category = "Miscellaneous";   Title = "Login";  Create = LoginExample.create ; Sources = ["LoginExample.fs"; "Login.fs"]}
         { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sources = ["Cells.fs"]}
+        { Category = "7Guis";   Title = "CRUD";  Create = CRUD.create ; Sources = ["CRUD.fs"]}
     ]
 
 //
@@ -275,7 +276,7 @@ let appMain (currentDemo : IObservable<DemoView>) (isMobile : IObservable<bool>)
     let model, dispatch = () |> Store.makeElmish init update ignore
 
     // Show the contents if not on mobile, or model.ShowContents is true
-    let showContents = ObservableX.zip isMobile model .> (fun (mob,mdl) -> not mob || mdl.ShowContents)
+    let showContents = Observable.zip isMobile model .> (fun (mob,mdl) -> not mob || mdl.ShowContents)
 
     withStyle mainStyleSheet <|
         Html.div [
@@ -302,7 +303,7 @@ let appMain (currentDemo : IObservable<DemoView>) (isMobile : IObservable<bool>)
             Html.div [
                 class' "columns app-main-section"
 
-                transition [fly |> withProps [ Duration 500.0; X -500.0 ] |> InOut] showContents <| Html.div [
+                transition [fly |> withProps [ Duration 500.0; X -500.0 ] |> In] showContents <| Html.div [
                     class' "column is-one-quarter app-contents"
                     Section "Introduction" model dispatch
                     Section "Reactivity" model dispatch

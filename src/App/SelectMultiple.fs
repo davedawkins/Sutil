@@ -46,7 +46,6 @@ let label s = Html.label [ class' "label"; text s ]
 // Main component view
 let view() =
     let flavours = Store.make( [ menu |> List.head ] )
-    let numFlavours = flavours |> Store.map (fun x -> x.Length)
     let scoops = Store.make(1)
 
     Html.div [

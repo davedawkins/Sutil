@@ -48,11 +48,13 @@ module ObservableStore =
         let mutable nextId = 0
         let idToStore = new Dictionary<int,obj>()
         let storeToId = new Dictionary<obj,int>()
+        //let disposed = new Dictionary<obj,int>()
 
         let notifyUpdateStore s v =
             DOM.dispatch window.document DOM.Event.UpdateStore {| Value = v |}
 
         let notifyMakeStore s =
+            if storeToId.ContainsKey(s) then failwith "Store is already registered!"
             let id = nextId
             log $"make store #{id}"
             nextId <- nextId + 1
@@ -60,12 +62,19 @@ module ObservableStore =
             storeToId.[s] <- id
             DOM.dispatchSimple window.document DOM.Event.NewStore
 
-        let notifyDisposeStore  s =
+        let notifyDisposeStore (s:obj) =
+            //if not (storeToId.ContainsKey(s)) then
+            //    if disposed.ContainsKey(s) then
+            //        failwith $"Store {disposed.[s]} has already been disposed"
+            //    else
+            //        failwith "Store is unknown to registry"
+
             let id = storeToId.[s]
             log($"dispose store #{id}")
             try
                 idToStore.Remove(id) |> ignore
                 storeToId.Remove(s) |> ignore
+                //disposed.[s] <- id
             with
             | x -> Logging.error $"disposing store {id}: {x.Message}"
 

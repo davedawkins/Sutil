@@ -71,71 +71,45 @@ let private setInputChecked (el : Node) (v:obj) = Interop.set el "checked" v
 let private getInputValue el : string = Interop.get el "value"
 let private setInputValue el (v:string) = Interop.set el "value" v
 
-let bindSelect<'T when 'T : equality> (store:Store<'T>) : NodeFactory = nodeFactory <| fun ctx ->
+let bindSelected<'T when 'T : equality> (selection:IObservable<List<'T>>) (dispatch : List<'T> -> unit) : NodeFactory = nodeFactory <| fun ctx ->
 
-    let select = ctx.Parent :?> HTMLSelectElement
-    let op (coll:HTMLCollection) i = coll.[i] :?> HTMLOptionElement
-    let opValue op : 'T = Interop.get op "__value"
-
-    let getValue() =
-        let selOps = select.selectedOptions
-        opValue selOps.[0]
-        //[0..selOps.length-1] |> List.map (fun i -> opValue (op selOps i))
-
-    let updateSelected (v : 'T) =
-        for i in [0..select.options.length-1] do
-            let o = select.options.[i] :?> HTMLOptionElement
-            o.selected <- (v = (opValue o))
-
-    // Update the store when the radio box is clicked on
-    let unsubInput = DOM.listen "input" select <| fun _ ->
-        //log($"%A{getValueList()}")
-        getValue() |> Store.set store
-
-    // We need to finalize checked status after all attrs have been processed for input,
-    // in case 'value' hasn't been set yet
-    once Event.ElementReady select <| fun _ ->
-        store |> Store.get |> updateSelected
-
-    // When store changes make sure check status is synced
-    let unsub = Store.subscribe store updateSelected
-
-    registerUnsubscribe ctx.Parent unsubInput
-    registerDisposable ctx.Parent unsub
-
-    unitResult()
-
-let bindSelectMultiple<'T when 'T : equality> (store:Store<List<'T>>) : NodeFactory = nodeFactory <| fun ctx ->
-
-    let select = ctx.Parent :?> HTMLSelectElement
+    let selectElement = ctx.Parent :?> HTMLSelectElement
+    let selOps = selectElement.selectedOptions
     let op (coll:HTMLCollection) i = coll.[i] :?> HTMLOptionElement
     let opValue op : 'T = Interop.get op "__value"
 
     let getValueList() =
-        let selOps = select.selectedOptions
         [0..selOps.length-1] |> List.map (fun i -> opValue (op selOps i))
 
     let updateSelected (v : List<'T>) =
-        for i in [0..select.options.length-1] do
-            let o = select.options.[i] :?> HTMLOptionElement
+        let ops = selectElement.options
+        for i in [0..ops.length-1] do
+            let o = op ops i
             o.selected <- v |> List.contains (opValue o)
 
-    // Update the store when the radio box is clicked on
-    let unsubInput = DOM.listen "input" select <| fun _ ->
-        getValueList() |> Store.set store
+    let unsubInput = listen "input" selectElement <| fun _ ->
+        getValueList() |> dispatch
 
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
-    once Event.ElementReady select <| fun _ ->
-        store |> Store.get |> updateSelected
+    once Event.ElementReady selectElement <| fun _ ->
+        let unsub = Store.subscribe selection (updateSelected)
+        registerDisposable ctx.Parent unsub
 
-    // When store changes make sure check status is synced
-    let unsub = Store.subscribe store (updateSelected)
-
-    registerDisposable ctx.Parent unsub
     registerUnsubscribe ctx.Parent unsubInput
 
     unitResult()
+
+let bindSelectMultiple<'T when 'T : equality> (store:IStore<List<'T>>) : NodeFactory =
+    bindSelected store (fun sln -> store <~ sln)
+
+let bindSelectSingle<'T when 'T : equality> (store:IStore<'T>) : NodeFactory =
+    bindSelected (store .> List.singleton) (fun sln -> sln |> List.exactlyOne |> Store.set store)
+
+let bindSelectOptional<'T when 'T : equality> (store:IStore<'T option>) : NodeFactory =
+    let toList topt = match topt with |None -> []|Some t -> List.singleton t
+    let fromList list = match list with |[] -> None |x::_ -> Some x
+    bindSelected (store .> toList) (fun sln -> sln |> fromList |> Store.set store)
 
 let private isNullString (obj:obj) =
     isNull obj || System.String.IsNullOrEmpty(downcast obj)
@@ -240,8 +214,10 @@ let attrNotify<'T> (attrName:string) (value :'T) (onchange : 'T -> unit) : NodeF
 // Bind an observable value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function
 let bindAttrBoth<'T> (attrName:string) (value : IObservable<'T>) (onchange : 'T -> unit) : NodeFactory =
-    bindAttrIn attrName value |> ignore
-    bindAttrOut attrName onchange
+    fragment [
+        bindAttrIn attrName value
+        bindAttrOut attrName onchange
+    ]
 
 let bindListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : NodeFactory = nodeFactory <| fun ctx ->
     let parent = ctx.Parent
@@ -359,7 +335,6 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
             let newState = newItems |> List.mapi (fun itemIndex item ->
                 let itemKey = key(itemIndex,item)
                 let optKi = state |> Seq.tryFind (fun x -> x.Key = itemKey)
-                console.log($"i={itemIndex} k={itemKey}")
                 match optKi with
                 | None ->
                     let storePos = Store.make itemIndex
@@ -401,11 +376,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
                     ctx.Parent.removeChild(oldItem.Element) |> ignore
                     ctx.Parent.insertBefore(oldItem.Element,null) |> ignore
                     transitionNode oldItem.Element trans [Key (string oldItem.Key)] false
-                        ignore //fixPosition
-                        (fun e ->
-                            oldItem.Position.Dispose()
-                            oldItem.Value.Dispose()
-                            unmount e)
+                        ignore unmount
 
             // Reorder
             prevNode <- prevNodeInit
@@ -421,7 +392,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
         DOM.registerDisposable ctx.Parent unsub
         unitResult()
 
-let private duc = ObservableX.distinctUntilChanged
+let private duc = Observable.distinctUntilChanged
 
 let each (items:IObservable<list<'T>>) (view : 'T -> NodeFactory) (trans : TransitionAttribute list) =
     eachiko items (fun (_,item) -> bindFragment (duc item) view) (fun (_,v) -> v.GetHashCode()) trans
@@ -496,7 +467,8 @@ module BindApi =
         static member attr<'T> (name:string, dispatch: 'T -> unit) = bindAttrOut name dispatch
 
         /// Two-way binding from value to attribute and from attribute to dispatch function
-        static member attr<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) = bindAttrBoth name value dispatch
+        static member attr<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) =
+            bindAttrBoth name value dispatch
 
         /// Binding from value to a DOM fragment. Each change in value replaces the current DOM fragment
         /// with a new one.
@@ -505,5 +477,9 @@ module BindApi =
         /// Binding from two values to a DOM fragment. See fragment<'T>
         static member fragment2<'A,'B>  (valueA : IObservable<'A>) (valueB : IObservable<'B>) (element: 'A * 'B -> NodeFactory) = bindFragment2 valueA valueB element
 
+        static member selected<'T when 'T : equality>  (value : IObservable<'T list>, dispatch : 'T list -> unit) = bindSelected value dispatch
+        static member selected<'T when 'T : equality>  (store : IStore<'T list>) = bindSelectMultiple store
+        static member selected<'T when 'T : equality>  (store : IStore<'T option>) = bindSelectOptional store
+        static member selected<'T when 'T : equality>  (store : IStore<'T>) = bindSelectSingle store
 
 

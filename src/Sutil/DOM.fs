@@ -290,7 +290,7 @@ let getSutilClasses (e:HTMLElement) =
     let classes =
         [0..e.classList.length-1]
             |> List.map (fun i -> e.classList.[i])
-            |> List.filter (fun cls -> cls.StartsWith("Sutil"));
+            |> List.filter (fun cls -> cls.StartsWith("sutil"));
     classes
 
 let rec applyCustomRules e (namedSheet:NamedStyleSheet) =
@@ -508,8 +508,12 @@ module NodeKey =
             Interop.set node key newVal
             newVal
 
+//let registeredDisposables = new System.Collections.Generic.Dictionary<IDisposable,Node>()
+
 let registerDisposable (node:Node) (d:IDisposable) : unit =
     log $"register disposable on {nodeStr node}"
+    //if registeredDisposables.ContainsKey(d) then failwith $"Disposable {d} has already been registered on {nodeStr registeredDisposables.[d]}, attempt to register on {nodeStr node}"
+    //registeredDisposables.[d] <- node
     let disposables : List<IDisposable> = NodeKey.getCreate node NodeKey.Disposables (fun () -> [])
     Interop.set node NodeKey.Disposables (d :: disposables)
 
@@ -540,10 +544,7 @@ let private updateCustom (el:HTMLElement) (name:string) (property:string) (value
 let private cleanup (node:Node) : unit =
     let safeDispose (d: IDisposable) =
         try d.Dispose()
-        with
-            |x ->
-                Logging.error $"Disposing {d}: {x.Message}"
-                console.dir(d)
+        with x -> Logging.error $"Disposing {d}: {x} from {nodeStr node}"
 
     let d = getDisposables node
     log $"cleanup {nodeStr node} - {d.Length} disposable(s)"

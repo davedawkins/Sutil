@@ -2,6 +2,7 @@
 
 ## Changelog (most recent first)
 
+- Added 7GUIs CRUD example
 - Start refactor Bindings to BindAPI with overloads and function documentation
 - More tweaks to login example - outline email field when invalid
 - event-to-store support, allowing input events to end up binding to class "is-danger" for showing email field invalid

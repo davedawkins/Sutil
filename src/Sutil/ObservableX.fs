@@ -3,7 +3,7 @@ namespace Sutil
 open System
 
 [<RequireQualifiedAccess>]
-module ObservableX =
+module Observable =
 
     [<AbstractClass>]
     type BasicObserver<'T>() =

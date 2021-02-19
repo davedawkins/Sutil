@@ -46,6 +46,9 @@ let withBulmaHelpers s =
 module FontAwesome =
     let fa name = Html.i [ class' ("fa fa-" + name) ]
 
+type ColorOptions() =
+    member _.hasTextDanger = class' "has-text-danger"
+
 type IsColorOptions() =
     member _.isDanger = class' "is-danger"
     member _.isLink = class' "is-link"
@@ -86,6 +89,10 @@ type ButtonOptions() =
 
 type FieldOptions() =
     member _.isGrouped = class' "is-grouped"
+    member _.isHorizontal = class' "is-horizontal"
+
+type FieldLabelOptions() =
+    member _.isNormal = class' "is-normal"
 
 type BulmaEngine() =
     member _.heroBody (props : NodeFactory list) = Html.div ([ class' "hero-body" ] @ props)
@@ -97,16 +104,45 @@ type BulmaEngine() =
     member _.formBox (props : NodeFactory list) = Html.form ([ class' "box" ] @ props)
     member _.box (props : NodeFactory list) = Html.div ([ class' "box" ] @ props)
     member _.field (props : NodeFactory list) = Html.div ([ class' "field" ] @ props)
+    member _.fieldLabel (props : NodeFactory list) = Html.div ([ class' "field-label" ] @ props)
+    member _.fieldBody (props : NodeFactory list) = Html.div ([ class' "field-body" ] @ props)
     member _.label (props : NodeFactory list) = Html.label ([ class' "label" ] @ props)
     member _.label (label:string) = Html.label ([ class' "label" ] @ [ text label ])
     member _.labelFor (target:string) (label:string) = Html.label [ class' "label"; for' target; text label ]
     member _.button (props : NodeFactory list) = Html.button ([ class' "button" ] @ props)
     member _.control (props : NodeFactory list) = Html.div ([ class' "control" ] @ props)
+    member _.controlInline (props : NodeFactory list) = Html.p ([ class' "control" ] @ props)
     member _.email (props : NodeFactory list) = Html.input ([ class' "input"; type' "email" ] @ props)
+    member _.input (props : NodeFactory list) = Html.input ([ class' "input"; type' "text" ] @ props)
     member _.checkbox (props : NodeFactory list) = Html.input ([ type' "checkbox" ] @ props)
+
+    member _.selectList (props : NodeFactory list) =
+        Html.div [
+            class' "select is-multiple"
+            Html.select props
+        ] |> withStyleAppend [
+                    rule "option" [
+                        Css.padding ".5em 1em"
+                    ]
+                    rule "select" [
+                        Css.height "auto"
+                        Css.padding "0"
+                    ] ]
+
+    member _.selectMultiple (props : NodeFactory list) = Html.div [ class' "select is-multiple"; Html.select ([ multiple ] @ props) ]
+
     member _.password (props : NodeFactory list) = Html.input ([ class' "input"; type' "password" ] @ props)
     member _.icon (props : NodeFactory list) = Html.span ([ class' "icon"; type' "email" ] @ props)
     member x.labelCheckbox (label:string) checkboxProps= Html.label [ class' "checkbox"; x.checkbox checkboxProps; text label ]
+
+// Issue #2110
+// .select select[multiple] option {
+//    padding: .5em 1em;
+//}
+//.select select[multiple] {
+//    height: auto;
+//    padding: 0;
+//}
 
 let bulma = BulmaEngine()
 let hero = HeroOptions()
@@ -116,3 +152,5 @@ let control = ControlOptions()
 let icon = IconOptions()
 let button = ButtonOptions()
 let field = FieldOptions()
+let fieldLabel = FieldLabelOptions()
+let color = ColorOptions()

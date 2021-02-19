@@ -188,7 +188,7 @@ let view () : NodeFactory =
     // Root element
     //
     Html.div [
-        let rowsXcols = ObservableX.zip (model .> rows) (model .> cols) |> ObservableX.distinctUntilChanged
+        let rowsXcols = Observable.zip (model .> rows) (model .> cols) |> Observable.distinctUntilChanged
 
         Bind.fragment rowsXcols <| fun (rows,cols) -> Html.table [
             do log("Render table")

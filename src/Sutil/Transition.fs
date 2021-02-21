@@ -484,6 +484,8 @@ let transitionOpt   (trans : TransitionAttribute list)
     let mutable targetElse : Node = null
 
     let unsub = Store.subscribe store (fun isVisible ->
+        let wantTransition = not (isNull target)
+
         if isNull target then
             target <- buildSolitary element ctx
             cache <- not isVisible
@@ -493,9 +495,10 @@ let transitionOpt   (trans : TransitionAttribute list)
 
         if cache <> isVisible then
             cache <- isVisible
-            transitionNode (target :?> HTMLElement) trans [] isVisible ignore ignore
+            let trans' = if wantTransition then trans else []
+            transitionNode (target :?> HTMLElement) trans' [] isVisible ignore ignore
             if not (isNull targetElse) then
-                transitionNode (targetElse :?> HTMLElement) trans [] (not isVisible) ignore ignore
+                transitionNode (targetElse :?> HTMLElement) trans' [] (not isVisible) ignore ignore
     )
     unitResult()
 

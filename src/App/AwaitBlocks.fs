@@ -35,6 +35,7 @@ let getRandomName _ =
     }
 
 let view() =
+    Browser.Dom.console.log("Await.view")
     Html.div [
 
         onMount getRandomName [ Once ]

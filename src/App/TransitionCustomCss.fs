@@ -49,10 +49,11 @@ let styleSheet = [
 ]
 
 let view() =
-    let visible = Store.make true
+    let visible = Store.make false
 
     Html.div [
         disposeOnUnmount [visible]
+        onMount (fun _ -> visible <~ true) []
 
         class' "container"
 

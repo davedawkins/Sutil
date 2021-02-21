@@ -7,9 +7,7 @@ open System
 
 type Parser<'T> = Location -> 'T
 
-let navigable<'T> (parser:Parser<'T>) (app : IObservable<'T> -> NodeFactory) =
-    let locationStore = Store.make window.location
-
+let listenLocation<'T> (parser:Parser<'T>) (dispatch: 'T -> unit) =
     let mutable onChangeRef : obj -> obj =
         fun _ ->
             failwith "`onChangeRef` has not been initialized.\nPlease make sure you used Elmish.Navigation.Program.Internal.subscribe"
@@ -21,25 +19,28 @@ let navigable<'T> (parser:Parser<'T>) (app : IObservable<'T> -> NodeFactory) =
             | Some href when href = window.location.href -> ()
             | _ ->
                 lastLocation <- Some window.location.href
-                locationStore <~ window.location
+                window.location |> parser |> dispatch
             |> box
 
         onChangeRef <- onChange
 
         window.addEventListener("popstate", unbox onChangeRef)
         window.addEventListener("hashchange", unbox onChangeRef)
-//            window.addEventListener(Navigation.NavigatedEvent, unbox onChangeRef)
 
     let unsubscribe () =
         window.removeEventListener("popstate", unbox onChangeRef)
         window.removeEventListener("hashchange", unbox onChangeRef)
-//            window.removeEventListener(Navigation.NavigatedEvent, unbox onChangeRef)
 
     subscribe()
 
-    fragment [
-        disposeOnUnmount [ locationStore; Helpers.disposable unsubscribe ]
+    unsubscribe
 
-        locationStore |> Store.map parser |> app
+let navigable<'T> (parser:Parser<'T>) (app : IObservable<'T> -> NodeFactory) =
+    let store = Store.make (window.location |> parser)
+    let u = listenLocation parser (Store.set store)
+
+    fragment [
+        disposeOnUnmount [ store; Helpers.disposable u ]
+        store |> app
     ]
 

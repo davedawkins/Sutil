@@ -1,6 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <Description>Fable.React binding for HTML5 canvas</Description>
+    <PackageProjectUrl>https://github.com/davedawkins/Sutil</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/davedawkins/Sutil</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/davedawkins/Sutil/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <PackageTags>fsharp;fable</PackageTags>
+    <Authors>David Dawkins</Authors>
+    <Version>0.1.0-alpha</Version>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <!--
   <ItemGroup>
@@ -17,7 +26,7 @@
     <Compile Include="ResizeObserver.fs" />
     <Compile Include="Feliz.fs"/>
     <Compile Include="ObservableStore.fs" />
-    <Compile Include="ObservableX.fs" />
+    <Compile Include="Observable.fs" />
     <Compile Include="Store.fs" />
     <Compile Include="Promise.fs" />
     <Compile Include="Styling.fs" />

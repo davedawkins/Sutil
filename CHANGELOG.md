@@ -2,6 +2,9 @@
 
 ## Changelog (most recent first)
 
+- Refactor App to support "books". "Examples" is now a book, and "Documentation" is another
+- Self-hosting documentation in App
+- Add FAKE tooling to build nuget package
 - Added 7GUIs CRUD example
 - Start refactor Bindings to BindAPI with overloads and function documentation
 - More tweaks to login example - outline email field when invalid

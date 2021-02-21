@@ -526,6 +526,10 @@ let disposeOnUnmount (ds : IDisposable list) = nodeFactory <| fun ctx ->
     ds |> List.iter (registerDisposable ctx.Parent)
     unitResult()
 
+let unsubscribeOnUnmount (ds : (unit->unit) list) = nodeFactory <| fun ctx ->
+    ds |> List.iter (registerUnsubscribe ctx.Parent)
+    unitResult()
+
 let private hasDisposables (node:Node) : bool =
     Interop.exists node NodeKey.Disposables
 

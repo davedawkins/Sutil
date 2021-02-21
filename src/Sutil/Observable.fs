@@ -54,8 +54,11 @@ module Observable =
             member _.Subscribe( h : IObserver<'T> ) =
                 let mutable value = Unchecked.defaultof<'T>
 
+                // Help! Is this OK?
+                let safeEq next = not(isNull(unbox value)) && eq value next
+
                 let disposeA = source.Subscribe( fun next ->
-                    if not (eq value next) then
+                    if not (safeEq next) then
                         h.OnNext next
                         value <- next
                 )

@@ -1,0 +1,21 @@
+group Main
+    source https://api.nuget.org/v3/index.json
+    storage:none
+
+    nuget Fable.Browser.Css 2.0.0
+    nuget Fable.Browser.Dom 2.0.1
+    nuget Fable.Core 3.1.6
+    nuget Fable.Promise 2.1.0
+    nuget Fable.Browser.MediaQueryList 1.1.1
+
+group Build
+    source https://api.nuget.org/v3/index.json
+//    framework: netstandard2.0
+    storage: none
+
+    nuget FSharp.Core
+    nuget Fake.Core.ReleaseNotes
+    nuget Fake.Core.Target
+    nuget Fake.DotNet.Cli
+    nuget Fake.IO.FileSystem
+    nuget Paket.Core 6.0.0-beta8

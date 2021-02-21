@@ -1,7 +1,6 @@
 module Sutil.Markdown
 
 open Sutil.Styling
-open Sutil.DOM
 open Sutil.Attr
 
 let style = [

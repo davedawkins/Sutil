@@ -12,7 +12,7 @@ open Types
 let urlBase = ""//"https://raw.githubusercontent.com/davedawkins/Sutil/main/src/App"
 
 let fetchSource tab  =
-    let url = sprintf "%s/%s" urlBase tab
+    let url = sprintf "%s%s" urlBase tab
     fetch url []
     |> Promise.bind (fun res -> res.text())
 

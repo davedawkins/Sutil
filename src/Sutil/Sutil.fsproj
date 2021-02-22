@@ -7,7 +7,7 @@
     <PackageIconUrl></PackageIconUrl>
     <PackageTags>fsharp;fable</PackageTags>
     <Authors>David Dawkins</Authors>
-    <Version>0.1.0-alpha</Version>
+    <Version>0.1.1-alpha</Version>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -46,5 +46,9 @@
     <PackageReference Include="Fable.Core" Version="3.1.6" />
     <PackageReference Include="Fable.Promise" Version="2.1.0" />
     <PackageReference Include="Fable.Browser.MediaQueryList" Version="1.1.1" />
+  </ItemGroup>
+  <!-- Add source files to "fable" folder in Nuget package -->
+  <ItemGroup>
+    <Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
   </ItemGroup>
 </Project>

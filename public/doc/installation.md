@@ -12,5 +12,4 @@ https://github.com/davedawkins/sutil-template-helloworld
 
 The recommended approach for any kind of real application
 
-(template not uploaded yet -- coming soon)
 https://github.com/davedawkins/sutil-template-elmish

@@ -8,6 +8,7 @@
     "watch:tests": "dotnet fable watch tests -o dist/tests --runWatch mocha dist/tests -r esm",
     "pretests": "dotnet fable tests -o dist/tests",
     "publish": "node publish.js",
+    "publish:package": "fake build --target PublishPkg",
     "tests": "mocha dist/tests -r esm",
     "start": "dotnet fable watch src/App --run webpack serve",
     "build": "dotnet fable       src/App --run webpack --mode production",

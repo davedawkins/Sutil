@@ -9,7 +9,6 @@
     <Compile Include="Parsec.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Helpers.fs" />
-    <Compile Include="Bulma.fs" />
     <Compile Include="AwaitBlocks.fs" />
     <Compile Include="KeyedEachBlocks.fs" />
     <Compile Include="EachBlocks.fs" />

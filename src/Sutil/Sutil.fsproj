@@ -7,9 +7,10 @@
     <PackageIconUrl></PackageIconUrl>
     <PackageTags>fsharp;fable</PackageTags>
     <Authors>David Dawkins</Authors>
-    <Version>0.1.1-alpha</Version>
+    <Version>0.1.2-alpha</Version>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DefineConstants>$(DefineConstants);FABLE_COMPILER</DefineConstants>
   </PropertyGroup>
   <!--
   <ItemGroup>
@@ -39,6 +40,7 @@
     <Compile Include="MediaQuery.fs" />
     <Compile Include="Navigable.fs" />
     <Compile Include="Program.fs" />
+    <Compile Include="Bulma.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Fable.Browser.Css" Version="2.0.0" />

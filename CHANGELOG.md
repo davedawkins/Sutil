@@ -2,6 +2,11 @@
 
 ## Changelog (most recent first)
 
+- 0.1.2-alpha
+- nav/aside elements (full implementation coming very soon)
+- Cmd.ofAsync* support
+- Added Bulma.fs to Sutil package
+- 0.1.1-alpha
 - Refactor App to support "books". "Examples" is now a book, and "Documentation" is another
 - Self-hosting documentation in App
 - Add FAKE tooling to build nuget package

@@ -5,6 +5,10 @@ open Browser.Types
 open Fable.Core.JsInterop
 
 // Attributes
+let role         n = attr("role", n)
+let ariaHidden   n = attr("aria-hidden", n)
+let ariaExpanded n = attr("aria-expanded", n)
+let dataTarget   n = attr("data-target", n)
 let accept n       = attr("accept",n)
 let name n         = attr("name",n)
 let action n       = attr("action",n)

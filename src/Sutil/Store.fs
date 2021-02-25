@@ -24,6 +24,8 @@ module Store =
     let subscribe (a : IObservable<'T>) (f : 'T -> unit) = a.Subscribe(f)
     let map<'A,'B> (f : 'A -> 'B) (s : IObservable<'A>) = s |> Observable.map f
     let filter<'A> (f : 'A -> bool) (s : IObservable<'A>) = s |> Observable.filter f
+    let distinct<'T when 'T : equality> (source : IObservable<'T>) = Observable.distinctUntilChanged source
+    let zip a b = Observable.zip a b
 
     let current (o : IObservable<'T>) =
         let mutable value = Unchecked.defaultof<'T>

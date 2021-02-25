@@ -2,6 +2,9 @@
 
 ## Changelog (most recent first)
 
+- 0.1.3-alpha
+- nav, aria*
+- Store.zip, Store.distinct
 - 0.1.2-alpha
 - nav/aside elements (full implementation coming very soon)
 - Cmd.ofAsync* support

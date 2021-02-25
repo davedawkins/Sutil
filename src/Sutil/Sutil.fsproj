@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Fable.React binding for HTML5 canvas</Description>
+    <Description>Front-end framework for Fable</Description>
     <PackageProjectUrl>https://github.com/davedawkins/Sutil</PackageProjectUrl>
     <RepositoryUrl>https://github.com/davedawkins/Sutil</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/davedawkins/Sutil/blob/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl></PackageIconUrl>
     <PackageTags>fsharp;fable</PackageTags>
     <Authors>David Dawkins</Authors>
-    <Version>0.1.2-alpha</Version>
+    <Version>0.1.3-alpha</Version>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DefineConstants>$(DefineConstants);FABLE_COMPILER</DefineConstants>

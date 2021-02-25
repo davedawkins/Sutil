@@ -2,6 +2,7 @@
 
 ## Changelog (most recent first)
 
+- Update to installation.md
 - 0.1.3-alpha
 - nav, aria*
 - Store.zip, Store.distinct

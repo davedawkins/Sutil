@@ -13,3 +13,10 @@ https://github.com/davedawkins/sutil-template-helloworld
 The recommended approach for any kind of real application
 
 https://github.com/davedawkins/sutil-template-elmish
+
+### App
+
+A template that incorporates commonly required features
+
+https://github.com/davedawkins/sutil-template-app
+

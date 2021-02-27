@@ -19,6 +19,6 @@ Transitions and most examples are ported directly from [Svelte](https://svelte.d
 
 At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself.
 
-See the [Sutil website](https://davedawkins.github.io/Sutil/) for [demos](https://davedawkins.github.io/Sutil/#examples-animation) and documentation for[getting started](https://davedawkins.github.io/Sutil/#documentation-installation)
+See the [Sutil website](https://davedawkins.github.io/Sutil/) for [demos](https://davedawkins.github.io/Sutil/#examples-animation) and documentation for [getting started](https://davedawkins.github.io/Sutil/#documentation-installation)
 
 *(more coming soon, I'm actively working on building this doc tree into the example app)*

@@ -13,9 +13,9 @@ Sutil's features are:
 
 Sutil is currently in alpha, which means it's safe enough for you to play around with, but expect breaking changes.
 
-A Feliz-style DSL is supplied by [Feliz.Engine](https://github.com/alfonsogarciacaro/Feliz.Engine)
-Sutil implements Elmish by importing parts of [Elmish](https://github.com/elmish/elmish)
-Transitions and most examples are ported directly from [Svelte](https://svelte.dev/)
+A Feliz-style DSL is supplied by [Feliz.Engine](https://github.com/alfonsogarciacaro/Feliz.Engine).
+Sutil implements Elmish by importing parts of [Elmish](https://github.com/elmish/elmish).
+Transitions and most examples are ported directly from [Svelte](https://svelte.dev/).
 
 At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself.
 

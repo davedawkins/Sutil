@@ -2,9 +2,9 @@
 
 An experiment in applying the design principles from [Svelte](https://svelte.dev/) to native Fable, mixed with [Elmish](https://github.com/elmish/elmish) and [Feliz](https://github.com/Zaid-Ajaj/Feliz). Sutil has no JS dependencies (such as React).
 
-A Feliz-style DSL is supplied by [Feliz.Engine](https://github.com/alfonsogarciacaro/Feliz.Engine)
-Sutil implements Elmish by importing parts of [Elmish](https://github.com/elmish/elmish)
-Transitions and most examples are ported directly from [Svelte](https://svelte.dev/)
+A Feliz-style DSL is supplied by [Feliz.Engine](https://github.com/alfonsogarciacaro/Feliz.Engine).
+Sutil implements Elmish by importing parts of [Elmish](https://github.com/elmish/elmish).
+Transitions and most examples are ported directly from [Svelte](https://svelte.dev/).
 
 At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself.
 

@@ -2,6 +2,8 @@
 
 ## Changelog (most recent first)
 
+- Convert fully to Feliz.Engine
+- Updates to README.md and about_sutil.md
 - Update to installation.md
 - 0.1.3-alpha
 - nav, aria*

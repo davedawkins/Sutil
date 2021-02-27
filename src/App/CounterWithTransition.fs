@@ -1,6 +1,7 @@
 module CounterWithTransition
 
 open Sutil
+open Feliz
 open Sutil.Bindings
 open Sutil.DOM
 open Sutil.Attr
@@ -11,45 +12,45 @@ open Sutil.Transition
 // Private styling for the counter
 //
 let private counterStyle = [
+    let Em (n : double) = length.em n
+    let Rem (n : double) = length.rem n
+    let Pct (n : double) = length.percent n
 
     rule "div" [
         Css.fontFamily "sans-serif"
         Css.color "#4a4a4a"
-        Css.fontSize "1em"
-        Css.fontWeight "400"
-        Css.lineHeight "1.5"
+        Css.fontSize (Em 1.0)
+        CssXs.fontWeight 400
+        Css.lineHeight 1.5
     ]
 
     rule "button" [
-        Css.border "1px solid transparent"
-        Css.borderRadius "4px"
-        Css.boxShadow "none"
-        Css.fontSize "1rem"
-        Css.height "2.5em"
-        Css.position "relative"
-        Css.verticalAlign "top"
+        CssXs.border "1px solid transparent"
+        Css.borderRadius 4
+        Css.boxShadow.none
+        Css.fontSize (Rem 1.0)
+        Css.height.custom(Em 2.5)
+        Css.position.relative
+        Css.verticalAlign.top
 
         Css.backgroundColor "#fff"
         Css.borderColor "#dbdbdb"
-        Css.borderWidth "1px"
+        Css.borderWidth 1
         Css.color "#363636"
-        Css.cursor "pointer"
-        Css.paddingBottom "calc(.5em - 1px)"
-        Css.paddingLeft "1em"
-        Css.paddingRight "1em"
-        Css.paddingTop "calc(.5em - 1px)"
-        Css.textAlign "center"
-        Css.whiteSpace "nowrap"
+        Css.cursor.pointer
+        CssXs.padding "calc(.5em - 1px) 1.0em"
+        Css.textAlign.center
+        Css.whitespace.nowrap
     ]
 
     rule "button.reset" [
-        Css.marginLeft "12px"
+        Css.marginLeft 12
     ]
 
     rule "div.hint" [
-        Css.marginTop "8px"
-        Css.marginLeft "8px"
-        Css.fontSize "80%"
+        Css.marginTop 8
+        Css.marginLeft 8
+        Css.fontSize (Pct 80.0)
         Css.color "gray"
     ]
 ]

@@ -3,6 +3,7 @@ module Dimensions
 // Adapted from
 // https://svelte.dev/examples
 
+open Feliz
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
@@ -10,13 +11,13 @@ open Sutil.Styling
 
 let style = Bulma.withBulmaHelpers [
     rule "input" [
-        Css.display "block"
-        Css.width "50%"
+        Css.display.block
+        Css.width (length.percent 50)
     ]
     rule "div.resizing" [
-        Css.display "inline-block"
-        Css.border "1pt solid #dddddd"
-        Css.resize "both"
+        Css.display.inlineBlock
+        CssXs.border "1pt solid #dddddd"
+        Css.resize.both
     ]
 ]
 

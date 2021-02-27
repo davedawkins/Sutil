@@ -5,11 +5,11 @@ module SevenGuisCells
 //
 // Still being refactored. Gets better on each pass
 //
+open Feliz
 open Sutil
 open Sutil.Styling
 open Sutil.Attr
 open Sutil.DOM
-open Sutil.Bindings
 open Fable.Core.JsInterop
 open Evaluator
 open Browser.Dom
@@ -78,28 +78,32 @@ let rows m = m.Rows
 let cols m = m.Cols
 
 let styleSheet = [
+    let Pct (n : double) = length.percent n
+    let Em (n : double) = length.em n
+    let Vh (n : double) = length.vh n
+
     rule "table" [
-        Css.borderSpacing "0px"
-        Css.borderBottom "1px solid #e0e0e0"
-        Css.borderRight "1px solid #e0e0e0"
+        CssXs.borderSpacing 0
+        CssXs.borderBottom "1px solid #e0e0e0"
+        CssXs.borderRight "1px solid #e0e0e0"
     ]
     rule "td, th" [
-        Css.minWidth "50px"
-        Css.borderLeft "1px solid #e0e0e0"
-        Css.borderTop "1px solid #e0e0e0"
-        Css.padding "5px"
+        Css.minWidth 50
+        CssXs.borderLeft "1px solid #e0e0e0"
+        CssXs.borderTop "1px solid #e0e0e0"
+        Css.padding 5
     ]
     rule "td.selected" [
-        Css.padding "0px"
+        Css.padding 0
     ]
     rule "td div" [
-        Css.display "flex"
-        Css.flexDirection "row"
+        Css.display.flex
+        Css.flexDirection.row
     ]
     rule "td input" [
-        Css.flex "1"
-        Css.width "56px"
-        Css.height "22px"
+        CssXs.flex 1
+        Css.width 56
+        Css.height.custom 22
     ]
     rule "td.active" [
         Css.backgroundColor "red"

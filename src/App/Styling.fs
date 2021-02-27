@@ -3,6 +3,7 @@ module StylingExample
 // Adapted from
 // https://svelte.dev/examples
 
+open Feliz
 open Sutil.Styling
 open Sutil.Attr
 open Sutil.DOM
@@ -11,7 +12,7 @@ let css = [
         rule "p" [
             Css.color "purple"
             Css.fontFamily "'Comic Sans MS', cursive"
-            Css.fontSize (Em 2.0)
+            Css.fontSize (length.em 2.0)
         ]
     ]
 

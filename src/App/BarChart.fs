@@ -7,7 +7,7 @@ open Sutil
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Styling
-
+open Feliz
 open Fable.Core
 
 module D3Scale =
@@ -85,49 +85,49 @@ let update (msg:Message) (model:Model) =
 
 let styleSheet = [
     rule "h4" [
-        Css.textAlign "center"
+        Css.textAlign.center
     ]
 
     rule ".chart" [
-        Css.width "100%"
-        Css.maxWidth "500px"
-        Css.margin(Zero,Auto)
+        Css.width (length.percent 100)
+        Css.maxWidth 500
+        CssXs.margin("0 auto")
     ]
 
     rule "svg" [
-        Css.position "relative"
-        Css.width "100%"
-        Css.height "250px"
+        Css.position.relative
+        Css.width (length.percent 100)
+        Css.height.custom 250
     ]
 
     rule ".tick" [
         Css.fontFamily "Helvetica, Arial"
-        Css.fontSize ".725em"
-        Css.fontWeight "200"
+        Css.fontSize (length.em 0.725)
+        CssXs.fontWeight "200"
     ]
 
     rule ".tick line" [
-        Css.stroke "#e2e2e2"
-        Css.strokeDasharray "2"
+        CssXs.stroke "#e2e2e2"
+        CssXs.strokeDasharray "2"
     ]
 
     rule ".tick text" [
         Css.fill "#ccc"
-        Css.textAnchor "start"
+        CssXs.textAnchor "start"
     ]
 
     rule ".tick.tick-0 line" [
-        Css.strokeDasharray "0"
+        CssXs.strokeDasharray "0"
     ]
 
     rule ".x-axis .tick text" [
-        Css.textAnchor "middle"
+        CssXs.textAnchor "middle"
     ]
 
     rule ".bars rect" [
         Css.fill "#a11"
-        Css.stroke "none"
-        Css.opacity "0.65"
+        CssXs.stroke "none"
+        Css.opacity 0.65
     ]
 ]
 

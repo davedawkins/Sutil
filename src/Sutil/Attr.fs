@@ -104,37 +104,40 @@ let onMouseMove fn options  = onMouse "mousemove" fn options
 
 let cssAttr = id
 
-#if !USE_FELIZ_ENGINE
 
-type ICssUnit = interface end
-
-type Units =
-    | Auto
-    | Zero
-    | Em of float
-    | Px of float
-    | Pct of float
-    | Pt of float
-    with
-        override this.ToString() =
-            match this with
-            |Auto -> "auto"
-            |Zero -> "0"
-            |Em  n -> $"{n}em"
-            |Px  n -> $"{n}px"
-            |Pct n -> $"{n}%%"
-            |Pt  n -> $"{n}pt"
-        interface ICssUnit
-
+// This Css*Xs module helps workaround any issues in Feliz.Engine. It should become redundant soon
 [<AutoOpen>]
-module CssEngine =
-    type CssHelper<'Style> =
+module CssEngineXs =
+    type ICssUnit = interface end
+
+    type Units =
+        | Auto
+        | Zero
+        | Em of float
+        | Px of float
+        | Pct of float
+        | Pt of float
+        with
+            override this.ToString() =
+                match this with
+                |Auto -> "auto"
+                |Zero -> "0"
+                |Em  n -> $"{n}em"
+                |Px  n -> $"{n}px"
+                |Pct n -> $"{n}%%"
+                |Pt  n -> $"{n}pt"
+            interface ICssUnit
+
+    type CssHelperXs<'Style> =
         // TODO: Should the value be string too?
         abstract MakeStyle: key: string * value: obj -> 'Style
 
-    type CssEngine<'Style>(h: CssHelper<'Style>) =
+    type CssEngineXs<'Style>(h: CssHelperXs<'Style>) =
         member _.all (value: string) = h.MakeStyle("all", value)
         member _.zIndex(value: int) = h.MakeStyle("z-index", value)
+
+        member _.margin (all:string)
+                    = h.MakeStyle("margin",all)
 
         member _.margin (all:int)
                     = h.MakeStyle("margin",$"{all}px")
@@ -230,18 +233,20 @@ module CssEngine =
         member _.strokeDasharray (n:obj) = h.MakeStyle("stroke-dasharray",n)
         member _.textAnchor      (n:obj) = h.MakeStyle("text-anchor",n)
 
-#else
-
 open Feliz
-
-#endif
 
 let Css =
     CssEngine
         { new CssHelper<string * obj> with
-            override _.MakeStyle (key,value) = (key,value)
+            override _.MakeStyle (key,value) = (key,upcast value)
         }
 
+// CssXs helps workaround any issues in Feliz.Engine. It should become redundant soon
+let CssXs =
+    CssEngineXs.CssEngineXs
+        { new CssEngineXs.CssHelperXs<string * obj> with
+            override _.MakeStyle (key,value) = (key,value)
+        }
 
 let addClass       (n:obj) = cssAttr("sutil-add-class",n)
 let useGlobal              = cssAttr("sutil-use-global","" :> obj)

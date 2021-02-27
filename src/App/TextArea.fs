@@ -4,6 +4,7 @@ module TextArea
 // https://svelte.dev/examples
 
 open Sutil
+open Feliz
 open Sutil.Attr
 open Sutil.DOM
 open Sutil.Styling
@@ -20,15 +21,15 @@ let sampleText =
 
 let style = [
     rule "textarea" [
-        Css.width  "100%"
-        Css.height "100%"
+        Css.width  (length.percent 100)
+        Css.height.custom (length.percent 100)
         Css.fontFamily "monospace"
-        Css.padding "4px"
+        Css.padding 4
     ]
 
     rule "span" [
-        Css.display     "block"
-        Css.marginTop   "40px"
+        Css.display.block
+        Css.marginTop 40
     ]
 ]
 

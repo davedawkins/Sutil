@@ -4,13 +4,13 @@ open Sutil.Styling
 open Sutil.Attr
 
 let style = [
-    rule "h1" [ Css.all "revert" ]
-    rule "h2" [ Css.all "revert" ]
-    rule "h3" [ Css.all "revert" ]
-    rule "h4" [ Css.all "revert" ]
-    rule "h5" [ Css.all "revert" ]
-    rule "ul" [ Css.all "revert" ]
-    rule "li" [ Css.all "revert" ]
+    rule "h1" [ CssXs.all "revert" ]
+    rule "h2" [ CssXs.all "revert" ]
+    rule "h3" [ CssXs.all "revert" ]
+    rule "h4" [ CssXs.all "revert" ]
+    rule "h5" [ CssXs.all "revert" ]
+    rule "ul" [ CssXs.all "revert" ]
+    rule "li" [ CssXs.all "revert" ]
 ]
 
 let withMarkdown s =

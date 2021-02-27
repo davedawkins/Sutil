@@ -4,6 +4,7 @@ module DomEvents
 // https://svelte.dev/examples
 
 open Sutil
+open Feliz
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Styling
@@ -23,8 +24,8 @@ let view() =
         Bind.fragment m <| fun (x,y) -> text $"The mouse position is {x} x {y}"
     ] |> withStyle [
         rule "div" [
-            Css.width "100vw"
-            Css.height "100vh"
+            Css.width (length.vw 100)
+            Css.height.custom (length.vh 100)
         ]
     ]
 

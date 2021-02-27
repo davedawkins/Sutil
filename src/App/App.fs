@@ -2,6 +2,7 @@ module App
 
 open Fetch
 
+open Feliz
 open Sutil
 open Sutil.Attr
 open Sutil.Styling
@@ -204,58 +205,58 @@ let update msg model : Model * Cmd<Message> =
 let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".app-main" [
-        Css.height "100%"
+        Css.height.custom (length.percent 100)
     ]
 
     rule ".app-heading" [
-        Css.display "flex"
-        Css.flexDirection "row"
-        Css.justifyContent "space-between"
-        Css.position "fixed"
-        Css.width "100vw"
+        Css.display.flex
+        Css.flexDirection.row
+        Css.justifyContent.spaceBetween
+        Css.position.fixedRelativeToWindow
+        Css.width (length.vw 100)
         Css.backgroundColor "white"
-        Css.padding "12px"
-        Css.boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
-        Css.marginBottom "4px"
+        Css.padding 12
+        CssXs.boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
+        Css.marginBottom 4
         Css.zIndex 1   // Messes with .modal button
     ]
 
     rule ".app-heading h1" [
-       Css.marginBottom "0px"
+       Css.marginBottom 0
     ]
 
     rule ".app-contents" [
         Css.backgroundColor "#676778"
         Css.color "white"
-        Css.overflow "scroll"
+        Css.overflow.overflow_scroll
     ]
 
     rule ".app-contents ul" [
-        Css.paddingLeft "20px"
+        Css.paddingLeft 20
     ]
 
     rule ".app-contents .title" [
         Css.color "white"
-        Css.marginLeft "12px"
-        Css.marginBottom "8px"
-        Css.marginTop "16px"
+        Css.marginLeft 12
+        Css.marginBottom 8
+        Css.marginTop 16
     ]
 
     rule ".app-contents a" [
-        Css.cursor "pointer"
+        Css.cursor.pointer
         Css.color "white"
-        Css.textDecoration "none"
+        Css.textDecoration.none
     ]
 
     rule ".app-contents a:hover" [
         Css.color "white"
-        Css.textDecoration "underline"
+        Css.textDecoration.underline
     ]
 
     rule ".app-main-section" [
-        Css.marginTop "0px"
-        Css.paddingTop "50px"
-        Css.height "100%"
+        Css.marginTop 0
+        Css.paddingTop 50
+        Css.height.custom( length.percent 100 )
     ]
 
     rule ".app-page" [
@@ -268,40 +269,40 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".app-toolbar a" [
         Css.color "#676778"
-        Css.fontSize "80%"
-        Css.padding "12px"
+        Css.fontSize (length.percent 80)
+        Css.padding 12
     ]
 
     rule ".app-toolbar ul" [
-        Css.display "inline"
+        Css.display.inlineElement
     ]
 
     rule ".app-toolbar li" [
-        Css.display "inline"
+        Css.display.inlineElement
     ]
 
     rule "pre" [
         Css.padding 0
-        Css.background "white"
+        Css.backgroundColor "white"
     ]
 
     rule ".slogo" [
-        Css.display "inline-flex"
+        Css.display.inlineFlex
         Css.fontFamily "'Coda Caption'"
-        Css.alignItems "center"
-        Css.justifyContent "center"
-        Css.width "32px"
-        Css.height "24px"
-        Css.background "#444444"
+        Css.alignItems.center
+        Css.justifyContent.center
+        Css.width 32
+        Css.height.custom 24
+        Css.backgroundColor "#444444"
         Css.color "white"
     ]
 
     rule ".show-contents-button" [
-        Css.fontSize "18px"
+        Css.fontSize 18
     ]
 
     rule ".app-tab-menu a" [
-        Css.marginRight "24px"
+        Css.marginRight 24
     ]
 ]
 

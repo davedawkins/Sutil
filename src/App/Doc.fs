@@ -1,7 +1,7 @@
 module Doc
 
 open Sutil
-
+open Feliz
 open Sutil.DOM
 open Sutil.Attr
 open Fetch
@@ -22,14 +22,14 @@ let marked text : string = jsNative
 
 let style = [
     rule "textarea" [
-        Css.width  "100%"
-        Css.height "100%"
+        Css.width  (length.percent 100)
+        Css.height.custom (length.percent 100)
         Css.fontFamily "monospace"
         Css.padding 4
     ]
 
     rule "span" [
-        Css.display     "block"
+        Css.display.block
         Css.marginTop   40
     ]
 ]

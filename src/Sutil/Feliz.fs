@@ -2,7 +2,7 @@ module Sutil.Feliz
 
 open Sutil.DOM
 
-#if USE_FELIZ_ENGINE
+#if XX_USE_FELIZ_ENGINE
 open Feliz
 
 // Dummy type to avoid problems with overload resolution in HtmlEngine

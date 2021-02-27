@@ -1,5 +1,7 @@
 module Evaluator
 
+#nowarn "40" // Suppress warning about delayed reference for checking recursion
+
 open Parser
 type Position = char * int
 

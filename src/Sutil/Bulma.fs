@@ -1,5 +1,6 @@
 module Sutil.Bulma
 
+open Feliz
 open Sutil.Styling
 open Sutil.DOM
 open Sutil.Attr
@@ -29,13 +30,13 @@ let styleHelpers = [
     rule "input[type='number']" [
         addClass "input"
         addClass "is-small"
-        Css.maxWidth "50%"
+        Css.maxWidth (length.percent 50)
     ]
 
     rule "input[type='range']" [
         addClass "input"
         addClass "is-small"
-        Css.maxWidth "50%"
+        Css.maxWidth (length.percent 50)
     ]
 ]
 
@@ -122,11 +123,11 @@ type BulmaEngine() =
             Html.select props
         ] |> withStyleAppend [
                     rule "option" [
-                        Css.padding ".5em 1em"
+                        CssXs.padding ".5em 1em"
                     ]
                     rule "select" [
-                        Css.height "auto"
-                        Css.padding "0"
+                        CssXs.height "auto"
+                        Css.padding 0
                     ] ]
 
     member _.selectMultiple (props : NodeFactory list) = Html.div [ class' "select is-multiple"; Html.select ([ multiple ] @ props) ]

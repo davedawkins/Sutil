@@ -6,12 +6,9 @@ module KeyedEachBlocks
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
-open Sutil.Bindings
 open Sutil.Styling
 open System
-open Browser.Dom
-open Browser.Types
-
+open Feliz
 
 type Thing = { Id : int; Color : string }
 let Color t = t.Color
@@ -22,12 +19,12 @@ let ThingView (viewId : int) (thing : IObservable<Thing>) : NodeFactory =
 
         let thingStyle = [
             rule "span" [
-                Css.display "inline-block"
-                Css.padding "0.2em 0.5em"
-                Css.margin(Zero, Em 0.2, Em 0.2, Zero)
-                Css.width "8em"
-                Css.textAlign "center"
-                Css.borderRadius "0.2em"
+                Css.display.inlineBlock
+                CssXs.padding "0.2em 0.5em"
+                CssXs.margin "0 0.2em 0.2em 0"
+                Css.width (length.em 8)
+                Css.textAlign.center
+                Css.borderRadius (length.em 0.2)
                 Css.color "#eeeeee"
             ]
         ]
@@ -65,7 +62,7 @@ let view() =
         ]
 
         Html.div [
-            style [ Css.display "grid"; Css.gridTemplateColumns "1fr 1fr"; Css.gridGap "1em" ]
+            style [ Css.display.grid; Css.gridTemplateColumns [length.fr 1; length.fr 1]; CssXs.gridGap "1em" ]
 
             Html.div [
                 Html.h2 [ text "Keyed" ]

@@ -41,7 +41,7 @@ let view() =
                 ]) []
         ]
         Html.button [
-            style  [ Css.marginTop "12px" ]
+            style  [ Css.marginTop 12 ]
             text "More Cats"
             bindAttrIn "disabled" (cats |> Store.map (fun cats' -> cats'.Length = 4))
             onClick (fun _ -> addCat extraCat) []

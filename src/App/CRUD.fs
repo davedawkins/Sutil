@@ -1,6 +1,7 @@
 module CRUD
 
 open Sutil
+open Feliz
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Bulma
@@ -145,13 +146,13 @@ let update msg model =
 
 let appStyle = [
     rule "div.select, select, .width100" [
-        Css.width "100%" // Streatch list and text box to fit column, looks nicer right aligned
+        Css.width (length.percent 100) // Streatch list and text box to fit column, looks nicer right aligned
     ]
     rule ".field-label" [
-        Css.flexGrow "2" // Allow more space for field label
+        Css.flexGrow 2 // Allow more space for field label
     ]
     rule "label.label" [
-        Css.textAlign "left" // To match 7GUI spec
+        Css.textAlign.left // To match 7GUI spec
     ]
 ]
 

@@ -24,7 +24,7 @@ let questions = [
 let appStyle = [
     rule "input" [
         addClass "input"
-        Css.display.block
+        Css.displayBlock
         Css.width 620
         Css.maxWidth (length.percent 100)
     ]

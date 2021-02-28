@@ -4,6 +4,8 @@ module TransitionCustomCss
 // https://svelte.dev/examples
 
 open Feliz
+open type Feliz.length
+open type Feliz.transform
 open System
 open Sutil
 open Sutil.Attr
@@ -29,27 +31,23 @@ let spin (options : TransitionProp list) node =
         }
 
 let styleSheet = [
-    let Pct (n : double) = length.percent n
-    let Em (n : double) = length.em n
-    let Vh (n : double) = length.vh n
-
     rule ".centered" [
-        Css.position.absolute
-        Css.left (Pct 50.0)
-        Css.top (Pct 50.0)
-        CssXs.transform  "translate(-50%,-50%)"
+        Css.positionAbsolute
+        Css.left (percent 50.0)
+        Css.top (percent 50.0)
+        Css.transform( translate( percent -50, percent -50 ) )
     ]
 
     rule "span" [
-        Css.position.absolute
-        CssXs.transform  "translate(-50%,-50%)"
-        Css.fontSize (Em 4.0)
+        Css.positionAbsolute
+        Css.transform( translate( percent -50, percent -50 ) )
+        Css.fontSize (em 4.0)
     ]
 
     rule ".container" [
-        Css.position.relative
-        Css.height.custom (Vh 60.0)
-        Css.width (Pct 100.0)
+        Css.positionRelative
+        Css.height (vh 60.0)
+        Css.width (percent 100.0)
     ]
 ]
 

@@ -1,6 +1,7 @@
 module Sutil.Bulma
 
 open Feliz
+open type Feliz.length
 open Sutil.Styling
 open Sutil.DOM
 open Sutil.Attr
@@ -123,10 +124,10 @@ type BulmaEngine() =
             Html.select props
         ] |> withStyleAppend [
                     rule "option" [
-                        CssXs.padding ".5em 1em"
+                        Css.padding(em 0.5, em 1.0)
                     ]
                     rule "select" [
-                        CssXs.height "auto"
+                        Css.height auto
                         Css.padding 0
                     ] ]
 

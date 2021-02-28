@@ -9,6 +9,7 @@ open Sutil.DOM
 open Sutil.Styling
 open System
 open Feliz
+open type Feliz.length
 
 type Thing = { Id : int; Color : string }
 let Color t = t.Color
@@ -19,12 +20,12 @@ let ThingView (viewId : int) (thing : IObservable<Thing>) : NodeFactory =
 
         let thingStyle = [
             rule "span" [
-                Css.display.inlineBlock
-                CssXs.padding "0.2em 0.5em"
-                CssXs.margin "0 0.2em 0.2em 0"
-                Css.width (length.em 8)
-                Css.textAlign.center
-                Css.borderRadius (length.em 0.2)
+                Css.displayInlineBlock
+                Css.padding( em 0.2, em 0.5 )
+                Css.margin( zero, em 0.2, em 0.2, zero )
+                Css.width (em 8)
+                Css.textAlignCenter
+                Css.borderRadius (em 0.2)
                 Css.color "#eeeeee"
             ]
         ]
@@ -62,7 +63,7 @@ let view() =
         ]
 
         Html.div [
-            style [ Css.display.grid; Css.gridTemplateColumns [length.fr 1; length.fr 1]; CssXs.gridGap "1em" ]
+            style [ Css.displayGrid; Css.gridTemplateColumns [fr 1; fr 1]; Css.gap (em 1) ]
 
             Html.div [
                 Html.h2 [ text "Keyed" ]

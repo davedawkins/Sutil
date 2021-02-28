@@ -7,9 +7,9 @@ open Sutil
 open Sutil.Styling
 open Sutil.Attr
 open Sutil.DOM
-open Sutil.Bindings
 open Browser.Types
 open Feliz
+open type Feliz.length
 open Sutil.Transition
 
 type Todo = {
@@ -50,49 +50,44 @@ let makeExampleTodos() = [
 let newUid = Helpers.makeIdGeneratorFrom(7)
 
 let styleSheet = [
-    let Em (n : double) = length.em n
-    let Zero = length.em 0
-    let Pct (n:int) = length.percent n
-    let Px (n:double) = length.px n
-
     rule ".new-todo" [
-        Css.fontSize (Em 1.4)
-        Css.width (Pct 100)
+        Css.fontSize (em 1.4)
+        Css.width (percent 100)
         //margin "2em 0 1em 0"
     ]
 
     rule ".board" [
-        Css.maxWidth (Em 36.0)
-        CssXs.margin "0 auto"
+        Css.maxWidth (em 36.0)
+        Css.margin(px 0, auto)
     ]
 
     rule ".todo, .done" [
-        Css.width (Pct 50)
-        Css.padding(Zero, Em 1.0, Zero, Zero)
-        Css.boxSizing.borderBox
+        Css.width (percent 50)
+        Css.padding( zero, em 1, zero, zero )
+        Css.boxSizingBorderBox
     ]
 
     rule ".title" [
-        Css.marginTop (Px 24.0)
+        Css.marginTop (px 24.0)
     ]
 
     rule "h2" [
-        Css.fontSize (Em 2.0)
-        CssXs.fontWeight 200
-        Css.userSelect.none
+        Css.fontSize (em 2.0)
+        Css.fontWeight 200
+        Css.userSelectNone
     ]
 
     rule "label"  [
         Css.top 0
         Css.left 0
-        Css.display.block
-        Css.fontSize (Em 1.0)
+        Css.displayBlock
+        Css.fontSize (em 1.0)
         Css.lineHeight 1
-        Css.padding (Em 0.5)
-        CssXs.margin "0 auto 0.5em auto"
-        Css.borderRadius (Px 2.0)
+        Css.padding (em 0.5)
+        Css.margin (zero, auto, em 0.5, auto)
+        Css.borderRadius (px 2.0)
         Css.backgroundColor "#eee"
-        Css.userSelect.none
+        Css.userSelectNone
     ]
 
     rule "input" [  Css.margin(0) ]
@@ -102,16 +97,16 @@ let styleSheet = [
     ]
 
     rule "label>button" [
-        Css.float.right
-        Css.height.custom (Em 1.0)
-        Css.boxSizing.borderBox
-        Css.padding(Em 0.0, Em 0.5)
+        Css.floatRight
+        Css.height (em 1.0)
+        Css.boxSizingBorderBox
+        Css.padding(zero, em 0.5)
         Css.lineHeight 1
         Css.backgroundColor "transparent"
-        Css.borderStyle.none
+        Css.borderStyleNone
         Css.color "rgb(170,30,30)"
         Css.opacity 0.0
-        CssXs.transition "opacity 0.2s"
+        Css.transition "opacity 0.2s"
     ]
 
     rule "label:hover button" [
@@ -119,30 +114,30 @@ let styleSheet = [
     ]
 
     rule ".row" [
-        Css.display.flex
+        Css.displayFlex
     ]
 
     rule ".kudos" [
-        Css.fontSize (Pct 80)
+        Css.fontSize (percent 80)
         Css.color "#888"
     ]
 
     rule "div.complete-all-container" [
-        Css.display.flex
-        Css.justifyContent.spaceBetween
-        Css.marginTop (Px 4.0)
+        Css.displayFlex
+        Css.justifyContentSpaceBetween
+        Css.marginTop (px 4.0)
     ]
 
     rule ".complete-all-container a" [
-        Css.cursor.pointer
-        Css.textDecoration.none
+        Css.cursorPointer
+        Css.textDecorationNone
 
-        Css.fontSize (Pct 80)
+        Css.fontSize (percent 80)
         Css.color "#888"
     ]
 
     rule ".complete-all-container a:hover" [
-        Css.textDecoration.underline
+        Css.textDecorationUnderline
     ]
 ]
 

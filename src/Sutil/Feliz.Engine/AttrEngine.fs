@@ -9,6 +9,11 @@ type AttrHelper<'Node> =
     // abstract MakeEvent: string * (Event -> unit) -> 'Node
 
 type AttrEngine<'Node>(h: AttrHelper<'Node>) =
+    /// Create a custom attribute
+    ///
+    /// You generally shouldn't need to use this, if you notice an attribute missing please submit an issue.
+    member _.custom (key: string, value: string) = h.MakeAttr(key, value)
+
     /// List of types the server accepts, typically a file type.
     member _.accept (value: string) = h.MakeAttr("accept", value)
 
@@ -368,10 +373,6 @@ type AttrEngine<'Node>(h: AttrHelper<'Node>) =
     /// including volume, seeking, and pause/resume playback.
     member _.controls (value: bool) = h.MakeBooleanAttr("controls", value)
 
-    /// Create a custom attribute
-    ///
-    /// You generally shouldn't need to use this, if you notice a core React/Html attribute missing please submit an issue.
-    member _.custom (key: string, value: string) = h.MakeAttr(key, value)
     /// The SVG cx attribute define the x-axis coordinate of a center point.
     ///
     /// Three elements are using this attribute: <circle>, <ellipse>, and <radialGradient>
@@ -1307,7 +1308,7 @@ type AttrEngine<'Node>(h: AttrHelper<'Node>) =
     /// 0 <= targetY < orderY.
     member _.targetY (index: int) = h.MakeAttr("targetY", Util.asString index)
 
-    /// A shorthand for using prop.custom("data-testid", value). Useful for referencing elements when testing React code.
+    /// A shorthand for using custom("data-testid", value). Useful for referencing elements when testing code.
     member _.testId(value: string) = h.MakeAttr("data-testid", value)
 
     // /// Defines the text content of the element. Alias for `children [ Html.text (sprintf ...) ]`
@@ -1415,15 +1416,10 @@ type AttrEngine<'Node>(h: AttrHelper<'Node>) =
     /// A hash-name reference to a <map> element; that is a '#' followed by the value of a name of a map element.
     member _.usemap (value: string) = h.MakeAttr("usemap", value)
 
-    /// Sets the value of a React controlled component.
     member _.value (value: bool) = h.MakeBooleanAttr("value", value)
-    /// Sets the value of a React controlled component.
     member _.value (value: float) = h.MakeAttr("value", Util.asString value)
-    /// Sets the value of a React controlled component.
     member _.value (value: Guid) = h.MakeAttr("value", (Util.asString value))
-    /// Sets the value of a React controlled component.
     member _.value (value: int) = h.MakeAttr("value", Util.asString value)
-    /// Sets the value of a React controlled component.
     member _.value (value: string) = h.MakeAttr("value", value)
 
 (*
@@ -1640,3 +1636,1641 @@ type AttrEngine<'Node>(h: AttrHelper<'Node>) =
     /// the positive z-axis comes out towards the person viewing the content and assuming that one unit along
     /// the z-axis equals one unit in x and y.
     member _.z (value: int) = h.MakeAttr("z", Util.asString value)
+
+    /// Specifies that repeat iterations are not cumulative.
+    member _.accumulateNone = h.MakeAttr("accumulate", "none")
+    /// Specifies that each repeat iteration after the first builds upon
+    /// the last value of the previous iteration.
+    member _.accumulateSum = h.MakeAttr("accumulate", "sum")
+
+    /// Specifies that the animation will override the underlying value of
+    /// the attribute and other lower priority animations.
+    member _.additiveReplace = h.MakeAttr("additive", "replace")
+    /// Specifies that the animation will add to the underlying value of
+    /// the attribute and other lower priority animations.
+    member _.additiveSum = h.MakeAttr("additive", "sum")
+
+    /// Uses the dominant baseline choice of the parent. Matches the box’s
+    /// corresponding baseline to that of its parent.
+    member _.alignmentBaselineAlphabetic = h.MakeAttr("alignment-baseline", "alphabetic")
+    /// Uses the dominant baseline choice of the parent. Matches the box’s
+    /// corresponding baseline to that of its parent.
+    member _.alignmentBaselineBaseline = h.MakeAttr("alignment-baseline", "baseline")
+    /// Uses the dominant baseline choice of the parent. Matches the box’s
+    /// corresponding baseline to that of its parent.
+    member _.alignmentBaselineBottom = h.MakeAttr("alignment-baseline", "bottom")
+    /// Specifies that the animation will add to the underlying value of
+    /// the attribute and other lower priority animations.
+    member _.alignmentBaselineCenter = h.MakeAttr("alignment-baseline", "center")
+    /// Uses the dominant baseline choice of the parent. Matches the box’s
+    /// corresponding baseline to that of its parent.
+    member _.alignmentBaselineCentral = h.MakeAttr("alignment-baseline", "central")
+    /// Specifies that the animation will add to the underlying value of
+    /// the attribute and other lower priority animations.
+    member _.alignmentBaselineHanging = h.MakeAttr("alignment-baseline", "hanging")
+    /// Specifies that the animation will add to the underlying value of
+    /// the attribute and other lower priority animations.
+    member _.alignmentBaselineIdeographic = h.MakeAttr("alignment-baseline", "ideographic")
+    /// Uses the dominant baseline choice of the parent. Matches the box’s
+    /// corresponding baseline to that of its parent.
+    member _.alignmentBaselineMathematical = h.MakeAttr("alignment-baseline", "mathematical")
+    /// Specifies that the animation will add to the underlying value of
+    /// the attribute and other lower priority animations.
+    member _.alignmentBaselineMiddle = h.MakeAttr("alignment-baseline", "middle")
+    /// Uses the dominant baseline choice of the parent. Matches the box’s
+    /// corresponding baseline to that of its parent.
+    member _.alignmentBaselineTextAfterEdge = h.MakeAttr("alignment-baseline", "text-after-edge")
+    /// Uses the dominant baseline choice of the parent. Matches the box’s
+    /// corresponding baseline to that of its parent.
+    member _.alignmentBaselineTextBeforeEdge = h.MakeAttr("alignment-baseline", "text-before-edge")
+    /// Specifies that the animation will add to the underlying value of
+    /// the attribute and other lower priority animations.
+    member _.alignmentBaselineTextBottom = h.MakeAttr("alignment-baseline", "text-bottom")
+    /// Specifies that the animation will add to the underlying value of
+    /// the attribute and other lower priority animations.
+    member _.alignmentBaselineTextTop = h.MakeAttr("alignment-baseline", "text-top")
+    /// Specifies that the animation will add to the underlying value of
+    /// the attribute and other lower priority animations.
+    member _.alignmentBaselineTop = h.MakeAttr("alignment-baseline", "top")
+
+    /// Controls whether the current document is allowed to gather information about the acceleration of
+    /// the device through the Accelerometer interface.
+    member _.allowAccelerometer = h.MakeAttr("allow", "accelerometer")
+    /// Controls whether the current document is allowed to gather information about the amount of light
+    /// in the environment around the device through the AmbientLightSensor interface.
+    member _.allowAmbientLightSensor = h.MakeAttr("allow", "ambient-light-sensor")
+    /// Controls whether the current document is allowed to autoplay media requested through the
+    /// HTMLMediaElement interface.
+    ///
+    /// When this policy is disabled and there were no user gestures, the Promise returned by
+    /// HTMLMediaElement.play() will reject with a DOMException. The autoplay attribute on <audio> and
+    /// <video> elements will be ignored.
+    member _.allowAutoplay = h.MakeAttr("allow", "autoplay")
+    /// Controls whether the use of the Battery Status API is allowed.
+    ///
+    /// When this policy is disabled, the  Promise returned by Navigator.getBattery() will reject with
+    /// a NotAllowedError DOMException.
+    member _.allowBattery = h.MakeAttr("allow", "battery")
+    /// Controls whether the current document is allowed to use video input devices.
+    ///
+    /// When this policy is disabled, the Promise returned by getUserMedia() will reject with a
+    /// NotAllowedError DOMException.
+    member _.allowCamera = h.MakeAttr("allow", "camera")
+    /// Controls whether or not the current document is permitted to use the getDisplayMedia() method to
+    /// capture screen contents.
+    ///
+    /// When this policy is disabled, the promise returned by getDisplayMedia() will reject with a
+    /// NotAllowedError if permission is not obtained to capture the display's contents.
+    member _.allowDisplayCapture = h.MakeAttr("allow", "display-capture")
+    /// Controls whether the current document is allowed to set document.domain.
+    ///
+    /// When this policy is disabled, attempting to set document.domain will fail and cause a SecurityError
+    /// DOMException to be be thrown.
+    member _.allowDocumentDomain = h.MakeAttr("allow", "document-domain")
+    /// Controls whether the current document is allowed to use the Encrypted Media Extensions API (EME).
+    ///
+    /// When this policy is disabled, the Promise returned by Navigator.requestMediaKeySystemAccess() will
+    /// reject with a DOMException.
+    member _.allowEncryptedMedia = h.MakeAttr("allow", "encrypted-media")
+    /// Controls whether tasks should execute in frames while they're not being rendered (e.g. if an iframe
+    /// is hidden or display: none).
+    member _.allowExecutionWhileNotRendered = h.MakeAttr("allow", "execution-while-not-rendered")
+    /// Controls whether tasks should execute in frames while they're outside of the visible viewport.
+    member _.allowExecutionWhileOutOfViewport = h.MakeAttr("allow", "execution-while-out-of-viewport")
+    /// Controls whether the current document is allowed to use Element.requestFullScreen().
+    ///
+    /// When this policy is disabled, the returned Promise rejects with a TypeError DOMException.
+    member _.allowFullscreen = h.MakeAttr("allow", "fullscreen")
+    /// Controls whether the current document is allowed to use the Geolocation Interface.
+    ///
+    /// When this policy is disabled, calls to getCurrentPosition() and watchPosition() will cause those
+    /// functions' callbacks to be invoked with a PositionError code of PERMISSION_DENIED.
+    member _.allowGeolocation = h.MakeAttr("allow", "geolocation")
+    /// Controls whether the current document is allowed to gather information about the orientation of the
+    /// device through the Gyroscope interface.
+    member _.allowGyroscope = h.MakeAttr("allow", "gyroscope")
+    /// Controls whether the current document is allowed to show layout animations.
+    member _.allowLayoutAnimations = h.MakeAttr("allow", "layout-animations")
+    /// Controls whether the current document is allowed to display images in legacy formats.
+    member _.allowLegacyImageFormats = h.MakeAttr("allow", "legacy-image-formats")
+    /// Controls whether the current document is allowed to gather information about the orientation of the
+    /// device through the Magnetometer interface.
+    member _.allowMagnetometer = h.MakeAttr("allow", "magnetometer")
+    /// Controls whether the current document is allowed to use audio input devices.
+    ///
+    /// When this policy is disabled, the Promise returned by MediaDevices.getUserMedia() will reject
+    /// with a NotAllowedError.
+    member _.allowMicrophone = h.MakeAttr("allow", "microphone")
+    /// Controls whether the current document is allowed to use the Web MIDI API.
+    ///
+    /// When this policy is disabled, the Promise returned by Navigator.requestMIDIAccess() will reject
+    /// with a DOMException.
+    member _.allowMidi = h.MakeAttr("allow", "midi")
+    /// Controls the availability of mechanisms that enables the page author to take control over the behavior
+    /// of spatial navigation, or to cancel it outright.
+    member _.allowNavigationOverride = h.MakeAttr("allow", "navigation-override")
+    /// Controls whether the current document is allowed to download and display large images.
+    member _.allowOversizedImages = h.MakeAttr("allow", "oversized-images")
+    /// Controls whether the current document is allowed to use the Payment Request API.
+    ///
+    /// When this policy is enabled, the PaymentRequest() constructor will throw a SecurityError DOMException.
+    member _.allowPayment = h.MakeAttr("allow", "payment")
+    /// Controls whether the current document is allowed to play a video in a Picture-in-Picture mode via
+    /// the corresponding API.
+    member _.allowPictureInPicture = h.MakeAttr("allow", "picture-in-picture")
+    /// Controls whether the current document is allowed to use the Web Authentication API to create, store,
+    /// and retreive public-key credentials.
+    member _.allowPublickeyCredentials = h.MakeAttr("allow", "publickey-credentials")
+    /// Controls whether the current document is allowed to make synchronous XMLHttpRequest requests.
+    member _.allowSyncXhr = h.MakeAttr("allow", "sync-xhr")
+    /// Controls whether the current document is allowed to use the WebUSB API.
+    member _.allowUsb = h.MakeAttr("allow", "usb")
+    /// Controls whether the current document is allowed to use Wake Lock API to indicate that
+    /// device should not enter power-saving mode.
+    member _.allowWakeLock = h.MakeAttr("allow", "wake-lock")
+    /// Controls whether or not the current document is allowed to use the WebXR Device API to interact
+    /// with a WebXR session.
+    member _.allowXrSpatialTracking = h.MakeAttr("allow", "xr-spatial-tracking")
+
+    /// A list of choices appears and the currently selected suggestion also
+    /// appears inline.
+    member _.ariaAutocompleteBoth = h.MakeAttr("aria-autocomplete", "both")
+    /// The system provides text after the caret as a suggestion for how to
+    /// complete the field.
+    member _.ariaAutocompleteInlinedAfterCaret = h.MakeAttr("aria-autocomplete", "inline")
+    /// A list of choices appears from which the user can choose.
+    member _.ariaAutocompleteList = h.MakeAttr("aria-autocomplete", "list")
+    /// No input completion suggestions are provided.
+    member _.ariaAutocompleteNone = h.MakeAttr("aria-autocomplete", "none")
+
+    /// Indicates a mixed mode value for a tri-state checkbox or
+    /// `menuitemcheckbox`.
+    member _.ariaCheckedMixed = h.MakeAttr("aria-checked", "mixed")
+
+    /// A duplicate of the source object will be dropped into the target.
+    member _.ariaDropEffectCopy = h.MakeAttr("aria-dropeffect", "copy")
+    /// A function supported by the drop target is executed, using the drag
+    /// source as an input.
+    member _.ariaDropEffectExecute = h.MakeAttr("aria-dropeffect", "execute")
+    /// A reference or shortcut to the dragged object will be created in the
+    /// target object.
+    member _.ariaDropEffectLink = h.MakeAttr("aria-dropeffect", "link")
+    /// The source object will be removed from its current location and
+    /// dropped into the target.
+    member _.ariaDropEffectMove = h.MakeAttr("aria-dropeffect", "move")
+    /// No operation can be performed; effectively cancels the drag
+    /// operation if an attempt is made to drop on this object. Ignored if
+    /// combined with any other token value. e.g. 'none copy' is equivalent
+    /// to a 'copy' value.
+    member _.ariaDropEffectNone = h.MakeAttr("aria-dropeffect", "none")
+    /// There is a popup menu or dialog that allows the user to choose one
+    /// of the drag operations (copy, move, link, execute) and any other
+    /// drag functionality, such as cancel.
+    member _.ariaDropEffectPopup = h.MakeAttr("aria-dropeffect", "popup")
+
+    /// A grammatical error was detected.
+    member _.ariaInvalidGrammar = h.MakeAttr("aria-invalid", "grammar")
+    /// A spelling error was detected.
+    member _.ariaInvalidSpelling = h.MakeAttr("aria-invalid", "spelling")
+
+    /// Indicates that updates to the region have the highest priority and
+    /// should be presented the user immediately.
+    member _.ariaLiveAssertive = h.MakeAttr("aria-live", "assertive")
+    /// Indicates that updates to the region should not be presented to the
+    /// user unless the used is currently focused on that region.
+    member _.ariaLiveOff = h.MakeAttr("aria-live", "off")
+    /// Indicates that updates to the region should be presented at the next
+    /// graceful opportunity, such as at the end of speaking the current
+    /// sentence or when the user pauses typing.
+    member _.ariaLivePolite = h.MakeAttr("aria-live", "polite")
+
+    /// The element is oriented horizontally.
+    member _.ariaOrientationHorizontal = h.MakeAttr("aria-orientation", "horizontal")
+    /// The element is oriented vertically.
+    member _.ariaOrientationVertical = h.MakeAttr("aria-orientation", "vertical")
+
+    /// Indicates a mixed mode value for a tri-state toggle button.
+    member _.ariaPressedMixed = h.MakeAttr("aria-pressed", "mixed")
+
+    /// Element nodes are added to the DOM within the live region.
+    member _.ariaRelevantAdditions = h.MakeAttr("aria-relevant", "additions")
+    /// Equivalent to the combination of all values, "additions removals
+    /// text".
+    member _.ariaRelevantAll = h.MakeAttr("aria-relevant", "all")
+    /// Text or element nodes within the live region are removed from the
+    /// DOM.
+    member _.ariaRelevantRemovals = h.MakeAttr("aria-relevant", "removals")
+    /// Text is added to any DOM descendant nodes of the live region.
+    member _.ariaRelevantText = h.MakeAttr("aria-relevant", "text")
+
+    /// Items are sorted in ascending order by this column.
+    member _.ariaSortAscending = h.MakeAttr("aria-sort", "ascending")
+    /// Items are sorted in descending order by this column.
+    member _.ariaSortDescending = h.MakeAttr("aria-sort", "descending")
+    /// There is no defined sort applied to the column.
+    member _.ariaSortNone = h.MakeAttr("aria-sort", "none")
+    /// A sort algorithm other than ascending or descending has been
+    /// applied.
+    member _.ariaSortOther = h.MakeAttr("aria-sort", "other")
+
+    /// Applies to <audio> elements.
+    member _.asAudio = h.MakeAttr("as", "audio")
+    /// Applies to <iframe> and <frame> elements.
+    member _.asDocument = h.MakeAttr("as", "document")
+    /// Applies to <embed> elements.
+    member _.asEmbed = h.MakeAttr("as", "embed")
+    /// Applies to fetch and XHR.
+    ///
+    /// This value also requires <link> to contain the crossorigin attribute.
+    member _.asFetch = h.MakeAttr("as", "fetch")
+    /// Applies to CSS @font-face.
+    member _.asFont = h.MakeAttr("as", "font")
+    /// Applies to <img> and <picture> elements with srcset or imageset attributes,
+    /// SVG <image> elements, and CSS *-image rules.
+    member _.asImage = h.MakeAttr("as", "image")
+    /// Applies to <object> elements.
+    member _.asObject = h.MakeAttr("as", "object")
+    /// Applies to <script> elements, Worker importScripts.
+    member _.asScript = h.MakeAttr("as", "script")
+    /// Applies to <link rel=stylesheet> elements, and CSS @import.
+    member _.asStyle = h.MakeAttr("as", "style")
+    /// Applies to <track> elements.
+    member _.asTrack = h.MakeAttr("as", "track")
+    /// Applies to <video> elements.
+    member _.asVideo = h.MakeAttr("as", "video")
+    /// Applies to Worker and SharedWorker.
+    member _.asWorker = h.MakeAttr("as", "worker")
+
+    /// All letters should default to uppercase
+    member _.autoCapitalizeCharacters = h.MakeAttr("autocapitalize", "characters")
+    /// No autocapitalization is applied (all letters default to lowercase)
+    member _.autoCapitalizeOff = h.MakeAttr("autocapitalize", "off")
+    /// The first letter of each sentence defaults to a capital letter; all other letters default to lowercase
+    member _.autoCapitalizeOn' = h.MakeAttr("autocapitalize", "on")
+    /// The first letter of each word defaults to a capital letter; all other letters default to lowercase
+    member _.autoCapitalizeWords = h.MakeAttr("autocapitalize", "words")
+
+    /// Specifies that the animation function will jump from one value to the next
+    /// without any interpolation.
+    member _.calcModeDiscrete = h.MakeAttr("calcMode", "discrete")
+    /// Simple linear interpolation between values is used to calculate the animation
+    /// function. Except for <animateMotion>, this is the default value.
+    member _.calcModeLinear = h.MakeAttr("calcMode", "linear")
+    /// Defines interpolation to produce an even pace of change across the animation.
+    ///
+    /// This is only supported for values that define a linear numeric range, and for
+    /// which some notion of "distance" between points can be calculated (e.g. position,
+    /// width, height, etc.).
+    ///
+    /// If paced is specified, any keyTimes or keySplines will be ignored.
+    ///
+    /// For <animateMotion>, this is the default value.
+    member _.calcModePaced = h.MakeAttr("calcMode", "paced")
+    /// Interpolates from one value in the values list to the next according to a time
+    /// function defined by a cubic Bézier spline.
+    ///
+    /// The points of the spline are defined in the keyTimes attribute, and the control
+    /// points for each interval are defined in the keySplines attribute.
+    member _.calcModeSpline = h.MakeAttr("calcMode", "spline")
+
+    member _.charsetUtf8 = h.MakeAttr("charset", "UTF-8")
+
+    /// Indicates that all coordinates inside the <clipPath> element refer to the user
+    /// coordinate system as defined when the clipping path was created.
+    member _.clipPathUserSpaceOnUse = h.MakeAttr("clip-path", "userSpaceOnUse")
+    /// Indicates that all coordinates inside the <clipPath> element are relative to
+    /// the bounding box of the element the clipping path is applied to.
+    ///
+    /// It means that the origin of the coordinate system is the top left corner of the
+    /// object bounding box and the width and height of the object bounding box are
+    /// considered to have a length of 1 unit value.
+    member _.clipPathObjectBoundingBox = h.MakeAttr("clip-path", "objectBoundingBox")
+
+    /// Determines the "insideness" of a point in the shape by drawing a ray from that
+    /// point to infinity in any direction and counting the number of path segments
+    /// from the given shape that the ray crosses.
+    ///
+    /// If this number is odd, the point is inside; if even, the point is outside.
+    member _.clipRuleEvenodd = h.MakeAttr("clip-rule", "evenodd")
+    member _.clipRuleInheritFromParent = h.MakeAttr("clip-rule", "inherit")
+    /// Determines the "insideness" of a point in the shape by drawing a ray from that
+    /// point to infinity in any direction, and then examining the places where a
+    /// segment of the shape crosses the ray.
+    member _.clipRuleNonzero = h.MakeAttr("clip-rule", "nonzero")
+
+    /// Indicates that the user agent can choose either the sRGB or linearRGB spaces
+    /// for color interpolation. This option indicates that the author doesn't require
+    /// that color interpolation occur in a particular color space.
+    member _.colorInterpolationAuto = h.MakeAttr("color-interpolation", "auto")
+    /// Indicates that color interpolation should occur in the linearized RGB color
+    /// space as described in the sRGB specification.
+    member _.colorInterpolationLinearRGB = h.MakeAttr("color-interpolation", "linearRGB")
+    /// Indicates that color interpolation should occur in the sRGB color space.
+    member _.colorInterpolationSRGB = h.MakeAttr("color-interpolation", "sRGB")
+
+    /// Indicates that the user agent can choose either the sRGB or linearRGB spaces
+    /// for color interpolation. This option indicates that the author doesn't require
+    /// that color interpolation occur in a particular color space.
+    member _.colorInterpolationFiltersAuto = h.MakeAttr("color-interpolation-filters", "auto")
+    /// Indicates that color interpolation should occur in the linearized RGB color
+    /// space as described in the sRGB specification.
+    member _.colorInterpolationFiltersLinearRGB = h.MakeAttr("color-interpolation-filters", "linearRGB")
+    /// Indicates that color interpolation should occur in the sRGB color space.
+    member _.colorInterpolationFiltersSRGB = h.MakeAttr("color-interpolation-filters", "sRGB")
+
+    member _.coordsRect (left: int, top: int, right: int, bottom: int) =
+        h.MakeAttr("coords",
+            ((Util.asString left) + "," +
+             (Util.asString top) + "," +
+             (Util.asString right) + "," +
+             (Util.asString bottom)))
+    member _.coordsCircle (x: int, y: int, r: int) =
+        h.MakeAttr("coords",
+            ((Util.asString x) + "," +
+             (Util.asString y) + "," +
+             (Util.asString r)))
+    member _.coordsPoly (x1: int, y1: int, x2: int, y2: int, x3: int, y3: int) =
+        h.MakeAttr("coords",
+            ((Util.asString x1) + "," +
+             (Util.asString y1) + "," +
+             (Util.asString x2) + "," +
+             (Util.asString y2) + "," +
+             (Util.asString x3) + "," +
+             (Util.asString y3)))
+
+    /// A cross-origin request (i.e. with an Origin HTTP header) is performed, but no credential
+    /// is sent (i.e. no cookie, X.509 certificate, or HTTP Basic authentication). If the server
+    /// does not give credentials to the origin site (by not setting the Access-Control-Allow-Origin
+    /// HTTP header) the resource will be tainted and its usage restricted.
+    member _.crossOriginAnonymous = h.MakeAttr("crossorigin", "anonymous")
+    /// A cross-origin request (i.e. with an Origin HTTP header) is performed along with a credential
+    /// sent (i.e. a cookie, certificate, and/or HTTP Basic authentication is performed). If the server
+    /// does not give credentials to the origin site (through Access-Control-Allow-Credentials HTTP
+    /// header), the resource will be tainted and its usage restricted.
+    member _.crossOriginUseCredentials = h.MakeAttr("crossorigin", "use-credentials")
+
+    /// Lets the user agent decide.
+    member _.dirAuto = h.MakeAttr("dir", "auto")
+    /// Left to right - for languages that are written from left to right.
+    member _.dirLtr = h.MakeAttr("dir", "ltr")
+    /// Right to left - for languages that are written from right to left.
+    member _.dirRtl = h.MakeAttr("dir", "rtl")
+
+    /// The baseline-identifier for the dominant-baseline is set to be alphabetic, the derived baseline-table is constructed
+    /// using the alphabetic baseline-table in the font, and the baseline-table font-size is changed to the value of the
+    /// font-size attribute on this element.
+    member _.dominantBaselineAlphabetic = h.MakeAttr("dominant-baseline", "alphabetic")
+    /// If this property occurs on a <text> element, then the computed value depends on the value of the writing-mode attribute.
+    ///
+    /// If the writing-mode is horizontal, then the value of the dominant-baseline component is alphabetic, else if the writing-mode
+    /// is vertical, then the value of the dominant-baseline component is central.
+    ///
+    /// If this property occurs on a <tspan>, <tref>,
+    /// <altGlyph> or <textPath> element, then the dominant-baseline and the baseline-table components remain the same as those of
+    /// the parent text content element.
+    ///
+    /// If the computed baseline-shift value actually shifts the baseline, then the baseline-table
+    /// font-size component is set to the value of the font-size attribute on the element on which the dominant-baseline attribute
+    /// occurs, otherwise the baseline-table font-size remains the same as that of the element.
+    ///
+    /// If there is no parent text content
+    /// element, the scaled-baseline-table value is constructed as above for <text> elements.
+    member _.dominantBaselineAuto = h.MakeAttr("dominant-baseline", "auto")
+    /// The baseline-identifier for the dominant-baseline is set to be central. The derived baseline-table is constructed from the
+    /// defined baselines in a baseline-table in the font. That font baseline-table is chosen using the following priority order of
+    /// baseline-table names: ideographic, alphabetic, hanging, mathematical. The baseline-table font-size is changed to the value
+    /// of the font-size attribute on this element.
+    member _.dominantBaselineCentral = h.MakeAttr("dominant-baseline", "central")
+    /// The baseline-identifier for the dominant-baseline is set to be hanging, the derived baseline-table is constructed using the
+    /// hanging baseline-table in the font, and the baseline-table font-size is changed to the value of the font-size attribute on
+    /// this element.
+    member _.dominantBaselineHanging = h.MakeAttr("dominant-baseline", "hanging")
+    /// The baseline-identifier for the dominant-baseline is set to be ideographic, the derived baseline-table is constructed using
+    /// the ideographic baseline-table in the font, and the baseline-table font-size is changed to the value of the font-size
+    /// attribute on this element.
+    member _.dominantBaselineIdeographic = h.MakeAttr("dominant-baseline", "ideographic")
+    /// The baseline-identifier for the dominant-baseline is set to be mathematical, the derived baseline-table is constructed using
+    /// the mathematical baseline-table in the font, and the baseline-table font-size is changed to the value of the font-size
+    /// attribute on this element.
+    member _.dominantBaselineMathematical = h.MakeAttr("dominant-baseline", "mathematical")
+    /// The baseline-identifier for the dominant-baseline is set to be middle. The derived baseline-table is constructed from the
+    /// defined baselines in a baseline-table in the font. That font baseline-table is chosen using the following priority order
+    /// of baseline-table names: alphabetic, ideographic, hanging, mathematical. The baseline-table font-size is changed to the value
+    /// of the font-size attribute on this element.
+    member _.dominantBaselineMiddle = h.MakeAttr("dominant-baseline", "middle")
+    /// The baseline-identifier for the dominant-baseline is set to be text-after-edge. The derived baseline-table is constructed
+    /// from the defined baselines in a baseline-table in the font. The choice of which font baseline-table to use from the
+    /// baseline-tables in the font is browser dependent. The baseline-table font-size is changed to the value of the font-size
+    /// attribute on this element.
+    member _.dominantBaselineTextAfterEdge = h.MakeAttr("dominant-baseline", "text-after-edge")
+    /// The baseline-identifier for the dominant-baseline is set to be text-before-edge. The derived baseline-table is constructed
+    /// from the defined baselines in a baseline-table in the font. The choice of which baseline-table to use from the baseline-tables
+    /// in the font is browser dependent. The baseline-table font-size is changed to the value of the font-size attribute on this element.
+    member _.dominantBaselineTextBeforeEdge = h.MakeAttr("dominant-baseline", "text-before-edge")
+    /// This value uses the top of the em box as the baseline.
+    member _.dominantBaselineTextTop = h.MakeAttr("dominant-baseline", "text-top")
+
+    // /// This value specifies the length of the simple duration.
+    // static member inline clockValue (duration: System.TimeSpan) =
+    //     PropHelpers.createClockValue(duration)
+    //     |> Interop.mkAttr "dur"
+    /// This value specifies the simple duration as indefinite.
+    member _.durIndefinite = h.MakeAttr("dur", "indefinite")
+    /// This value specifies the simple duration as the intrinsic media duration.
+    ///
+    /// This is only valid for elements that define media.
+    member _.durMedia = h.MakeAttr("dur", "media")
+
+    /// Indicates that the input image is extended along each of its borders as
+    /// necessary by duplicating the color values at the given edge of the input image.
+    member _.edgeModeDuplicate = h.MakeAttr("edgeMode", "duplicate")
+    /// Indicates that the input image is extended with pixel values of zero for
+    /// R, G, B and A.
+    member _.edgeModeNone = h.MakeAttr("edgeMode", "none")
+    /// Indicates that the input image is extended by taking the color values
+    /// from the opposite edge of the image.
+    member _.edgeModeWrap = h.MakeAttr("edgeMode", "wrap")
+
+    /// Keep the state of the last animation frame.
+    member _.fillFreeze = h.MakeAttr("fill", "freeze")
+    /// Keep the state of the first animation frame.
+    member _.fillRemove = h.MakeAttr("fill", "remove")
+
+    /// x, y, width and height represent values in the current coordinate system that results from
+    /// taking the current user coordinate system in place at the time when the <filter> element is
+    /// referenced (i.e., the user coordinate system for the element referencing the <filter> element
+    /// via a filter attribute).
+    member _.filterUnitsUserSpaceOnUse = h.MakeAttr("filterUnits", "userSpaceOnUse")
+    /// x, y, width and height represent fractions or percentages of the bounding box on the referencing
+    /// element.
+    member _.filterUnitsObjectBoundingBox = h.MakeAttr("filterUnits", "objectBoundingBox")
+
+    /// Indicates that the attributes represent values in the coordinate system that results from
+    /// taking the current user coordinate system in place at the time when the gradient element
+    /// is referenced (i.e., the user coordinate system for the element referencing the gradient
+    /// element via a fill or stroke property) and then applying the transform specified by
+    /// attribute gradientTransform.
+    ///
+    /// Percentages represent values relative to the current SVG viewport.
+    member _.gradientUnitsUserSpaceOnUse = h.MakeAttr("gradientUnits", "userSpaceOnUse")
+    /// Indicates that the user coordinate system for the attributes is established using the
+    /// bounding box of the element to which the gradient is applied and then applying the
+    /// transform specified by attribute gradientTransform.
+    ///
+    /// Percentages represent values relative to the bounding box for the object.
+    member _.gradientUnitsObjectBoundingBox = h.MakeAttr("gradientUnits", "objectBoundingBox")
+
+    /// Allows page authors to define a content policy for the current page.
+    ///
+    /// Content policies mostly specify allowed server origins and script endpoints which help guard against cross-site
+    /// scripting attacks.
+    member _.httpEquivContentSecurityPolicy = h.MakeAttr("http-equiv", "content-security-policy")
+    /// If specified, the content attribute must have the value "text/html; charset=utf-8".
+    ///
+    /// Note: Can only be used in documents served with a text/html MIME type — not in documents served with an XML MIME type.
+    member _.httpEquivContentType = h.MakeAttr("http-equiv", "content-type")
+    /// Sets the name of the default CSS style sheet set.
+    member _.httpEquivDefaultStyle = h.MakeAttr("http-equiv", "default-style")
+    /// This instruction specifies:
+    ///
+    /// The number of seconds until the page should be reloaded - only if the content attribute contains a positive integer.
+    ///
+    /// The number of seconds until the page should redirect to another - only if the content attribute contains a positive integer followed by the string ';url=', and a valid URL.
+    member _.httpEquivRefresh = h.MakeAttr("http-equiv", "refresh")
+    /// If specified, the content attribute must have the value "IE=edge". User agents are required to ignore this pragma.
+    member _.httpEquivXUaCompatible = h.MakeAttr("http-equiv", "x-ua-compatible")
+
+    /// Represents an image snapshot of the SVG document under the filter region at the time that the
+    /// <filter> element was invoked, except only the alpha channel is used.
+    member _.inBackgroundAlpha = h.MakeAttr("in", "BackgroundAlpha")
+    /// Represents an image snapshot of the SVG document under the filter region at the time that the
+    /// <filter> element was invoked.
+    member _.inBackgroundImage = h.MakeAttr("in", "BackgroundImage")
+    /// An assigned name for the filter primitive.
+    ///
+    /// If supplied, then graphics that result from processing this filter primitive can be referenced
+    /// by an in attribute on a subsequent filter primitive within the same filter element.
+    member _.inCustom (name: string) = h.MakeAttr("in", name)
+    /// Represents the value of the fill property on the target element for the filter effect.
+    ///
+    /// In many cases, the FillPaint is opaque everywhere, but that might not be the case if a shape is
+    /// painted with a gradient or pattern which itself includes transparent or semi-transparent parts.
+    member _.inFillPaint = h.MakeAttr("in", "FillPaint")
+    /// Represents the graphics elements that were the original input into the <filter> element, except
+    /// that only the alpha channel is used.
+    member _.inSourceAlpha = h.MakeAttr("in", "SourceAlpha")
+    /// Represents the graphics elements that were the original input into the <filter> element.
+    member _.inSourceGraphic = h.MakeAttr("in", "SourceGraphic")
+    /// Represents the value of the stroke property on the target element for the filter effect.
+    ///
+    /// In many cases, the StrokePaint is opaque everywhere, but that might not be the case if a shape
+    /// is painted with a gradient or pattern which itself includes transparent or semi-transparent parts.
+    member _.inStrokePaint = h.MakeAttr("in", "StrokePaint")
+
+    /// Represents an image snapshot of the SVG document under the filter region at the time that the
+    /// <filter> element was invoked, except only the alpha channel is used.
+    member _.in2BackgroundAlpha = h.MakeAttr("in2", "BackgroundAlpha")
+    /// Represents an image snapshot of the SVG document under the filter region at the time that the
+    /// <filter> element was invoked.
+    member _.in2BackgroundImage = h.MakeAttr("in2", "BackgroundImage")
+    /// An assigned name for the filter primitive.
+    ///
+    /// If supplied, then graphics that result from processing this filter primitive can be referenced
+    /// by an in attribute on a subsequent filter primitive within the same filter element.
+    member _.in2Custom (name: string) = h.MakeAttr("in2", name)
+    /// Represents the value of the fill property on the target element for the filter effect.
+    ///
+    /// In many cases, the FillPaint is opaque everywhere, but that might not be the case if a shape is
+    /// painted with a gradient or pattern which itself includes transparent or semi-transparent parts.
+    member _.in2FillPaint = h.MakeAttr("in2", "FillPaint")
+    /// Represents the graphics elements that were the original input into the <filter> element, except
+    /// that only the alpha channel is used.
+    member _.in2SourceAlpha = h.MakeAttr("in2", "SourceAlpha")
+    /// Represents the graphics elements that were the original input into the <filter> element.
+    member _.in2SourceGraphic = h.MakeAttr("in2", "SourceGraphic")
+    /// Represents the value of the stroke property on the target element for the filter effect.
+    ///
+    /// In many cases, the StrokePaint is opaque everywhere, but that might not be the case if a shape
+    /// is painted with a gradient or pattern which itself includes transparent or semi-transparent parts.
+    member _.in2StrokePaint = h.MakeAttr("in2", "StrokePaint")
+
+    member _.inputModeDecimal = h.MakeAttr("inputmode", "decimal")
+    member _.inputModeEmail = h.MakeAttr("inputmode", "email")
+    member _.inputModeNone = h.MakeAttr("inputmode", "none")
+    member _.inputModeNumeric = h.MakeAttr("inputmode", "numeric")
+    member _.inputModeSearch = h.MakeAttr("inputmode", "search")
+    member _.inputModeTel = h.MakeAttr("inputmode", "tel")
+    member _.inputModeUrl = h.MakeAttr("inputmode", "url")
+
+    /// Subtitles provide translation of content that cannot be understood by the viewer. For example dialogue
+    /// or text that is not English in an English language film.
+    ///
+    /// Subtitles may contain additional content, usually extra background information. For example the text
+    /// at the beginning of the Star Wars films, or the date, time, and location of a scene.
+    member _.kindSubtitles = h.MakeAttr("kind", "subtitles")
+    /// Closed captions provide a transcription and possibly a translation of audio.
+    ///
+    /// It may include important non-verbal information such as music cues or sound effects.
+    /// It may indicate the cue's source (e.g. music, text, character).
+    ///
+    /// Suitable for users who are deaf or when the sound is muted.
+    member _.kindCaptions = h.MakeAttr("kind", "captions")
+    /// Textual description of the video content.
+    ///
+    /// Suitable for users who are blind or where the video cannot be seen.
+    member _.kindDescriptions = h.MakeAttr("kind", "descriptions")
+    /// Chapter titles are intended to be used when the user is navigating the media resource.
+    member _.kindChapters = h.MakeAttr("kind", "chapters")
+    /// Tracks used by scripts. Not visible to the user.
+    member _.kindMetadata = h.MakeAttr("kind", "metadata")
+
+    member _.lengthAdjustSpacing = h.MakeAttr("lengthAdjust", "spacing")
+    member _.lengthAdjustSpacingAndGlyphs = h.MakeAttr("lengthAdjust", "spacingAndGlyphs")
+
+    /// Specifies that the markerWidth and markerUnits attributes and the contents of the <marker> element represent
+    /// values in a coordinate system which has a single unit equal the size in user units of the current stroke width
+    /// (see the stroke-width attribute) in place for the graphic object referencing the marker.
+    member _.markerUnitsStrokeWidth = h.MakeAttr("markerUnits", "strokeWidth")
+    /// Specifies that the markerWidth and markerUnits attributes and the contents of the <marker> element represent
+    /// values in the current user coordinate system in place for the graphic object referencing the marker (i.e.,
+    /// the user coordinate system for the element referencing the <marker> element via a marker, marker-start,
+    /// marker-mid, or marker-end property).
+    member _.markerUnitsUserSpaceOnUse = h.MakeAttr("markerUnits", "userSpaceOnUse")
+
+    /// Indicates that all coordinates inside the <mask> element are relative to the bounding box of the element the
+    /// mask is applied to.
+    ///
+    /// A bounding box could be considered the same as if the content of the <mask> were bound to a "0 0 1 1" viewbox.
+    member _.maskContentUnitsObjectBoundingBox = h.MakeAttr("maskContentUnits", "strokeWidth")
+    /// Indicates that all coordinates inside the <mask> element refer to the user coordinate system as defined
+    /// when the mask was created.
+    member _.maskContentUnitsUserSpaceOnUse = h.MakeAttr("maskContentUnits", "userSpaceOnUse")
+
+    /// Indicates that all coordinates for the geometry attributes represent fractions or percentages of the bounding box
+    /// of the element to which the mask is applied.
+    ///
+    /// A bounding box could be considered the same as if the content of the <mask> were bound to a "0 0 1 1" viewbox.
+    member _.maskUnitsObjectBoundingBox = h.MakeAttr("maskUnits", "strokeWidth")
+    /// Indicates that all coordinates for the geometry attributes refer to the user coordinate system as defined
+    /// when the mask was created.
+    member _.maskUnitsUserSpaceOnUse = h.MakeAttr("maskUnits", "userSpaceOnUse")
+
+    /// The final color has the hue and saturation of the top color, while using the luminosity of the
+    /// bottom color.
+    ///
+    /// The effect preserves gray levels and can be used to colorize the foreground.
+    member _.modeColor = h.MakeAttr("mode", "color")
+    /// The final color is the result of inverting the bottom color, dividing the value by the top
+    /// color, and inverting that value.
+    ///
+    /// A white foreground leads to no change. A foreground with the inverse color of the backdrop
+    /// leads to a black final image.
+    ///
+    /// This blend mode is similar to multiply, but the foreground need only be as dark as the inverse
+    /// of the backdrop to make the final image black.
+    member _.modeColorBurn = h.MakeAttr("mode", "color-burn")
+    /// The final color is the result of dividing the bottom color by the inverse of the top color.
+    ///
+    /// A black foreground leads to no change. A foreground with the inverse color of the backdrop
+    /// leads to a fully lit color.
+    ///
+    /// This blend mode is similar to screen, but the foreground need only be as light as the inverse
+    /// of the backdrop to create a fully lit color.
+    member _.modeColorDodge = h.MakeAttr("mode", "color-dodge")
+    /// The final color is composed of the darkest values of each color channel.
+    member _.modeDarken = h.MakeAttr("mode", "darken")
+    /// The final color is the result of subtracting the darker of the two colors from the lighter
+    /// one.
+    ///
+    /// A black layer has no effect, while a white layer inverts the other layer's color.
+    member _.modeDifference = h.MakeAttr("mode", "difference")
+    /// The final color is similar to difference, but with less contrast.
+    ///
+    /// As with difference, a black layer has no effect, while a white layer inverts the other
+    /// layer's color.
+    member _.modeExclusion = h.MakeAttr("mode", "exclusion")
+    /// The final color is the result of multiply if the top color is darker, or screen if the top
+    /// color is lighter.
+    ///
+    /// This blend mode is equivalent to overlay but with the layers swapped.
+    ///
+    /// The effect is similar to shining a harsh spotlight on the backdrop.
+    member _.modeHardLight = h.MakeAttr("mode", "hard-light")
+    /// The final color has the hue of the top color, while using the saturation and luminosity of the
+    /// bottom color.
+    member _.modeHue = h.MakeAttr("mode", "hue")
+    /// The final color is composed of the lightest values of each color channel.
+    member _.modeLighten = h.MakeAttr("mode", "lighten")
+    /// The final color has the luminosity of the top color, while using the hue and saturation of the
+    /// bottom color.
+    ///
+    /// This blend mode is equivalent to color, but with the layers swapped.
+    member _.modeLuminosity = h.MakeAttr("mode", "luminosity")
+    /// The final color is the result of multiplying the top and bottom colors.
+    ///
+    /// A black layer leads to a black final layer, and a white layer leads to no change.
+    ///
+    /// The effect is like two images printed on transparent film overlapping.
+    member _.modeMultiply = h.MakeAttr("mode", "multiply")
+    /// The final color is the top color, regardless of what the bottom color is.
+    ///
+    /// The effect is like two opaque pieces of paper overlapping.
+    member _.modeNormal = h.MakeAttr("mode", "normal")
+    /// The final color is the result of multiply if the bottom color is darker, or screen if the
+    /// bottom color is lighter.
+    ///
+    /// This blend mode is equivalent to hard-light but with the layers swapped.
+    member _.modeOverlay = h.MakeAttr("mode", "overlay")
+    /// The final color has the saturation of the top color, while using the hue and luminosity of the
+    /// bottom color.
+    ///
+    /// A pure gray backdrop, having no saturation, will have no effect.
+    member _.modeSaturation = h.MakeAttr("mode", "saturation")
+    /// The final color is the result of inverting the colors, multiplying them, and inverting
+    /// that value.
+    ///
+    /// A black layer leads to no change, and a white layer leads to a white final layer.
+    ///
+    /// The effect is like two images shone onto a projection screen.
+    member _.modeScreen = h.MakeAttr("mode", "screen")
+    /// The final color is similar to hard-light, but softer.
+    ///
+    /// This blend mode behaves similar to hard-light.
+    ///
+    /// The effect is similar to shining a diffused spotlight on the backdrop.
+    member _.modeSoftLight = h.MakeAttr("mode", "soft-light")
+
+    /// This value indicates that the source graphic defined in the in attribute and the
+    /// destination graphic defined in the in2 attribute are combined using the following
+    /// formula:
+    ///
+    /// result = k1*i1*i2 + k2*i1 + k3*i2 + k4
+    ///
+    /// where:
+    ///
+    /// i1 and i2 indicate the corresponding pixel channel values of the input image, which
+    /// map to in and in2 respectively, and k1,k2,k3,and k4 indicate the values of the
+    /// attributes with the same name.
+    ///
+    /// Used with <feComposite>
+    member _.operatorArithmetic = h.MakeAttr("operator", "arithmetic")
+    /// Indicates that the parts of the source graphic defined in the in attribute, which overlap
+    /// the destination graphic defined in the in2 attribute, replace the destination graphic.
+    ///
+    /// The parts of the destination graphic that do not overlap with the source graphic stay untouched.
+    ///
+    /// Used with <feComposite>
+    member _.operatorAtop = h.MakeAttr("operator", "atop")
+    /// Fattens the source graphic defined in the in attribute.
+    ///
+    /// Used with <feMorphology>
+    member _.operatorDilate = h.MakeAttr("operator", "dilate")
+    /// Thins the source graphic defined in the in attribute.
+    ///
+    /// Used with <feMorphology>
+    member _.operatorErode = h.MakeAttr("operator", "erode")
+    /// Indicates that the parts of the source graphic defined in the in attribute that overlap the
+    /// destination graphic defined in the in2 attribute, replace the destination graphic.
+    ///
+    /// Used with <feComposite>
+    member _.operatorIn' = h.MakeAttr("operator", "in")
+    /// Indicates that the sum of the source graphic defined in the in attribute and the destination
+    /// graphic defined in the in2 attribute is displayed.
+    ///
+    /// Used with <feComposite>
+    member _.operatorLighter = h.MakeAttr("operator", "lighter")
+    /// Indicates that the parts of the source graphic defined in the in attribute that fall outside
+    /// the destination graphic defined in the in2 attribute, are displayed.
+    ///
+    /// Used with <feComposite>
+    member _.operatorOut = h.MakeAttr("operator", "out")
+    /// Indicates that the source graphic defined in the in attribute is placed over the destination
+    /// graphic defined in the in2 attribute.
+    ///
+    /// Used with <feComposite>
+    member _.operatorOver = h.MakeAttr("operator", "over")
+    /// Indicates that the non-overlapping regions of the source graphic defined in the in attribute
+    /// and the destination graphic defined in the in2 attribute are combined.
+    ///
+    /// Used with <feComposite>
+    member _.operatorXor = h.MakeAttr("operator", "xor")
+
+    /// Indicates that all coordinates inside the <pattern> element are relative to the bounding box of the element
+    /// the pattern is applied to.
+    ///
+    /// A bounding box could be considered the same as if the content of the <pattern> were bound to a "0 0 1 1"
+    /// viewbox for a pattern tile of width and height of 100%.
+    member _.patternContentUnitsObjectBoundingBox = h.MakeAttr("patternContentUnits", "objectBoundingBox")
+    /// Indicates that all coordinates inside the <pattern> element refer to the user coordinate system as defined
+    /// when the pattern tile was created.
+    member _.patternContentUnitsUserSpaceOnUse = h.MakeAttr("patternContentUnits", "userSpaceOnUse")
+
+    /// Indicates that all coordinates for the geometry properties represent fractions or percentages of the bounding
+    /// box of the element to which the mask is applied.
+    ///
+    /// A bounding box could be considered the same as if the content of the <mask> were bound to a "0 0 1 1" viewbox.
+    member _.patternUnitsObjectBoundingBox = h.MakeAttr("patternUnits", "objectBoundingBox")
+    /// Indicates that all coordinates for the geometry properties refer to the user coordinate system as defined
+    /// when the pattern was applied.
+    member _.patternUnitsUserSpaceOnUse = h.MakeAttr("patternUnits", "userSpaceOnUse")
+
+    /// Indicates that the whole video file can be downloaded, even if the user is not expected to use it.
+    member _.preloadAuto = h.MakeAttr("preload", "auto")
+    /// Indicates that only video metadata (e.g. length) is fetched.
+    member _.preloadMetadata = h.MakeAttr("preload", "metadata")
+    /// Indicates that the video should not be preloaded.
+    member _.preloadNone = h.MakeAttr("preload", "none")
+
+    /// Do not force uniform scaling.
+    ///
+    /// Scale the graphic content of the given element non-uniformly if necessary such that the element's
+    /// bounding box exactly matches the viewport rectangle. Note that if <align> is none, then the optional
+    /// <meetOrSlice> value is ignored.
+    member _.preserveAspectRatioNone = h.MakeAttr("preserveAspectRatio", "none")
+
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewBox is visible within the viewport.
+    ///
+    /// The viewBox is scaled up as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the graphic does not match the viewport, some of
+    /// the viewport will extend beyond the bounds of the viewBox (i.e., the area into which
+    /// the viewBox will draw will be smaller than the viewport).
+    member _.preserveAspectRatioXMinYMinMeet = h.MakeAttr("preserveAspectRatio", "xMinYMin meet")
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewport is covered by the viewBox.
+    ///
+    /// The viewBox is scaled down as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the viewBox does not match the viewport, some of the
+    /// viewBox will extend beyond the bounds of the viewport (i.e., the area into which the
+    /// viewBox will draw is larger than the viewport).
+    member _.preserveAspectRatioXMinYMinSlice = h.MakeAttr("preserveAspectRatio", "xMinYMin slice")
+
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewBox is visible within the viewport.
+    ///
+    /// The viewBox is scaled up as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the graphic does not match the viewport, some of
+    /// the viewport will extend beyond the bounds of the viewBox (i.e., the area into which
+    /// the viewBox will draw will be smaller than the viewport).
+    member _.preserveAspectRatioXMidYMinMeet = h.MakeAttr("preserveAspectRatio", "xMidYMin meet")
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewport is covered by the viewBox.
+    ///
+    /// The viewBox is scaled down as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the viewBox does not match the viewport, some of the
+    /// viewBox will extend beyond the bounds of the viewport (i.e., the area into which the
+    /// viewBox will draw is larger than the viewport).
+    member _.preserveAspectRatioXMidYMinSlice = h.MakeAttr("preserveAspectRatio", "xMidYMin slice")
+
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewBox is visible within the viewport.
+    ///
+    /// The viewBox is scaled up as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the graphic does not match the viewport, some of
+    /// the viewport will extend beyond the bounds of the viewBox (i.e., the area into which
+    /// the viewBox will draw will be smaller than the viewport).
+    member _.preserveAspectRatioXMaxYMinMeet = h.MakeAttr("preserveAspectRatio", "xMaxYMin meet")
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewport is covered by the viewBox.
+    ///
+    /// The viewBox is scaled down as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the viewBox does not match the viewport, some of the
+    /// viewBox will extend beyond the bounds of the viewport (i.e., the area into which the
+    /// viewBox will draw is larger than the viewport).
+    member _.preserveAspectRatioXMaxYMinSlice = h.MakeAttr("preserveAspectRatio", "xMaxYMin slice")
+
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewBox is visible within the viewport.
+    ///
+    /// The viewBox is scaled up as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the graphic does not match the viewport, some of
+    /// the viewport will extend beyond the bounds of the viewBox (i.e., the area into which
+    /// the viewBox will draw will be smaller than the viewport).
+    member _.preserveAspectRatioXMinYMidMeet = h.MakeAttr("preserveAspectRatio", "xMinYMid meet")
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewport is covered by the viewBox.
+    ///
+    /// The viewBox is scaled down as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the viewBox does not match the viewport, some of the
+    /// viewBox will extend beyond the bounds of the viewport (i.e., the area into which the
+    /// viewBox will draw is larger than the viewport).
+    member _.preserveAspectRatioXMinYMidSlice = h.MakeAttr("preserveAspectRatio", "xMinYMid slice")
+
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewBox is visible within the viewport.
+    ///
+    /// The viewBox is scaled up as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the graphic does not match the viewport, some of
+    /// the viewport will extend beyond the bounds of the viewBox (i.e., the area into which
+    /// the viewBox will draw will be smaller than the viewport).
+    member _.preserveAspectRatioXMidYMidMeet = h.MakeAttr("preserveAspectRatio", "xMidYMid meet")
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewport is covered by the viewBox.
+    ///
+    /// The viewBox is scaled down as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the viewBox does not match the viewport, some of the
+    /// viewBox will extend beyond the bounds of the viewport (i.e., the area into which the
+    /// viewBox will draw is larger than the viewport).
+    member _.preserveAspectRatioXMidYMidSlice = h.MakeAttr("preserveAspectRatio", "xMidYMid slice")
+
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewBox is visible within the viewport.
+    ///
+    /// The viewBox is scaled up as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the graphic does not match the viewport, some of
+    /// the viewport will extend beyond the bounds of the viewBox (i.e., the area into which
+    /// the viewBox will draw will be smaller than the viewport).
+    member _.preserveAspectRatioXMaxYMidMeet = h.MakeAttr("preserveAspectRatio", "xMaxYMid meet")
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewport is covered by the viewBox.
+    ///
+    /// The viewBox is scaled down as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the viewBox does not match the viewport, some of the
+    /// viewBox will extend beyond the bounds of the viewport (i.e., the area into which the
+    /// viewBox will draw is larger than the viewport).
+    member _.preserveAspectRatioXMaxYMidSlice = h.MakeAttr("preserveAspectRatio", "xMaxYMid slice")
+
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewBox is visible within the viewport.
+    ///
+    /// The viewBox is scaled up as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the graphic does not match the viewport, some of
+    /// the viewport will extend beyond the bounds of the viewBox (i.e., the area into which
+    /// the viewBox will draw will be smaller than the viewport).
+    member _.preserveAspectRatioXMinYMaxMeet = h.MakeAttr("preserveAspectRatio", "xMinYMax meet")
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewport is covered by the viewBox.
+    ///
+    /// The viewBox is scaled down as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the viewBox does not match the viewport, some of the
+    /// viewBox will extend beyond the bounds of the viewport (i.e., the area into which the
+    /// viewBox will draw is larger than the viewport).
+    member _.preserveAspectRatioXMinYMaxSlice = h.MakeAttr("preserveAspectRatio", "xMinYMax slice")
+
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewBox is visible within the viewport.
+    ///
+    /// The viewBox is scaled up as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the graphic does not match the viewport, some of
+    /// the viewport will extend beyond the bounds of the viewBox (i.e., the area into which
+    /// the viewBox will draw will be smaller than the viewport).
+    member _.preserveAspectRatioXMidYMaxMeet = h.MakeAttr("preserveAspectRatio", "xMidYMax meet")
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewport is covered by the viewBox.
+    ///
+    /// The viewBox is scaled down as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the viewBox does not match the viewport, some of the
+    /// viewBox will extend beyond the bounds of the viewport (i.e., the area into which the
+    /// viewBox will draw is larger than the viewport).
+    member _.preserveAspectRatioXMidYMaxSlice = h.MakeAttr("preserveAspectRatio", "xMidYMax slice")
+
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewBox is visible within the viewport.
+    ///
+    /// The viewBox is scaled up as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the graphic does not match the viewport, some of
+    /// the viewport will extend beyond the bounds of the viewBox (i.e., the area into which
+    /// the viewBox will draw will be smaller than the viewport).
+    member _.preserveAspectRatioXMaxYMaxMeet = h.MakeAttr("preserveAspectRatio", "xMaxYMax meet")
+    /// Scale the graphic such that:
+    ///
+    /// Aspect ratio is preserved.
+    ///
+    /// The entire viewport is covered by the viewBox.
+    ///
+    /// The viewBox is scaled down as much as possible, while still meeting the other criteria.
+    ///
+    /// In this case, if the aspect ratio of the viewBox does not match the viewport, some of the
+    /// viewBox will extend beyond the bounds of the viewport (i.e., the area into which the
+    /// viewBox will draw is larger than the viewport).
+    member _.preserveAspectRatioXMaxYMaxSlice = h.MakeAttr("preserveAspectRatio", "xMaxYMax slice")
+
+    /// Indicates that any length values within the filter definitions represent fractions or
+    /// percentages of the bounding box on the referencing element.
+    member _.primitiveUnitsObjectBoundingBox = h.MakeAttr("primitiveUnits", "objectBoundingBox")
+    /// Indicates that any length values within the filter definitions represent values in the current user coordinate
+    /// system in place at the time when the <filter> element is referenced (i.e., the user coordinate system for the
+    /// element referencing the <filter> element via a filter attribute).
+    member _.primitiveUnitsUserSpaceOnUse = h.MakeAttr("primitiveUnits", "userSpaceOnUse")
+
+    /// The Referer header will not be sent.
+    member _.referrerPolicyNoReferrer = h.MakeAttr("referrerpolicy", "no-referrer")
+    /// The Referer header will not be sent to origins without TLS (HTTPS).
+    member _.referrerPolicyNoReferrerWhenDowngrade = h.MakeAttr("referrerpolicy", "no-referrer-when-downgrade")
+    /// The sent referrer will be limited to the origin of the referring page: its scheme, host, and port.
+    member _.referrerPolicyOrigin = h.MakeAttr("referrerpolicy", "origin")
+    /// The referrer sent to other origins will be limited to the scheme, the host, and the port.
+    /// Navigations on the same origin will still include the path.
+    member _.referrerPolicyOriginWhenCrossOrigin = h.MakeAttr("referrerpolicy", "origin-when-cross-origin")
+    /// A referrer will be sent for same origin, but cross-origin requests will contain no referrer information.
+    member _.referrerPolicySameOrigin = h.MakeAttr("referrerpolicy", "same-origin")
+    /// Only send the origin of the document as the referrer when the protocol security level stays the same
+    /// (e.g. HTTPS→HTTPS), but don't send it to a less secure destination (e.g. HTTPS→HTTP).
+    member _.referrerPolicyStrictOrigin = h.MakeAttr("referrerpolicy", "strict-origin")
+    /// Send a full URL when performing a same-origin request, but only send the origin when the protocol security
+    /// level stays the same (e.g.HTTPS→HTTPS), and send no header to a less secure destination (e.g. HTTPS→HTTP).
+    member _.referrerPolicyStrictOriginWhenCrossOrigin = h.MakeAttr("referrerpolicy", "strict-origin-when-cross-origin")
+    /// The referrer will include the origin and the path (but not the fragment, password, or username). This value is unsafe,
+    /// because it leaks origins and paths from TLS-protected resources to insecure origins.
+    member _.referrerPolicyUnsafeUrl = h.MakeAttr("referrerpolicy", "unsafe-url")
+
+    /// Numbers are interpreted as being in the coordinate system of the marker contents, after application of the
+    /// viewBox and preserveAspectRatio attributes.
+    member _.refXLength (value: float) = h.MakeAttr("refX", Util.asString value)
+    /// Lengths are interpreted as being in the coordinate system of the marker contents, after application
+    /// of the viewBox and preserveAspectRatio attributes.
+    member _.refXLength (value: ICssUnit) = h.MakeAttr("refX", Util.asString value)
+    /// Numbers are interpreted as being in the coordinate system of the marker contents, after application of the
+    /// viewBox and preserveAspectRatio attributes.
+    member _.refXLength (value: int) = h.MakeAttr("refX", Util.asString value)
+    /// The reference point of the marker is placed at the left edge of the shape.
+    member _.refXLeft = h.MakeAttr("refX", "left")
+    /// The reference point of the marker is placed at the horizontal center of the shape.
+    member _.refXCenter = h.MakeAttr("refX", "center")
+    /// The reference point of the marker is placed at the right edge of the shape.
+    member _.refXRight = h.MakeAttr("refX", "right")
+
+    /// Numbers are interpreted as being in the coordinate system of the marker contents, after application of the
+    /// viewBox and preserveAspectRatio attributes.
+    member _.refYLength (value: float) = h.MakeAttr("refY", Util.asString value)
+    /// Lengths are interpreted as being in the coordinate system of the marker contents, after application of the
+    /// viewBox and preserveAspectRatio attributes.
+    ///
+    /// Percentage values are interpreted as being a percentage of the viewBox height.
+    member _.refYLength (value: ICssUnit) = h.MakeAttr("refY", Util.asString value)
+    /// Numbers are interpreted as being in the coordinate system of the marker contents, after application of the
+    /// viewBox and preserveAspectRatio attributes.
+    member _.refYLength (value: int) = h.MakeAttr("refY", Util.asString value)
+    /// The reference point of the marker is placed at the top edge of the shape.
+    member _.refYTop = h.MakeAttr("refY", "top")
+    /// The reference point of the marker is placed at the vertical center of the shape.
+    member _.refYCenter = h.MakeAttr("refY", "center")
+    /// The reference point of the marker is placed at the bottom edge of the shape.
+    member _.refYBottom = h.MakeAttr("refY", "bottom")
+
+    /// Provides a link to an alternate version of the document (i.e. print page, translated or mirror).
+    ///
+    /// Example: <link rel="alternate" type="application/atom+xml" title="W3Schools News" href="/blog/news/atom">
+    member _.relAlternate = h.MakeAttr("rel", "alternate")
+    /// Provides a link to the author of the document.
+    member _.relAuthor = h.MakeAttr("rel", "author")
+    /// Permalink for the nearest ancestor section.
+    member _.relBookmark = h.MakeAttr("rel", "bookmark")
+    /// Preferred URL for the current document.
+    member _.relCanonical = h.MakeAttr("rel", "canonical")
+    /// Specifies that the browser should preemptively perform DNS resolution for the target resource's origin.
+    member _.relDnsPrefetch = h.MakeAttr("rel", "dns-prefetch")
+    /// The referenced document is not part of the same site as the current document.
+    member _.relExternal = h.MakeAttr("rel", "external")
+    /// Provides a link to a help document. Example: <link rel="help" href="/help/">
+    member _.relHelp = h.MakeAttr("rel", "help")
+    /// Imports an icon to represent the document.
+    ///
+    /// Example: <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    member _.relIcon = h.MakeAttr("rel", "icon")
+    /// Provides a link to copyright information for the document.
+    member _.relLicense = h.MakeAttr("rel", "license")
+    /// Web app manifest.
+    member _.relManifest = h.MakeAttr("rel", "manifest")
+    /// Tells to browser to preemptively fetch the script and store it in the document's module map for later
+    /// evaluation. Optionally, the module's dependencies can be fetched as well.
+    member _.relModulepreload = h.MakeAttr("rel", "modulepreload")
+    /// Provides a link to the next document in the series.
+    member _.relNext = h.MakeAttr("rel", "next")
+    /// Indicates that the current document's original author or publisher does not endorse the referenced document.
+    member _.relNofollow = h.MakeAttr("rel", "nofollow")
+    /// Creates a top-level browsing context that is not an auxiliary browsing context if the hyperlink would create
+    /// either of those, to begin with (i.e., has an appropriate target attribute value).
+    member _.relNoopener = h.MakeAttr("rel", "noopener")
+    /// No Referer header will be included. Additionally, has the same effect as noopener.
+    member _.relNoreferrer = h.MakeAttr("rel", "noreferrer")
+    /// Creates an auxiliary browsing context if the hyperlink would otherwise create a top-level browsing context
+    /// that is not an auxiliary browsing context (i.e., has "_blank" as target attribute value).
+    member _.relOpener = h.MakeAttr("rel", "opener")
+    /// Provides the address of the pingback server that handles pingbacks to the current document.
+    member _.relPingback = h.MakeAttr("rel", "pingback")
+    /// Specifies that the browser should preemptively connect to the target resource's origin.
+    member _.relPreconnect = h.MakeAttr("rel", "preconnect")
+    /// Specifies that the browser should preemptively fetch and cache the target resource as it is likely to be
+    /// required for a follow-up navigation.
+    member _.relPrefetch = h.MakeAttr("rel", "prefetch")
+    /// Specifies that the browser agent must preemptively fetch and cache the target resource for current navigation
+    /// according to the destination given by the "as" attribute (and the priority associated with that destination).
+    member _.relPreload = h.MakeAttr("rel", "preload")
+    /// Specifies that the browser should pre-render (load) the specified webpage in the background. So, if the user
+    /// navigates to this page, it speeds up the page load (because the page is already loaded).
+    ///
+    /// Warning! This wastes the user's bandwidth!
+    ///
+    /// Only use prerender if it is absolutely sure that the webpage is required at some point in the user journey.
+    member _.relPrerender = h.MakeAttr("rel", "prerender")
+    /// Indicates that the document is a part of a series, and that the previous document in the series is the referenced document.
+    member _.relPrev = h.MakeAttr("rel", "prev")
+    /// Provides a link to a resource that can be used to search through the current document and its related pages.
+    member _.relSearch = h.MakeAttr("rel", "search")
+    /// Imports a style sheet.
+    member _.relStylesheet = h.MakeAttr("rel", "stylesheet")
+    /// Gives a tag (identified by the given address) that applies to the current document.
+    member _.relTag = h.MakeAttr("rel", "tag")
+
+    /// Specifies the number of iterations.
+    ///
+    /// It can include partial iterations expressed as fraction values.
+    ///
+    /// A fractional value describes a portion of the simple duration.
+    ///
+    /// Values must be greater than 0.
+    member _.repeatCountIterations (value: float) = h.MakeAttr("repeatCount", Util.asString value)
+    /// Specifies the number of iterations.
+    ///
+    /// It can include partial iterations expressed as fraction values.
+    ///
+    /// A fractional value describes a portion of the simple duration.
+    ///
+    /// Values must be greater than 0.
+    member _.repeatCountIterations (value: int) = h.MakeAttr("repeatCount", Util.asString value)
+    /// Indicates that the animation will be repeated indefinitely (i.e. until the document ends).
+    member _.repeatCountIndefinite = h.MakeAttr("repeatCount", "indefinite")
+
+    // /// This value specifies the duration in presentation time to repeat the animation.
+    // static member inline clockValue (duration: System.TimeSpan) =
+    //     PropHelpers.createClockValue(duration)
+    //     |> Interop.mkAttr "repeatDur"
+    /// Indicates that the animation will be repeated indefinitely (i.e. until the document ends).
+    member _.repeatDurIndefinite = h.MakeAttr("repeatDur", "indefinite")
+
+    /// Indicates that the animation can be restarted at any time.
+    member _.restartAlways = h.MakeAttr("restart", "always")
+    /// Indicates that the animation cannot be restarted for the time the document is loaded.
+    member _.restartNever = h.MakeAttr("restart", "never")
+    /// Indicates that the animation can only be restarted when it is not active (i.e. after the active end).
+    ///
+    /// Attempts to restart the animation during its active duration are ignored.
+    member _.restartWhenNotActive = h.MakeAttr("restart", "whenNotActive")
+
+    /// A message with important, and usually time-sensitive, information.
+    /// See related `alertdialog` and `status`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#alert
+    member _.roleAlert = h.MakeAttr("role", "alert")
+    /// A type of dialog that contains an alert message, where initial focus
+    /// goes to an element within the dialog. See related `alert` and
+    /// `dialog`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#alertdialog
+    member _.roleAlertDialog = h.MakeAttr("role", "alertdialog")
+    /// A region declared as a web application, as opposed to a web
+    /// `document`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#application
+    member _.roleApplication = h.MakeAttr("role", "application")
+    /// A section of a page that consists of a composition that forms an
+    /// independent part of a document, page, or site.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#article
+    member _.roleArticle = h.MakeAttr("role", "article")
+    /// A region that contains mostly site-oriented content, rather than
+    /// page-specific content.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#banner
+    member _.roleBanner = h.MakeAttr("role", "banner")
+    /// An input that allows for user-triggered actions when clicked or
+    /// pressed. See related `link`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#button
+    member _.roleButton = h.MakeAttr("role", "button")
+    /// A checkable input that has three possible values: `true`, `false`,
+    /// or `mixed`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#checkbox
+    member _.roleCheckbox = h.MakeAttr("role", "checkbox")
+    /// A cell containing header information for a column.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#columnheader
+    member _.roleColumnHeader = h.MakeAttr("role", "columnheader")
+    /// A presentation of a `select`; usually similar to a `textbox` where
+    /// users can type ahead to select an option, or type to enter arbitrary
+    /// text as a new item in the list. See related `listbox`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#combobox
+    member _.roleComboBox = h.MakeAttr("role", "combobox")
+    /// A supporting section of the document, designed to be complementary
+    /// to the main content at a similar level in the DOM hierarchy, but
+    /// remains meaningful when separated from the main content.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#complementary
+    member _.roleComplementary = h.MakeAttr("role", "complementary")
+    /// A large perceivable region that contains information about the
+    /// parent document.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#contentinfo
+    member _.roleContentInfo = h.MakeAttr("role", "contentinfo")
+    /// A definition of a term or concept.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#definition
+    member _.roleDefinition = h.MakeAttr("role", "definition")
+    /// A dialog is an application window that is designed to interrupt the
+    /// current processing of an application in order to prompt the user to
+    /// enter information or require a response. See related `alertdialog`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#dialog
+    member _.roleDialog = h.MakeAttr("role", "dialog")
+    /// A list of references to members of a group, such as a static table
+    /// of contents.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#directory
+    member _.roleDirectory = h.MakeAttr("role", "directory")
+    /// A region containing related information that is declared as document
+    /// content, as opposed to a web application.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#document
+    member _.roleDocument = h.MakeAttr("role", "document")
+    /// A `landmark` region that contains a collection of items and objects
+    /// that, as a whole, combine to create a form. See related search.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#form
+    member _.roleForm = h.MakeAttr("role", "form")
+    /// A grid is an interactive control which contains cells of tabular
+    /// data arranged in rows and columns, like a table.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#grid
+    member _.roleGrid = h.MakeAttr("role", "grid")
+    /// A cell in a grid or treegrid.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#gridcell
+    member _.roleGridCell = h.MakeAttr("role", "gridcell")
+    /// A set of user interface objects which are not intended to be
+    /// included in a page summary or table of contents by assistive
+    /// technologies.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#group
+    member _.roleGroup = h.MakeAttr("role", "group")
+    /// A heading for a section of the page.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#heading
+    member _.roleHeading = h.MakeAttr("role", "heading")
+    /// A container for a collection of elements that form an image.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#img
+    member _.roleImg = h.MakeAttr("role", "img")
+    /// An interactive reference to an internal or external resource that,
+    /// when activated, causes the user agent to navigate to that resource.
+    /// See related `button`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#link
+    member _.roleLink = h.MakeAttr("role", "link")
+    /// A group of non-interactive list items. See related `listbox`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#list
+    member _.roleList = h.MakeAttr("role", "list")
+    /// A widget that allows the user to select one or more items from a
+    /// list of choices. See related `combobox` and `list`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#listbox
+    member _.roleListBox = h.MakeAttr("role", "listbox")
+    /// A single item in a list or directory.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#listitem
+    member _.roleListItem = h.MakeAttr("role", "listitem")
+    /// A type of live region where new information is added in meaningful
+    /// order and old information may disappear. See related `marquee`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#log
+    member _.roleLog = h.MakeAttr("role", "log")
+    /// The main content of a document.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#main
+    member _.roleMain = h.MakeAttr("role", "main")
+    /// A type of live region where non-essential information changes
+    /// frequently. See related `log`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#marquee
+    member _.roleMarquee = h.MakeAttr("role", "marquee")
+    /// Content that represents a mathematical expression.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#math
+    member _.roleMath = h.MakeAttr("role", "math")
+    /// A type of widget that offers a list of choices to the user.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#menu
+    member _.roleMenu = h.MakeAttr("role", "menu")
+    /// A presentation of `menu` that usually remains visible and is usually
+    /// presented horizontally.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#menubar
+    member _.roleMenuBar = h.MakeAttr("role", "menubar")
+    /// An option in a set of choices contained by a `menu` or `menubar`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#menuitem
+    member _.roleMenuItem = h.MakeAttr("role", "menuitem")
+    /// A `menuitem` with a checkable state whose possible values are
+    /// `true`, `false`, or `mixed`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#menuitemcheckbox
+    member _.roleMenuItemCheckbox = h.MakeAttr("role", "menuitemcheckbox")
+    /// A checkable menuitem in a set of elements with role `menuitemradio`,
+    /// only one of which can be checked at a time.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#menuitemradio
+    member _.roleMenuItemRadio = h.MakeAttr("role", "menuitemradio")
+    /// A collection of navigational elements (usually links) for navigating
+    /// the document or related documents.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#navigation
+    member _.roleNavigation = h.MakeAttr("role", "navigation")
+    /// A section whose content is parenthetic or ancillary to the main
+    /// content of the resource.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#note
+    member _.roleNote = h.MakeAttr("role", "note")
+    /// A selectable item in a `select` list.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#option
+    member _.roleOption = h.MakeAttr("role", "option")
+    /// An element whose implicit native role semantics will not be mapped
+    /// to the accessibility API.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#presentation
+    member _.rolePresentation = h.MakeAttr("role", "presentation")
+    /// An element that displays the progress status for tasks that take a
+    /// long time.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#progressbar
+    member _.roleProgressBar = h.MakeAttr("role", "progressbar")
+    /// A checkable input in a group of elements with role radio, only one
+    /// of which can be checked at a time.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#radio
+    member _.roleRadio = h.MakeAttr("role", "radio")
+    /// A group of radio buttons.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#radiogroup
+    member _.roleRadioGroup = h.MakeAttr("role", "radiogroup")
+    /// A large perceivable section of a web page or document, that is
+    /// important enough to be included in a page summary or table of
+    /// contents, for example, an area of the page containing live sporting
+    /// event statistics.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#region
+    member _.roleRegion = h.MakeAttr("role", "region")
+    /// A row of cells in a grid.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#row
+    member _.roleRow = h.MakeAttr("role", "row")
+    /// A group containing one or more row elements in a grid.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#rowgroup
+    member _.roleRowGroup = h.MakeAttr("role", "rowgroup")
+    /// A cell containing header information for a row in a grid.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#rowheader
+    member _.roleRowHeader = h.MakeAttr("role", "rowheader")
+    /// A graphical object that controls the scrolling of content within a
+    /// viewing area, regardless of whether the content is fully displayed
+    /// within the viewing area.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#scrollbar
+    member _.roleScrollBar = h.MakeAttr("role", "scrollbar")
+    /// A divider that separates and distinguishes sections of content or
+    /// groups of menuitems.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#separator
+    member _.roleSeparator = h.MakeAttr("role", "separator")
+    /// A `landmark` region that contains a collection of items and objects
+    /// that, as a whole, combine to create a search facility. See related
+    /// `form`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#search
+    member _.roleSearch = h.MakeAttr("role", "search")
+    /// A user input where the user selects a value from within a given
+    /// range.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#slider
+    member _.roleSlider = h.MakeAttr("role", "slider")
+    /// A form of `range` that expects the user to select from among
+    /// discrete choices.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#spinbutton
+    member _.roleSpinButton = h.MakeAttr("role", "spinbutton")
+    /// A container whose content is advisory information for the user but
+    /// is not important enough to justify an alert, often but not
+    /// necessarily presented as a status bar. See related `alert`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#status
+    member _.roleStatus = h.MakeAttr("role", "status")
+    /// A grouping label providing a mechanism for selecting the tab content
+    /// that is to be rendered to the user.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#tab
+    member _.roleTab = h.MakeAttr("role", "tab")
+    /// A list of `tab` elements, which are references to `tabpanel`
+    /// elements.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#tablist
+    member _.roleTabList = h.MakeAttr("role", "tablist")
+    /// A container for the resources associated with a `tab`, where each
+    /// `tab` is contained in a `tablist`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#tabpanel
+    member _.roleTabPanel = h.MakeAttr("role", "tabpanel")
+    /// Input that allows free-form text as its value.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#textbox
+    member _.roleTextBox = h.MakeAttr("role", "textbox")
+    /// A type of live region containing a numerical counter which indicates
+    /// an amount of elapsed time from a start point, or the time remaining
+    /// until an end point.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#timer
+    member _.roleTimer = h.MakeAttr("role", "timer")
+    /// A collection of commonly used function buttons or controls
+    /// represented in compact visual form.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#toolbar
+    member _.roleToolbar = h.MakeAttr("role", "toolbar")
+    /// A contextual popup that displays a description for an element.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#tooltip
+    member _.roleTooltip = h.MakeAttr("role", "tooltip")
+    /// A type of `list` that may contain sub-level nested groups that can
+    /// be collapsed and expanded.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#tree
+    member _.roleTree = h.MakeAttr("role", "tree")
+    /// A `grid` whose rows can be expanded and collapsed in the same manner
+    /// as for a `tree`.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#treegrid
+    member _.roleTreeGrid = h.MakeAttr("role", "treegrid")
+    /// An option item of a `tree`. This is an element within a tree that
+    /// may be expanded or collapsed if it contains a sub-level group of
+    /// `treeitem` elements.
+    ///
+    /// https://www.w3.org/WAI/PF/aria-1.1/roles#treeitem
+    member _.roleTreeItem = h.MakeAttr("role", "treeitem")
+
+    // /// For the opposite direction.
+    // member _.selectionDirectionBackward = h.MakeAttr("selectionDirection", "backward")
+    // /// If selection was performed in the start-to-end direction of the current locale.
+    // member _.selectionDirectionForward = h.MakeAttr("selectionDirection", "forward")
+    // /// If the direction is unknown.
+    // member _.selectionDirectionNone = h.MakeAttr("selectionDirection", "none")
+
+    member _.shapeRect = h.MakeAttr("shape", "rect")
+    member _.shapeCircle = h.MakeAttr("shape", "circle")
+    member _.shapePoly = h.MakeAttr("shape", "poly")
+
+    /// Indicates that the user agent should use text-on-a-path layout algorithms to adjust
+    /// the spacing between typographic characters in order to achieve visually appealing results.
+    member _.spacingAuto = h.MakeAttr("spacing", "auto")
+    /// Indicates that the typographic characters should be rendered exactly according to the
+    /// spacing rules as specified by the layout rules for text-on-a-path.
+    member _.spacingExact = h.MakeAttr("spacing", "exact")
+
+    /// Indicates that the final color of the gradient fills the shape beyond the gradient's edges.
+    member _.spreadMethodPad = h.MakeAttr("spreadMethod", "pad")
+    /// Indicates that the gradient repeats in reverse beyond its edges.
+    member _.spreadMethodReflect = h.MakeAttr("spreadMethod", "reflect")
+    /// Specifies that the gradient repeats in the original order beyond its edges.
+    member _.spreadMethodRepeat = h.MakeAttr("spreadMethod", "repeat")
+
+    /// Indicates that no attempt is made to achieve smooth transitions at the border of tiles which
+    /// contain a turbulence function.
+    ///
+    /// Sometimes the result will show clear discontinuities at the tile borders.
+    member _.stitchTilesNoStitch = h.MakeAttr("stitchTiles", "noStitch")
+    /// Indicates that the user agent will automatically adjust the x and y values of the base
+    /// frequency such that the <feTurbulence> node’s width and height (i.e., the width and
+    /// height of the current subregion) contain an integral number of the tile width and height
+    /// for the first octave.
+    member _.stitchTilesStitch = h.MakeAttr("stitchTiles", "stitch")
+
+    /// Opens the linked document in a new window or tab.
+    member _.targetBlank = h.MakeAttr("target", "_blank")
+    /// Opens the linked document in the parent frame.
+    member _.targetParent = h.MakeAttr("target", "_parent")
+    /// Opens the linked document in the same frame as it was clicked (this is default).
+    member _.targetSelf = h.MakeAttr("target", "_self")
+    /// Opens the linked document in the full body of the window.
+    member _.targetTop = h.MakeAttr("target", "_top")
+
+    /// The rendered characters are shifted such that the end of the
+    /// resulting rendered text (final current text position before applying
+    /// the `text-anchor` property) is at the initial current text position.
+    /// For an element with a `direction` property value of `ltr` (typical
+    /// for most European languages), the right side of the text is rendered
+    /// at the initial text position. For an element with a `direction`
+    /// property value of `rtl` (typical for Arabic and Hebrew), the left
+    /// side of the text is rendered at the initial text position. For an
+    /// element with a vertical primary text direction (often typical for
+    /// Asian text), the bottom of the text is rendered at the initial text
+    /// position.
+    member _.textAnchorEndOfText = h.MakeAttr("text-anchor", "end")
+    /// The rendered characters are aligned such that the middle of the text
+    /// string is at the current text position. (For text on a path,
+    /// conceptually the text string is first laid out in a straight line.
+    /// The midpoint between the start of the text string and the end of the
+    /// text string is determined. Then, the text string is mapped onto the
+    /// path with this midpoint placed at the current text position.)
+    member _.textAnchorMiddle = h.MakeAttr("text-anchor", "middle")
+    /// The rendered characters are aligned such that the start of the text
+    /// string is at the initial current text position. For an element with
+    /// a `direction` property value of `ltr` (typical for most European
+    /// languages), the left side of the text is rendered at the initial
+    /// text position. For an element with a `direction` property value of
+    /// `rtl` (typical for Arabic and Hebrew), the right side of the text is
+    /// rendered at the initial text position. For an element with a
+    /// vertical primary text direction (often typical for Asian text), the
+    /// top side of the text is rendered at the initial text position.
+    member _.textAnchorStartOfText = h.MakeAttr("text-anchor", "start")
+
+    /// Defines a clickable button (mostly used with a JavaScript code to activate a script)
+    member _.typeButton = h.MakeAttr("type", "button")
+    /// Defines a checkbox
+    member _.typeCheckbox = h.MakeAttr("type", "checkbox")
+    /// Defines a color picker
+    member _.typeColor = h.MakeAttr("type", "color")
+    /// Defines a date control with year, month and day (no time)
+    member _.typeDate = h.MakeAttr("type", "date")
+    /// Defines a date and time control (year, month, day, time (no timezone)
+    member _.typeDateTimeLocal = h.MakeAttr("type", "datetime-local")
+    /// Defines a field for an e-mail address
+    member _.typeEmail = h.MakeAttr("type", "email")
+    /// Defines a file-select field and a "Browse" button (for file uploads)
+    member _.typeFile = h.MakeAttr("type", "file")
+    /// Defines a hidden input field
+    member _.typeHidden = h.MakeAttr("type", "hidden")
+    /// Defines an image as the submit button
+    member _.typeImage = h.MakeAttr("type", "image")
+    /// Defines a month and year control (no timezone)
+    member _.typeMonth = h.MakeAttr("type", "month")
+    /// Defines a field for entering a number
+    member _.typeNumber = h.MakeAttr("type", "number")
+    /// Defines a password field
+    member _.typePassword = h.MakeAttr("type", "password")
+    /// Defines a radio button
+    member _.typeRadio = h.MakeAttr("type", "radio")
+    /// Defines a range control (like a slider control)
+    member _.typeRange = h.MakeAttr("type", "range")
+    /// Defines a reset button
+    member _.typeReset = h.MakeAttr("type", "reset")
+    /// Defines a text field for entering a search string
+    member _.typeSearch = h.MakeAttr("type", "search")
+    /// Defines a submit button
+    member _.typeSubmit = h.MakeAttr("type", "submit")
+    /// Defines a field for entering a telephone number
+    member _.typeTel = h.MakeAttr("type", "tel")
+    /// Default. Defines a single-line text field
+    member _.typeText = h.MakeAttr("type", "text")
+    /// Defines a control for entering a time (no timezone)
+    member _.typeTime = h.MakeAttr("type", "time")
+    /// Defines a field for entering a URL
+    member _.typeUrl = h.MakeAttr("type", "url")
+    /// Defines a week and year control (no timezone)
+    member _.typeWeek = h.MakeAttr("type", "week")
+
+    /// The browser ensures that all line breaks in the value consist of a CR+LF pair,
+    /// but does not insert any additional line breaks.
+    member _.wrapSoft = h.MakeAttr("wrap", "soft")
+    /// The browser automatically inserts line breaks (CR+LF)
+    /// so that each line has no more than the width of the control;
+    /// the cols attribute must also be specified for this to take effect.
+    member _.wrapHard = h.MakeAttr("wrap", "hard")
+    /// Like soft but changes appearance to white-space: pre
+    /// so line segments exceeding cols are not wrapped and the `<textarea>` becomes horizontally scrollable.
+    /// WARNING: This API has not been standardized.
+    member _.wrapOff = h.MakeAttr("wrap", "off")
+
+    /// Specifies that the alpha channel of the input image defined in in2 will be used to displace
+    /// the pixels of the input image defined in in along the x-axis.
+    member _.xChannelSelectorA = h.MakeAttr("xChannelSelector", "A")
+    /// Specifies that the blue color channel of the input image defined in in2 will be used to
+    /// displace the pixels of the input image defined in in along the x-axis.
+    member _.xChannelSelectorB = h.MakeAttr("xChannelSelector", "B")
+    /// Specifies that the green color channel of the input image defined in in2 will be used to
+    /// displace the pixels of the input image defined in in along the x-axis.
+    member _.xChannelSelectorG = h.MakeAttr("xChannelSelector", "G")
+    /// Specifies that the red color channel of the input image defined in in2 will be used to
+    /// displace the pixels of the input image defined in in along the x-axis.
+    member _.xChannelSelectorR = h.MakeAttr("xChannelSelector", "R")
+
+    /// Specifies that the alpha channel of the input image defined in in2 will be used to displace
+    /// the pixels of the input image defined in in along the y-axis.
+    member _.yChannelSelectorA = h.MakeAttr("yChannelSelector", "A")
+    /// Specifies that the blue color channel of the input image defined in in2 will be used to
+    /// displace the pixels of the input image defined in in along the y-axis.
+    member _.yChannelSelectorB = h.MakeAttr("yChannelSelector", "B")
+    /// Specifies that the green color channel of the input image defined in in2 will be used to
+    /// displace the pixels of the input image defined in in along the y-axis.
+    member _.yChannelSelectorG = h.MakeAttr("yChannelSelector", "G")
+    /// Specifies that the red color channel of the input image defined in in2 will be used to
+    /// displace the pixels of the input image defined in in along the y-axis.
+    member _.yChannelSelectorR = h.MakeAttr("yChannelSelector", "R")

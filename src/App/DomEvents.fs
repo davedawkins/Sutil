@@ -5,10 +5,10 @@ module DomEvents
 
 open Sutil
 open Feliz
+open type Feliz.length
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Styling
-open Sutil.Bindings
 open Browser.Types
 
 let view() =
@@ -24,8 +24,8 @@ let view() =
         Bind.fragment m <| fun (x,y) -> text $"The mouse position is {x} x {y}"
     ] |> withStyle [
         rule "div" [
-            Css.width (length.vw 100)
-            Css.height.custom (length.vh 100)
+            Css.width (vw 100)
+            Css.height (vh 100)
         ]
     ]
 

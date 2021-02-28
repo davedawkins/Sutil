@@ -2,11 +2,13 @@ module Spreadsheet
 
 // Based on http://tomasp.net/blog/2018/write-your-own-excel/
 
+open Feliz
+open type Feliz.length
+open type Feliz.borderStyle
 open Sutil
 open Sutil.Styling
 open Sutil.Attr
 open Sutil.DOM
-open Sutil.Bindings
 open Fable.Core.JsInterop
 open Evaluator
 
@@ -26,27 +28,27 @@ type Model =
 
 let styleSheet = [
     rule "table" [
-        CssXs.borderSpacing "0px"
-        CssXs.borderBottom "1px solid #e0e0e0"
-        CssXs.borderRight "1px solid #e0e0e0"
+        Css.borderSpacing zero
+        Css.borderBottom( px 1, solid, "#e0e0e0")
+        Css.borderRight( px 1, solid, "#e0e0e0")
     ]
     rule "td, th" [
         Css.minWidth "50px"
-        CssXs.borderLeft "1px solid #e0e0e0"
-        CssXs.borderTop "1px solid #e0e0e0"
+        Css.borderLeft( px 1, solid, "#e0e0e0" )
+        Css.borderTop( px 1, solid, "#e0e0e0" )
         Css.padding 5
     ]
     rule "td.selected" [
         Css.padding 0
     ]
     rule "td div" [
-        Css.display.flex
-        Css.flexDirection.row
+        Css.displayFlex
+        Css.flexDirectionRow
     ]
     rule "td input" [
-        CssXs.flex "1"
+        Css.flex 1
         Css.width 56
-        Css.height.custom 22
+        Css.height 22
     ]
 ]
 

@@ -11,6 +11,8 @@ open Sutil.Transition
 open Browser.Types
 open Types
 
+open type Feliz.length
+
 //
 // Books
 //   Chapters (Categories)
@@ -205,18 +207,18 @@ let update msg model : Model * Cmd<Message> =
 let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".app-main" [
-        Css.height.custom (length.percent 100)
+        Css.height (percent 100)
     ]
 
     rule ".app-heading" [
-        Css.display.flex
-        Css.flexDirection.row
-        Css.justifyContent.spaceBetween
-        Css.position.fixedRelativeToWindow
+        Css.displayFlex
+        Css.flexDirectionRow
+        Css.justifyContentSpaceBetween
+        Css.positionFixed
         Css.width (length.vw 100)
         Css.backgroundColor "white"
         Css.padding 12
-        CssXs.boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
+        Css.boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
         Css.marginBottom 4
         Css.zIndex 1   // Messes with .modal button
     ]
@@ -228,7 +230,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     rule ".app-contents" [
         Css.backgroundColor "#676778"
         Css.color "white"
-        Css.overflow.overflow_scroll
+        Css.overflowScroll
     ]
 
     rule ".app-contents ul" [
@@ -243,20 +245,20 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     ]
 
     rule ".app-contents a" [
-        Css.cursor.pointer
+        Css.cursorPointer
         Css.color "white"
-        Css.textDecoration.none
+        Css.textDecorationNone
     ]
 
     rule ".app-contents a:hover" [
         Css.color "white"
-        Css.textDecoration.underline
+        Css.textDecorationUnderline
     ]
 
     rule ".app-main-section" [
         Css.marginTop 0
         Css.paddingTop 50
-        Css.height.custom( length.percent 100 )
+        Css.height (percent 100)
     ]
 
     rule ".app-page" [
@@ -269,16 +271,16 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".app-toolbar a" [
         Css.color "#676778"
-        Css.fontSize (length.percent 80)
+        Css.fontSize (percent 80)
         Css.padding 12
     ]
 
     rule ".app-toolbar ul" [
-        Css.display.inlineElement
+        Css.displayInlineElement
     ]
 
     rule ".app-toolbar li" [
-        Css.display.inlineElement
+        Css.displayInlineElement
     ]
 
     rule "pre" [
@@ -287,12 +289,12 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     ]
 
     rule ".slogo" [
-        Css.display.inlineFlex
+        Css.displayInlineFlex
         Css.fontFamily "'Coda Caption'"
-        Css.alignItems.center
-        Css.justifyContent.center
+        Css.alignItemsCenter
+        Css.justifyContentCenter
         Css.width 32
-        Css.height.custom 24
+        Css.height 24
         Css.backgroundColor "#444444"
         Css.color "white"
     ]

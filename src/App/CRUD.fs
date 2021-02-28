@@ -152,7 +152,7 @@ let appStyle = [
         Css.flexGrow 2 // Allow more space for field label
     ]
     rule "label.label" [
-        Css.textAlign.left // To match 7GUI spec
+        Css.textAlignLeft // To match 7GUI spec
     ]
 ]
 

@@ -2,7 +2,7 @@ module CounterWithTransition
 
 open Sutil
 open Feliz
-open Sutil.Bindings
+open type Feliz.length
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Styling
@@ -12,35 +12,33 @@ open Sutil.Transition
 // Private styling for the counter
 //
 let private counterStyle = [
-    let Em (n : double) = length.em n
-    let Rem (n : double) = length.rem n
-    let Pct (n : double) = length.percent n
-
     rule "div" [
         Css.fontFamily "sans-serif"
         Css.color "#4a4a4a"
-        Css.fontSize (Em 1.0)
-        CssXs.fontWeight 400
-        Css.lineHeight 1.5
+        Css.fontSize (em 1.0)
+        Css.fontWeight 400
+        Css.lineHeight (px 1.5)
     ]
 
     rule "button" [
-        CssXs.border "1px solid transparent"
+        Css.border(px 1, borderStyle.solid, color.transparent)
         Css.borderRadius 4
-        Css.boxShadow.none
-        Css.fontSize (Rem 1.0)
-        Css.height.custom(Em 2.5)
-        Css.position.relative
-        Css.verticalAlign.top
+        Css.boxShadowNone
+        Css.fontSize (rem 1.0)
+        Css.height (em 2.5)
+        Css.positionRelative
+        Css.verticalAlignTop
 
         Css.backgroundColor "#fff"
         Css.borderColor "#dbdbdb"
         Css.borderWidth 1
         Css.color "#363636"
-        Css.cursor.pointer
-        CssXs.padding "calc(.5em - 1px) 1.0em"
-        Css.textAlign.center
-        Css.whitespace.nowrap
+        Css.cursorPointer
+
+        Css.padding( calc "0.5em - 1px", em 1 )
+
+        Css.textAlignCenter
+        Css.whiteSpaceNowrap
     ]
 
     rule "button.reset" [
@@ -50,13 +48,10 @@ let private counterStyle = [
     rule "div.hint" [
         Css.marginTop 8
         Css.marginLeft 8
-        Css.fontSize (Pct 80.0)
+        Css.fontSize (percent 80.0)
         Css.color "gray"
     ]
 ]
-
-open Sutil.Transition
-open Browser.Dom
 
 //
 // Add this to a document with

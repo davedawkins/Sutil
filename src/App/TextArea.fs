@@ -5,6 +5,7 @@ module TextArea
 
 open Sutil
 open Feliz
+open type Feliz.length
 open Sutil.Attr
 open Sutil.DOM
 open Sutil.Styling
@@ -21,14 +22,14 @@ let sampleText =
 
 let style = [
     rule "textarea" [
-        Css.width  (length.percent 100)
-        Css.height.custom (length.percent 100)
+        Css.width  (percent 100)
+        Css.height (percent 100)
         Css.fontFamily "monospace"
         Css.padding 4
     ]
 
     rule "span" [
-        Css.display.block
+        Css.displayBlock
         Css.marginTop 40
     ]
 ]

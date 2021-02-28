@@ -21,6 +21,7 @@
   <ItemGroup>
     <Compile Include="Feliz.Engine/CssEngine.fs" />
     <Compile Include="Feliz.Engine/HtmlEngine.fs" />
+    <Compile Include="Feliz.Engine/SvgEngine.fs" />
     <Compile Include="Feliz.Engine/AttrEngine.fs" />
     <Compile Include="Easing.fs" />
     <Compile Include="Interop.fs" />

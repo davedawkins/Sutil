@@ -8,6 +8,7 @@ open Sutil.DOM
 open Sutil.Attr
 open Sutil.Styling
 open Feliz
+open type Feliz.length
 open Fable.Core
 
 module D3Scale =
@@ -39,7 +40,6 @@ let formatMobile (tick:int) =
     $"'{(string tick).[-2..]}"
 
 open D3Scale
-open Sutil.Bindings
 
 type Message =
     | UpdateWidth of float
@@ -85,25 +85,25 @@ let update (msg:Message) (model:Model) =
 
 let styleSheet = [
     rule "h4" [
-        Css.textAlign.center
+        Css.textAlignCenter
     ]
 
     rule ".chart" [
-        Css.width (length.percent 100)
+        Css.width (percent 100)
         Css.maxWidth 500
-        CssXs.margin("0 auto")
+        Css.margin(zero, auto)
     ]
 
     rule "svg" [
-        Css.position.relative
-        Css.width (length.percent 100)
-        Css.height.custom 250
+        Css.positionRelative
+        Css.width (percent 100)
+        Css.height 250
     ]
 
     rule ".tick" [
         Css.fontFamily "Helvetica, Arial"
-        Css.fontSize (length.em 0.725)
-        CssXs.fontWeight "200"
+        Css.fontSize (em 0.725)
+        Css.fontWeight 200
     ]
 
     rule ".tick line" [

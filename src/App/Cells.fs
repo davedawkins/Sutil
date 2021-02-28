@@ -6,6 +6,8 @@ module SevenGuisCells
 // Still being refactored. Gets better on each pass
 //
 open Feliz
+open type Feliz.borderStyle
+open type Feliz.length
 open Sutil
 open Sutil.Styling
 open Sutil.Attr
@@ -78,32 +80,28 @@ let rows m = m.Rows
 let cols m = m.Cols
 
 let styleSheet = [
-    let Pct (n : double) = length.percent n
-    let Em (n : double) = length.em n
-    let Vh (n : double) = length.vh n
-
     rule "table" [
-        CssXs.borderSpacing 0
-        CssXs.borderBottom "1px solid #e0e0e0"
-        CssXs.borderRight "1px solid #e0e0e0"
+        Css.borderSpacing zero
+        Css.borderBottom(px 1, solid, "#e0e0e0")
+        Css.borderRight(px 1, solid, "#e0e0e0")
     ]
     rule "td, th" [
         Css.minWidth 50
-        CssXs.borderLeft "1px solid #e0e0e0"
-        CssXs.borderTop "1px solid #e0e0e0"
+        Css.borderLeft(px 1, solid, "#e0e0e0")
+        Css.borderTop(px 1, solid, "#e0e0e0")
         Css.padding 5
     ]
     rule "td.selected" [
         Css.padding 0
     ]
     rule "td div" [
-        Css.display.flex
-        Css.flexDirection.row
+        Css.displayFlex
+        Css.flexDirectionRow
     ]
     rule "td input" [
-        CssXs.flex 1
+        Css.flex 1
         Css.width 56
-        Css.height.custom 22
+        Css.height 22
     ]
     rule "td.active" [
         Css.backgroundColor "red"

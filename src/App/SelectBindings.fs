@@ -35,7 +35,7 @@ let appStyle = [
 
 // HTML helpers
 let block children =
-    Html.div <| (class' "block") :: children
+    Html.div ((class' "block") :: children )
 
 let view() =
     let answer   = Store.make("")
@@ -62,7 +62,7 @@ let view() =
                     on "change" (fun _ -> Store.set answer "") []
                     for question in questions do
                         Html.option [
-                            value question
+                            attr( "value", question ) // FIXME: Add obj overload for value
                             text question.Text
                         ]
                 ]

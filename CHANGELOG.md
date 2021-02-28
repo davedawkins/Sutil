@@ -2,6 +2,8 @@
 
 ## Changelog (most recent first)
 
+- Now converted to Feliz.HtmlEngine, Feliz.AttrEngine & Feliz.CssEngine
+- Previous change should have read "convert fully to Feliz.CssEngine"
 - Convert fully to Feliz.Engine
 - Updates to README.md and about_sutil.md
 - Update to installation.md

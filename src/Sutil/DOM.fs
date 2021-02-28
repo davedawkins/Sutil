@@ -807,10 +807,10 @@ let html text : NodeFactory = nodeFactory <| fun ctx ->
                                         applyCustomRules ch ns)
     nodeResult el
 
+#if !USE_FELIZ_ENGINE
 
 module Html =
 
-    #if !USE_POC_HTML
     let div xs : NodeFactory = el "div" xs
     let textarea xs = el "textarea" xs
     let section xs = el "section" xs
@@ -843,35 +843,42 @@ module Html =
     let tr xs = el "tr" xs
     let th xs = el "th" xs
     let td xs = el "td" xs
-    #else
-    open Feliz
-    // Dummy type to avoid problems with overload resolution in HtmlEngine
-    type [<Fable.Core.Erase>] NodeAttr = NodeAttr of NodeFactory
+#else
 
-    let Html =
-        HtmlEngine
-            { new IConverter<NodeFactory, NodeAttr> with
-                override _.CreateEl(tag, nodes) = el tag (unbox nodes)
-                override _.ChildrenToProp(children) = NodeAttr(fragment children)
-                override _.StringToEl(v) = text v
+open Feliz
+// Dummy type to avoid problems with overload resolution in HtmlEngine
+type [<Fable.Core.Erase>] NodeAttr = NodeAttr of NodeFactory
 
-                override _.EmptyEl = fun _ -> unitResult()
-                override _.FloatToEl(v) = text $"{v}"
-                override _.IntToEl(v) = text $"{v}"
-                override _.BoolToEl(v) = text $"{v}" }
-
-    #endif
-
-    let app (xs : seq<NodeFactory>) : NodeFactory = fragment xs
-
-    let body (xs: seq<NodeFactory>) = nodeFactory <| fun ctx ->
+type SutilHtmlEngine(helper) =
+    inherit HtmlEngine<NodeFactory>(helper)
+    member _.app (xs : seq<NodeFactory>) : NodeFactory = fragment xs
+    member _.body (xs: seq<NodeFactory>) = nodeFactory <| fun ctx ->
         ctx |> ContextHelpers.withParent (ctx.Document.body) |> buildChildren xs
 
-    let parent (selector:string) (xs: seq<NodeFactory>) = nodeFactory <| fun ctx ->
+    member _.parent (selector:string) (xs: seq<NodeFactory>) = nodeFactory <| fun ctx ->
         ctx |> ContextHelpers.withParent (ctx.Document.querySelector selector) |> buildChildren xs
 
-    //let sval<'T> (init:'T) (xs:seq<NodeFactory>) = fun ctx ->
-    //    let s = Store.make init
-    //    DOM.registerDisposable ctx.Parent s
-    //    unitResult()
+let Html = SutilHtmlEngine( {new HtmlHelper<NodeFactory> with
+            member _.MakeNode(tag, nodes) = el tag nodes
+            member _.StringToNode(v) = text v
+            member _.EmptyNode = fragment []
+            })
+
+let Attr =
+    AttrEngine
+        { new AttrHelper<NodeFactory> with
+            member _.MakeAttr(key, value) = attr(key, value)
+            member _.MakeBooleanAttr(key, value) = attr(key, value) }
+
+
+open Feliz
+
+let Css =
+    CssEngine(fun k v -> k, box v)
+
+let cssAttr = id
+let addClass       (n:obj) = cssAttr("sutil-add-class",n)
+let useGlobal              = cssAttr("sutil-use-global","" :> obj)
+
+#endif
 

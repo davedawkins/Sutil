@@ -89,7 +89,7 @@ let renderCell m dispatch pos =
         Html.div [
             Html.input [
                 type' "text"
-                value content
+                Attr.value content
                 autofocus
                 onKeyDown (fun me -> if me.key = "Enter" then (pos,me.target?value) |> UpdateValue |> dispatch) []
             ]

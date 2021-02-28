@@ -14,8 +14,8 @@ open Sutil.Attr
 open Sutil.DOM
 open Fable.Core.JsInterop
 open Evaluator
-open Browser.Dom
-open Browser.Types
+//open Browser.Dom
+//open Browser.Types
 open System
 
 let log s = () //console.log(s)
@@ -23,7 +23,7 @@ let log s = () //console.log(s)
 let filterSome (source : IObservable<'T option>) =
     source |> Observable.filter (fun x -> x.IsSome) |> Observable.map (fun x -> x.Value)
 
-let nodeOfCell pos = document.querySelector($"[x-id='{positionStr pos}'") :> Node
+let nodeOfCell pos = Browser.Dom.document.querySelector($"[x-id='{positionStr pos}'") :> Browser.Types.Node
 
 type Message =
   | UpdateValue of Position * string
@@ -180,7 +180,7 @@ let view () : NodeFactory =
         Html.div [
             Html.input [
                 type' "text"
-                value content
+                Attr.value content
                 autofocus
                 onKeyDown (fun me -> if me.key = "Enter" then (pos,me.target?value) |> UpdateValue |> dispatch) []
             ]

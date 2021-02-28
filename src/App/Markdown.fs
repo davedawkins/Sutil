@@ -1,7 +1,7 @@
 module Sutil.Markdown
 
 open Sutil.Styling
-open Sutil.Attr
+open Sutil.DOM
 
 let style = [
     rule "h1" [ Css.allRevert ]

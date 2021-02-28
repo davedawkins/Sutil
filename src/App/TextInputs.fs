@@ -18,7 +18,7 @@ let view() =
         Html.input [
             type' "text"
             Bind.attr ("value",name)
-            placeholder "Enter your name"
+            Attr.placeholder "Enter your name"
         ]
         Html.p [
             class' "block"

@@ -107,26 +107,26 @@ let styleSheet = [
     ]
 
     rule ".tick line" [
-        CssXs.stroke "#e2e2e2"
-        CssXs.strokeDasharray "2"
+        Css.custom( "stroke", "#e2e2e2" )
+        Css.custom( "stroke-dasharray", "2" )
     ]
 
     rule ".tick text" [
         Css.fill "#ccc"
-        CssXs.textAnchor "start"
+        Css.custom( "text-anchor", "start" )
     ]
 
     rule ".tick.tick-0 line" [
-        CssXs.strokeDasharray "0"
+        Css.custom( "stroke-dasharray", "0" )
     ]
 
     rule ".x-axis .tick text" [
-        CssXs.textAnchor "middle"
+        Css.custom( "text-anchor", "middle" )
     ]
 
     rule ".bars rect" [
         Css.fill "#a11"
-        CssXs.stroke "none"
+        Css.custom( "stroke", "none" )
         Css.opacity 0.65
     ]
 ]

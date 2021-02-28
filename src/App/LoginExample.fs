@@ -84,7 +84,7 @@ let create() =
                                 text " "
                                 Html.a [
                                     text "sign out"
-                                    href "#"
+                                    Attr.href "#"
                                     onClick (fun _ -> dispatch SignOut) [PreventDefault]
                                 ]
                             ]
@@ -93,7 +93,7 @@ let create() =
                                 text "guest "
                                 Html.a [
                                     text "sign in"
-                                    href "#"
+                                    Attr.href "#"
                                     onClick (fun _ -> dispatch SignIn) [PreventDefault]
                                 ]
                             ]

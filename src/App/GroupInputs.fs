@@ -35,7 +35,7 @@ let rec join (flavours : string list) =
 
 // HTML helpers
 let block children =
-    Html.div <| (class' "block") :: children
+    Html.div ((class' "block") :: children )
 
 // Control with only 1 label child
 let controlLabel children =
@@ -60,7 +60,7 @@ let view() =
                     Html.input [
                         type' "radio"
                         Bindings.bindRadioGroup scoops
-                        i+1 |> string |> value
+                        i+1 |> string |> Attr.value
                     ]
                     text $" {scoopChoice}"
                 ]) |> fragment
@@ -75,7 +75,7 @@ let view() =
                         Html.input [
                             type' "checkbox"
                             Bindings.bindGroup flavours
-                            value flavour
+                            Attr.value flavour
                         ]
                         text $" {flavour}"
                     ]

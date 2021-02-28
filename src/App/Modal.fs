@@ -33,7 +33,7 @@ let view() =
                 Html.button [
                     class' "modal-close"
                     onClick (fun _ -> active <~ false) []
-                    ariaLabel "close"
+                    Attr.ariaLabel "close"
                 ]
             ]
         ] |> withStyle []

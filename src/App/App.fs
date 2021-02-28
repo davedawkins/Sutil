@@ -314,7 +314,7 @@ let Section tab (name:string) = fragment [
         for d in tab.Pages |> List.filter (fun x -> x.Category = name) do
             Html.li [
                 Html.a [
-                    href <| makeHref tab.Title  d.Title ""
+                    Attr.href <| makeHref tab.Title  d.Title ""
                     text d.Title
                 ]
             ]
@@ -324,7 +324,7 @@ let Section tab (name:string) = fragment [
 let sectionItem tab (page:Page) name  =
     Html.li [
         Html.a [
-            href <| makeHref tab.Title page.Title (if name = page.Title then "" else name)
+            Attr.href <| makeHref tab.Title page.Title (if name = page.Title then "" else name)
             text name
         ]
     ]
@@ -408,7 +408,7 @@ let appMain () =
             Html.h1 [
                 class' "title is-4"
                 Html.a [
-                    href "https://github.com/davedawkins/Sutil"
+                    Attr.href "https://github.com/davedawkins/Sutil"
                     Html.div [ class' "slogo"; Html.span [ text "<>" ] ]
                     text " SUTIL"
                 ]
@@ -417,12 +417,12 @@ let appMain () =
             Bind.fragment (model .> books) <| fun books ->
                 Html.span [
                     class' "app-tab-menu"
-                    books |> List.map (fun bk -> Html.a [ href <| makeBookHref bk; text bk.Title ]) |> fragment
+                    books |> List.map (fun bk -> Html.a [ Attr.href <| makeBookHref bk; text bk.Title ]) |> fragment
                 ]
 
             transition [InOut fade] (model .> isMobile) <| Html.a [
                 class' "show-contents-button"
-                href "#"
+                Attr.href "#"
                 Html.i [ class' "fa fa-bars" ]
                 onClick (fun _ -> ToggleShowContents |> dispatch) [ PreventDefault ]
             ]

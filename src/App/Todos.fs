@@ -217,7 +217,7 @@ let view () : NodeFactory =
 
         Html.input [
             class' "new-todo"
-            placeholder "what needs to be done?"
+            Attr.placeholder "what needs to be done?"
             onKeyDown (fun e ->
                 // This isn't the right test for mobile users
                 if e.key = "Enter" then (e.currentTarget :?> HTMLInputElement).value |> AddTodo |> dispatch
@@ -228,12 +228,12 @@ let view () : NodeFactory =
         Html.div [
             class' "complete-all-container"
             Bind.fragment model <| fun m -> Html.a [
-                href "#"
+                Attr.href "#"
                 text "toggle sort"
                 onClick (fun _ -> not m.Sort |> SetSort |> dispatch) [ PreventDefault ]
             ]
             Html.a [
-                href "#"
+                Attr.href "#"
                 text "complete all"
                 onClick (fun _ -> dispatch CompleteAll) [ PreventDefault ]
             ]

@@ -20,14 +20,14 @@ let view() =
             Html.input [
                 type' "number"
                 Bind.attr ("value",a)
-                min "0"
-                max "10"
+                Attr.min 0
+                Attr.max 10
             ]
             Html.input [
                 type' "range"
                 Bind.attr ("value",a)
-                min "0"
-                max "10"
+                Attr.min 0
+                Attr.max 10
             ]
         ]
         Html.div [
@@ -35,14 +35,14 @@ let view() =
             Html.input [
                 type' "number"
                 Bind.attr ("value",b)
-                min "0"
-                max "10"
+                Attr.min 0
+                Attr.max 10
             ]
             Html.input [
                 type' "range"
                 Bind.attr ("value",b)
-                min "0"
-                max "10"
+                Attr.min 0
+                Attr.max 10
             ]
         ]
         Html.p [

@@ -6,12 +6,9 @@ module FileInputs
 open Sutil
 open Sutil.DOM
 open Sutil.Attr
-open Sutil.Bindings
-open Browser.Types
-open Browser.Dom
 
 let view() =
-    let files = Store.make Unchecked.defaultof<FileList>
+    let files = Store.make Unchecked.defaultof<Browser.Types.FileList>
     let fileSeq = files |> Store.map (Helpers.fileListToSeq >> Seq.toList)
 
     fileSeq |> (Store.write (fun fileSeq ->
@@ -20,7 +17,7 @@ let view() =
         //console.log(files);
 
         for file in fileSeq do
-            console.log($"{file.name}: {file.size} bytes")))
+            Browser.Dom.console.log($"{file.name}: {file.size} bytes")))
 
     Html.div [
         disposeOnUnmount [ files ]
@@ -29,11 +26,11 @@ let view() =
             class' "block"
             Html.label [ class' "file-label"; for' "avatar"; text "Upload a picture:" ]
             Html.input [
-                accept "image/png, image/jpeg"
+                Attr.accept "image/png, image/jpeg"
                 Bind.attr("files",files)
-                id' "avatar"
-                name "avatar"
-                type' "file"
+                Attr.id "avatar"
+                Attr.name "avatar"
+                Attr.typeFile
             ]
         ]
 
@@ -42,9 +39,9 @@ let view() =
             Html.label [ class' "file-label"; for' "many";text "Upload multiple files of any type:" ]
             Html.input [
                 Bind.attr("files",files)
-                id' "many"
-                multiple
-                type' "file"
+                Attr.id "many"
+                Attr.multiple true
+                Attr.typeFile
             ]
         ]
 

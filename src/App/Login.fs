@@ -68,7 +68,7 @@ let private defaultView model dispatch =
                         column.tabletIs 10; column.desktopIs 8; column.widescreenIs 6
                         bulma.formBox [
                             on "submit" (fun _ -> AttemptLogin |> dispatch) [PreventDefault]
-                            action ""
+                            Attr.action ""
 
                             bulma.field [
                                 class' "has-text-danger"
@@ -83,9 +83,9 @@ let private defaultView model dispatch =
 
                                         bindEvent "input" (fun e -> EventHelpers.validity(e).valid |> not) (fun s -> bindClass s "is-danger")
 
-                                        placeholder "Hint: sutil@gmail.com"
+                                        Attr.placeholder "Hint: sutil@gmail.com"
                                         Bind.attr ("value", model .> username , SetUsername >> dispatch)
-                                        required
+                                        Attr.required true
                                     ]
                                     bulma.icon [
                                         icon.isSmall
@@ -99,9 +99,9 @@ let private defaultView model dispatch =
                                 bulma.control [
                                     control.hasIconsLeft
                                     bulma.password [
-                                        placeholder "Hint: abc123"
+                                        Attr.placeholder "Hint: abc123"
                                         Bind.attr("value", model .> password, SetPassword >> dispatch)
-                                        required ]
+                                        Attr.required true ]
                                     bulma.icon [
                                         icon.isSmall
                                         icon.isLeft

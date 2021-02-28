@@ -41,7 +41,7 @@ let view() =
         disposeOnUnmount [inputText]
 
         Html.textarea [
-            rows "5"
+            Attr.rows 5
             Bind.attr("value",inputText)
         ]
 

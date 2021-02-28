@@ -34,14 +34,14 @@ let view() =
             eachi cats (fun (i,cat) ->
                 Html.li [
                     Html.a [
-                        target "_blank"
-                        href $"https://www.youtube.com/watch?v={cat.Id}"
+                        Attr.target "_blank"
+                        Attr.href $"https://www.youtube.com/watch?v={cat.Id}"
                         text $"{i + 1}: {cat.Name}"
                     ]
                 ]) []
         ]
         Html.button [
-            style  [ Css.marginTop 12 ]
+            attr("style",  [ Css.marginTop 12 ])
             text "More Cats"
             bindAttrIn "disabled" (cats |> Store.map (fun cats' -> cats'.Length = 4))
             onClick (fun _ -> addCat extraCat) []

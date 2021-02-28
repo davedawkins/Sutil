@@ -131,7 +131,7 @@ type BulmaEngine() =
                         Css.padding 0
                     ] ]
 
-    member _.selectMultiple (props : NodeFactory list) = Html.div [ class' "select is-multiple"; Html.select ([ multiple ] @ props) ]
+    member _.selectMultiple (props : NodeFactory list) = Html.div [ class' "select is-multiple"; Html.select ([ Attr.multiple true ] @ props) ]
 
     member _.password (props : NodeFactory list) = Html.input ([ class' "input"; type' "password" ] @ props)
     member _.icon (props : NodeFactory list) = Html.span ([ class' "icon"; type' "email" ] @ props)

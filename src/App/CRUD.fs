@@ -191,14 +191,14 @@ let create() =
                 column.is 6
 
                 bulma.selectList [
-                    size 6
+                    Attr.size 6
 
                     let viewNames =
                         model .> filteredNames |> Observable.distinctUntilChanged
 
                     each viewNames (fun n ->
                         Html.option [
-                            value n.Id
+                            Attr.value n.Id
                             (sprintf "%s, %s" n.Surname n.Name) |> text
                             ])  []
 

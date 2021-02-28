@@ -3,9 +3,7 @@ module StaticEachBlocks
 // Adapted from
 // https://svelte.dev/examples
 
-open Sutil
 open Sutil.DOM
-open Sutil.Attr
 
 type Cat = { Id : string; Name : string }
 
@@ -25,8 +23,8 @@ let view() =
             for cat in cats do
                 Html.li [
                     Html.a [
-                        target "_blank"
-                        href $"https://www.youtube.com/watch?v={cat.Id}"
+                        Attr.target "_blank"
+                        Attr.href $"https://www.youtube.com/watch?v={cat.Id}"
                         text $"• {cat.Name}"
                     ]
                 ]

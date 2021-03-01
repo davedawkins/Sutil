@@ -99,6 +99,15 @@ type FieldLabelOptions() =
 type BulmaEngine() =
     member _.heroBody (props : NodeFactory list) = Html.div ([ class' "hero-body" ] @ props)
     member _.hero (props : NodeFactory list) = Html.section ([ class' "hero" ] @ props)
+
+    member _.navbar (props : NodeFactory list) = Html.nav ([ class' "navbar"; Attr.roleNavigation ] @ props)
+    member _.navbarBrand (props : NodeFactory list) = Html.div ([ class' "navbar-brand" ] @ props)
+    member _.navbarStart (props : NodeFactory list) = Html.div ([ class' "navbar-start" ] @ props)
+    member _.navbarEnd (props : NodeFactory list) = Html.div ([ class' "navbar-end" ] @ props)
+    member _.navbarDropdown (props : NodeFactory list) = Html.div ([ class' "navbar-dropdown" ] @ props)
+    member _.navbarItemA (props : NodeFactory list) = Html.a ([ class' "navbar-item" ] @ props)
+    member _.navbarItemDiv (props : NodeFactory list) = Html.div ([ class' "navbar-item" ] @ props)
+
     member _.container (props : NodeFactory list) = Html.div ([ class' "container" ] @ props)
     member _.section (props : NodeFactory list) = Html.div ([ class' "section" ] @ props)
     member _.columns (props : NodeFactory list) = Html.div ([ class' "columns" ] @ props)

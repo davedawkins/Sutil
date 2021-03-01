@@ -2,6 +2,14 @@
 
 ## Changelog (most recent first)
 
+- Added nav elements to Bulma:
+    navbar
+    navbarBrand
+    navbarStart
+    navbarEnd
+    navbarDropdown
+    navbarItemA
+    navbarItemDiv
 - Now converted to Feliz.HtmlEngine, Feliz.AttrEngine & Feliz.CssEngine
 - Previous change should have read "convert fully to Feliz.CssEngine"
 - Convert fully to Feliz.Engine

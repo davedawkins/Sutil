@@ -37,14 +37,14 @@ type internal Util =
         match x with Some x -> Util.asString x | None -> ""
     static member inline asString(x: float): string = string x
     static member inline asString(x: Guid): string = string x
-    static member inline asString< ^t when ^t : (member AsString: string)> (x: ^t option): string =
-        match x with Some x -> Util.asString x | None -> ""
     static member inline asString< ^t when ^t : (member AsString: string)> (x: ^t): string =
 #if FABLE_COMPILER
         unbox x
 #else
         (^t : (member AsString: string) (x))
 #endif
+    static member inline asString< ^t when ^t : (member AsString: string)> (x: ^t option): string =
+        match x with Some x -> Util.asString x | None -> ""
 
     static member inline newCssUnit(x: string): ICssUnit =
 #if FABLE_COMPILER

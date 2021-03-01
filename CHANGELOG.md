@@ -2,6 +2,7 @@
 
 ## Changelog (most recent first)
 
+- Copied in latest Feliz.Engine direct from repo (package still not updated)
 - Added nav elements to Bulma:
     navbar
     navbarBrand

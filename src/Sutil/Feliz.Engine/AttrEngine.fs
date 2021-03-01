@@ -1269,6 +1269,7 @@ type AttrEngine<'Node>(h: AttrHelper<'Node>) =
     /// SVG attribute to define the width of the stroke to be applied to the shape.
     member _.strokeWidth (value: int) = h.MakeAttr("stroke-width", Util.asString value + "px")
 
+    member _.style (css: string) = h.MakeAttr("style", css)
     // member _.style (properties: #IStyleAttribute list) = h.MakeAttr("style", (createObj !!properties))
 
     /// Represents the height of the surface for a light filter primitive.

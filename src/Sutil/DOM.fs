@@ -807,7 +807,7 @@ let html text : NodeFactory = nodeFactory <| fun ctx ->
                                         applyCustomRules ch ns)
     nodeResult el
 
-#if !USE_FELIZ_ENGINE
+#if USE_SUTIL_ENGINE
 
 module Html =
 

@@ -5,7 +5,7 @@ open Browser.Types
 open Fable.Core.JsInterop
 
 // Attributes
-#if !USE_FELIZ_ENGINE
+#if USE_SUTIL_ENGINE
 let role         n = attr("role", n)
 let ariaHidden   n = attr("aria-hidden", n)
 let ariaExpanded n = attr("aria-expanded", n)

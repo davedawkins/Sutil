@@ -2,6 +2,7 @@
 
 ## Changelog (most recent first)
 
+- Remove USE_FELIZ_ENGINE - ignored when when build nupkg
 - Copied in latest Feliz.Engine direct from repo (package still not updated)
 - Added nav elements to Bulma:
     navbar

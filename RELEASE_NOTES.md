@@ -1,6 +1,12 @@
-# Sutil
+### 1.0.0-alpha-004
 
-## Changelog (most recent first)
+- Change versioning scheme (same as Feliz.Engine, Feliz.Engine.Bulma)
+- Bulma batteries included
+- Convert all examples to new DSL and new Bulma
+- Cleanup of old DSL code
+- Extend DSL to remove binding boilerplate (if desired)
+
+### 0.2.1-alpha
 
 - Remove USE_FELIZ_ENGINE - ignored when when build nupkg
 - Copied in latest Feliz.Engine direct from repo (package still not updated)
@@ -17,14 +23,17 @@
 - Convert fully to Feliz.Engine
 - Updates to README.md and about_sutil.md
 - Update to installation.md
-- 0.1.3-alpha
+
+### 0.1.3-alpha
 - nav, aria*
 - Store.zip, Store.distinct
-- 0.1.2-alpha
+
+### 0.1.2-alpha
 - nav/aside elements (full implementation coming very soon)
 - Cmd.ofAsync* support
 - Added Bulma.fs to Sutil package
-- 0.1.1-alpha
+
+### 0.1.1-alpha
 - Refactor App to support "books". "Examples" is now a book, and "Documentation" is another
 - Self-hosting documentation in App
 - Add FAKE tooling to build nuget package

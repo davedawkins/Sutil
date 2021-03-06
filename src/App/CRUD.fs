@@ -160,37 +160,37 @@ let create() =
     let model, dispatch = () |> Store.makeElmish init update ignore
 
     let labeledField label model dispatch =
-        bulma.field [
+        bulma.field.div [
             field.isHorizontal
-            bulma.fieldLabel [ bulma.label [ text label ] ]
+            bulma.fieldLabel [ bulma.label [ DOM.text label ] ]
             bulma.fieldBody [
-                bulma.control [
+                bulma.control.div [
                     class' "width100"
-                    bulma.input [
-                        Bind.attr ("value",model,dispatch)
+                    bulma.input.text [
+                        Attr.value (model,dispatch)
                     ]]]]
 
     let button label enabled message =
-        bulma.controlInline [
-            bulma.button [
-                Bind.attr ("disabled", model .> (enabled >> not))
-                text label
+        bulma.control.p [
+            bulma.button.button [
+                Attr.disabled (model .> (enabled >> not))
+                DOM.text label
                 onClick (fun _ -> dispatch message) []
                 ] ]
 
     bulma.container [
         bulma.columns [
             bulma.column [
-                column.is 6
+                column.is6
                 labeledField "Filter prefix:" (model .> filter) (dispatch << SetFilter)
             ]
         ]
 
         bulma.columns [
             bulma.column [
-                column.is 6
+                column.is6
 
-                bulma.selectList [
+                Sutil.Bulma.Helpers.selectList [ // FIXME: Feliz.BulmaEngine should provide this
                     Attr.size 6
 
                     let viewNames =
@@ -199,29 +199,29 @@ let create() =
                     each viewNames (fun n ->
                         Html.option [
                             Attr.value n.Id
-                            (sprintf "%s, %s" n.Surname n.Name) |> text
+                            (sprintf "%s, %s" n.Surname n.Name) |> DOM.text
                             ])  []
 
                     Bind.selected (model .> selection, List.exactlyOne >> Select >> dispatch)
                 ]
             ]
             bulma.column [
-                column.is 6
+                column.is6
                 labeledField "Name:" (model .> name) (dispatch << SetName)
                 labeledField "Surname:" (model .> surname) (dispatch << SetSurname)
             ]
         ]
 
-        bulma.field [
+        bulma.field.div [
             field.isGrouped
             button "Create" canCreate Create
             button "Update" canUpdate Update
             button "Delete" canDelete Delete
         ]
 
-        bulma.field [
+        bulma.field.div [
             color.hasTextDanger
-            Bind.fragment (model .> error) text
+            Bind.fragment (model .> error) DOM.text
         ]
 
     ] |> withStyle appStyle

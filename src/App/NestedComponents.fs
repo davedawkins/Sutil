@@ -4,8 +4,8 @@ module NestedComponents
 // https://svelte.dev/examples
 
 open Feliz
+open Sutil
 open Sutil.Styling
-open Sutil.Attr
 open Sutil.DOM
 open Nested
 

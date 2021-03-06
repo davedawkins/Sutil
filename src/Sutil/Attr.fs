@@ -4,38 +4,6 @@ open DOM
 open Browser.Types
 open Fable.Core.JsInterop
 
-// Attributes
-#if USE_SUTIL_ENGINE
-let role         n = attr("role", n)
-let ariaHidden   n = attr("aria-hidden", n)
-let ariaExpanded n = attr("aria-expanded", n)
-let dataTarget   n = attr("data-target", n)
-let accept n       = attr("accept",n)
-let name n         = attr("name",n)
-let action n       = attr("action",n)
-let ariaLabel n    = attr("aria-label",n)
-let className n    = attr("class",n)
-let placeholder n  = attr("placeholder",n)
-let target n       = attr("target",n)
-let href n         = attr("href",n)
-let src n          = attr("src",n)
-let alt n          = attr("alt",n)
-let disabled n     = attr("disabled",n)
-let min n          = attr("min",n)
-let max n          = attr("max",n)
-let size n         = attr("size",n)
-let value n        = attr("value",n)
-let multiple : NodeFactory = attr("multiple","")
-let rows n         = attr("rows",n)
-let cols n         = attr("cols",n)
-let readonly : NodeFactory = attr("readonly","true" :> obj)
-let required : NodeFactory = attr("required","true" :> obj)
-#else
-
-
-
-#endif
-
 let autofocus : NodeFactory =
     nodeFactory <| fun ctx ->
         let e = ctx.Parent
@@ -44,7 +12,6 @@ let autofocus : NodeFactory =
             e?setSelectionRange(99999,99999)
             )
         unitResult()
-
 
 // Attributes that are either keywords or core functions
 let id' n          = attr("id",n)

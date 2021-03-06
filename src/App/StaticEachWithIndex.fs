@@ -3,7 +3,7 @@ module StaticEachWithIndex
 // Adapted from
 // https://svelte.dev/examples
 
-open Sutil.DOM
+open Sutil
 
 type Cat = { Id : string; Name : string }
 
@@ -29,7 +29,7 @@ let view() =
                     Html.a [
                         Attr.target "_blank"
                         Attr.href $"https://www.youtube.com/watch?v={cat.Id}"
-                        text $"{i + 1}: {cat.Name}"
+                        Html.text $"{i + 1}: {cat.Name}"
                     ]
                 ]
         ]

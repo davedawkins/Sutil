@@ -6,6 +6,30 @@ open Sutil.Styling
 open Sutil.DOM
 open Sutil.Attr
 
+module Helpers =
+    // Issue #2110
+    // .select select[multiple] option {
+    //    padding: .5em 1em;
+    //}
+    //.select select[multiple] {
+    //    height: auto;
+    //    padding: 0;
+    //}
+    let selectList (props : NodeFactory list) =
+        Html.div [
+            class' "select is-multiple"
+            Html.select props
+        ] |> withStyleAppend [
+                    rule "option" [
+                        Css.padding(em 0.5, em 1.0)
+                    ]
+                    rule "select" [
+                        Css.height auto
+                        Css.padding 0
+                    ] ]
+
+    let selectMultiple (props : NodeFactory list) = Html.div [ class' "select is-multiple"; Html.select ([ Attr.multiple true ] @ props) ]
+
 let styleHelpers = [
     rule "h1" [ addClass "title"; addClass "is-1" ]
     rule "h2" [ addClass "title"; addClass "is-2" ]
@@ -48,120 +72,61 @@ let withBulmaHelpers s =
 module FontAwesome =
     let fa name = Html.i [ class' ("fa fa-" + name) ]
 
-type ColorOptions() =
-    member _.hasTextDanger = class' "has-text-danger"
+// --------------------------------------------------------
+// !!! DO NOT EDIT !!!
+// Generated from templates/Binding.template.fs
+// --------------------------------------------------------
 
-type IsColorOptions() =
-    member _.isDanger = class' "is-danger"
-    member _.isLink = class' "is-link"
-    member _.isInfo = class' "is-info"
-    member _.isSuccess = class' "is-success"
-    member _.isPrimary = class' "is-primary"
-    member _.isWarning = class' "is-warning"
+// This isn't compiled into the Feliz.Engine.Bulma package. Copy it to your framework library
+// and replace Framework and FrameworkElement appropriately. It isn't necessary, but it may
+// help reduce some "bulma.m." boilerplate noise in your app
 
-type ColumnOptions() =
-    member _.is (n:int) = class' ("is-" + string n)
-    member _.tabletIs (n:int) = class' (sprintf "is-%d-tablet" n)
-    member _.desktopIs (n:int) = class' (sprintf "is-%d-desktop" n)
-    member _.widescreenIs (n:int) = class' (sprintf "is-%d-widescreen" n)
+let bulma = Feliz.Engine.Bulma.BulmaEngine<NodeFactory>( Html, Attr )
 
-type ColumnsOptions() =
-    member _.isCentered = class' "is-centered"
-
-type HeroOptions() =
-    inherit IsColorOptions()
-    member _.isFullheight = class' "is-fullheight"
-
-type ControlOptions() =
-    member _.hasIconsLeft = class' "has-icons-left"
-    member _.hasIconsRight = class' "has-icons-right"
-
-type IconOptions() =
-    member _.isSmall = class' "is-small"
-    member _.isLeft = class' "is-left"
-
-type ButtonOptions() =
-    inherit IsColorOptions()
-    member _.isRounded = class' "is-rounded"
-    member _.isOutlined = class' "is-outlined"
-    member _.isInverted = class' "is-inverted"
-    member _.isHovered = class' "is-hovered"
-    member _.isActive = class' "is-active"
-    member _.isLoading = class' "is-loading"
-
-type FieldOptions() =
-    member _.isGrouped = class' "is-grouped"
-    member _.isHorizontal = class' "is-horizontal"
-
-type FieldLabelOptions() =
-    member _.isNormal = class' "is-normal"
-
-type BulmaEngine() =
-    member _.heroBody (props : NodeFactory list) = Html.div ([ class' "hero-body" ] @ props)
-    member _.hero (props : NodeFactory list) = Html.section ([ class' "hero" ] @ props)
-
-    member _.navbar (props : NodeFactory list) = Html.nav ([ class' "navbar"; Attr.roleNavigation ] @ props)
-    member _.navbarBrand (props : NodeFactory list) = Html.div ([ class' "navbar-brand" ] @ props)
-    member _.navbarStart (props : NodeFactory list) = Html.div ([ class' "navbar-start" ] @ props)
-    member _.navbarEnd (props : NodeFactory list) = Html.div ([ class' "navbar-end" ] @ props)
-    member _.navbarDropdown (props : NodeFactory list) = Html.div ([ class' "navbar-dropdown" ] @ props)
-    member _.navbarItemA (props : NodeFactory list) = Html.a ([ class' "navbar-item" ] @ props)
-    member _.navbarItemDiv (props : NodeFactory list) = Html.div ([ class' "navbar-item" ] @ props)
-
-    member _.container (props : NodeFactory list) = Html.div ([ class' "container" ] @ props)
-    member _.section (props : NodeFactory list) = Html.div ([ class' "section" ] @ props)
-    member _.columns (props : NodeFactory list) = Html.div ([ class' "columns" ] @ props)
-    member _.column (props : NodeFactory list) = Html.div ([ class' "column" ] @ props)
-    member _.formBox (props : NodeFactory list) = Html.form ([ class' "box" ] @ props)
-    member _.box (props : NodeFactory list) = Html.div ([ class' "box" ] @ props)
-    member _.field (props : NodeFactory list) = Html.div ([ class' "field" ] @ props)
-    member _.fieldLabel (props : NodeFactory list) = Html.div ([ class' "field-label" ] @ props)
-    member _.fieldBody (props : NodeFactory list) = Html.div ([ class' "field-body" ] @ props)
-    member _.label (props : NodeFactory list) = Html.label ([ class' "label" ] @ props)
-    member _.label (label:string) = Html.label ([ class' "label" ] @ [ text label ])
-    member _.labelFor (target:string) (label:string) = Html.label [ class' "label"; for' target; text label ]
-    member _.button (props : NodeFactory list) = Html.button ([ class' "button" ] @ props)
-    member _.control (props : NodeFactory list) = Html.div ([ class' "control" ] @ props)
-    member _.controlInline (props : NodeFactory list) = Html.p ([ class' "control" ] @ props)
-    member _.email (props : NodeFactory list) = Html.input ([ class' "input"; type' "email" ] @ props)
-    member _.input (props : NodeFactory list) = Html.input ([ class' "input"; type' "text" ] @ props)
-    member _.checkbox (props : NodeFactory list) = Html.input ([ type' "checkbox" ] @ props)
-
-    member _.selectList (props : NodeFactory list) =
-        Html.div [
-            class' "select is-multiple"
-            Html.select props
-        ] |> withStyleAppend [
-                    rule "option" [
-                        Css.padding(em 0.5, em 1.0)
-                    ]
-                    rule "select" [
-                        Css.height auto
-                        Css.padding 0
-                    ] ]
-
-    member _.selectMultiple (props : NodeFactory list) = Html.div [ class' "select is-multiple"; Html.select ([ Attr.multiple true ] @ props) ]
-
-    member _.password (props : NodeFactory list) = Html.input ([ class' "input"; type' "password" ] @ props)
-    member _.icon (props : NodeFactory list) = Html.span ([ class' "icon"; type' "email" ] @ props)
-    member x.labelCheckbox (label:string) checkboxProps= Html.label [ class' "checkbox"; x.checkbox checkboxProps; text label ]
-
-// Issue #2110
-// .select select[multiple] option {
-//    padding: .5em 1em;
-//}
-//.select select[multiple] {
-//    height: auto;
-//    padding: 0;
-//}
-
-let bulma = BulmaEngine()
-let hero = HeroOptions()
-let columns = ColumnsOptions()
-let column = ColumnOptions()
-let control = ControlOptions()
-let icon = IconOptions()
-let button = ButtonOptions()
-let field = FieldOptions()
-let fieldLabel = FieldLabelOptions()
-let color = ColorOptions()
+// Can these be generated with a source generator?
+let helpers = bulma.m.helpers
+let size = bulma.m.size
+let spacing = bulma.m.spacing
+let text = bulma.m.text
+let color = bulma.m.color
+let image = bulma.m.image
+let progress = bulma.m.progress
+let table = bulma.m.table
+let tr = bulma.m.tr
+let tag = bulma.m.tag
+let tags = bulma.m.tags
+let title = bulma.m.title
+let tabs = bulma.m.tabs
+let tab = bulma.m.tab
+let breadcrumb = bulma.m.breadcrumb
+let cardHeaderTitle = bulma.m.cardHeaderTitle
+let dropdown = bulma.m.dropdown
+let modal = bulma.m.modal
+let modalClose = bulma.m.modalClose
+let navbar = bulma.m.navbar
+let navbarMenu = bulma.m.navbarMenu
+let navbarBurger = bulma.m.navbarBurger
+let navbarDropdown = bulma.m.navbarDropdown
+let navbarLink = bulma.m.navbarLink
+let navbarItem = bulma.m.navbarItem
+let paginationLink = bulma.m.paginationLink
+let file = bulma.m.file
+let input = bulma.m.input
+let button = bulma.m.button
+let buttons = bulma.m.buttons
+let fieldLabel = bulma.m.fieldLabel
+let textarea = bulma.m.textarea
+let field = bulma.m.field
+let icon = bulma.m.icon
+let select = bulma.m.select
+let control = bulma.m.control
+let ol = bulma.m.ol
+let content = bulma.m.content
+let delete = bulma.m.delete
+let container = bulma.m.container
+let level = bulma.m.level
+let section = bulma.m.section
+let hero = bulma.m.hero
+let tile = bulma.m.tile
+let columns = bulma.m.columns
+let column = bulma.m.column

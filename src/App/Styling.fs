@@ -4,8 +4,8 @@ module StylingExample
 // https://svelte.dev/examples
 
 open Feliz
+open Sutil
 open Sutil.Styling
-open Sutil.Attr
 open Sutil.DOM
 
 let css = [

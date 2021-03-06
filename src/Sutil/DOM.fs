@@ -78,29 +78,30 @@ let once (event:string) (target:EventTarget) (fn : Event->Unit) : unit =
     let rec inner e = target.removeEventListener( event, inner ); fn(e)
     listen event target inner |> ignore
 
-type CssSelector =
-    | Tag of string
-    | Cls of string
-    | Id of string
-    | All of CssSelector list
-    | Any of CssSelector list
-    | Attr of CssSelector * string * string
-    | NotImplemented
-    with
-    member this.Match (el:HTMLElement)=
-        match this with
-        | NotImplemented -> false
-        | Tag tag -> el.tagName = tag
-        | Cls cls -> el.classList.contains(cls)
-        | Id id -> el.id = id
-        | Attr (sub,name,value) -> sub.Match(el) && el.getAttribute(name) = value
-        | All rules -> rules |> List.fold (fun a r -> a && r.Match el) true
-        | Any rules -> rules |> List.fold (fun a r -> a || r.Match el) false
+module CssRules =
+    type CssSelector =
+        | Tag of string
+        | Cls of string
+        | Id of string
+        | All of CssSelector list
+        | Any of CssSelector list
+        | Attr of CssSelector * string * string
+        | NotImplemented
+        with
+        member this.Match (el:HTMLElement)=
+            match this with
+            | NotImplemented -> false
+            | Tag tag -> el.tagName = tag
+            | Cls cls -> el.classList.contains(cls)
+            | Id id -> el.id = id
+            | Attr (sub,name,value) -> sub.Match(el) && el.getAttribute(name) = value
+            | All rules -> rules |> List.fold (fun a r -> a && r.Match el) true
+            | Any rules -> rules |> List.fold (fun a r -> a || r.Match el) false
 
 
 type StyleRule = {
     SelectorSpec : string
-    Selector : CssSelector
+    Selector : CssRules.CssSelector
     Style : (string*obj) list
 }
 
@@ -238,18 +239,18 @@ let appendAttribute (e:Element) attrName attrValue =
 
 // TODO: We can make a better parser using combinators. This lets me prove this idea tbough
 // Don't judge me
-let rec parseSelector (source:string) : CssSelector =
+let rec internal parseSelector (source:string) : CssRules.CssSelector =
     let trimQuotes (s:string) = s.Trim().Trim( [| '\''; '"' |])
 
     let rec parseSingle (token : string) =
         if token.StartsWith(".")
-            then Cls (token.Substring(1))
+            then CssRules.Cls (token.Substring(1))
         else if token.StartsWith("#")
-            then Id (token.Substring(1))
+            then CssRules.Id (token.Substring(1))
         else if token.Contains(":") || token.Contains(">") || token.Contains("[")
-            then NotImplemented
+            then CssRules.NotImplemented
         else
-            Tag (token.ToUpper())
+            CssRules.Tag (token.ToUpper())
 
     let rec parseAttr (token : string) =
         if token.Contains("[") && token.EndsWith("]")
@@ -259,21 +260,21 @@ let rec parseSelector (source:string) : CssSelector =
                 let attrExpr = token.Substring(i+1, token.Length - i - 2)
                 let attrTokens = attrExpr.Split([|'='|], 2)
                 if attrTokens.Length = 2 then
-                    Attr (single, attrTokens.[0].Trim(), attrTokens.[1] |> trimQuotes )
+                    CssRules.Attr (single, attrTokens.[0].Trim(), attrTokens.[1] |> trimQuotes )
                 else
-                    NotImplemented
+                    CssRules.NotImplemented
             else parseSingle token
 
     let rec parseAll (token : string) =
         let spacedItems = token.Split([| ' ' |], System.StringSplitOptions.RemoveEmptyEntries)
         if (spacedItems.Length = 1)
             then parseAttr spacedItems.[0]
-            else spacedItems |> Array.map parseAttr |> Array.toList |> Any
+            else spacedItems |> Array.map parseAttr |> Array.toList |> CssRules.Any
 
     let items = source.Split(',')
     if items.Length = 1
         then parseAll items.[0]
-        else items |> Array.map parseAll |> Array.toList |> All
+        else items |> Array.map parseAll |> Array.toList |> CssRules.All
 
 let ruleMatchEl (el:HTMLElement) (rule:StyleRule) =
     rule.Selector.Match el
@@ -807,70 +808,6 @@ let html text : NodeFactory = nodeFactory <| fun ctx ->
                                         applyCustomRules ch ns)
     nodeResult el
 
-#if USE_SUTIL_ENGINE
-
-module Html =
-
-    let div xs : NodeFactory = el "div" xs
-    let textarea xs = el "textarea" xs
-    let section xs = el "section" xs
-    let nav xs = el "nav" xs
-    let aside xs = el "aside" xs
-    let i  xs = el "i" xs
-    let h1  xs = el "h1" xs
-    let h2  xs = el "h2" xs
-    let h3  xs = el "h3" xs
-    let h4  xs = el "h4" xs
-    let h5  xs = el "h5" xs
-    let hr  xs = el "hr" xs
-    let pre  xs = el "pre" xs
-    let code  xs = el "code" xs
-    let p  xs = el "p" xs
-    let span xs = el "span" xs
-    let button  xs = el "button" xs
-    let input  xs = el "input" xs
-    let label  xs = el "label" xs
-    let a  xs = el "a" xs
-    let ul  xs = el "ul" xs
-    let li xs = el "li" xs
-    let img xs = el "img" xs
-    let option xs = el "option" xs
-    let select xs = el "select" xs
-    let form xs = el "form" xs
-    let table xs = el "table" xs
-    let tbody xs = el "tbody" xs
-    let thead xs = el "thead" xs
-    let tr xs = el "tr" xs
-    let th xs = el "th" xs
-    let td xs = el "td" xs
-#else
-
-open Feliz
-// Dummy type to avoid problems with overload resolution in HtmlEngine
-type [<Fable.Core.Erase>] NodeAttr = NodeAttr of NodeFactory
-
-type SutilHtmlEngine(helper) =
-    inherit HtmlEngine<NodeFactory>(helper)
-    member _.app (xs : seq<NodeFactory>) : NodeFactory = fragment xs
-    member _.body (xs: seq<NodeFactory>) = nodeFactory <| fun ctx ->
-        ctx |> ContextHelpers.withParent (ctx.Document.body) |> buildChildren xs
-
-    member _.parent (selector:string) (xs: seq<NodeFactory>) = nodeFactory <| fun ctx ->
-        ctx |> ContextHelpers.withParent (ctx.Document.querySelector selector) |> buildChildren xs
-
-let Html = SutilHtmlEngine( {new HtmlHelper<NodeFactory> with
-            member _.MakeNode(tag, nodes) = el tag nodes
-            member _.StringToNode(v) = text v
-            member _.EmptyNode = fragment []
-            })
-
-let Attr =
-    AttrEngine
-        { new AttrHelper<NodeFactory> with
-            member _.MakeAttr(key, value) = attr(key, value)
-            member _.MakeBooleanAttr(key, value) = attr(key, value) }
-
-
 open Feliz
 
 let Css =
@@ -879,6 +816,3 @@ let Css =
 let cssAttr = id
 let addClass       (n:obj) = cssAttr("sutil-add-class",n)
 let useGlobal              = cssAttr("sutil-use-global","" :> obj)
-
-#endif
-

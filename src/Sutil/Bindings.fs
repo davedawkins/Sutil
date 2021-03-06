@@ -470,6 +470,7 @@ module BindApi =
         static member attr<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) =
             bindAttrBoth name value dispatch
 
+
         /// Binding from value to a DOM fragment. Each change in value replaces the current DOM fragment
         /// with a new one.
         static member fragment<'T>  (value : IObservable<'T>)  (element: 'T -> NodeFactory) = bindFragment value element

@@ -21,7 +21,7 @@ module Store =
 
     let get (s : IStore<'T>) : 'T = s.Value
     let set (s : IStore<'T>) v : unit = s.Update( fun _ -> v )
-    let subscribe (a : IObservable<'T>) (f : 'T -> unit) = a.Subscribe(f)
+    let subscribe (f : 'T -> unit) (a : IObservable<'T>) = a.Subscribe(f)
     let map<'A,'B> (f : 'A -> 'B) (s : IObservable<'A>) = s |> Observable.map f
     let filter<'A> (f : 'A -> bool) (s : IObservable<'A>) = s |> Observable.filter f
     let distinct<'T when 'T : equality> (source : IObservable<'T>) = Observable.distinctUntilChanged source
@@ -40,7 +40,7 @@ module Store =
     // Call f upon initialization and whenever the store is updated. This is the same as subscribe
     // and ignoring the unsubscription callback
     let write<'A> (f: 'A -> unit) (s : IObservable<'A>) =
-        let unsub = subscribe s f
+        let unsub = subscribe f s
         ()
 
     // Modify the store by mapping its current value with f
@@ -57,13 +57,13 @@ module Store =
 
         let notify() = if initState = 2 then callback(cachea, cacheb)
 
-        let unsuba = subscribe a ( fun v ->
+        let unsuba = a |> subscribe (fun v ->
             if initState = 0 then initState <- 1
             cachea <- v
             notify()
         )
 
-        let unsubb = subscribe b ( fun v ->
+        let unsubb = b |> subscribe ( fun v ->
             if initState = 1 then initState <- 2
             cacheb <- v
             notify()

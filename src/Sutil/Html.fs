@@ -28,6 +28,11 @@ type SutilAttrEngine(helper) =
 
     member _.disabled<'T> (value: IObservable<'T>) = bindAttrIn "disabled" value
 
+    member _.value(value:obj)   = attr("value",value)
+    member _.value(value:int)   = attr("value",value)
+    member _.value(value:float) = attr("value",value)
+    member _.value(value:bool)  = attr("value",value)
+
     member _.value<'T> (value: IObservable<'T>) = bindAttrIn "value" value
     member _.value<'T> (value: IObservable<'T>, dispatch: 'T -> unit) =
             bindAttrBoth "value" value dispatch
@@ -41,7 +46,7 @@ let Html = SutilHtmlEngine( {new HtmlHelper<NodeFactory> with
 let Attr =
     SutilAttrEngine
         { new AttrHelper<NodeFactory> with
-            member _.MakeAttr(key, value) = attr(key, value)
+            member _.MakeAttr(key : string, value : string) = attr(key, value)
             member _.MakeBooleanAttr(key, value) = attr(key, value) }
 
 // Convenience

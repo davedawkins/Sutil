@@ -21,7 +21,7 @@ let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit
 let bindFragment<'T>  (store : IObservable<'T>)  (element: 'T -> NodeFactory) = nodeFactory <| fun ctx ->
     let mutable node = null
 
-    let unsub = Store.subscribe store ( fun next ->
+    let unsub = store |> Store.subscribe (fun next ->
         try
             node <- buildSolitary (element(next)) (if isNull node then ctx else ctx |> ContextHelpers.withReplace node)
         with
@@ -93,7 +93,7 @@ let bindSelected<'T when 'T : equality> (selection:IObservable<List<'T>>) (dispa
     // We need to finalize checked status after all attrs have been processed for input,
     // in case 'value' hasn't been set yet
     once Event.ElementReady selectElement <| fun _ ->
-        let unsub = Store.subscribe selection (updateSelected)
+        let unsub = selection |> Store.subscribe (updateSelected)
         registerDisposable ctx.Parent unsub
 
     registerUnsubscribe ctx.Parent unsubInput
@@ -142,7 +142,7 @@ let bindGroup<'T> (store:Store<List<string>>) : NodeFactory = nodeFactory <| fun
         store |> Store.get |> updateChecked
 
     // When store changes make sure check status is synced
-    let unsub = Store.subscribe store (updateChecked)
+    let unsub = store |> Store.subscribe (updateChecked)
 
     registerDisposable ctx.Parent unsub
     registerUnsubscribe ctx.Parent unsubInput
@@ -173,7 +173,7 @@ let bindRadioGroup<'T> (store:Store<'T>) : NodeFactory = nodeFactory <| fun ctx 
         store |> Store.get |> updateChecked
 
     // When store changes make sure check status is synced
-    let unsub = Store.subscribe store updateChecked
+    let unsub = store |> Store.subscribe updateChecked
 
     registerDisposable ctx.Parent unsub
     registerUnsubscribe ctx.Parent inputUnsub
@@ -183,13 +183,17 @@ let bindRadioGroup<'T> (store:Store<'T>) : NodeFactory = nodeFactory <| fun ctx 
 let bindClass (toggle:IObservable<bool>) (classes:string) =
     bindSub toggle <| fun ctx active ->
         if active then
-            addToClasslist ctx.ParentElement classes
+            ctx.ParentElement |> addToClasslist classes
         else
-            removeFromClasslist ctx.ParentElement classes
+            ctx.ParentElement |> removeFromClasslist classes
 
 // Bind a store value to an element attribute. Updates to the element are unhandled
 let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : NodeFactory = nodeFactory <| fun ctx ->
-    let unsub = Store.subscribe store (Interop.set ctx.Parent attrName)
+    let unsub =
+        if attrName = "class" then
+            store |> Store.subscribe (fun cls -> ctx.ParentElement.className <- (string cls))
+        else
+            store |> Store.subscribe (Interop.set ctx.Parent attrName)
     registerDisposable ctx.Parent unsub
     unitResult()
 
@@ -222,7 +226,7 @@ let bindAttrBoth<'T> (attrName:string) (value : IObservable<'T>) (onchange : 'T 
 let bindListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : NodeFactory = nodeFactory <| fun ctx ->
     let parent = ctx.Parent
     let unsubA = Sutil.DOM.listen event parent handler
-    let unsubB = Store.subscribe store ( Interop.set parent attrName )
+    let unsubB = store |> Store.subscribe ( Interop.set parent attrName )
     registerUnsubscribe ctx.Parent unsubA
     registerDisposable ctx.Parent unsubB
     unitResult()
@@ -234,7 +238,7 @@ let private bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert :
     //let attrName' = if attrName = "value" then "__value" else attrName
     let unsubInput = DOM.listen "input" parent <| fun _ ->
         Interop.get parent attrName |> convert |> Store.set store
-    let unsub = Store.subscribe store ( Interop.set parent attrName )
+    let unsub = store |> Store.subscribe ( Interop.set parent attrName )
     registerUnsubscribe parent unsubInput
     registerDisposable parent unsub
     unitResult()
@@ -318,7 +322,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
         let eachIdOf n : int = if hasEid n then  Interop.get n idKey else -1
         let setEid n = Interop.set n idKey eachId
 
-        let unsub = Store.subscribe items (fun newItems ->
+        let unsub = items |> Store.subscribe (fun newItems ->
             let wantAnimate = true
 
             log("-- Each Block Render -------------------------------------")

@@ -5,8 +5,8 @@ open Browser.Types
 open Sutil.DOM
 open Browser.Dom
 
-let log s = Logging.log "style" s
-let findElement (doc : Document) selector = doc.querySelector(selector)
+let private log s = Logging.log "style" s
+let private findElement (doc : Document) selector = doc.querySelector(selector)
 
 let parseStyleAttr (style : string) =
     style.Split([|';'|], StringSplitOptions.RemoveEmptyEntries)

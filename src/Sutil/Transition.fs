@@ -240,7 +240,7 @@ let private deleteRule (node:HTMLElement) (name:string) =
         previous |> Array.filter
             (if System.String.IsNullOrEmpty(name)
                 then (fun anim -> anim.IndexOf(name) < 0) // remove specific animation
-                else (fun anim -> anim.IndexOf("__Sutil") < 0)) // remove all Svelte animations
+                else (fun anim -> anim.IndexOf("__sutil") < 0)) // remove all Svelte animations
     let deleted = previous.Length - next.Length
     if (deleted > 0) then
         //log <| sprintf "Deleted rule(s) %s (%d removed)" name deleted
@@ -253,8 +253,8 @@ let flip (node:Element) (animation:Animation) props =
     let tr = applyProps props  {
             Transition.Default with
                 Delay = 0.0
-                DurationFn = Some (fun d -> System.Math.Sqrt(d) * 120.0)
-                Ease = Easing.cubicOut }
+                DurationFn = Some (fun d -> System.Math.Sqrt(d) * 60.0)
+                Ease = Easing.quintOut }
     let style = window.getComputedStyle(node)
     let transform = if style.transform = "none" then "" else style.transform
     let scaleX = animation.From.width / node.clientWidth
@@ -453,7 +453,7 @@ let createHideableRuntime h =
 let transitionList (list : Hideable list) : NodeFactory = nodeFactory <| fun ctx ->
     let runtimes = list |> List.map createHideableRuntime
     for rt in runtimes do
-        rt.unsubscribe <- Store.subscribe rt.hideable.predicate ( fun show ->
+        rt.unsubscribe <- rt.hideable.predicate |> Store.subscribe ( fun show ->
             if (isNull rt.target) then
                 rt.target <- buildSolitary rt.hideable.element ctx
                 rt.cache <- not show
@@ -483,7 +483,7 @@ let transitionOpt   (trans : TransitionAttribute list)
     let mutable cache = false
     let mutable targetElse : Node = null
 
-    let unsub = Store.subscribe store (fun isVisible ->
+    let unsub = store |> Store.subscribe (fun isVisible ->
         let wantTransition = not (isNull target)
 
         if isNull target then

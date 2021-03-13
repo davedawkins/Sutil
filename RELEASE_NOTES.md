@@ -1,3 +1,12 @@
+### 1.0.0-alpha-005
+
+- Change order of arguments for Store.map, DOM.addToClasslist, DOM.removeFromClasslist to favour pipeline style
+- Added DOM.interval, DOM.timeout as unsubscribable wrappers to setTimeout and setInterval
+- More easing functions (quad, quart, expo)
+- Bug fix for clearing animations
+- Html.value overrides to support storing of native value
+- Timer example shows component hierarchy
+
 ### 1.0.0-alpha-004
 
 - Change versioning scheme (same as Feliz.Engine, Feliz.Engine.Bulma)

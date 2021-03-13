@@ -78,6 +78,14 @@ let once (event:string) (target:EventTarget) (fn : Event->Unit) : unit =
     let rec inner e = target.removeEventListener( event, inner ); fn(e)
     listen event target inner |> ignore
 
+let interval callback (delayMs : int) =
+    let id = Fable.Core.JS.setInterval callback delayMs
+    fun () -> Fable.Core.JS.clearInterval id
+
+let timeout callback (delayMs : int) =
+    let id = Fable.Core.JS.setTimeout callback delayMs
+    fun () -> Fable.Core.JS.clearTimeout id
+
 module CssRules =
     type CssSelector =
         | Tag of string
@@ -372,10 +380,10 @@ let findSvIdElement (doc : Document) id : HTMLElement =
 
 let splitBySpace (s:string) = s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries)
 
-let addToClasslist (e:HTMLElement) classes =
+let addToClasslist classes (e:HTMLElement) =
     e.classList.add( classes |> splitBySpace )
 
-let removeFromClasslist (e:HTMLElement) classes =
+let removeFromClasslist classes (e:HTMLElement) =
     e.classList.remove( classes |> splitBySpace )
 
 let attr (name,value:obj) : NodeFactory = nodeFactory <| fun ctx ->
@@ -384,9 +392,9 @@ let attr (name,value:obj) : NodeFactory = nodeFactory <| fun ctx ->
         let e = ctx.Parent :?> HTMLElement
 
         if name = "class" then
-            addToClasslist e (string value)
+            e |> addToClasslist (string value)
         else  if name = "class-" then
-            removeFromClasslist e (string value)
+            e |> removeFromClasslist (string value)
         else
             ctx.SetAttribute (upcast e) name (string value)
 
@@ -779,6 +787,15 @@ let buildSolitaryElement (f : NodeFactory) ctx : HTMLElement =
     else
         let spanWrapper = el "span" [ nodeFactory <| (fun _ -> nodeResult node) ]
         (expectSolitary spanWrapper ctx) :?> HTMLElement
+
+let inject (elements : NodeFactory seq) (element : NodeFactory) = nodeFactory <| fun ctx ->
+    let e = buildSolitary element ctx
+    ctx |> ContextHelpers.withParent e |> buildChildren elements |> ignore
+    nodeResult e
+
+let setValue<'T> (key : string) (value : 'T) = nodeFactory <| fun ctx ->
+    Interop.set ctx.Parent key value
+    unitResult()
 
 // ----------------------------------------------------------------------------
 // Text node

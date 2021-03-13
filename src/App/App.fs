@@ -86,6 +86,7 @@ let allExamples = [
         { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = Spreadsheet.view ; Sections = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
         { Category = "Miscellaneous";   Title = "Modal";  Create = Modal.view ; Sections = ["Modal.fs"]}
         { Category = "Miscellaneous";   Title = "Login";  Create = LoginExample.create ; Sections = ["LoginExample.fs"; "Login.fs"]}
+        { Category = "Miscellaneous";   Title = "Drag-sortable list";  Create = SortableTimerList.create ; Sections = ["SortableTimerList.fs"; "DragDropListSort.fs"; "TimerWithButton.fs"; "TimerLogic.fs"]}
         { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sections = ["Cells.fs"]}
         { Category = "7Guis";   Title = "CRUD";  Create = CRUD.create ; Sections = ["CRUD.fs"]}
     ]

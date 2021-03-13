@@ -39,6 +39,32 @@ let cubicOut t =
 let cubicInOut t =
     if t < 0.5 then 4.0 * t * t * t else 0.5 * System.Math.Pow(2.0 * t - 2.0, 3.0) + 1.0
 
+// todo; ported from JS, might read better if refactored. Might not run as fast though...do the refactor and see how it looks
+let quadInOut t =
+    let tin = t / 0.5;
+    if (tin < 1.0) then
+        0.5 * tin * tin // In: t < 0.5, tin = 0 .. 1
+    else
+        let tout = tin - 1.0  // Out: t>= 0.5, tout = 0 .. 1
+        -0.5 * (tout * (tout - 2.0) - 1.0)
+
+let quadIn t =
+    t * t
+
+let quadOut t =
+    -t * (t - 2.0)
+
+let quartIn t = Math.Pow(t,4.0)
+
+let quartOut t =
+    Math.Pow(t - 1.0, 3.0) * (1.0 - t) + 1.0;
+
+let quartInOut t =
+    if t < 0.5 then 8.0 * t * t * t * t else -8.0 * System.Math.Pow(t - 1.0, 4.0) + 1.0
+    //return t < 0.5
+    //    ? +8.0 * Math.pow(t, 4.0)
+    //    : -8.0 * Math.pow(t - 1.0, 4.0) + 1.0;
+
 let elasticIn t =
     Math.Sin((13.0 * t * Math.PI) / 2.0) * Math.Pow(2.0, 10.0 * (t - 1.0))
 
@@ -51,6 +77,20 @@ let quintIn (t:float) =
 let quintOut t =
     let t' = t - 1.0
     t' * t' * t' * t' * t' + 1.0
+
+let expoInOut t =
+    if t = 0.0 || t = 1.0 then
+        t
+    else if t < 0.5 then
+        +0.5 * Math.Pow(2.0, 20.0 * t - 10.0)
+    else
+        -0.5 * Math.Pow(2.0, 10.0 - t * 20.0) + 1.0
+
+let expoIn t =
+    if t = 0.0 then t else Math.Pow(2.0, 10.0 * (t - 1.0))
+
+let expoOut t =
+    if t = 1.0 then t else 1.0 - Math.Pow(2.0, -10.0 * t)
 
 (*
 /*

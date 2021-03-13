@@ -53,7 +53,7 @@ module Cells =
 
     let cellListen toPos dispatch =
         let store = cellDb.[toPos]
-        let unsub = Store.subscribe store dispatch
+        let unsub = store |> Store.subscribe dispatch
         ()
 
     let cellNotify pos =

@@ -1,5 +1,18 @@
 module TimerWithButton
 
+///
+/// Example component making use of the TimerLogic component.
+/// Applies a simple UI to the TimerLogic component, and allows the user to specify
+/// how the elapsed time is presented.
+///
+/// let create (slot : IObservable<bool * float> -> NodeFactory)
+///
+///      slot - View for timer status. Argument is ( running : bool * elapsedTime : float )
+///
+/// Classes
+/// .running   Added when the timer is running
+///
+
 open Sutil
 open Sutil.Bulma
 open type Feliz.length
@@ -7,17 +20,10 @@ open Sutil.Attr
 open System
 open Sutil.DOM
 
-//
-// Example component making use of the TimerLogic component.
-// User supplies a text label
-//
-
 type Model = {  Started : bool }
-
 type Message =  Toggle
 
 let init () = { Started = false }, Cmd.none
-
 
 let update msg model =
     match msg with
@@ -25,7 +31,6 @@ let update msg model =
 
 let icon (name : IObservable<string>) =
     Html.i [
-        //class' "fa fa-play"
         Bindings.bindAttrIn "class" (name |> Store.map (sprintf "fa fa-%s"))
     ]
 
@@ -42,9 +47,6 @@ let create (slot : IObservable<bool * float> -> NodeFactory) =
             bulma.column [
                 column.isHalf
                 slot elapsed
-                //elapsed
-                //|> Store.map (fun t -> sprintf "00:%02ds"  (int t))
-                //|> Html.text
             ]
 
             bulma.column [

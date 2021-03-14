@@ -20,6 +20,15 @@
   <!-- Syntax highlighting for example source code -->
   <script src="highlight.min.js"></script>
 
+  <script src="mobile-drag-drop.min.js"></script>
+
+  <script>
+      // options are optional ;)
+      MobileDragDrop.polyfill({
+          // use this to make use of the scroll behaviour
+          dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
+      });
+  </script>
 </head>
 <body>
     <div id="sutil-app"></div>

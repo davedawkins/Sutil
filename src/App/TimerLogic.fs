@@ -19,6 +19,7 @@ type Model = {
     Elapsed : float
 }
 
+let stopTimerTask m = m.TimerTask |> Option.iter (fun f -> f())
 let isRunning m = m.TimerTask.IsSome
 
 type Message =
@@ -42,11 +43,12 @@ let update msg model =
     | Tick ->
         { model with Elapsed = (DateTime.UtcNow - model.StartedAt).TotalSeconds }, Cmd.none
     | SetTask t ->
-        model.TimerTask |> Option.iter (fun t -> t()) // Dispose existing timer
+        model |> stopTimerTask // Dispose existing timer
         { model with TimerTask = t }, Cmd.none
 
 let create (run : IObservable<bool>) (view : IObservable<bool * float> -> NodeFactory) =
 
+    let log s = Browser.Dom.console.log s
     let model, dispatch = () |> Store.makeElmish init update ignore
 
     let stop() = dispatch StopTimer
@@ -59,6 +61,11 @@ let create (run : IObservable<bool>) (view : IObservable<bool * float> -> NodeFa
                     | true -> start()
                     | false -> stop())
 
+    let cleanup() =
+        watch.Dispose()
+        model |> Store.get |> stopTimerTask
+        model.Dispose()
+
     /// Here we are just returning the user's view template for the timer, passing the
     /// time as an observable. This component adds no view elements of its own, it
     /// just provides the timer functionality
@@ -70,6 +77,5 @@ let create (run : IObservable<bool>) (view : IObservable<bool * float> -> NodeFa
     |> Store.map (fun m ->  isRunning m, m.Elapsed)
     |> view // User's view component
     |> inject [ // Attach our cleanup to the view component
-        disposeOnUnmount [ model; watch ] // Clean up the model store and unsubscribe from isRunning
-        unsubscribeOnUnmount [ stop ] // Clean up the timer subscription
+        unsubscribeOnUnmount [ cleanup ] // Clean up the timer subscription
     ]

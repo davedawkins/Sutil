@@ -138,13 +138,13 @@ let sanitize (title:string) = title.ToLower().Replace(" ", "-")
 let makeHref book page section =
     "#" + (sanitize book + "-" + sanitize page + (if page = section || section = "" then "" else "?" + section))
 let makeBookHref bk = makeHref bk.Title bk.defaultPage.Title ""
-let findPage bk title = bk.Pages |> List.tryFind (fun p -> sanitize p.Title = title)
+let findPage bk title = bk.Pages |> List.tryFind (fun p -> sanitize p.Title = sanitize title)
 let defaultBook (books : Book list) = books.Head
 let findBookPage (books : Book list) (pv : PageView) =
     let defBk = defaultBook books
     let bookP =
         books
-            |> List.tryFind (fun b -> sanitize b.Title = pv.BookName)
+            |> List.tryFind (fun b -> sanitize b.Title = sanitize pv.BookName)
             |> Option.map (fun bk -> bk, findPage bk pv.PageName)
     match bookP with
     | Some (bk, Some pg) -> bk, pg
@@ -174,7 +174,7 @@ let init() =
         CurrentBook = defaultBook initBooks
         CurrentPage = (defaultBook initBooks).defaultPage
         CurrentSection = ""
-    }, Cmd.none
+    }, []
 
 let update msg model : Model * Cmd<Message> =
     //Browser.Dom.console.log($"{msg}")
@@ -183,7 +183,12 @@ let update msg model : Model * Cmd<Message> =
         { model with IsMobile = m }, Cmd.none
 
     | AddBook book ->
-        { model with Books = book :: model.Books }, Cmd.none
+        { model with Books = book :: model.Books },
+            Cmd.ofMsg (SetPageView {
+                BookName = model.CurrentBook.Title
+                PageName = model.CurrentPage.Title
+                SectionName = model.CurrentSection
+                })
 
     | SetPageView pv ->
         let book, page = pv |> findBookPage model.Books
@@ -353,7 +358,6 @@ let viewPage page model =
             | _ -> viewSource model
     ]
 
-
 module UrlParser =
     let parseHash (location: Location) =
         let hash =
@@ -394,7 +398,7 @@ let appMain () =
     let upage  = Navigable.listenLocation UrlParser.parsePageView (dispatch << SetPageView)
 
     let currentBook = model .> currentBook |> onBookChange
-    let currentPage= model .> currentPage |> onPageChange
+    let currentPage = model .> currentPage |> onPageChange
 
     Doc.getBook() |> Promise.map (dispatch << AddBook) |> ignore
 

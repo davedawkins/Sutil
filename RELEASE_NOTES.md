@@ -1,5 +1,8 @@
 ### 1.0.0-alpha-005
 
+- Fix cleanup bug in TimerLogic.fs
+- Initialize page according to URL
+- Reload url when book added, in case url referenced the new book
 - Mobile drag/drop support in example app
 - Improved layout for mobile in SortableTimerList example
 - Change order of arguments for Store.map, DOM.addToClasslist, DOM.removeFromClasslist to favour pipeline style

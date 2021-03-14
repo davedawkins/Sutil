@@ -555,6 +555,7 @@ let private updateCustom (el:HTMLElement) (name:string) (property:string) (value
 
 // Call all registered disposables on this node
 let private cleanup (node:Node) : unit =
+    //Browser.Dom.console.log($"cleanup {nodeStr node}")
     let safeDispose (d: IDisposable) =
         try d.Dispose()
         with x -> Logging.error $"Disposing {d}: {x} from {nodeStr node}"

@@ -42,6 +42,7 @@ let create (slot : IObservable<bool * float> -> NodeFactory) =
     |> TimerLogic.create <| fun elapsed ->
         bulma.columns [
             columns.isVcentered
+            columns.isMobile
             Bindings.bindClass (model |> Store.map (fun m -> m.Started)) "running"
 
             bulma.column [

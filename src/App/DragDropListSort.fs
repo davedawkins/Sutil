@@ -49,6 +49,8 @@ module private Private =
     let addClasses node classes = node |> iterElem (DOM.addToClasslist classes)
     let removeClasses node classes = node |> iterElem (DOM.removeFromClasslist classes)
 
+    let getKey (n : Node) : int = Interop.get n "_key"
+
     type DragState() =
         let mutable draggingNode : Browser.Types.Node option = None
         let mutable overNode : Browser.Types.Node option = None
@@ -57,8 +59,8 @@ module private Private =
         let getDragOp () =
             match draggingNode, overNode with
             | Some dn, Some ov ->
-                let sourceId : int = (Interop.get dn "_key")
-                let targetId : int = (Interop.get ov "_key")
+                let sourceId = getKey dn
+                let targetId = getKey ov
                 InsertBefore (sourceId,targetId)
             | _ -> Nothing
 
@@ -110,6 +112,9 @@ module private Private =
 
             draggingNode <- e.target |> fromTarget |> Some
 
+            draggingNode |> Option.iter (fun dn ->
+                e?dataTransfer?setData("text/plain", getKey dn |> string))
+
             // Allow browser to grab this style as the drag image
             // Works on: Firefox MacOS, Safari MacOS
             // NO effect on: Chrome MacOS
@@ -122,6 +127,7 @@ module private Private =
             Attr.draggable true
             on "dragstart" state.dragStart []
             on "dragover" state.dragOver [PreventDefault] // Causes drop to fire
+            on "dragenter" ignore [PreventDefault]
             on "dragleave" state.dragLeave []
             on "dragend" state.dragEnd []
             on "drop" (state.drop dispatch) [PreventDefault]

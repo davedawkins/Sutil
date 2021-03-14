@@ -1,5 +1,7 @@
 ### 1.0.0-alpha-005
 
+- Mobile drag/drop support in example app
+- Improved layout for mobile in SortableTimerList example
 - Change order of arguments for Store.map, DOM.addToClasslist, DOM.removeFromClasslist to favour pipeline style
 - Added DOM.interval, DOM.timeout as unsubscribable wrappers to setTimeout and setInterval
 - More easing functions (quad, quart, expo)

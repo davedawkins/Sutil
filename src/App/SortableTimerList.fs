@@ -68,8 +68,11 @@ let buttonStyle = [
     rule ".timer-button" [
         Css.border (px 1, Feliz.borderStyle.solid, "gray")
         Css.borderRadius (px 5)
-        Css.marginTop (px 4)
-        Css.marginBottom (px 4)
+        //Css.marginTop (px 4)
+        //Css.marginBottom (px 4)
+        //Css.marginLeft (px 12)
+        //Css.marginRight (px 12)
+        Css.margin (px 12)
     ]
     rule ".timer-button.running" [
         Css.backgroundColor "#e3fff8"
@@ -120,15 +123,15 @@ let create() =
             |> Html.text
 
         Html.li [
-            DOM.setValue "_key" label.Id
+            DOM.setValue "_key" label.Id // DragDropSortList looks for this. eachk could do this automatically
             TimerWithButton.create (displayTime label.Text)
                 |> inject [ class' "timer-button" ] // Add this class to the TimerWithButton element
         ]
 
     bulma.columns [
-        bulma.column [column.is4 ]
+        columns.isCentered
         bulma.column [
-            column.is4
+            column.is12Mobile; column.is8Tablet; column.is8Desktop; column.is6Widescreen
             Html.ul [
                 DragDropListSort.create labels makeLabel (fun l -> l.Id) [] (dispatch << Drag)
             ]

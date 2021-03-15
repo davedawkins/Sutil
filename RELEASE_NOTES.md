@@ -1,3 +1,8 @@
+### 1.0.0-alpha-006
+
+- Support for Feliz.Engine 1.0.0-beta-004
+- Support for Feliz.Engine.Bulma 1.0.0-beta-005
+
 ### 1.0.0-alpha-005
 
 - Support for Feliz.Engine 1.0.0-beta-003

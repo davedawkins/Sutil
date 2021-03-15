@@ -9,9 +9,7 @@ open System
 type [<Fable.Core.Erase>] NodeAttr = NodeAttr of NodeFactory
 
 type SutilHtmlEngine() =
-    inherit HtmlEngine<NodeFactory>(makeNode     = Func<string,NodeFactory seq,NodeFactory>(el),
-                                    stringToNode = Func<string,NodeFactory>(text),
-                                    emptyNode    = Func<NodeFactory>(fun () -> fragment []))
+    inherit HtmlEngine<NodeFactory>( el, text, (fun () -> fragment []) )
     member _.app (xs : seq<NodeFactory>) : NodeFactory = fragment xs
     member _.body (xs: seq<NodeFactory>) = nodeFactory <| fun ctx ->
         ctx |> ContextHelpers.withParent (ctx.Document.body) |> buildChildren xs
@@ -26,9 +24,8 @@ type SutilHtmlEngine() =
     member _.fragment (v : IObservable<NodeFactory>) = Bind.fragment v id
 
 type SutilAttrEngine() =
-    inherit AttrEngine<NodeFactory>(
-                makeAttr        = Func<string,string,NodeFactory>(fun key value -> attr(key, value)),
-                makeBooleanAttr = Func<string,bool,NodeFactory>(fun key value -> attr(key, value)))
+    inherit AttrEngine<NodeFactory>((fun key value -> attr(key, value)),
+                                    (fun key value -> attr(key, value)))
 
     member _.disabled<'T> (value: IObservable<'T>) = bindAttrIn "disabled" value
 

@@ -38,8 +38,8 @@
     <Compile Include="Bulma.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Feliz.Engine.Bulma" Version="1.0.0-beta-004" />
-    <PackageReference Include="Feliz.Engine" Version="1.0.0-beta-003" />
+    <PackageReference Include="Feliz.Engine.Bulma" Version="1.0.0-beta-005" />
+    <PackageReference Include="Feliz.Engine" Version="1.0.0-beta-004" />
     <PackageReference Include="Fable.Browser.Css" Version="2.*" />
     <PackageReference Include="Fable.Browser.Dom" Version="2.*" />
     <PackageReference Include="Fable.Core" Version="3.*" />

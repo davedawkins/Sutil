@@ -27,7 +27,7 @@ let listenLocation<'T> (parser:Parser<'T>) (dispatch: 'T -> unit) =
         window.addEventListener("popstate", unbox onChangeRef)
         window.addEventListener("hashchange", unbox onChangeRef)
 
-        onChange() // Initialize with starting href
+        onChange() |> ignore // Initialize with starting href
 
     let unsubscribe () =
         window.removeEventListener("popstate", unbox onChangeRef)

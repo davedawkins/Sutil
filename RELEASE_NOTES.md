@@ -1,5 +1,7 @@
 ### 1.0.0-alpha-005
 
+- Support for Feliz.Engine 1.0.0-beta-003
+- Support for Feliz.Engine.Bulma 1.0.0-beta-004
 - Fix cleanup bug in TimerLogic.fs
 - Initialize page according to URL
 - Reload url when book added, in case url referenced the new book

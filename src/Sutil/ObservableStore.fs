@@ -4,6 +4,7 @@ open System
 open Browser.Dom
 open System.Collections.Generic
 open Browser.Types
+open Interop
 
 [<RequireQualifiedAccess>]
 module ObservableStore =
@@ -43,6 +44,7 @@ module ObservableStore =
     #endif
 
     module Registry =
+        open Fable.Core
         open Fable.Core.JsInterop
 
         let mutable nextId = 0
@@ -51,7 +53,7 @@ module ObservableStore =
         //let disposed = new Dictionary<obj,int>()
 
         let notifyUpdateStore s v =
-            DOM.dispatch window.document DOM.Event.UpdateStore {| Value = v |}
+            DOM.dispatch Window.document DOM.Event.UpdateStore {| Value = v |}
 
         let notifyMakeStore s =
             if storeToId.ContainsKey(s) then failwith "Store is already registered!"
@@ -60,7 +62,7 @@ module ObservableStore =
             nextId <- nextId + 1
             idToStore.[id] <- s
             storeToId.[s] <- id
-            DOM.dispatchSimple window.document DOM.Event.NewStore
+            DOM.dispatchSimple Window.document DOM.Event.NewStore
 
         let notifyDisposeStore (s:obj) =
             //if not (storeToId.ContainsKey(s)) then
@@ -92,12 +94,14 @@ module ObservableStore =
                 member _.GetLogCategories() = Logging.enabled |> Seq.map (fun k -> k.Key , k.Value) |> Seq.toArray
                 member _.SetLogCategories(states) =
                     Logging.initWith states
-                member _.GetMountPoints() =
-                    DOM.allMountPoints()
-                        |> List.map (fun mp -> { new DevToolsControl.IMountPoint with
-                                            member _.Id = mp.MountId
-                                            member _.Remount() = mp.Mount() |> ignore })
-                        |> List.toArray
+                member _.PrettyPrint(id) =
+                    (DOM.findNodeWithSvId Window.document id) |> Option.iter (fun n -> (DOM.DomNode n).PrettyPrint("Node #" + string id))
+                member _.GetMountPoints() = [| |]
+                    //DOM.allMountPoints()
+                    //    |> List.map (fun mp -> { new DevToolsControl.IMountPoint with
+                    //                        member _.Id = mp.MountId
+                    //                        member _.Remount() = mp.Mount() |> ignore })
+                    //    |> List.toArray
         }
 
         let initialise (doc:Document) =
@@ -216,7 +220,7 @@ module ObservableStore =
                    (dispose: 'Model -> unit)
                    : 'Props -> IStore<'Model> * Dispatch<'Msg> =
 
-        Registry.initialise doc
+        //Registry.initialise doc
 
         makeElmishWithCons init update dispose (fun i d ->
             let s = makeStore i  d
@@ -228,7 +232,7 @@ module ObservableStore =
                    (dispose: 'Model -> unit)
                    : 'Props -> IStore<'Model> * Dispatch<'Msg> =
 
-        Registry.initialise doc
+        //Registry.initialise doc
 
         let init p = init p, []
         let update msg model = update msg model, []

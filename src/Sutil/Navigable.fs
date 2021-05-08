@@ -4,6 +4,7 @@ open Browser.Types
 open Sutil.DOM
 open Browser.Dom
 open System
+open Interop
 
 type Parser<'T> = Location -> 'T
 
@@ -16,29 +17,29 @@ let listenLocation<'T> (parser:Parser<'T>) (dispatch: 'T -> unit) =
         let mutable lastLocation = None
         let onChange _ =
             match lastLocation with
-            | Some href when href = window.location.href -> ()
+            | Some href when href = Window.location.href -> ()
             | _ ->
-                lastLocation <- Some window.location.href
-                window.location |> parser |> dispatch
+                lastLocation <- Some Window.location.href
+                Window.location |> parser |> dispatch
             |> box
 
         onChangeRef <- onChange
 
-        window.addEventListener("popstate", unbox onChangeRef)
-        window.addEventListener("hashchange", unbox onChangeRef)
+        Window.addEventListener("popstate", unbox onChangeRef)
+        Window.addEventListener("hashchange", unbox onChangeRef)
 
         onChange() |> ignore // Initialize with starting href
 
     let unsubscribe () =
-        window.removeEventListener("popstate", unbox onChangeRef)
-        window.removeEventListener("hashchange", unbox onChangeRef)
+        Window.removeEventListener("popstate", unbox onChangeRef)
+        Window.removeEventListener("hashchange", unbox onChangeRef)
 
     subscribe()
 
     unsubscribe
 
-let navigable<'T> (parser:Parser<'T>) (app : IObservable<'T> -> NodeFactory) =
-    let store = Store.make (window.location |> parser)
+let navigable<'T> (parser:Parser<'T>) (app : IObservable<'T> -> SutilElement) =
+    let store = Store.make (Window.location |> parser)
     let u = listenLocation parser (Store.set store)
 
     fragment [

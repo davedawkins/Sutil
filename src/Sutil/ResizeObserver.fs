@@ -6,6 +6,7 @@ open Browser.Types
 open Browser.Dom
 open Browser.CssExtensions
 open System
+open Interop
 
 let isCrossOrigin = false // TODO
 
@@ -24,7 +25,7 @@ type ResizeObserver( el : HTMLElement ) =
         subscribers |> List.iter (fun sub -> sub.Callback())
 
     do
-        let computedStyle = window.getComputedStyle(el)
+        let computedStyle = Window.getComputedStyle(el)
         let zIndex =  (try int(computedStyle.zIndex) with |_ -> 0) - 1;
 
         if computedStyle.position = "static" || computedStyle.position = "" then

@@ -205,7 +205,7 @@ let viewFlt f  =
         Html.span [ class' "o-float"; text f ]
     ]
 
-let rec viewObject (x:obj) : NodeFactory =
+let rec viewObject (x:obj) : SutilElement =
     match  x with
     | :? int -> viewInt (downcast x)
     | :? float -> viewFlt (downcast x)

@@ -5,13 +5,9 @@ module TimerLogic
 /// to make use of componentized services or behaviour
 
 open Sutil
-open Sutil.Bulma
-open Feliz
 open type Feliz.length
-open Sutil.Attr
 open Sutil.DOM
 open System
-open Sutil.Styling
 
 type Model = {
     TimerTask : (unit -> unit) option; // Unsubscribe function for current timer, if any
@@ -27,7 +23,6 @@ type Message =
     |StopTimer
     |Tick
     |SetTask of (unit -> unit) option
-
 
 let init () = { StartedAt = DateTime.UtcNow; Elapsed = 0.0; TimerTask = None }, Cmd.none
 
@@ -46,7 +41,7 @@ let update msg model =
         model |> stopTimerTask // Dispose existing timer
         { model with TimerTask = t }, Cmd.none
 
-let create (run : IObservable<bool>) (view : IObservable<bool * float> -> NodeFactory) =
+let create (run : IObservable<bool>) (view : IObservable<bool * float> -> SutilElement) =
 
     let log s = Browser.Dom.console.log s
     let model, dispatch = () |> Store.makeElmish init update ignore

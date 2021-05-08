@@ -5,7 +5,7 @@ open Sutil.DOM
 type Page = {
     Title : string
     Category : string
-    Create : (unit -> NodeFactory)
+    Create : (unit -> SutilElement)
     Sections : string list
 }
 

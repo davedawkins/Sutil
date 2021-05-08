@@ -159,12 +159,12 @@ let makeStore = Store.makeElmish init update ignore
 //
 // Render a NodeFctory at a given cell
 //
-let renderCellAt (renderfn: Position -> NodeFactory) (ctx : BuildContext) (cell:Position) =
+let renderCellAt (renderfn: Position -> SutilElement) (ctx : BuildContext) (cell:Position) =
     log($"renderCellAt {cell}")
     let nodeFactory = renderfn >> exclusive
-    build (nodeFactory cell) (ctx |> ContextHelpers.withParent (nodeOfCell cell)) |> ignore
+    build (nodeFactory cell) (ctx |> ContextHelpers.withParent (DomNode (nodeOfCell cell))) |> ignore
 
-let view () : NodeFactory =
+let view () : SutilElement =
 
     let model, dispatch = makeStore()
 

@@ -87,6 +87,8 @@ let allExamples = [
         { Category = "Miscellaneous";   Title = "Modal";  Create = Modal.view ; Sections = ["Modal.fs"]}
         { Category = "Miscellaneous";   Title = "Login";  Create = LoginExample.create ; Sections = ["LoginExample.fs"; "Login.fs"]}
         { Category = "Miscellaneous";   Title = "Drag-sortable list";  Create = SortableTimerList.create ; Sections = ["SortableTimerList.fs"; "DragDropListSort.fs"; "TimerWithButton.fs"; "TimerLogic.fs"]}
+        { Category = "Miscellaneous";   Title = "SAFE client";  Create = SAFE.view ; Sections = ["SafeClient.fs"]}
+        { Category = "Miscellaneous";   Title = "Fragment";  Create = Fragment.view ; Sections = ["Fragment.fs"]}
         { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sections = ["Cells.fs"]}
         { Category = "7Guis";   Title = "CRUD";  Create = CRUD.create ; Sections = ["CRUD.fs"]}
     ]
@@ -154,8 +156,8 @@ let findBookPage (books : Book list) (pv : PageView) =
 
 let compareBook (a:Book) (b:Book) = (a.Title = b.Title)
 let comparePage (a:Page) (b:Page) = (a.Title = b.Title)
-let onBookChange source = Observable.distinctUntilChangedCompare source compareBook
-let onPageChange source = Observable.distinctUntilChangedCompare source comparePage
+let onBookChange source = source |> Observable.distinctUntilChangedCompare compareBook
+let onPageChange source = source |> Observable.distinctUntilChangedCompare comparePage
 let pageCategories (all : Page list) = all |> List.map (fun p -> p.Category) |> List.distinct
 
 let fetchSource file dispatch =
@@ -200,6 +202,7 @@ let update msg model : Model * Cmd<Message> =
         let cmd, src =
             if (section <> "" && section <> model.CurrentSection && model.Source <> loadingString) then
                 [ fetchSource section ], loadingString
+                //Cmd.none, loadingString
             else
                 Cmd.none, ""
         { model with CurrentPage = page; CurrentBook = book; CurrentSection = section; ShowContents = false; Source = src} , cmd
@@ -437,11 +440,12 @@ let appMain () =
             Html.div [
                 class' "columns app-main-section"
 
-                transition [fly |> withProps [ Duration 500.0; X -500.0 ] |> In] showContents <| Html.div [
-                    class' "column is-one-quarter app-contents"
+                transition [fly |> withProps [ Duration 500.0; X -500.0 ] |> In] showContents <|
+                    Html.div [
+                        class' "column is-one-quarter app-contents"
 
-                    tab.Pages |> pageCategories |> List.map (fun title -> Section tab title) |> fragment
-                ]
+                        tab.Pages |> pageCategories |> List.map (fun title -> Section tab title) |> fragment
+                    ]
 
                 Bind.fragment currentPage <| fun page ->
                     Html.div [
@@ -473,4 +477,9 @@ let app () =
         appMain() |> withStyle mainStyleSheet
     ]
 
-app() |> mountElement "sutil-app"
+let main() =
+    app() |> Program.mountElement "sutil-app"
+
+main()
+//open Fable.Core.JsInterop
+//Browser.Dom.window?main <- main

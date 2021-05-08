@@ -5,7 +5,6 @@ module ReactiveStatements
 
 open Sutil
 open Sutil.DOM
-open Sutil.Bindings
 open Sutil.Attr
 open Browser.Dom
 

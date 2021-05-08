@@ -36,6 +36,7 @@ let init() =
 
 
 let update msg (model : Model) =
+    Browser.Dom.console.log($"{msg}")
     match msg with
     | Nop -> model, Cmd.none
     | Drag op ->

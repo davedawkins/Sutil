@@ -9,6 +9,7 @@ open Sutil.DOM
 open System.Collections.Generic
 open System
 open Fable.Core
+open Interop
 
 let log = Sutil.Logging.log "trans"
 
@@ -162,7 +163,7 @@ let private waitAnimationFrame f =
     let init = tasks.IsEmpty
     tasks <- f :: tasks
     if init then
-        window.requestAnimationFrame( fun _ ->
+        Window.requestAnimationFrame( fun _ ->
             runTasks()
         ) |> ignore
 
@@ -222,7 +223,7 @@ let createRule (node : HTMLElement) (a:float) (b:float) tr (uid:int) =
 let clearAnimations (node:HTMLElement) = node.style.animation <-""
 
 let private clearRules() =
-    window.requestAnimationFrame( fun _ ->
+    Window.requestAnimationFrame( fun _ ->
         if (numActiveAnimations = 0) then
             for kv in activeDocs do
                 let doc = kv.Value
@@ -255,7 +256,7 @@ let flip (node:Element) (animation:Animation) props =
                 Delay = 0.0
                 DurationFn = Some (fun d -> System.Math.Sqrt(d) * 60.0)
                 Ease = Easing.quintOut }
-    let style = window.getComputedStyle(node)
+    let style = Window.getComputedStyle(node)
     let transform = if style.transform = "none" then "" else style.transform
     let scaleX = animation.From.width / node.clientWidth
     let scaleY = animation.From.height / node.clientHeight
@@ -431,13 +432,13 @@ let transitionNode  (el : HTMLElement)
 
 type Hideable = {
     predicate : IObservable<bool>
-    element   : NodeFactory
+    element   : SutilElement
     transOpt  : TransitionAttribute list
 }
 
 type HideableRuntime = {
     hideable : Hideable
-    mutable target : Node
+    mutable target : SutilNode
     mutable cache : bool
     mutable unsubscribe : System.IDisposable
 }
@@ -445,26 +446,30 @@ type HideableRuntime = {
 let createHideableRuntime h =
     {
         hideable = h
-        target = null
+        target = EmptyNode
         cache = false
         unsubscribe = null
     }
 
-let transitionList (list : Hideable list) : NodeFactory = nodeFactory <| fun ctx ->
+
+let collectNodes (sn : SutilNode option) = sn |> Option.map (fun n -> n.collectDomNodes()) |> Option.defaultValue []
+
+let transitionList (list : Hideable list) : SutilElement = nodeFactory <| fun ctx ->
     let runtimes = list |> List.map createHideableRuntime
     for rt in runtimes do
         rt.unsubscribe <- rt.hideable.predicate |> Store.subscribe ( fun show ->
-            if (isNull rt.target) then
-                rt.target <- buildSolitary rt.hideable.element ctx
+            if (rt.target.IsEmpty) then
+                rt.target <- build  rt.hideable.element ctx
                 rt.cache <- not show
 
             if (rt.cache <> show) then
                 rt.cache <- show
-                transitionNode (rt.target :?> HTMLElement) rt.hideable.transOpt [] show ignore ignore
+                rt.target.collectDomNodes() |> List.iter (fun node ->
+                        transitionNode (node :?> HTMLElement) rt.hideable.transOpt [] show ignore ignore )
         )
-    unitResult()
+    unitResult(ctx, "transitionList")
 
-type MatchOption<'T> = ('T -> bool) *  NodeFactory * TransitionAttribute list
+type MatchOption<'T> = ('T -> bool) *  SutilElement * TransitionAttribute list
 
 let makeHideable guard element transOpt = {
     element = element
@@ -477,30 +482,42 @@ let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> lis
 
 let transitionOpt   (trans : TransitionAttribute list)
                     (store : IObservable<bool>)
-                    (element: NodeFactory)
-                    (elseElement : NodeFactory option) : NodeFactory = nodeFactory <| fun ctx ->
-    let mutable target : Node = null
+                    (element: SutilElement)
+                    (elseElement : SutilElement option) : SutilElement = nodeFactory <| fun ctx ->
+    let transNode = NodeGroup( "transition", ctx.Parent, ctx.Previous )
+    let transResult = VirtualNode transNode
+    ctx.AddChild transResult
+    let transCtx = ctx |> ContextHelpers.withParent transResult
+
+    let mutable target : SutilNode = EmptyNode
     let mutable cache = false
-    let mutable targetElse : Node = null
+    let mutable targetElse : SutilNode = EmptyNode
 
     let unsub = store |> Store.subscribe (fun isVisible ->
-        let wantTransition = not (isNull target)
+        let wantTransition = not target.IsEmpty
 
-        if isNull target then
-            target <- buildSolitary element ctx
+        if target.IsEmpty then
+            target <- build element transCtx
             cache <- not isVisible
             match elseElement with
-            | Some e -> targetElse <- buildSolitary e ctx
+            | Some e -> targetElse <- build e transCtx
             | None -> ()
 
         if cache <> isVisible then
             cache <- isVisible
             let trans' = if wantTransition then trans else []
-            transitionNode (target :?> HTMLElement) trans' [] isVisible ignore ignore
-            if not (isNull targetElse) then
-                transitionNode (targetElse :?> HTMLElement) trans' [] (not isVisible) ignore ignore
+
+            target.collectDomNodes() |> List.iter (fun node ->
+                transitionNode (node :?> HTMLElement) trans' [] isVisible ignore ignore
+            )
+            targetElse.collectDomNodes() |> List.iter (fun node ->
+                transitionNode (node :?> HTMLElement) trans' [] (not isVisible) ignore ignore
+            )
+            //if not (isNull targetElse) then transitionNode (targetElse :?> HTMLElement) trans' [] (not isVisible) ignore ignore
     )
-    unitResult()
+
+    sutilResult(transResult)
+//    unitResult(ctx, "transitionOpt")
 
 // Show or hide according to a Store<bool> using a transition
 let transition<'T> (trans : TransitionAttribute list) store element =

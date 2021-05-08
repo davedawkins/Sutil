@@ -39,7 +39,7 @@ type Message =
     |CompleteAll
 
 let makeExampleTodos() = [
-    { Id = 1; Done = false; Description = "write some docs" }
+    { Id = 1; Done = false; Description = "write some docs " }
     { Id = 2; Done = false; Description = "start writing JSConf talk" }
     { Id = 3; Done =  true; Description = "buy some milk" }
     { Id = 4; Done = false; Description = "mow the lawn" }
@@ -202,7 +202,7 @@ let fallback (props : TransitionProp list) (node : HTMLElement) = fun _ ->
             Ease = Easing.quintOut
             CssGen = Some(fun t _ -> $"transform: {transform} scale({t}); opacity: {t}") }
 
-let view () : NodeFactory =
+let view () : SutilElement =
     let (send,recv) = crossfade [ Fallback fallback ]
 
     let model, dispatch = makeStore ()

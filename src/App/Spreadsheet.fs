@@ -100,7 +100,7 @@ let renderCell m dispatch pos =
             evalCellAsString (cellValue m.Cells) content |> text
         ]
 
-let view () : NodeFactory =
+let view () : SutilElement =
     let model, dispatch = makeStore()
 
     Html.div [

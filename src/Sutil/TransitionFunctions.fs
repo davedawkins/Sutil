@@ -8,6 +8,7 @@ open Browser.Types
 open Sutil.Transition
 open Sutil.DOM
 open System.Collections.Generic
+open Interop
 
 let log = Sutil.Logging.log "trfn"
 
@@ -29,7 +30,7 @@ let fade (initProps : TransitionProp list) (node : HTMLElement) =
 let slide (props : TransitionProp list) = fun (node : HTMLElement) ->
     let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut }
 
-    let style = window.getComputedStyle(node)
+    let style = Window.getComputedStyle(node)
 
     let opacity = parseFloat (style.opacity, "opacity")
     let height = parseFloat (style.height, "height")
@@ -77,7 +78,7 @@ let draw (props : TransitionProp list) = fun (node : SVGPathElement) ->
 let fly (props : TransitionProp list) (node : Element) =
     let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut; X = 0.0; Y = 0.0 }
 
-    let style = window.getComputedStyle(node)
+    let style = Window.getComputedStyle(node)
     let targetOpacity = computedStyleOpacity node
     let transform = if style.transform = "none" then "" else style.transform
     let od = targetOpacity * (1.0 - tr.Opacity)
@@ -118,7 +119,7 @@ let crossfade userProps =
         //if (intro) then
         log(sprintf "crossfade from %f,%f -> %f,%f" from.left from.top tgt.left tgt.top)
         let d = System.Math.Sqrt(dx * dx + dy * dy)
-        let style = window.getComputedStyle(node)
+        let style = Window.getComputedStyle(node)
         let transform = if style.transform = "none" then "" else style.transform
         let opacity = computedStyleOpacity node
         let duration = match tr.DurationFn with

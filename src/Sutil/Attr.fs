@@ -4,14 +4,14 @@ open DOM
 open Browser.Types
 open Fable.Core.JsInterop
 
-let autofocus : NodeFactory =
+let autofocus : SutilElement =
     nodeFactory <| fun ctx ->
         let e = ctx.Parent
         DOM.rafu (fun _ ->
             e?focus()
             e?setSelectionRange(99999,99999)
             )
-        unitResult()
+        unitResult(ctx, "autofocus")
 
 // Attributes that are either keywords or core functions
 let id' n          = attr("id",n)
@@ -31,7 +31,7 @@ type EventModifier =
     | StopImmediatePropagation
 
 let on (event : string) (fn : Event -> unit) (options : EventModifier list) = nodeFactory <| fun ctx ->
-    let el = ctx.Parent
+    let el = ctx.ParentNode
     let rec h (e:Event) =
         for opt in options do
             match opt with
@@ -41,11 +41,7 @@ let on (event : string) (fn : Event -> unit) (options : EventModifier list) = no
             | StopImmediatePropagation -> e.stopImmediatePropagation()
         fn(e)
     el.addEventListener(event, h)
-    unitResult()
-
-//let on0 event fn : NodeFactory = fun (_,el) ->
-//    el.addEventListener(event, fn)
-//    unitResult()
+    unitResult(ctx, "on")
 
 let onKeyboard event (fn : KeyboardEvent -> unit) options =
     on event (unbox fn) options
@@ -75,4 +71,6 @@ let onHide fn options = on Event.Hide fn options
 
 let onKeyDown (fn : (KeyboardEvent -> unit)) options  = onKeyboard "keydown" fn options
 let onMouseMove fn options  = onMouse "mousemove" fn options
+
+let subscribeOnMount (f : unit -> (unit -> unit)) = onMount (fun e -> SutilNode.RegisterUnsubscribe(asElement<Node>(e.target),f())) [Once]
 

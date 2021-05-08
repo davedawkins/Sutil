@@ -4,7 +4,7 @@ module DragDropListSort
 ///    Wrapper for Bindings.eachk that allows user to drag-drop sort the list elements
 ///
 ///    let create  (items:IObservable<list<'T>>)
-///                (slot : 'T -> NodeFactory)
+///                (slot : 'T -> SutilElement)
 ///                (key:'T -> 'K) (trans : TransitionAttribute list)
 ///                (dispatch : DragOperation -> unit)
 ///
@@ -138,7 +138,7 @@ open System
 open Sutil.Transition
 
 let create  (items:IObservable<list<'T>>)
-            (slot : 'T -> NodeFactory)
+            (slot : 'T -> SutilElement)
             (key:'T -> 'K) (trans : TransitionAttribute list)
             (dispatch : DragOperation -> unit) =
     let state = DragState()

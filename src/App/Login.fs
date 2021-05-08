@@ -126,6 +126,7 @@ let private defaultView model dispatch =
                                     bulma.button.button [
                                         color.isSuccess
                                         DOM.text "Login"
+                                        onClick (fun _ -> dispatch AttemptLogin) [PreventDefault]
                                     ]
                                 ]
                                 bulma.control.div [

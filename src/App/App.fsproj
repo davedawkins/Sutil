@@ -53,6 +53,8 @@
     <Compile Include="NestedComponents.fs" />
     <Compile Include="Styling.fs" />
     <Compile Include="CRUD.fs" />
+    <Compile Include="SafeClient.fs" />
+    <Compile Include="Fragment.fs" />
     <Compile Include="TimerLogic.fs" />
     <Compile Include="TimerWithButton.fs" />
     <Compile Include="DragDropListSort.fs" />

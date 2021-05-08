@@ -1,8 +1,43 @@
 module Sutil.Program
 
     open Sutil.DOM
+    open Browser.Types
+    open Browser.Dom
 
-    //let makeComponent name (element : NodeFactory) : NodeFactory = fun (ctx,parent) ->
+    type MountPoint = {
+            Doc : Document
+            MountId : string
+            App : SutilElement
+        }
+        with
+            member this.Mount() =
+                let host = this.Doc.querySelector($"#{this.MountId}")
+                mountOn (exclusive this.App) host
+
+    // Tried to make these into static members, but get error
+    // "These element declarations are not permitted in an augmentation F# compiler"
+    // MountPoint is passed to DevTools
+    let mutable private _allMountPoints = []
+
+    let allMountPoints() = _allMountPoints
+
+    let private createMountPoint doc id app =
+        let self = { Doc = doc; MountId = id; App = app }
+        _allMountPoints <- self :: _allMountPoints
+        self
+
+    //
+    // Mount a top-level application SutilElement into an existing document
+    //
+    let rec mountElementOnDocument (doc : Document) id (app : SutilElement)  =
+        let mp = createMountPoint doc id app
+        ObservableStore.Registry.initialise doc
+        mp.Mount() |> ignore
+
+    let rec mountElement id (app : SutilElement)  =
+        mountElementOnDocument document id app
+
+    //let makeComponent name (element : SutilElement) : SutilElement = fun (ctx,parent) ->
     //    element( { ctx with StyleName = "" }, parent )
 
     //
@@ -20,4 +55,4 @@ module Sutil.Program
                 update msg model
                 DOM.Event.notifyUpdated doc)
 
-        Sutil.DOM.mountElementOnDocument doc host <| view model (makeDispatcher update)
+        mountElementOnDocument doc host <| view model (makeDispatcher update)

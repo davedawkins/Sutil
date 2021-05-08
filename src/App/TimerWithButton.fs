@@ -5,7 +5,7 @@ module TimerWithButton
 /// Applies a simple UI to the TimerLogic component, and allows the user to specify
 /// how the elapsed time is presented.
 ///
-/// let create (slot : IObservable<bool * float> -> NodeFactory)
+/// let create (slot : IObservable<bool * float> -> SutilElement)
 ///
 ///      slot - View for timer status. Argument is ( running : bool * elapsedTime : float )
 ///
@@ -34,7 +34,7 @@ let icon (name : IObservable<string>) =
         Bindings.bindAttrIn "class" (name |> Store.map (sprintf "fa fa-%s"))
     ]
 
-let create (slot : IObservable<bool * float> -> NodeFactory) =
+let create (slot : IObservable<bool * float> -> SutilElement) =
     let model, dispatch = () |> Store.makeElmish init update ignore
 
     model

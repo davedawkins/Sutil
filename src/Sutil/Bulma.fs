@@ -15,7 +15,7 @@ module Helpers =
     //    height: auto;
     //    padding: 0;
     //}
-    let selectList (props : NodeFactory list) =
+    let selectList (props : SutilElement list) =
         Html.div [
             class' "select is-multiple"
             Html.select props
@@ -28,7 +28,7 @@ module Helpers =
                         Css.padding 0
                     ] ]
 
-    let selectMultiple (props : NodeFactory list) = Html.div [ class' "select is-multiple"; Html.select ([ Attr.multiple true ] @ props) ]
+    let selectMultiple (props : SutilElement list) = Html.div [ class' "select is-multiple"; Html.select ([ Attr.multiple true ] @ props) ]
 
 let styleHelpers = [
     rule "h1" [ addClass "title"; addClass "is-1" ]
@@ -81,7 +81,7 @@ module FontAwesome =
 // and replace Framework and FrameworkElement appropriately. It isn't necessary, but it may
 // help reduce some "bulma.m." boilerplate noise in your app
 
-let bulma = Feliz.Engine.Bulma.BulmaEngine<NodeFactory>( Html, Attr )
+let bulma = Feliz.Engine.Bulma.BulmaEngine<SutilElement>( Html, Attr )
 
 // Can these be generated with a source generator?
 let helpers = bulma.m.helpers

@@ -65,32 +65,32 @@ let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheet) =
         let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSutilRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
         [ specifySelector styleName rule.SelectorSpec; " {"; styleText; "}" ] |> String.concat "" |> doc.createTextNode |> style.appendChild |> ignore
 
-let headStylesheet (url : string) : NodeFactory = nodeFactory <| fun ctx ->
+let headStylesheet (url : string) : SutilElement = nodeFactory <| fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let styleEl = doc.createElement("link")
     head.appendChild( styleEl ) |> ignore
     styleEl.setAttribute( "rel", "stylesheet" )
     styleEl.setAttribute( "href", url ) |> ignore
-    unitResult()
+    unitResult(ctx, "headStylesheet")
 
-let headScript (url : string) : NodeFactory = nodeFactory <| fun ctx ->
+let headScript (url : string) : SutilElement = nodeFactory <| fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let el = doc.createElement("script")
     head.appendChild( el ) |> ignore
     el.setAttribute( "src", url ) |> ignore
-    unitResult()
+    unitResult(ctx, "headScript")
 
-let headEmbedScript (source : string) : NodeFactory = nodeFactory <| fun ctx ->
+let headEmbedScript (source : string) : SutilElement = nodeFactory <| fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let el = doc.createElement("script")
     head.appendChild( el ) |> ignore
     el.appendChild(doc.createTextNode(source)) |> ignore
-    unitResult()
+    unitResult(ctx, "headEmbedScript")
 
-let headTitle (title : string) : NodeFactory = nodeFactory <| fun ctx ->
+let headTitle (title : string) : SutilElement = nodeFactory <| fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let existingTitle = findElement doc "head>title"
@@ -102,14 +102,14 @@ let headTitle (title : string) : NodeFactory = nodeFactory <| fun ctx ->
     titleEl.appendChild( doc.createTextNode(title) ) |> ignore
     head.appendChild(titleEl) |> ignore
 
-    unitResult()
+    unitResult(ctx, "headTitle")
 
-let withStyle styleSheet (element : NodeFactory) : NodeFactory = nodeFactory <| fun ctx ->
+let withStyle styleSheet (element : SutilElement) : SutilElement = nodeFactory <| fun ctx ->
     let name = ctx.MakeName "sutil"
     addStyleSheet ctx.Document name styleSheet
     ctx |> ContextHelpers.withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet} |> build element
 
-let withStyleAppend styleSheet (element : NodeFactory) : NodeFactory = nodeFactory <| fun ctx ->
+let withStyleAppend styleSheet (element : SutilElement) : SutilElement = nodeFactory <| fun ctx ->
     let name = match ctx.StyleSheet with | None -> "" | Some s -> s.Name
     addStyleSheet ctx.Document name styleSheet
     ctx |> build element

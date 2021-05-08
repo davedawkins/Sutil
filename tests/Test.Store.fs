@@ -9,7 +9,7 @@ let tests = testList "Sutil.Store" [
     testCase "Immediate initialisation upon subscription" <| fun () ->
         let s = Store.make 42
         let mutable v = 0
-        let u = Store.subscribe s <| fun v' -> v <- v'
+        let u = s |> Store.subscribe (fun v' -> v <- v')
         u.Dispose()
         Expect.areEqual v 42
 
@@ -18,14 +18,14 @@ let tests = testList "Sutil.Store" [
         Store.set s 43
 
         let mutable v = 0
-        let u = Store.subscribe s <| fun v' -> v <- v'
+        let u = s |> Store.subscribe (fun v' -> v <- v')
         u.Dispose()
         Expect.areEqual v 43
 
     testCase "Update store notifies subscriber" <| fun () ->
         let s = Store.make 42
         let mutable v = 0
-        let u = Store.subscribe s <| fun v' -> v <- v'
+        let u = s |> Store.subscribe (fun v' -> v <- v')
         Expect.areEqual v 42
 
         Store.set s 43
@@ -39,8 +39,8 @@ let tests = testList "Sutil.Store" [
         let mutable v1 = 0
         let mutable v2 = 0
 
-        let u1 = Store.subscribe s <| fun v -> v1 <- v
-        let u2 = Store.subscribe s <| fun v -> v2 <- v
+        let u1 = s |> Store.subscribe (fun v -> v1 <- v)
+        let u2 = s |> Store.subscribe (fun v -> v2 <- v)
 
         Expect.areEqual v1 42
         Expect.areEqual v2 42
@@ -51,8 +51,8 @@ let tests = testList "Sutil.Store" [
         let mutable v1 = 0
         let mutable v2 = 0
 
-        let u1 = Store.subscribe s <| fun v -> v1 <- v
-        let u2 = Store.subscribe s <| fun v -> v2 <- v
+        let u1 = s |> Store.subscribe (fun v -> v1 <- v)
+        let u2 = s |> Store.subscribe (fun v -> v2 <- v)
 
         Expect.areEqual v1 42
         Expect.areEqual v2 42
@@ -68,8 +68,8 @@ let tests = testList "Sutil.Store" [
         let mutable v1 = 0
         let mutable v2 = 0
 
-        let u1 = Store.subscribe s <| fun v -> v1 <- v
-        let u2 = Store.subscribe s <| fun v -> v2 <- v
+        let u1 = s |> Store.subscribe (fun v -> v1 <- v)
+        let u2 = s |> Store.subscribe (fun v -> v2 <- v)
 
         Expect.areEqual v1 42
         Expect.areEqual v2 42
@@ -88,12 +88,12 @@ let tests = testList "Sutil.Store" [
         let mutable v1 = 0
         let mutable v2 = 0
 
-        let u = Store.subscribe s <| fun v -> v1 <- v
+        let u = s |> Store.subscribe (fun v -> v1 <- v)
 
         // Number of subscribers now 0 again
         u.Dispose()
 
-        let u = Store.subscribe s <| fun v -> v2 <- v
+        let u = s |> Store.subscribe (fun v -> v2 <- v)
         u |> ignore
         Store.set s 43
 
@@ -107,7 +107,7 @@ let tests = testList "Sutil.Store" [
         let mutable n = 0
 
         // Will set n = 1 (immediate update)
-        let u = Store.subscribe s <| fun _ -> n <- n + 1
+        let u = s |> Store.subscribe (fun _ -> n <- n + 1)
 
         Store.set s inputValue  // n := 2
         Store.set s inputValue  // n := 3

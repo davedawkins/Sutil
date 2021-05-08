@@ -43,7 +43,7 @@ module DisposeOnUnmount =
     // - Disposed when unmounted
     // - Multiple store dependencies : just declare more Store.make and include them in the disposeOnUmount
     // - Safe when Counter() is used to instantiate new instances
-    //   of the component. (Sutil internally promises not to use the same NodeFactory more than once)
+    //   of the component. (Sutil internally promises not to use the same SutilElement more than once)
     //
     // Cons:
     // - You'll forget to add the disposeOnUmount and the compiler can't help yuo
@@ -115,7 +115,7 @@ module DeclareResource =
     // Generic resource management
     // Store is private to each instance of Counter
     // Store will be disposed when Counter unmounted
-    // Safe: instantiated and cleaned up no matter how NodeFactory is used
+    // Safe: instantiated and cleaned up no matter how SutilElement is used
     // Works for any type of IDisposable
     //
     // Cons:
@@ -156,7 +156,7 @@ module DeclareStore =
     // Generic resource management specialized for stores (can just pass the initial store value)
     // Store is private to each instance of Counter
     // Store will be disposed when Counter unmounted
-    // Safe: instantiated and cleaned up no matter how NodeFactory is used
+    // Safe: instantiated and cleaned up no matter how SutilElement is used
     //
     // Cons:
     // - It's boilerplate - look how much garbage you need to write

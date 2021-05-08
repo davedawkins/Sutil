@@ -49,7 +49,7 @@ module Observable =
                 )
         }
 
-    let distinctUntilChangedCompare<'T> (source:IObservable<'T>) (eq:'T -> 'T -> bool): IObservable<'T> =
+    let distinctUntilChangedCompare<'T> (eq:'T -> 'T -> bool) (source:IObservable<'T>) : IObservable<'T> =
         { new System.IObservable<'T> with
             member _.Subscribe( h : IObserver<'T> ) =
                 let mutable value = Unchecked.defaultof<'T>
@@ -69,4 +69,36 @@ module Observable =
         }
 
     let distinctUntilChanged<'T when 'T : equality> (source:IObservable<'T>) : IObservable<'T> =
-        distinctUntilChangedCompare source (=)
+        source |> distinctUntilChangedCompare (=)
+
+    /// Determines whether an observable sequence contains a specified value
+    /// which satisfies the given predicate
+    let exists predicate (source: IObservable<'T>) =
+        { new System.IObservable<'T> with
+            member _.Subscribe( h : IObserver<'T> ) =
+                let disposeA = source.Subscribe( fun x ->
+                    try h.OnNext (predicate x)
+                    with ex -> h.OnError ex
+                )
+                Helpers.disposable (fun _ -> disposeA.Dispose() )
+        }
+
+    /// Filters the observable elements of a sequence based on a predicate
+    let filter predicate (source: IObservable<'T>) =
+        { new System.IObservable<'T> with
+            member _.Subscribe( h : IObserver<'T> ) =
+                let disposeA = source.Subscribe( fun x ->
+                    try if predicate x then h.OnNext x
+                    with ex -> h.OnError ex
+                )
+                Helpers.disposable (fun _ -> disposeA.Dispose() )
+        }
+
+    //let choose (f : 'T option -> 'R option) (source:IObservable<'T option>) : IObservable<'R> =
+    //    { new System.IObservable<_> with
+    //        member _.Subscribe( h : IObserver<_> ) =
+    //            let disposeA = source.Subscribe( fun x ->
+    //                (try f x with ex -> h.OnError ex;None) |> Option.iter h.OnNext
+    //            )
+    //            Helpers.disposable (fun _ -> disposeA.Dispose() )
+    //    }

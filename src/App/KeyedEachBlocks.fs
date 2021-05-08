@@ -15,7 +15,7 @@ type Thing = { Id : int; Color : string }
 let Color t = t.Color
 let Id t = t.Id
 
-let ThingView (viewId : int) (thing : IObservable<Thing>) : NodeFactory =
+let ThingView (viewId : int) (thing : IObservable<Thing>) : SutilElement =
         let initialColor = thing |> Store.current |> Color
 
         let thingStyle = [

@@ -2,14 +2,14 @@ module Sutil.Svg
 
 open Sutil.DOM
 
-let svgel (tag:string) (xs:seq<NodeFactory>) =
+let svgel (tag:string) (xs:seq<SutilElement>) =
     elns "http://www.w3.org/2000/svg" tag xs
 
-let svg xs : NodeFactory = svgel "svg" xs
-let g xs : NodeFactory = svgel "g" xs
-let rect xs : NodeFactory = svgel "rect" xs
-let text xs : NodeFactory = svgel "text" xs
-let line xs : NodeFactory = svgel "line" xs
+let svg xs : SutilElement = svgel "svg" xs
+let g xs : SutilElement = svgel "g" xs
+let rect xs : SutilElement = svgel "rect" xs
+let text xs : SutilElement = svgel "text" xs
+let line xs : SutilElement = svgel "line" xs
 
 let x obj = attr("x",obj)
 let y obj = attr("y",obj)

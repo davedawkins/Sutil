@@ -88,10 +88,10 @@ let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit
 let bindFragment<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) = nodeFactory <| fun ctx ->
     let mutable node = EmptyNode
     let vnode = NodeGroup("bind",ctx.Parent,ctx.Previous)
-    let bindNode = VirtualNode vnode
+    let bindNode = GroupNode vnode
     //vnode.Parent <- ctx.Parent
 
-    log($"bindFragment: {vnode.Id} ctx={ctx.Action}")
+    log($"bindFragment: {vnode.Id} ctx={ctx.Action} prev={ctx.Previous}")
     ctx.AddChild bindNode
 
     let bindCtx = { ctx with Parent = bindNode }
@@ -110,7 +110,7 @@ let bindFragment<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) =
 let bindFragment2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> SutilElement) = nodeFactory <| fun ctx ->
     let mutable node : SutilNode = EmptyNode
     let vnode = NodeGroup("bind2",ctx.Parent,ctx.Previous)
-    let bindNode = VirtualNode vnode
+    let bindNode = GroupNode vnode
     ctx.AddChild bindNode
 
     let bindCtx = { ctx with Parent = bindNode }
@@ -395,11 +395,11 @@ let private findCurrentElement doc (current:Node) (id:int) =
 let private genEachId = Helpers.makeIdGenerator()
 
 let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable<'T> -> SutilElement) (key:int*'T->'K) (trans : TransitionAttribute list) : SutilElement =
-    let log s = log(s) //Logging.log "each" s
+    let log s = Logging.log "each" s
     nodeFactory <| fun ctx ->
         log($"eachiko: Previous = {ctx.Previous}")
-        let vnode = NodeGroup("each",ctx.Parent,ctx.Previous)
-        let eachNode = VirtualNode vnode
+        let eachGroup = NodeGroup("each",ctx.Parent,ctx.Previous)
+        let eachNode = GroupNode eachGroup
         ctx.AddChild eachNode
 
         let mutable state : KeyedStoreItem<'T,'K> list = []
@@ -411,12 +411,12 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
         let eachCtx = ctx |> ContextHelpers.withParent eachNode
 
         let logState state' =
-            Browser.Dom.console.groupCollapsed("each state #" + vnode.Id)
+            Browser.Dom.console.groupCollapsed("each state #" + eachGroup.Id)
             state' |> List.map (fun s -> sprintf "%s %f,%f" (string s.Key) s.Rect.left s.Rect.top) |> List.iter (fun s -> log(s))
             Browser.Dom.console.groupEnd()
 
         let logItems (items : list<'T>) =
-            Browser.Dom.console.groupCollapsed("each items #" + vnode.Id)
+            Browser.Dom.console.groupCollapsed("each items #" + eachGroup.Id)
             items |> List.mapi (fun i s -> sprintf "%s" (string (key(i,s)))) |> List.iter (fun s -> log(s))
             Browser.Dom.console.groupEnd()
 
@@ -482,22 +482,23 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
 
             //logState newState
 
+            log("Remove old items")
             // Remove old items
             for oldItem in state do
                 if not (newState |> Seq.exists (fun x -> x.Key = oldItem.Key)) then
                     log($"removing key {oldItem.Key}")
                     let el = findCurrentElement ctx.Document null oldItem.SvId (*oldItem.Element*)
                     fixPosition el
-                    ctx.Parent.RemoveChild(el) |> ignore
+                    //ctx.Parent.RemoveChild(el) |> ignore
                     ctx.Parent.InsertBefore(el,null) |> ignore
-                    oldItem.Node.Dispose()
+                    //oldItem.Node.Dispose()
                     transitionNode el trans [Key (string oldItem.Key)] false
-                        ignore unmount
+                        ignore (fun e -> eachGroup.RemoveChild(oldItem.Node))
 
             //ctx.Parent.PrettyPrint("each #" + vnode.Id + ": before reorder")
 
             // Reorder
-            let mutable prevDomNode = vnode.PrevDomNode
+            let mutable prevDomNode = eachGroup.PrevDomNode
             for ki in newState do
                 log($"Re-order: #{ki.SvId}")
                 let el = findCurrentElement ctx.Document null ki.SvId (*ki.Element*)
@@ -514,7 +515,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
             state <- newState
         )
 
-        vnode.SetDispose (Helpers.unsubify unsub)
+        eachGroup.SetDispose (Helpers.unsubify unsub)
         sutilResult eachNode
 
 let private duc = Observable.distinctUntilChanged

@@ -169,14 +169,17 @@ module DomEdit =
     let appendChild (parent:Node) (child:Node) =
         log $"appendChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
         parent.appendChild(child) |> ignore
+        log $"after: appendChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
 
     let removeChild (parent:Node) (child:Node) =
         log $"removeChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
         parent.removeChild(child) |> ignore
+        log $"after: removeChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
 
     let insertBefore (parent:Node) (child:Node) (refNode:Node) =
         log $"insertBefore parent='{nodeStrShort parent}' child='{nodeStrShort child}' refNode='{nodeStrShort refNode}'"
         parent.insertBefore(child,refNode) |> ignore
+        log $"after: insertBefore parent='{nodeStrShort parent}' child='{nodeStrShort child}' refNode='{nodeStrShort refNode}'"
 
     let insertAfter (parent : Node) (newChild : Node) (refChild : Node) =
         let beforeChild = if isNull refChild then parent.firstChild else refChild.nextSibling
@@ -250,7 +253,6 @@ let unmount (node:Node) : unit=
 let clear (node:Node) =
     children node |> Array.ofSeq |> Array.iter unmount
 
-
 let listen (event:string) (e:EventTarget) (fn: (Event -> unit)) : (unit -> unit)=
     e.addEventListener( event, fn )
     (fun () -> e.removeEventListener(event, fn) |> ignore)
@@ -310,18 +312,18 @@ let rec private forEachChild (parent:Node) (f : Node -> unit) =
         f child
         child <- child.nextSibling
 
-/// SutilNode is a DOM node, the result of evaluating a SutilElement. Fragment and binding elements will return a VirtualNode,
-/// which is a grouping of DOM nodes, so a SutilNode can also be a VirtualNode. Finally, SutilNode can be an EmptyNode to represent
+/// SutilNode is a DOM node, the result of evaluating a SutilElement. Fragment and binding elements will return a GroupNode,
+/// which is a grouping of DOM nodes, so a SutilNode can also be a GroupNode. Finally, SutilNode can be an EmptyNode to represent
 /// the concept of None (or null)
 type SutilNode =
     | EmptyNode   // Not set
     | DomNode of Node // A real browser DOM node
-    | VirtualNode of NodeGroup // A group of SutilNodes
+    | GroupNode of NodeGroup // A group of SutilNodes
     with
         member this.mapDefault f defaultValue =
             match this with
             |DomNode n -> f n
-            |VirtualNode n -> n.MapParent(f)
+            |GroupNode n -> n.MapParent(f)
             |_-> defaultValue
         member this.iter f = this.mapDefault f ()
         member this.iterElement (f : HTMLElement -> unit) = this.mapDefault (applyIfElement f) ()
@@ -361,7 +363,7 @@ type SutilNode =
                 match node with
                 | EmptyNode -> log level "-"
                 | DomNode n -> prDomNode level n
-                | VirtualNode v -> prVNode level v
+                | GroupNode v -> prVNode level v
             Browser.Dom.console.groupCollapsed(label)
             pr 0 true this
             Browser.Dom.console.groupEnd()
@@ -371,51 +373,51 @@ type SutilNode =
                 match this with
                 | EmptyNode -> "-"
                 | DomNode n -> svId n
-                | VirtualNode v -> v.Id
+                | GroupNode v -> v.Id
             and set id =
                 match this with
                 | EmptyNode -> ()
                 | DomNode n -> setSvId n id
-                | VirtualNode v -> v.Id <- id
+                | GroupNode v -> v.Id <- id
 
         member this.IsSameNode (node:SutilNode) =
             match this,node with
             | EmptyNode,EmptyNode -> true
             | DomNode a, DomNode b -> a.isSameNode(b)
-            | VirtualNode a, VirtualNode b -> a.Id = b.Id
+            | GroupNode a, GroupNode b -> a.Id = b.Id
             | _ -> false
 
         member this.Document =
             match this with
             | EmptyNode -> window.document
             | DomNode n -> n.ownerDocument
-            | VirtualNode v -> v.Document
+            | GroupNode v -> v.Document
 
-        member this.IsEmpty = match this with |EmptyNode -> true; | _ -> false
+        member this.IsEmpty = this = EmptyNode
 
         member this.LastDomNode : Node =
             match this with
             | EmptyNode -> null
             | DomNode n -> n
-            | VirtualNode _ -> match this.collectDomNodes() with |[] -> null | xs -> xs |> List.last
+            | GroupNode _ -> match this.collectDomNodes() with |[] -> null | xs -> xs |> List.last
 
         member this.PrevNode =
             match this with
             | EmptyNode -> EmptyNode
             | DomNode n -> DomNode (n.previousSibling)
-            | VirtualNode v -> v.PrevNode
+            | GroupNode v -> v.PrevNode
 
         member this.PrevDomNode =
             match this with
             | EmptyNode -> null
             | DomNode n -> n.previousSibling
-            | VirtualNode v -> match v.PrevNode.collectDomNodes() with |[] -> null | xs -> xs |> List.last
+            | GroupNode v -> match v.PrevNode.collectDomNodes() with |[] -> null | xs -> xs |> List.last
 
         member this.NextDomNode =
             match this with
             | EmptyNode -> null
             | DomNode node -> if isNull node then null else node.nextSibling
-            | VirtualNode g -> g.NextDomNode
+            | GroupNode g -> g.NextDomNode
 
         // All descendant DOM nodes of this SutilNode. Only groups recurse to their children,
         // we only want the first (parent) DOM node.
@@ -425,7 +427,7 @@ type SutilNode =
             match this with
             | EmptyNode -> []
             | DomNode n -> [ n ]
-            | VirtualNode v -> v.DomNodes()
+            | GroupNode v -> v.DomNodes()
 
         member this.AsDomNode = this.mapDefault id null
 
@@ -433,11 +435,11 @@ type SutilNode =
             match node with
             | EmptyNode -> []
             | DomNode n -> NodeKey.getCreate n NodeKey.Disposables (fun () -> [])
-            | VirtualNode v -> []
+            | GroupNode v -> []
 
         member node.Dispose() =
             match node with
-            | VirtualNode v -> v.Dispose()
+            | GroupNode v -> v.Dispose()
             | _ -> ()
 
         static member GetDisposables(node:Node) =
@@ -455,7 +457,7 @@ type SutilNode =
             match node with
             | EmptyNode -> ()
             | DomNode n -> SutilNode.RegisterDisposable(n,d)
-            | VirtualNode v -> ()
+            | GroupNode v -> ()
 
         static member RegisterUnsubscribe (node : Node, d:unit->unit) : unit =
             SutilNode.RegisterDisposable (node,Helpers.disposable d)
@@ -493,9 +495,10 @@ type SutilNode =
             match this with
             |EmptyNode -> ()
             |DomNode parent ->
+                log($"InsertAfter (parent = {this}: refNode={refNode} refNode.NextDomNode={nodeStr refNode.NextDomNode}")
                 let refDomNode = refNode.NextDomNode
                 node.collectDomNodes() |> List.iter (fun child -> DomEdit.insertBefore parent child refDomNode)
-            |VirtualNode g -> g.InsertAfter(node,refNode)
+            |GroupNode g -> g.InsertAfter(node,refNode)
 
         member this.InsertAfter(node:Node,refNode:Node) =
             this.iter (fun parent -> DomEdit.insertAfter parent node refNode)
@@ -511,54 +514,41 @@ type SutilNode =
                 SutilNode.ReplaceGroup(parent, node.collectDomNodes(), existing.collectDomNodes())
                 // Todo. Remove existing VirtualNodes contained in existing from parent
                 // Todo. Add VirtualNodes in node to parent
-            | VirtualNode parent ->
+            | GroupNode parent ->
                 parent.ReplaceChild(node,existing,insertBefore)
 
         member this.AppendChild (child : Node) =
             match this with
             | EmptyNode -> ()
             | DomNode parent -> DomEdit.appendChild parent child
-            | VirtualNode parent -> parent.AppendChild(DomNode child)
+            | GroupNode parent -> parent.AppendChild(DomNode child)
 
         member this.AppendChild (child : SutilNode) =
             match this with
             | EmptyNode -> ()
             | DomNode parent ->
                 child.collectDomNodes() |> List.iter (fun child -> DomEdit.appendChild parent child)
-            | VirtualNode parent ->
+            | GroupNode parent ->
                 parent.AppendChild(child)
 
         member this.FirstDomNodeInOrAfter =
             match this with
             | EmptyNode -> null
             | DomNode n -> n
-            | VirtualNode g -> g.FirstDomNodeInOrAfter
+            | GroupNode g -> g.FirstDomNodeInOrAfter
 
         member this.InsertBefore(node:Node,refNode:Node) : unit =
-            //let f (p:Node) : unit = p.insertBefore(node, refNode) |> ignore
-            //match this with
-            //|DomNode n -> f n
-            //|VirtualNode n -> n.MapParent(f)
-            //|_-> ()
             this.iter (fun parent ->
                 DomEdit.insertBefore parent node refNode)
 
-        //member this.InsertBefore (child : SutilNode, refNode : Node ) =
+        //member private this.InsertBefore (child : SutilNode, refNode : SutilNode ) =
         //    match this with
         //    | EmptyNode -> ()
         //    | DomNode parent ->
-        //        child.collectDomNodes() |> List.iter (fun child -> DomEdit.insertBefore parent child refNode)
-        //    | VirtualNode parent ->
-        //        parent.InsertBefore(child,refNode)
-
-        member this.InsertBefore (child : SutilNode, refNode : SutilNode ) =
-            match this with
-            | EmptyNode -> ()
-            | DomNode parent ->
-                let refDomNode = refNode.FirstDomNodeInOrAfter
-                child.collectDomNodes() |> List.iter (fun child -> DomEdit.insertBefore parent child refDomNode)
-            | VirtualNode g ->
-                g.InsertBefore(child, refNode)
+        //        let refDomNode = refNode.FirstDomNodeInOrAfter
+        //        child.collectDomNodes() |> List.iter (fun child -> DomEdit.insertBefore parent child refDomNode)
+        //    | GroupNode g ->
+        //        g.InsertBefore(child, refNode)
 
         member this.AddClass( cls : string ) = this.iterElement (fun parent -> parent.classList.add(cls))
         member this.RemoveClass( cls : string ) = this.iterElement (fun parent -> parent.classList.remove(cls))
@@ -566,16 +556,14 @@ type SutilNode =
             match this with
             | EmptyNode -> "EmptyNode"
             | DomNode n -> nodeStrShort n
-            | VirtualNode v -> v.ToString()
+            | GroupNode v -> v.ToString()
         member this.Clear() = this.iter clear
-        //member this.RegisterDisposable (d : IDisposable) = this.iter (fun n -> registerDisposable n d)
-        //member this.RegisterUnsubscribe (u : (unit -> unit)) = this.iter (fun n -> registerUnsubscribe n u)
 
         member this.Children : list<SutilNode> =
             match this with
             | EmptyNode -> []
-            | DomNode n -> [] // Careful!   div [ div[] fragment[] div[] ] -> Children of n are: DomNode, VirtualNode, DomNode
-            | VirtualNode v -> v.Children
+            | DomNode n -> [] // Careful!   div [ div[] fragment[] div[] ] -> Children of n are: DomNode, GroupNode, DomNode
+            | GroupNode v -> v.Children
 
 and NodeGroup(_name,_parent,_prevInit) as this =
     let mutable id = domId() |> string
@@ -597,7 +585,7 @@ and NodeGroup(_name,_parent,_prevInit) as this =
         let mutable p = EmptyNode
         for c in _children do
             match c with
-            | VirtualNode v -> v.PrevNode <- p
+            | GroupNode v -> v.PrevNode <- p
             | _ -> ()
             p <- c
 
@@ -606,7 +594,7 @@ and NodeGroup(_name,_parent,_prevInit) as this =
             match p with
             |EmptyNode -> null
             |DomNode n -> n
-            |VirtualNode v -> findParent v.Parent
+            |GroupNode v -> findParent v.Parent
         findParent _parent
     do
         let p = parentDomNode()
@@ -664,13 +652,19 @@ and NodeGroup(_name,_parent,_prevInit) as this =
             ]
         *)
         member this.PrevDomNode =
-            match this.PrevNode with
-            | DomNode n -> n
-            | VirtualNode v -> v.LastDomNode
-            | EmptyNode -> // We're the first child
-                match this.Parent with
-                | VirtualNode pv -> pv.PrevDomNode
-                | _ -> null
+            let result =
+                match this.PrevNode with
+                | DomNode n -> n
+                | GroupNode v ->
+                    match v.LastDomNode with
+                    | null -> v.PrevDomNode
+                    | n -> n
+                | EmptyNode -> // We're the first child
+                    match this.Parent with
+                    | GroupNode pv -> pv.PrevDomNode
+                    | _ -> null
+            log($"PrevDomNode of {this} -> '{nodeStr result}' PrevNode={this.PrevNode}")
+            result
 
         (*
             div [
@@ -708,21 +702,37 @@ and NodeGroup(_name,_parent,_prevInit) as this =
         *)
 
         member this.NextDomNode =
-            match this.DomNodes() with
-            // We don't have any nodes.
-            | [] ->
-                match this.PrevDomNode with
-                | null -> // No DOM node before us, so our next node must be parent DOM node's first child
-                    match parentDomNode() with
-                    | null -> null
-                    | p -> p.firstChild
-                | prev -> prev.nextSibling
+            //log($"NextDomNode this={this}")
+            let result =
+                match this.DomNodes() with
+                // We don't have any nodes.
+                | [] ->
+                    //log("-- We have no nodes")
+                    match this.PrevDomNode with
+                    | null -> // No DOM node before us, so our next node must be parent DOM node's first child
+                        //log("-- PrevDomNode is null")
+                        match parentDomNode() with
+                        | null ->
+                            //log("-- parent DOM node is null")
+                            null
+                        | p ->
+                            //log("-- parent's first child, since no nodes before us, and we don't have any nodes ourself")
+                            p.firstChild
+                    | prev ->
+                        //log($"-- our next node is our PrevDomNode's next sibling (prev is {nodeStr prev})")
+                        prev.nextSibling
 
-            // We do have nodes, so next node is last node's next sibling
-            | ns ->
-                match ns |> List.last with
-                | null -> null
-                | last -> last.nextSibling
+                // We do have nodes, so next node is last node's next sibling
+                | ns ->
+                    match ns |> List.last with
+                    | null ->
+                        //log("-- Last node was null")
+                        null
+                    | last ->
+                        //log("-- NextDomNode is nextSibling of our last node")
+                        last.nextSibling
+            //log($"NextDomNode of {this} -> '{nodeStr result}'")
+            result
 
         member this.FirstDomNode =
             match this.DomNodes() with
@@ -738,7 +748,6 @@ and NodeGroup(_name,_parent,_prevInit) as this =
             match this.FirstDomNode with
             | null -> this.NextDomNode
             | first -> first
-
 
         //member this.ParentDomNode = parentDomNode()
         member this.MapParent<'T>( f : (Node -> 'T)) =
@@ -761,7 +770,7 @@ and NodeGroup(_name,_parent,_prevInit) as this =
                 | [] -> r
                 | x::xs ->
                     match x.Parent with
-                    | VirtualNode g -> parentsOf (g :: r)
+                    | GroupNode g -> parentsOf (g :: r)
                     | _ -> r
 
             let init n =
@@ -827,8 +836,8 @@ and NodeGroup(_name,_parent,_prevInit) as this =
             | [] -> EmptyNode
             | xs -> xs |> List.last
 
-        member this.ChildAfter (prev : SutilNode) =
-            log($"ChildAfter: {prev} children={childStrs()}")
+        member private this.ChildAfter (prev : SutilNode) =
+            log($"ChildAfter: prev='{prev}' children={childStrs()} this='{this}'")
             match prev with
             | EmptyNode -> this.FirstChild
             | _ ->
@@ -851,8 +860,23 @@ and NodeGroup(_name,_parent,_prevInit) as this =
         member this.InsertAfter (child : SutilNode, prev : SutilNode ) =
             this.InsertBefore( child, this.ChildAfter(prev) )
 
-        member this.InsertBefore (child : SutilNode, refNode : SutilNode ) =
-            let refDomNode = refNode.FirstDomNodeInOrAfter
+        (*
+            insert 'div' into fragment#2 after  <empty>
+            <DIV> #0
+               <'bind'> #1
+                   <'fragment'> #2
+               <'bind'> #5
+                   <'fragment'> #6
+                       <DIV> #7
+                           'Binding 2'
+        *)
+
+        member private this.InsertBefore (child : SutilNode, refNode : SutilNode ) =
+            let refDomNode =
+                match refNode with
+                | EmptyNode -> this.NextDomNode
+                | _ -> refNode.FirstDomNodeInOrAfter
+
             log($"InsertBefore: child='{child}' before '{refNode}' refDomNode='{nodeStrShort refDomNode}' child.PrevNode='{child.PrevNode}'")
             let parent = parentDomNode()
             let len = _children.Length
@@ -878,35 +902,20 @@ and NodeGroup(_name,_parent,_prevInit) as this =
             if _children.Length = len then
                 log($"Error: Child was not added")
 
-(*
-        member this.InsertBefore(child:SutilNode,refNode:Node) =
-            log($"InsertBefore: child='{child}' refNode='{nodeStrShort refNode}' child.PrevNode='{child.PrevNode}'")
-            let parent = parentDomNode()
-            let len = _children.Length
-
-            for dnode in child.collectDomNodes() do
-                DomEdit.insertBefore parent dnode refNode
-
-            if isNull refNode then
-                this.AddChild(child)
-            else
-                _children <- _children |> List.fold (fun list ch ->
-                    match ch with
-                    | DomNode n when n.isSameNode(refNode) -> list @ [ DomNode refNode ] @ [ ch ] // Broken
-                    | _ -> list @ [ch]
-                    ) []
-
-                this.OwnX(child)
-
-            updateChildrenPrev()
-            log($"InsertBefore: child='{child}' refNode='{nodeStrShort refNode}' child.PrevNode='{child.PrevNode}'")
-
-            if _children.Length = len then
-                log($"Error: Child was not added")
-*)
         member _.RemoveChild (child:SutilNode) =
-            _children <- _children |> List.filter (fun n -> n <> child)
-            child.collectDomNodes() |> List.iter (fun c -> DomEdit.removeChild c.parentNode c)
+            let rec rc (p:NodeGroup) (c:SutilNode) =
+                match c with
+                | EmptyNode -> ()
+                | DomNode n ->
+                    unmount n
+                | GroupNode g ->
+                    g.Children |> List.iter (fun gc -> g.RemoveChild(gc))
+                    g.Dispose()
+
+            let newChildren = _children |> List.filter (fun n -> n <> child)
+            //child.collectDomNodes() |> List.iter (fun c -> DomEdit.removeChild c.parentNode c)
+            rc this child
+            _children <- newChildren
             updateChildrenPrev()
 
         member this.ReplaceChild (child:SutilNode, oldChild:SutilNode, insertBefore : Node) =
@@ -959,7 +968,6 @@ type BuildResult = SutilNode
 type DomAction =
     | Append  // appendChild
     | Replace of SutilNode*Node // bindings use this to replace the previous DOM fragment
-    //| After   of Node // each uses this to create new collection members at the right location
 
 type BuildContext =
     {
@@ -981,17 +989,6 @@ type BuildContext =
             | Append ->
                 log $"ctx.Append '{node}' to '{ctx.Parent}' after {ctx.Previous}"
                 ctx.Parent.InsertAfter(node,ctx.Previous)
-
-            // | After prev ->
-
-            //     log $"ctx.After {nodeStrShort prev}"
-            //     log $"insert {node} after {nodeStr prev} on {ctx.Parent} (parent node={nodeStrShort ctx.ParentNode})"
-            //     let after = if isNull prev then ctx.ParentNode.firstChild else prev.nextSibling
-            //     log $"insert {node} before {nodeStr after} on {ctx.Parent}"
-
-            //     ctx.Parent.InsertBefore(node,after)
-            //     if nodeStr (node.PrevDomNode) <> nodeStr prev then
-            //         log $"Error: expected prev to be {nodeStr prev}, but is '{nodeStr node.PrevDomNode}'"
 
             | Replace (existing,insertBefore)->
                 log $"ctx.Replace '{existing}' with '{node}' before '{nodeStrShort insertBefore}'"
@@ -1035,10 +1032,6 @@ module ContextHelpers =
     let withReplace (toReplace:SutilNode,before:Node) ctx =
         { ctx with Action = Replace (toReplace,before) }
 
-    // let withAfter (after:Node) ctx =
-    //     { ctx with Action = After after }
-
-
 type Fragment = Node list
 
 let domResult (node:Node) = DomNode node
@@ -1053,9 +1046,6 @@ let unitResult(ctx, name)  =
             d
     if ctx.Debug then DomNode (text()) else EmptyNode
 
-//let virtualResult v = SutilNode.VirtualNode v
-//let fragmentResult (nodes:SutilNode list) =  virtualResult "-" nodes ignore
-
 let errorNode (parent:SutilNode) message : Node=
     let doc = parent.Document
     let d = doc.createElement("div")
@@ -1065,11 +1055,6 @@ let errorNode (parent:SutilNode) message : Node=
     upcast d
 
 let collectFragment (result : BuildResult) = result
-    (*match result with
-    | Solitary n -> [ n ]
-    | Virtual v -> [] // TODO: Hmm..
-    | Unit -> []
-    | Fragment xs -> xs*)
 
 let appendAttribute (e:Element) attrName attrValue =
     if (attrValue <> "") then
@@ -1341,9 +1326,9 @@ let fixPosition (node:HTMLElement) =
         node.style.height <- height
         addTransform node a
 
-let removeNode (node:#Node) =
-    log <| sprintf "removing node %A" node.textContent
-    DomEdit.removeChild node.parentNode node
+//let removeNode (node:#Node) =
+//    log <| sprintf "removing node %A" node.textContent
+//    DomEdit.removeChild node.parentNode node
 
 let buildChildren(xs : seq<SutilElement>) (ctx:BuildContext) : unit =
     let e = ctx.Parent
@@ -1369,10 +1354,12 @@ let buildChildren(xs : seq<SutilElement>) (ctx:BuildContext) : unit =
     ()
 
 let fragment (elements : SutilElement seq) = nodeFactory <| fun ctx ->
-    log($"fragment {ctx.Action}")
     let v = NodeGroup("fragment",ctx.Parent,ctx.Previous)
-    let fragmentNode = VirtualNode v
+    let fragmentNode = GroupNode v
+    let oldId = v.Id
+    log($"fragment action='{ctx.Action}' #" + v.Id)
     ctx.AddChild fragmentNode
+    log($"fragment now #" + v.Id + " (was #" + oldId + $"). Parent={v.Parent} Prev={v.PrevNode}" )
 
     let childCtx = { ctx with Parent = fragmentNode; Action = Append }
     childCtx |> buildChildren elements
@@ -1458,6 +1445,7 @@ let el tag (xs : seq<SutilElement>) : SutilElement = nodeFactory <| fun ctx ->
 
     // Effect 1
     let id = domId()
+    log("create <" + tag + "> #" + string id)
     setSvId e id
 
     ctx |> ContextHelpers.withParent snodeEl |> buildChildren xs

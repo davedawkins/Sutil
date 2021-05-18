@@ -1,8 +1,7 @@
 ﻿module Test.Observable
 
 open Sutil
-open Util
-open Fable.Mocha
+open TestFramework
 
 let tests = testList "Sutil.Observable" [
 

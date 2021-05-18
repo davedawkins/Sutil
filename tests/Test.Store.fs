@@ -1,8 +1,7 @@
 ﻿module Test.Store
 
 open Sutil
-open Util
-open Fable.Mocha
+open TestFramework
 
 let tests = testList "Sutil.Store" [
 

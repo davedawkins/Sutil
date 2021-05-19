@@ -11,10 +11,12 @@ let log = Logging.log "dom"
 let dispatch (target:EventTarget) name (data:obj) =
     if not (isNull target) then
         target.dispatchEvent( Interop.customEvent name data) |> ignore
-
 let dispatchSimple (target:EventTarget) name =
     dispatch target name {| |}
 
+let dispatchCustom<'T> (target: EventTarget) (name: string) (init: CustomEventInit<'T>) =
+    if not (isNull target) then
+        target.dispatchEvent(customEvent name init) |> ignore
 
 [<RequireQualifiedAccessAttribute>]
 module NodeKey =
@@ -59,31 +61,30 @@ module Event =
         log("notify document")
         notifyEvent doc Updated  {|  |}
 
-type CustomDispatch =
-    | Detail of obj
+type CustomDispatch<'T> =
+    | Detail of 'T option
     | Bubbles of bool
+    | Composed of bool
     with
-        static member toCustomEvent (props : CustomDispatch list) =
+        static member toCustomEvent<'T> (props : CustomDispatch<'T> list) =
             let mutable data : obj = upcast {| |}
             for p in props do
                 match p with
                 | Detail  d -> Interop.set data "detail" d
                 | Bubbles b -> Interop.set data "bubbles" b
-
+                | Composed c -> Interop.set data "composed" c
+            data :?> CustomEventInit<'T>
         static member dispatch( target : EventTarget, name : string ) =
-            dispatchSimple target name
+            dispatchCustom<unit> target name (CustomDispatch.toCustomEvent<unit>([]))
 
         static member dispatch( e : Event, name : string ) =
-            dispatchSimple (e.target) name
+            dispatchCustom<unit> (e.target) name (CustomDispatch.toCustomEvent<unit>([]))
 
-        static member dispatch( target : EventTarget, name : string, detail : obj ) =
-            dispatch target name (CustomDispatch.toCustomEvent [ Detail detail ])
+        static member dispatch<'T>( target : EventTarget, name : string, props : CustomDispatch<'T> list ) =
+            dispatchCustom<'T> target name (CustomDispatch.toCustomEvent<'T> props)
 
-        static member dispatch( e : Event, name : string, detail : obj ) =
-            dispatch (e.target) name (CustomDispatch.toCustomEvent [ Detail detail ])
-
-        static member dispatch( e : Event, name : string, props : CustomDispatch list ) =
-            dispatch (e.target) name (CustomDispatch.toCustomEvent props)
+        static member dispatch<'T>( e : Event, name : string, props : CustomDispatch<'T> list ) =
+            dispatchCustom<'T> (e.target) name (CustomDispatch.toCustomEvent<'T> props)
 
 let domId = Helpers.makeIdGenerator()
 

@@ -3,3 +3,6 @@
 
 # Getting Started
 - [Installation](installation.md)
+
+# Concepts
+- [Stores](stores.md)

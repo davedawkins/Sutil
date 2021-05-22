@@ -89,7 +89,7 @@ let allExamples = [
         { Category = "Miscellaneous";   Title = "Login";  Create = LoginExample.create ; Sections = ["LoginExample.fs"; "Login.fs"]}
         { Category = "Miscellaneous";   Title = "Drag-sortable list";  Create = SortableTimerList.create ; Sections = ["SortableTimerList.fs"; "DragDropListSort.fs"; "TimerWithButton.fs"; "TimerLogic.fs"]}
         { Category = "Miscellaneous";   Title = "SAFE client";  Create = SAFE.view ; Sections = ["SafeClient.fs"]}
-        { Category = "Miscellaneous";   Title = "Fragment";  Create = Fragment.view ; Sections = ["Fragment.fs"]}
+        //{ Category = "Miscellaneous";   Title = "Fragment";  Create = Fragment.view ; Sections = ["Fragment.fs"]}
         { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sections = ["Cells.fs"]}
         { Category = "7Guis";   Title = "CRUD";  Create = CRUD.create ; Sections = ["CRUD.fs"]}
     ]

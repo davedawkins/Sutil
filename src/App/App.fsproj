@@ -33,6 +33,7 @@
     <Compile Include="Modal.fs" />
     <Compile Include="HtmlTags.fs" />
     <Compile Include="BarChart.fs" />
+    <Compile Include="CustomEvents.fs" />
     <Compile Include="DomEvents.fs" />
     <Compile Include="EventModifiers.fs" />
     <Compile Include="Evaluator.fs" />

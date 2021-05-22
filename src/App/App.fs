@@ -65,6 +65,7 @@ let allExamples = [
         { Category = "Logic"; Title = "Keyed-each blocks"; Create = KeyedEachBlocks.view; Sections = ["KeyedEachBlocks.fs"] }
         { Category = "Logic"; Title = "Await blocks"; Create = AwaitBlocks.view; Sections = ["AwaitBlocks.fs"] }
         { Category = "Events"; Title = "DOM events"; Create = DomEvents.view; Sections = ["DomEvents.fs"] }
+        { Category = "Events"; Title = "Custom events"; Create = CustomEvents.view; Sections = ["CustomEvents.fs"] }
         { Category = "Events"; Title = "Event modifiers"; Create = EventModifiers.view; Sections = ["EventModifiers.fs"] }
         { Category = "Transitions"; Title = "Transition"; Create = Transition.view; Sections = ["Transition.fs"] }
         { Category = "Transitions"; Title = "Adding parameters"; Create = TransitionParameters.view; Sections = ["TransitionParameters.fs"] }

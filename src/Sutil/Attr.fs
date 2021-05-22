@@ -43,6 +43,8 @@ let on (event : string) (fn : Event -> unit) (options : EventModifier list) = no
     el.addEventListener(event, h)
     unitResult(ctx, "on")
 
+let onCustomEvent<'T> (event: string) (fn: CustomEvent<'T> -> unit) (options: EventModifier list) =
+    on event (unbox fn) options
 let onKeyboard event (fn : KeyboardEvent -> unit) options =
     on event (unbox fn) options
 

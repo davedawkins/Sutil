@@ -109,9 +109,7 @@ let tests = testList "Sutil.DOM" [
 
         Expect.queryText "div:nth-child(1)" "11"
         Expect.queryText "div:nth-child(2)" "21"
-//    ]
 
-//let tests = testList "Sutil.DOM" [
 
     testCase "Consecutive Binding Fragments" <| fun () ->
         let store1 = Store.make 10

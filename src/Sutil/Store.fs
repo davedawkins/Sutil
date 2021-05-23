@@ -113,13 +113,13 @@ module Store =
     /// `Store.zip` merges two stores into a single tupled observable
     /// </summary>
     /// <example>
-    ///     let tableInfo = 
+    ///     let tableInfo =
     ///     Observable.zip
     ///         (Strore.map(fun model -> model.rows) model)
     ///         (Strore.map(fun model -> model.columns) model)
-    /// 
+    ///
     ///     (* once done with tableInfo *)
-    ///     
+    ///
     ///     tableInfo.Dispose()
     /// </example>
     let zip source1 source2 = Observable.zip source1 source2
@@ -129,19 +129,71 @@ module Store =
         store.Subscribe(fun v -> value <- v).Dispose() // Works only when root observable is a store, or root responds immediately upon subscription
         value
 
-    // Map the wrapped value. For a List<T> (instead of a Store<T>) this might be
-    // called foldMap
+    /// <summary>
+    /// `Store.getMap` takes a store and applies a mapping function then returns the value from the evaluated function
+    /// </summary>
+    /// <remarks>
+    /// This might be called foldMap
+    /// </remarks>
+    /// <example>
+    ///     let store: IStore&lt;{| name: string; budget: decimal |}> =
+    ///     Store.make {| name = "Frank"; budget = 547863.26M |}
+    ///
+    ///     let formattedBudget: string =
+    ///         Store.getMap
+    ///             (fun model -> sprintf $"$ %0.00M{model.budget}")
+    ///             store
+    ///     printf %"Budget available: {formattedBudget}
+    ///  </example>
     let getMap callback store = store |> get |> callback
 
-    // Call f upon initialization and whenever the store is updated. This is the same as subscribe
-    // and ignoring the unsubscription callback
-    let write<'A> (callback: 'A -> unit) (store: IObservable<'A>) =
-        let unsub = subscribe callback store
-        ()
+    /// <summary>
+    /// call the callback upon initialization and whenever the store is updated. This is the same as subscribe
+    /// and ignoring the unsubscription callback
+    /// </summary>
+    /// <example>
+    ///     Store.subscribe (fun value -> printfn $"{value}") intStore
+    /// </example>
+    let write<'A> (callback: 'A -> unit) (store: IObservable<'A>) = subscribe callback store |> ignore
 
-    // Modify the store by mapping its current value with f
+    /// <summary>Modify the store by mapping its current value with a callback</summary>
+    /// <example>
+    ///     let store: IStore&lt;int> = Store.make 2
+    ///
+    ///     let squareMe() =
+    ///         Store.modify (fun model -> model * model) store
+    ///
+    ///     Html.div [
+    ///         bindFragment store &lt;| fun model -> text $"The value is {model}"
+    ///         Html.button [
+    ///             onClick (fun _ -> squareMe()) []
+    ///             text "Square me"
+    ///         ]
+    ///     ]
+    /// </example>
     let modify (callback: ('T -> 'T)) (store: Store<'T>) = store |> getMap callback |> set store
 
+    /// <summary>
+    /// Takes two observables and subscribes to both with a single callback,
+    /// both values will be cached individually and
+    /// on every notify they will be updated and emitted,
+    /// every notification can come from any of the observables
+    /// </summary>
+    /// <example>
+    ///     let player1Score = Store.make 0
+    ///     let player2Score = Store.make 0
+    ///
+    ///     let printPlayerScores (score1: int * score2: int) =
+    ///         printfn $"Player 1: {score1}\nPlayer2: {score2}"
+    ///
+    ///     let scores =
+    ///         Store.subscribe2
+    ///             player1Score
+    ///             player2Score
+    ///             printPlayerScore
+    ///     (* Game Finished, dispose the observables *)
+    ///     scores.Dispose()
+    /// </example>
     let subscribe2<'A, 'B>
         (source1: IObservable<'A>)
         (source2: IObservable<'B>)

@@ -146,8 +146,8 @@ let whenDistinct = Store.distinct store
 Html.div [
     disposeOnUnmount [ store; whenDistinct ]
 
-    Html.button [ onClick(fun _ -> Store.set store 1); text "Set store to '1'" ]
-    Html.button [ onClick(fun _ -> Store.set store 0); text "Set store to '0'" ]
+    Html.button [ onClick(fun _ -> Store.set store 1) []; text "Set store to '1'" ]
+    Html.button [ onClick(fun _ -> Store.set store 0) []; text "Set store to '0'" ]
 
     bindFragment store
         <| fun value ->
@@ -166,6 +166,7 @@ let tableInfo =
         (Strore.map(fun store -> store.rows) store)
         (Strore.map(fun store -> store.columns) store)
 HTML.article [
+    disposeOnUnmount [ tableInfo ]
     bindFragment tableInfo <| fun (rows, columns) -> Html.table [
         Html.thead [
             eachi columns <| fun (i, col) -> Html.th [text col.label ]
@@ -186,12 +187,61 @@ HTML.article [
 
 #### Examples
 ```fs
+let store: IStore<{| name: string; budget: decimal |}> =
+    Store.make {| name = "Frank"; budget = 547863.26M |}
 
+let formattedBudget: string =
+    Store.getMap (fun store -> sprintf $"$ %0.00M{store.budget}" )
+printf %"Budget available: {formattedBudget}
+```
+### Store.write
+`Store.write` calls the callback upon initialization and whenever the store is updated. This is the same as subscribe and ignoring the unsubscription callback
+
+#### Examples
+```fs
+Store.write (fun value -> printfn $"{value}") intStore
 ```
 
-### Store.write
 ### Store.modify
+Modify the store by mapping its current value with a callback
+
+#### Example
+```fs
+let store: IStore<int> = Store.make 2
+
+let squareMe() =
+    Store.modify (fun model -> model * model) store
+
+Html.div [
+    disposeOnUnmount [ store ]
+    bindFragment store <| fun model -> text $"The value is {model}"
+    Html.button [
+        onClick (fun _ -> squareMe()) []
+        text "Square me"
+    ]
+]
+```
+
 ### Store.subscribe2
+Takes two observables and subscribes to both with a single callback, both values will be cached individually and on every notify they will be updated and emitted, every notification can come from any of the observables
+
+#### Example
+```fs
+let player1Score = Store.make 0
+let player2Score = Store.make 0
+
+let printPlayerScores (score1: int * score2: int) =
+    printfn $"Player 1: {score1}\nPlayer2: {score2}"
+
+let scores =
+    Store.subscribe2
+        player1Score
+        player2Score
+        printPlayerScore
+(* Game Finished, dispose the observables *)
+scores.Dispose()
+```
+
 ### Store.makeElmishSimple
 ### Store.makeElmish
 

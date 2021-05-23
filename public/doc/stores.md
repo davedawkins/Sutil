@@ -1,5 +1,3 @@
-# Stores
-
 In React the view function is evaluated constantly and through a diffing algorithm, and when the view is evaulated and returns a different value then the corresponding nodes are updated (Via a Virtual DOM).
 
 In contrast Svelte doesn't do that svelte uses observables to detect changes and update the nodes accordingly that's why Svelte claims it is a truly reactive.

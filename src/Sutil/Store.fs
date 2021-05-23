@@ -235,7 +235,37 @@ module Store =
             unsuba.Dispose()
             unsubb.Dispose()
 
-    // Strange runtime error when type specifications are missing
+    ///<summary>
+    /// `Store.makeElmishSimple` will create a store and a dispatch method commonly used
+    /// in elmish programs, this can be used to model more complex views that require better
+    /// control flow and a predictable state.
+    /// </summary>
+    /// <example>
+    ///     type State = { count: int }
+    ///     type Msg =
+    ///         | Increment
+    ///         | Decrement
+    ///         | Reset
+    ///     let init _ = { count = 0 }
+    ///
+    ///     let upddate msg state =
+    ///         match msg with
+    ///         | Increment -> { state = state.count + 1 }
+    ///         | Decrement -> { state = state.count - 1 }
+    ///         | Reset -> { state = 0 }
+    ///
+    ///     let view() =
+    ///         let state, dispatch = Store.makeElmishSimple init update ignore ()
+    ///
+    ///         Html.article [
+    ///             disposeOnUnmount [ state ]
+    ///             bindFragment state &lt;| fun state -> text $"Count: {state.count}"
+    ///
+    ///             Html.button [ text "Increment"; onClick (fun _ -> dispatch) [] ]
+    ///             Html.button [ text "Decrement"; onClick (fun _ -> dispatch) [] ]
+    ///             Html.button [ text "Reset"; onClick (fun _ -> dispatch Reset) [] ]
+    ///         ]
+    /// </example>
     let makeElmishSimple<'Props, 'Model, 'Msg>
         (init: 'Props -> 'Model)
         (update: 'Msg -> 'Model -> 'Model)
@@ -243,6 +273,52 @@ module Store =
         =
         ObservableStore.makeElmishSimple init update dispose
 
+    ///<summary>
+    /// `Store.makeElmish` will create a store and a dispatch function as `Store.makeElmishSimple`
+    /// the difference being that this version handles [Elmish commands](https://elmish.github.io/elmish/index.html#Commands)
+    /// as well, generally used in more complex UIs given that with commands you can also handle
+    /// asynchronous code like fetching resources from a server or calling any
+    /// function that returns a promise or async
+    /// </summary>
+    /// <example>
+    ///     type State = { count: int }
+    ///     type Msg =
+    ///         | Increment
+    ///         | Decrement
+    ///         | Reset
+    ///         | AsyncIncrement
+    ///         | AsyncDecrement
+    ///     let init _ = { count = 0 }, Cmd.ofMsg AsyncIncrement
+    ///
+    ///     let wait1S () =
+    ///         async {
+    ///             do! Async.Sleep 1000
+    ///         }
+    ///
+    ///     let upddate msg state =
+    ///         match msg with
+    ///         | Increment -> { state = state.count + 1 }, Cmd.none
+    ///         | Decrement -> { state = state.count - 1 }, Cmd.none
+    ///         | AsyncIncrement ->
+    ///             state, Cmd.ofAsync.perform () wait1S Increment
+    ///         | AsyncDecrement->
+    ///             state, Cmd.ofAsync.perform () wait1S Decrement
+    ///         | Reset -> { state = 0 } Cmd.none
+    ///
+    ///     let view() =
+    ///         let state, dispatch = Store.makeElmish init update ignore ()
+    ///
+    ///         Html.article [
+    ///             disposeOnUnmount [ state ]
+    ///             bindFragment state &lt;| fun state -> text $"Count: {state.count}"
+    ///
+    ///             Html.button [ text "Increment"; onClick (fun _ -> dispatch Increment) [] ]
+    ///             Html.button [ text "Async Increment"; onClick (fun _ -> dispatch AsyncIncrement) [] ]
+    ///             Html.button [ text "Decrement"; onClick (fun _ -> dispatch Decrement) [] ]
+    ///             Html.button [ text "Async Decrement"; onClick (fun _ -> dispatch AsyncDecrement) [] ]
+    ///             Html.button [ text "Reset"; onClick (fun _ -> dispatch Reset) [] ]
+    ///         ]
+    /// </example>
     let makeElmish<'Props, 'Model, 'Msg>
         (init: 'Props -> 'Model * Cmd<'Msg>)
         (update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>)
@@ -252,18 +328,103 @@ module Store =
 
 [<AutoOpen>]
 module StoreOperators =
+
+    /// <summary>
+    /// Alias for `Store.getMap`, takes a store and applies a mapping function then returns the value from the evaluated function
+    /// </summary>
+    /// <remarks>
+    /// This might be called foldMap
+    /// </remarks>
+    /// <example>
+    ///     let store: IStore&lt;{| name: string; budget: decimal |}> =
+    ///     Store.make {| name = "Frank"; budget = 547863.26M |}
+    ///
+    ///     let formattedBudget: string =
+    ///         store |-> (fun model -> sprintf $"$ %0.00M{model.budget}")
+    ///     printf %"Budget available: {formattedBudget}
+    ///  </example>
     //let (|%>) s f = Store.map f s
     let (|->) s f = Store.getMap f s
 
+    /// <summary>
+    /// Alias for `Store.map`, returns an observable that will resolve to the result of said callback
+    /// </summary>
+    /// <example>
+    ///     let subscription: IObservable&lt;string&gt; =
+    ///         intStore .> (fun value -> $"{value}")
+    ///
+    ///     (* after you are done with the subscription *)
+    ///
+    ///     subscription.Dispose()
+    /// </example>
     let (.>) s f = Store.map f s
 
+    /// <summary>
+    /// Alias for `Store.set`,  replaces the current value of the store
+    /// </summary>
+    /// <example>
+    ///     intStore &lt;~ 2
+    ///     let value = Store.get intStore
+    ///     value = 1 // false
+    /// </example>
     let (<~) s v = Store.set s v
 
+    /// <summary>
+    /// Alias for `Store.set`, replaces the current value of the store
+    /// </summary>
+    /// <example>
+    ///     intStore &lt;~- 2
+    ///     let value = Store.get intStore
+    ///     value = 1 // false
+    /// </example>
     let (<~-) s v = Store.set s v
 
+    /// <summary>
+    /// Alias for `Store.set`,  replaces the current value of the store
+    /// </summary>
+    /// <example>
+    ///     2 -~> intStore
+    ///     let value = Store.get intStore
+    ///     value = 1 // false
+    /// </example>
     let (-~>) v s = Store.set s v
 
+    /// <summary>
+    /// Alias for `Store.modify`. Modify the store by mapping its current value with a callback
+    /// </summary>
+    /// <example>
+    ///     let store: IStore&lt;int> = Store.make 2
+    ///
+    ///     let squareMe() =
+    ///         store &lt;~= (fun model -> model * model)
+    ///
+    ///     Html.div [
+    ///         bindFragment store &lt;| fun model -> text $"The value is {model}"
+    ///         Html.button [
+    ///             onClick (fun _ -> squareMe()) []
+    ///             text "Square me"
+    ///         ]
+    ///     ]
+    /// </example>
     let (<~=) store map = Store.modify map store
+
+    /// <summary>
+    /// /// Alias for `Store.modify` Modify the store by mapping its current value with a callback
+    /// /// </summary>
+    /// <example>
+    ///     let store: IStore&lt;int> = Store.make 2
+    ///
+    ///     let squareMe() =
+    ///         (fun model -> model * model) =~> store
+    ///
+    ///     Html.div [
+    ///         bindFragment store &lt;| fun model -> text $"The value is {model}"
+    ///         Html.button [
+    ///             onClick (fun _ -> squareMe()) []
+    ///             text "Square me"
+    ///         ]
+    ///     ]
+    /// </example>
     let (=~>) map store = Store.modify map store
 
 [<AutoOpen>]

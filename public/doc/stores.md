@@ -243,18 +243,159 @@ scores.Dispose()
 ```
 
 ### Store.makeElmishSimple
+`Store.makeElmishSimple` will create a store and a dispatch method commonly used in elmish programs, this can be used to model more complex views that require better control flow and a predictable state
+
+#### Example
+
+```fs
+type State = { count: int }
+type Msg =
+    | Increment
+    | Decrement
+    | Reset
+let init _ = { count = 0 }
+
+let upddate msg state =
+    match msg with
+    | Increment -> { state = state.count + 1 }
+    | Decrement -> { state = state.count - 1 }
+    | Reset -> { state = 0 }
+
+let view() =
+    let state, dispatch = Store.makeElmishSimple init update ignore ()
+
+    Html.article [
+        disposeOnUnmount [ state ]
+        bindFragment state <| fun state -> text $"Count: {state.count}"
+
+        Html.button [ text "Increment"; onClick (fun _ -> dispatch Increment) [] ]
+        Html.button [ text "Decrement"; onClick (fun _ -> dispatch Decrement) [] ]
+        Html.button [ text "Reset"; onClick (fun _ -> dispatch Reset) [] ]
+    ]
+```
+
 ### Store.makeElmish
+`Store.makeElmish` will create a store and a dispatch function as `Store.makeElmishSimple` the difference being that this version handles [Elmish commands](https://elmish.github.io/elmish/index.html#Commands) as well, generally used in more complex UIs given that with commands you can also handle asynchronous code like fetching resources from a server or calling any function that returns a promise or async
+
+#### Example
+
+```fs
+type State = { count: int }
+type Msg =
+    | Increment
+    | Decrement
+    | Reset
+    | AsyncIncrement
+    | AsyncDecrement
+let init _ = { count = 0 }, Cmd.ofMsg AsyncIncrement
+
+let wait1S () =
+    async {
+        do! Async.Sleep 1000
+    }
+
+let upddate msg state =
+    match msg with
+    | Increment -> { state = state.count + 1 }, Cmd.none
+    | Decrement -> { state = state.count - 1 }, Cmd.none
+    | AsyncIncrement ->
+        state, Cmd.ofAsync.perform () wait1S Increment
+    | AsyncDecrement->
+        state, Cmd.ofAsync.perform () wait1S Decrement
+    | Reset -> { state = 0 } Cmd.none
+
+let view() =
+    let state, dispatch = Store.makeElmish init update ignore ()
+
+    Html.article [
+        disposeOnUnmount [ state ]
+        bindFragment state <| fun state -> text $"Count: {state.count}"
+
+        Html.button [ text "Increment"; onClick (fun _ -> dispatch Increment) [] ]
+        Html.button [ text "Async Increment"; onClick (fun _ -> dispatch AsyncIncrement) [] ]
+        Html.button [ text "Decrement"; onClick (fun _ -> dispatch Decrement) [] ]
+        Html.button [ text "Async Decrement"; onClick (fun _ -> dispatch AsyncDecrement) [] ]
+        Html.button [ text "Reset"; onClick (fun _ -> dispatch Reset) [] ]
+    ]
+```
+
 
 
 ## Operators
-### |->
+Sometimes writing `Store.xxxxxxx` can be annoying and can make the code more verbose and tedious to read this is where operators come handy, they shorten the code and make it easier to read once you're familiar with them.
 
+> **Note**: They can also confuse people that is not familiar with the codebase so remember that you can always switch to the original functions or leave coments in your code
+
+### |->
+Alias for `Store.getMap`, takes a store and applies a mapping function then returns the value from the evaluated function
+
+> This might be called foldMap
+
+#### Example
+```fs
+    let store: IStore&lt;{| name: string; budget: decimal |}> =
+    Store.make {| name = "Frank"; budget = 547863.26M
+
+    let formattedBudget: string =
+        store |-> (fun model -> sprintf $"$ %0.00M{model.budget}")
+    printf %"Budget available: {formattedBudget}"
+```
 ### .>
+Alias for `Store.map`, returns an observable that will resolve to the result of said callback
+#### Example
+```fs
+let subscription: IObservable&lt;string&gt; =
+    intStore .> (fun value -> $"{value}")
+(* after you are done with the subscription *)
+subscription.Dispose()
+```
 
 ### <~
+Alias for `Store.set`,  replaces the current value of the store
+#### Example
+```fs
+intStore &lt;~ 2
+let value = Store.get intStore
+value = 1 // false
+```
 
 ### -~>
+Alias for `Store.set`,  replaces the current value of the store
+#### Example
+```fs
+2 -~> intStore
+let value = Store.get intStore
+value = 1 // false
+```
 
 ### <~=
+Alias for `Store.modify`. Modify the store by mapping its current value with a callback
+#### Example
+```fs
+let store: IStore&lt;int> = Store.make 2
+let squareMe() =
+    store &lt;~= (fun model -> model * model)
+Html.div [
+    bindFragment store &lt;| fun model -> text $"The value is {model}"
+    Html.button [
+        onClick (fun _ -> squareMe()) []
+        text "Square me"
+    ]
+]
+```
 
 ### =~>
+Alias for `Store.modify`. Modify the store by mapping its current value with a callback
+#### Example
+```fs
+let store: IStore&lt;int> = Store.make 2
+let squareMe() =
+    (fun model -> model * model) =~> store
+Html.div [
+    bindFragment store &lt;| fun model -> text $"The value is {model}"
+    Html.button [
+        onClick (fun _ -> squareMe()) []
+        text "Square me"
+    ]
+]
+```

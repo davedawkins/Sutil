@@ -81,7 +81,7 @@ let create() =
                         | Some u ->
                             Html.span [
                                 text u.Name
-                                text " "
+                                text $"%A{u} "
                                 Html.a [
                                     text "sign out"
                                     Attr.href "#"

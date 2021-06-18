@@ -33,11 +33,11 @@ let view() =
 
         Html.div [
             class' "block"
-            Html.input [ type' "range"; Bind.attr("value",size) ]
+            Html.input [ type' "range"; Bind.prop("value",size) ]
         ]
         Html.div [
             class' "block"
-            Html.input [ type' "text"; Bind.attr("value",text) ]
+            Html.input [ type' "text"; Bind.prop("value",text) ]
         ]
 
         Html.div [
@@ -46,10 +46,10 @@ let view() =
 
         Html.div [
             class' "resizing"
-            bindPropOut "clientWidth" w
-            bindPropOut "clientHeight" h
+            bindPropStoreOut "clientWidth" w
+            bindPropStoreOut "clientHeight" h
             Html.span [
-                Bind.attr( "style", size |> Store.map (fun n -> $"font-size: {n}px") )
+                Bind.attr("style", size |> Store.map (fun n -> $"font-size: {n}px") )
                 Bind.fragment text DOM.text
             ]
         ]

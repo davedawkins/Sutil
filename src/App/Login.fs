@@ -112,7 +112,7 @@ let private defaultView model dispatch =
                             bulma.field.div [
                                 bulma.inputLabels.checkbox [
                                     bulma.input.checkbox [
-                                        Bind.attr("checked", model .> rememberMe, SetRememberMe >> dispatch)
+                                        Bind.prop("checked", model .> rememberMe, SetRememberMe >> dispatch)
                                     ]
                                     Html.text " Remember me"
                                 ]
@@ -145,7 +145,9 @@ let private createWithView initDetails login cancel view =
             |SetUsername name -> { model with Details = { model.Details with Username = name }}, Cmd.none
             |SetPassword pwd -> { model with Details = { model.Details with Password = pwd}}, Cmd.none
             |SetRememberMe z -> { model with Details = { model.Details with RememberMe = z }}, Cmd.none
-            |AttemptLogin -> model, Cmd.OfFunc.attempt login model.Details (fun ex -> SetMessage ex.Message)
+            |AttemptLogin ->
+                printfn "%A" model
+                model, Cmd.OfFunc.attempt login model.Details (fun ex -> SetMessage ex.Message)
             |SetMessage m -> { model with Message = m }, Cmd.none
             |CancelLogin -> model, Cmd.OfFunc.perform cancel () (fun _ -> SetMessage "")
 

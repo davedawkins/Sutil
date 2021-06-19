@@ -1204,7 +1204,7 @@ let setAttribute (el:HTMLElement) (name:string) (value:obj) =
     //if (name = "value") then
     //    Interop.set el "__value" value // Un-stringified version of value
 
-let attr (name,value:obj) : SutilElement = nodeFactory <| fun ctx ->
+let attr (name, value:obj) : SutilElement = nodeFactory <| fun ctx ->
     let parent = ctx.Parent.AsDomNode
     try
         let e = parent :?> HTMLElement

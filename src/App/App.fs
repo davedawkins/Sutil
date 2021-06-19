@@ -83,6 +83,7 @@ let allExamples = [
         { Category = "Bindings";   Title = "Select bindings";  Create = SelectBindings.view ; Sections = ["SelectBindings.fs"]}
         { Category = "Bindings";   Title = "Select multiple";  Create = SelectMultiple.view ; Sections = ["SelectMultiple.fs"]}
         { Category = "Bindings";   Title = "Dimensions";  Create = Dimensions.view ; Sections = ["Dimensions.fs"]}
+        { Category = "Bindings";   Title = "Attributes and Properties";  Create = AttributesAndProperties.view ; Sections = ["AttributesAndProperties.fs"]}
         { Category = "Svg";   Title = "Bar chart";  Create = BarChart.view ; Sections = ["BarChart.fs"]}
         { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = Spreadsheet.view ; Sections = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
         { Category = "Miscellaneous";   Title = "Modal";  Create = Modal.view ; Sections = ["Modal.fs"]}

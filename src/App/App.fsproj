@@ -16,7 +16,6 @@
     <Compile Include="StaticEach.fs" />
     <Compile Include="StaticEachWithIndex.fs" />
     <Compile Include="Dimensions.fs" />
-    <Compile Include="AttributesAndProperties.fs" />
     <Compile Include="FileInputs.fs" />
     <Compile Include="LogicIf.fs" />
     <Compile Include="LogicElse.fs" />

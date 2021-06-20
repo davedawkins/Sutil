@@ -150,9 +150,6 @@ let private getInputChecked el = Interop.get el "checked"
 let private setInputChecked (el : Node) (v:obj) = Interop.set el "checked" v
 let private getInputValue el : string = Interop.get el "value"
 let private setInputValue el (v:string) = Interop.set el "value" v
-let private setAttribute (el: Node) (attribute: string) (value: obj) = 
-    let el = el :?> HTMLElement
-    el.setAttribute(attribute, string value)
 
 let bindSelected<'T when 'T : equality> (selection:IObservable<List<'T>>) (dispatch : List<'T> -> unit) : SutilElement = nodeFactory <| fun ctx ->
 
@@ -276,98 +273,55 @@ let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : SutilElement = 
         if attrName = "class" then
             store |> Store.subscribe (fun cls -> ctx.ParentElement.className <- (string cls))
         else
-            store |> Store.subscribe (setAttribute ctx.ParentElement attrName)
+            store |> Store.subscribe (DOM.setAttribute ctx.ParentElement attrName)
     SutilNode.RegisterDisposable(ctx.Parent,unsub)
     unitResult(ctx,"bindAttrIn")
 
-// Bind a store value to an element property. Updates to the element are unhandled
-let bindPropIn<'T> (propName:string) (store : IObservable<'T>) : SutilElement = nodeFactory <| fun ctx ->
-    let unsub =
-        store |> Store.subscribe (Interop.set ctx.ParentElement propName)
-    SutilNode.RegisterDisposable(ctx.Parent,unsub)
-    unitResult(ctx,"bindPropIn")
-
-let bindAttrOut<'T> (attrName:string) (onchange : string -> unit) : SutilElement = nodeFactory <| fun ctx ->
-    let parent = ctx.ParentNode :?> HTMLElement
-    let unsubInput = listen "input" parent <| fun _ ->
-        parent.getAttribute(attrName) |> onchange
-    SutilNode.RegisterUnsubscribe(ctx.Parent,unsubInput)
-    unitResult(ctx,"bindAttrOut")
-
-let bindPropOut<'T> (propName:string) (onchange : 'T -> unit) : SutilElement = nodeFactory <| fun ctx ->
+let bindAttrOut<'T> (attrName:string) (onchange : 'T -> unit) : SutilElement = nodeFactory <| fun ctx ->
     let parent = ctx.ParentNode
     let unsubInput = listen "input" parent <| fun _ ->
-        Interop.get parent propName |> onchange
+        Interop.get parent attrName |> onchange
     SutilNode.RegisterUnsubscribe(ctx.Parent,unsubInput)
-    unitResult(ctx,"bindPropOut")
+    unitResult(ctx,"bindAttrOut")
 
 // Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function. This form is useful for view templates
 // where v is invariant (for example, an each that already filters on the value of v, like Todo.Done)
-let attrNotify<'T> (attrName:string) (value :'T) (onchange : string -> unit) : SutilElement = nodeFactory <| fun ctx ->
-    let parent = ctx.ParentNode :?> HTMLElement
+let attrNotify<'T> (attrName:string) (value :'T) (onchange : 'T -> unit) : SutilElement = nodeFactory <| fun ctx ->
+    let parent = ctx.ParentNode
     let unsubInput = listen "input" parent  <| fun _ ->
-        parent.getAttribute(attrName) |> onchange
-    setAttribute parent attrName value
+        Interop.get parent attrName |> onchange
+    Interop.set parent attrName value
     SutilNode.RegisterUnsubscribe(ctx.Parent,unsubInput)
     unitResult(ctx,"attrNotify")
 
-// Bind a scalar value to an element property. Listen for onchange events and dispatch the
-// attribute's current value to the given function. This form is useful for view templates
-// where v is invariant (for example, an each that already filters on the value of v, like Todo.Done)
-let propNotify<'T> (propName:string) (value :'T) (onchange : 'T -> unit) : SutilElement = nodeFactory <| fun ctx ->
-    let parent = ctx.ParentNode :?> HTMLElement
-    let unsubInput = listen "input" parent  <| fun _ ->
-        Interop.get parent propName |> onchange
-    Interop.set parent propName value
-    SutilNode.RegisterUnsubscribe(ctx.Parent,unsubInput)
-    unitResult(ctx,"attrNotify")
-
-// Bind an observable value to an element property. Listen for onchange events and dispatch the
+// Bind an observable value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function
-let bindPropBoth<'T> (attrName:string) (value : IObservable<'T>) (onchange : 'T -> unit) : SutilElement =
+let bindAttrBoth<'T> (attrName:string) (value : IObservable<'T>) (onchange : 'T -> unit) : SutilElement =
     fragment [
-        bindPropIn attrName value
-        bindPropOut attrName onchange
+        bindAttrIn attrName value
+        bindAttrOut attrName onchange
     ]
 
-let bindAttrListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : SutilElement = nodeFactory <| fun ctx ->
-    let parent = ctx.ParentNode :?> HTMLElement
+let bindListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : SutilElement = nodeFactory <| fun ctx ->
+    let parent = ctx.ParentNode
     let unsubA = Sutil.DOM.listen event parent handler
-    let unsubB = store |> Store.subscribe (setAttribute parent attrName)
+    let unsubB = store |> Store.subscribe ( Interop.set parent attrName )
     SutilNode.RegisterUnsubscribe(ctx.Parent,unsubA)
     SutilNode.RegisterDisposable(ctx.Parent,unsubB)
-    unitResult(ctx,"bindAttrListen")
-
-let bindPropListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : SutilElement = nodeFactory <| fun ctx ->
-    let parent = ctx.ParentNode :?> HTMLElement
-    let unsubA = Sutil.DOM.listen event parent handler
-    let unsubB = store |> Store.subscribe (Interop.set parent attrName)
-    SutilNode.RegisterUnsubscribe(ctx.Parent,unsubA)
-    SutilNode.RegisterDisposable(ctx.Parent,unsubB)
-    unitResult(ctx,"bindPropListen")
+    unitResult(ctx,"bindListen")
 
 // Bind a store value to an element attribute. Listen for onchange events write the converted
 // value back to the store
 let private bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T) : SutilElement = nodeFactory <| fun ctx ->
-    let parent = ctx.ParentNode :?> HTMLElement
-    //let attrName' = if attrName = "value" then "__value" else attrName
-    let unsubInput = DOM.listen "input" parent <| fun _ ->
-        parent.getAttribute(attrName) |> convert |> Store.set store
-    let unsub = store |> Store.subscribe ( setAttribute parent attrName )
-    SutilNode.RegisterUnsubscribe(parent,unsubInput)
-    SutilNode.RegisterDisposable(parent,unsub)
-    unitResult(ctx,"bindAttrConvert")
-
-let private bindPropConvert<'T> (propName: string) (store: Store<'T>) (convert: obj -> 'T): SutilElement = nodeFactory <| fun ctx ->
     let parent = ctx.ParentNode
     //let attrName' = if attrName = "value" then "__value" else attrName
     let unsubInput = DOM.listen "input" parent <| fun _ ->
-        Interop.get parent propName |> convert |> Store.set store
-    let unsub = store |> Store.subscribe ( Interop.set parent propName )
+        Interop.get parent attrName |> convert |> Store.set store
+    let unsub = store |> Store.subscribe ( Interop.set parent attrName )
     SutilNode.RegisterUnsubscribe(parent,unsubInput)
     SutilNode.RegisterDisposable(parent,unsub)
-    unitResult(ctx,"bindPropConvert")
+    unitResult(ctx,"bindAttrConvert")
 
 // Unsure how to safely convert Element.getAttribute():string to 'T
 let private convertObj<'T> (v:obj) : 'T  =
@@ -377,10 +331,7 @@ let private convertObj<'T> (v:obj) : 'T  =
 let bindAttrStoreBoth<'T> (attrName:string) (store : Store<'T>) =
     bindAttrConvert attrName store convertObj<'T>
 
-let bindPropStoreBoth<'T> (propName: string) (store: Store<'T>) =
-    bindPropConvert propName store convertObj<'T>
-
-let bindPropStoreOut<'T> (attrName:string) (store : Store<'T>) : SutilElement = nodeFactory <| fun ctx ->
+let bindAttrStoreOut<'T> (attrName:string) (store : Store<'T>) : SutilElement = nodeFactory <| fun ctx ->
     let parent = ctx.ParentNode
     let unsubInput = DOM.listen "input" parent <| fun _ ->
         Interop.get parent attrName |> convertObj<'T> |> Store.set store
@@ -391,20 +342,6 @@ let bindPropStoreOut<'T> (attrName:string) (store : Store<'T>) : SutilElement = 
 let private attrIsSizeRelated  (attrName:string) =
     let upr = attrName.ToUpper()
     upr.IndexOf("WIDTH") >= 0 || upr.IndexOf("HEIGHT") >= 0
-
-let listenToAttr<'T> (attrName: string) (dispatch: 'T -> unit): SutilElement = nodeFactory <| fun ctx ->
-    let parent = ctx.ParentNode :?> HTMLElement
-    let notify() = parent.getAttribute(attrName) |> convertObj<'T> |> dispatch
-
-    once Event.ElementReady parent <| fun _ ->
-        if attrIsSizeRelated attrName then
-            SutilNode.RegisterDisposable(parent,(ResizeObserver.getResizer (downcast parent)).Subscribe( notify ))
-        else
-            SutilNode.RegisterUnsubscribe(parent,DOM.listen "input" parent (fun _ -> notify()))
-
-        rafu notify
-
-    unitResult(ctx,"listenToProp")
 
 let listenToProp<'T> (attrName:string) (dispatch: 'T -> unit) : SutilElement = nodeFactory <| fun ctx ->
     let parent = ctx.ParentNode
@@ -420,6 +357,8 @@ let listenToProp<'T> (attrName:string) (dispatch: 'T -> unit) : SutilElement = n
 
     unitResult(ctx,"listenToProp")
 
+let bindPropOut<'T> (attrName:string) (store : Store<'T>) : SutilElement =
+    listenToProp attrName (Store.set store)
 
 type KeyedStoreItem<'T,'K> = {
     Key : 'K
@@ -645,30 +584,18 @@ module BindApi =
         /// an IObservable, for which a separate overload exists.
         static member attr<'T> (name:string, value: IStore<'T>) = bindAttrStoreBoth name value
 
-        /// Dual-binding for a given property. Changes to value are written to the property, while
-        /// changes to the property are written back to the store. Note that an IStore is also
-        /// an IObservable, for which a separate overload exists.
-        static member prop<'T> (name:string, value: IStore<'T>) = bindPropStoreBoth name value
-
         /// One-way binding from value to attribute. Note that passing store to this function will
         /// select the more specific `attr<'T>( string, IStore<'T>)` overload.
         /// If that looks to be a problem, we'll rename both of them to force a considered choice.
         static member attr<'T> (name:string, value: IObservable<'T>) = bindAttrIn name value
 
-        /// One-way binding from value to property. Note that passing store to this function will
-        /// select the more specific `prop<'T>( string, IStore<'T>)` overload.
-        /// If that looks to be a problem, we'll rename both of them to force a considered choice.
-        static member prop<'T> (name:string, value: IObservable<'T>) = bindPropIn name value
-
         /// One-way binding from attribute to dispatch function
-        static member attr<'T> (name:string, dispatch: string -> unit) = listenToAttr name dispatch
+        static member attr<'T> (name:string, dispatch: 'T -> unit) = bindAttrOut name dispatch
 
-        /// One-way binding from property to dispatch function
-        static member prop<'T> (name:string, dispatch: 'T -> unit) = listenToProp name dispatch
+        /// Two-way binding from value to attribute and from attribute to dispatch function
+        static member attr<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) =
+            bindAttrBoth name value dispatch
 
-        /// Two-way binding from value to property and from property to dispatch function
-        static member prop<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) =
-            bindPropBoth name value dispatch
 
         /// Binding from value to a DOM fragment. Each change in value replaces the current DOM fragment
         /// with a new one.

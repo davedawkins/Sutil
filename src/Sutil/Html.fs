@@ -38,7 +38,7 @@ type SutilAttrEngine() =
 
     member _.value<'T> (value: IObservable<'T>) = bindAttrIn "value" value
     member _.value<'T> (value: IObservable<'T>, dispatch: 'T -> unit) =
-            bindPropBoth "value" value dispatch
+            bindAttrBoth "value" value dispatch
 
     member _.style (cssAttrs : (string*obj) seq) = cssAttrs |> Sutil.Attr.style
 

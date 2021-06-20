@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "prestart": "dotnet tool restore",
+    "start": "dotnet fable watch src --run snowpack dev",
+    "build": "pnpm prestart && dotnet fable src --run snowpack build"
+  },
+  "devDependencies": {
+    "@snowpack/plugin-dotenv": "~2.1.0",
+    "snowpack": "~3.5.1",
+    "rollup": "~2.50.2"
+  }
+}

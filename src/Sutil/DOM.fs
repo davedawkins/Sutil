@@ -1002,7 +1002,7 @@ type SutilElement = private { Builder: BuildContext -> BuildResult }
 
 let nodeFactory f = { Builder = f }
 
-let private makeContext (parent:Node) =
+let makeContext (parent:Node) =
     let gen = Helpers.makeIdGenerator()
     {
         Document = parent.ownerDocument

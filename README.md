@@ -1,4 +1,4 @@
-# Sutil (was Sveltish) [![Nuget](https://img.shields.io/nuget/v/Sutil.svg?maxAge=0&colorB=brightgreen)](https://www.nuget.org/packages/Sutil)
+# Sutil [![Nuget](https://img.shields.io/nuget/v/Sutil.svg?maxAge=0&colorB=brightgreen)](https://www.nuget.org/packages/Sutil)
 
 An experiment in applying the design principles from [Svelte](https://svelte.dev/) to native Fable, mixed with [Elmish](https://github.com/elmish/elmish) and [Feliz](https://github.com/Zaid-Ajaj/Feliz). Sutil has no JS dependencies (such as React).
 

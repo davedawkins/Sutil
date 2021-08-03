@@ -17,8 +17,6 @@ A Feliz-style DSL is supplied by [Feliz.Engine](https://github.com/alfonsogarcia
 Sutil implements Elmish by importing parts of [Elmish](https://github.com/elmish/elmish).
 Transitions and most examples are ported directly from [Svelte](https://svelte.dev/).
 
-At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself.
-
-See the [Sutil website](https://davedawkins.github.io/Sutil/) for [demos](https://davedawkins.github.io/Sutil/#examples-animation) and documentation for [getting started](https://davedawkins.github.io/Sutil/#documentation-installation)
+See the [Sutil website](https://sutil.dev) for [examples](https://davedawkins.github.io/Sutil/#examples-animation) and documentation for [getting started](https://sutil.dev/#documentation-installation)
 
 *(more coming soon, I'm actively working on building this doc tree into the example app)*

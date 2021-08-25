@@ -6,6 +6,7 @@
     <Compile Include="Types.fs" />
     <Compile Include="Markdown.fs" />
     <Compile Include="Doc.fs" />
+    <Compile Include="Stores.fs" />
     <Compile Include="Parsec.fs" />
     <Compile Include="Parser.fs" />
     <Compile Include="Helpers.fs" />

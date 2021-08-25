@@ -6,8 +6,10 @@
     "build": "pnpm prestart && dotnet fable src --run snowpack build"
   },
   "devDependencies": {
-    "@snowpack/plugin-dotenv": "~2.1.0",
-    "snowpack": "~3.5.1",
-    "rollup": "~2.50.2"
+    "@snowpack/plugin-dotenv": "~2.2.0",
+    "snowpack": "~3.8.7"
+  },
+  "dependencies": {
+    "haunted": "^4.8.2"
   }
 }

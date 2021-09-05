@@ -1504,5 +1504,6 @@ let html text : SutilElement = nodeFactory <| fun ctx ->
         | None -> ()
         | Some ns -> visitElementChildren el (fun ch ->
                                             ch.classList.add ns.Name
-                                            applyCustomRules ns ch))
+                                            applyCustomRules ns ch)
+        Event.notifyUpdated ctx.Document)
     sutilResult <| ctx.Parent

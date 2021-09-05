@@ -11,8 +11,9 @@ open Sutil.DOM
 open Sutil.Styling
 open Fable.Core
 
-[<ImportAll("./marked.min.js")>]
-let marked text : string = jsNative
+let marked text : string =
+    let doc = Fable.Formatting.Markdown.Markdown.Parse(text)
+    Fable.Formatting.Markdown.Markdown.ToHtml(doc)
 
 let sampleText =
      """## Markdown

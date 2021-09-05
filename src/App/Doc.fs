@@ -3,44 +3,32 @@ module Doc
 open Sutil
 open type Feliz.length
 open Sutil.DOM
-open Sutil.Attr
 open Fetch
 open Sutil.Styling
-open Fable.Core
 open Types
+open Fable.Formatting.Markdown
+
+let parsed md =
+    try
+        let doc = Markdown.Parse(md)
+        let html = Markdown.ToHtml(doc)
+        html
+    with
+        | x -> $"<pre>{x}</pre>"
 
 let urlBase = ""//"https://raw.githubusercontent.com/davedawkins/Sutil/main/src/App"
 
 let fetchSource tab  =
-    let url = sprintf "%s%s" urlBase tab
-    fetch url []
+    //let url = sprintf "%s%s" urlBase tab
+    fetch tab []
     |> Promise.bind (fun res -> res.text())
-
-[<ImportAll("./marked.min.js")>]
-let marked text : string = jsNative
-
-
-let style = [
-    rule "textarea" [
-        Css.width  (percent 100)
-        Css.height (percent 100)
-        Css.fontFamily "monospace"
-        Css.padding 4
-    ]
-
-    rule "span" [
-        Css.displayBlock
-        Css.marginTop   40
-    ]
-]
 
 let view (src : string) () =
     Html.div [
-        Html.span [
-            html $"{marked src}"
+        Html.div [
+            html $"{parsed src}"
         ] |> withStyle Markdown.style
-    ] |> withStyle style
-
+    ]
 
 type FoldType = {
     Category : string
@@ -57,11 +45,11 @@ let pageView title source () =
         Html.h2 [ text title ]
         Html.div [
             Html.span [
-                Bind.fragment content <| fun t -> html $"{marked t}"
+                Bind.fragment content <| fun t ->
+                    html $"{parsed t}"
             ] |> withStyle Markdown.style
         ]
     ]
-
 
 // Not the worst parser you've ever seen, but pretty close
 let parseLink (src : string)=
@@ -70,7 +58,6 @@ let parseLink (src : string)=
 
 let parseIndex (src:string) =
     let foldFn accum (line : string) =
-        Browser.Dom.console.log($"Line:{line}")
         match line.[0] with
         | '#' -> { accum with FoldType.Category = line.[1..] }
         | '-' ->

@@ -1,11 +1,10 @@
 module Counter
 
 open Sutil
-open Sutil.Bindings
 open Sutil.DOM
 open Sutil.Attr
 
-let Counter() =
+let view() =
     Html.div [
         bindStore 0 <| fun count -> fragment [
             Html.div [

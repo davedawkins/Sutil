@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "dotnet tool restore",
     "publish": "node publish.js",
-    "publish:package": "dotnet fsi build.fsx publish",
+    "publish:package": "dotnet fsi build.fsx --target publish",
 
     "start": "dotnet fable watch src/App --run webpack serve",
     "build": "dotnet fable       src/App --run webpack --mode production",

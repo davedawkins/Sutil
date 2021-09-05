@@ -1,3 +1,7 @@
+### 1.0.0-beta-002
+
+- Remove proxy.js and unused function makeProxy, unused
+
 ### 1.0.0-beta-001
 
 - Rework to support fragments in various binding arrangements

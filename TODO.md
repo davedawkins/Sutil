@@ -2,7 +2,29 @@
 
 These are destined for the github issue tracker
 
-- Convert App to full Elmish - DONE
-- Convert App to address each example via '#' in URL
-- Make tests work - issue with Promise - DONE (thanks Alfonso)
-- Rework transitionMatch to take first match. Currently it shows all that match
+- Syntax highlighting for code blocks in .md files
+- Sutil template
+- mountElement has moved from DOM to Program (doc need updating)
+- fix # urls for documentation
+
+
+# Documentation Plan
+
+- Introduction
+-- About Sutil
+-- Should I use Sutil?
+
+- Getting Started
+-- Templates
+-- From scratch
+
+- Basic HTML
+-- Elements
+-- Styling
+
+- Event Handling
+-- Raw
+-- Elmish
+
+- Concepts
+-- Stores

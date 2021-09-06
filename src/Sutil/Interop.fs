@@ -37,9 +37,6 @@ let getDefault<'a> (ob:obj) (name:string) (defaultValue : 'a): 'a =
 //[<Emit("typeof $0 === undefined")>]
 //let isUndefined (x: 'a) : bool = jsNative
 
-//[<ImportAll("../Sutil/proxy.js")>]
-let makeProxy<'T>  ((a:'T),(b: obj -> unit )) : 'T = importMember "../Sutil/proxy.js"
-
 open Browser.Dom
 open Browser.CssExtensions
 open Browser.MediaQueryListExtensions

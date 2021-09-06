@@ -15,9 +15,10 @@ module internal StoreHelpers =
 module Store =
 
     /// <summary>
-    /// Use `Store.make` to create a new store
+    /// Create a new store
     /// </summary>
     /// <example>
+    /// <code lang="fsharp">
     ///     let intStore: IStore&lt;int&gt; = Store.make 1
     ///
     ///     let anonymousStore:
@@ -27,6 +28,7 @@ module Store =
     ///     (* After using the store *)
     ///     intStore.Dispose()
     ///     anonymousStore.Dispose()
+    /// </code>
     /// </example>
     let make (modelInit: 'T) : IStore<'T> =
         let init () = modelInit
@@ -34,28 +36,28 @@ module Store =
         upcast s
 
     /// <summary>
-    /// `Store.get` Obtains the current value of the store
+    /// Obtains the current value of the store
     /// </summary>
-    /// <example>
+    /// <example><code>
     ///     let value = Store.get initStore
     ///     value = 1 // true
     ///     let value2 = Store.get anonymousStore
     ///     Option.isNone value2.prop2 // true
-    /// </example>
+    /// </code></example>
     let get (store: IStore<'T>) : 'T = store.Value
 
     /// <summary>
-    /// `Store.set` replaces the current value of the store
+    /// Replaces the current value of the store
     /// </summary>
-    /// <example>
+    /// <example><code>
     ///     Store.set 2 intStore
     ///     let value = Store.get intStore
     ///     value = 1 // false
-    /// </example>
+    /// </code></example>
     let set (store: IStore<'T>) newValue : unit = store.Update(fun _ -> newValue)
 
     /// <summary>
-    /// `Store.subscribe` provides a subscription that invokes a callback
+    /// Provides a subscription that invokes a callback
     /// every time the store value is updated
     /// </summary>
     /// <example>
@@ -69,7 +71,7 @@ module Store =
     let subscribe (callback: 'T -> unit) (store: IObservable<'T>) = store.Subscribe(callback)
 
     /// <summary>
-    /// `Store.map` returns an observable that will resolve to the result of said callback
+    /// Returns an observable that will resolve to the result of said callback
     /// </summary>
     /// <example>
     ///     let subscription: IObservable&lt;string&gt; =
@@ -82,7 +84,7 @@ module Store =
     let map<'A, 'B> (callback: 'A -> 'B) (store: IObservable<'A>) = store |> Observable.map callback
 
     /// <summary>
-    /// `Store.filter` applies a predicate function to obtain an observable of the elements that evaluated to true
+    /// Applies a predicate function to obtain an observable of the elements that evaluated to true
     /// </summary>
     /// <example>
     ///     let usersOver18: IObservable&lt;string&gt; =
@@ -95,7 +97,7 @@ module Store =
     let filter<'A> (predicate: 'A -> bool) (store: IObservable<'A>) = store |> Observable.filter predicate
 
     /// <summary>
-    /// `Store.distinct` provides an observable that will emit a value only when the updated store value is different from the previous one
+    /// Provides an observable that will emit a value only when the updated store value is different from the previous one
     /// </summary>
     /// <example>
     ///     let store = Store.make 0
@@ -110,7 +112,7 @@ module Store =
     let distinct<'T when 'T: equality> (source: IObservable<'T>) = Observable.distinctUntilChanged source
 
     /// <summary>
-    /// `Store.zip` merges two stores into a single tupled observable
+    /// Merges two stores into a single tupled observable
     /// </summary>
     /// <example>
     ///     let tableInfo =
@@ -130,12 +132,13 @@ module Store =
         value
 
     /// <summary>
-    /// `Store.getMap` takes a store and applies a mapping function then returns the value from the evaluated function
+    /// Takes a store and applies a mapping function then returns the value from the evaluated function
     /// </summary>
     /// <remarks>
     /// This might be called foldMap
     /// </remarks>
     /// <example>
+    /// ```
     ///     let store: IStore&lt;{| name: string; budget: decimal |}> =
     ///     Store.make {| name = "Frank"; budget = 547863.26M |}
     ///
@@ -144,11 +147,12 @@ module Store =
     ///             (fun model -> sprintf $"$ %0.00M{model.budget}")
     ///             store
     ///     printf %"Budget available: {formattedBudget}
+    ///  ```
     ///  </example>
     let getMap callback store = store |> get |> callback
 
     /// <summary>
-    /// call the callback upon initialization and whenever the store is updated. This is the same as subscribe
+    /// Calls the callback upon initialization and whenever the store is updated. This is the same as subscribe
     /// and ignoring the unsubscription callback
     /// </summary>
     /// <example>
@@ -236,7 +240,7 @@ module Store =
             unsubb.Dispose()
 
     ///<summary>
-    /// `Store.makeElmishSimple` will create a store and a dispatch method commonly used
+    /// Creates a store and a dispatch method commonly used
     /// in elmish programs, this can be used to model more complex views that require better
     /// control flow and a predictable state.
     /// </summary>
@@ -274,7 +278,7 @@ module Store =
         ObservableStore.makeElmishSimple init update dispose
 
     ///<summary>
-    /// `Store.makeElmish` will create a store and a dispatch function as `Store.makeElmishSimple`
+    /// Creates a store and a dispatch function as `Store.makeElmishSimple`
     /// the difference being that this version handles [Elmish commands](https://elmish.github.io/elmish/index.html#Commands)
     /// as well, generally used in more complex UIs given that with commands you can also handle
     /// asynchronous code like fetching resources from a server or calling any

@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "dotnet tool restore",
     "publish": "node publish.js",
-    "publish:package": "dotnet fsi build.fsx publish",
+    "publish:package": "dotnet fsi build.fsx --target publish",
 
     "start": "dotnet fable watch src/App --run webpack serve",
     "build": "dotnet fable       src/App --run webpack --mode production",
@@ -15,10 +15,12 @@
     "build:devtools": "dotnet fable       src/DevTools --run      webpack --config webpack.devtools.js",
 
     "pretests": "dotnet fable tests -o dist/tests",
+    "fsdocs": "dotnet fsdocs build --output public/docs",
     "tests-console": "mocha dist/tests -r esm",
     "watch:tests": "dotnet fable watch tests -o dist/tests --runWatch mocha dist/tests -r esm",
     "tests":       "dotnet fable tests --run webpack --config webpack.config.tests.js",
-    "start:tests": "dotnet fable watch tests --run webpack serve --config webpack.config.tests.js "
+    "start:tests": "dotnet fable watch tests --run webpack serve --config webpack.config.tests.js ",
+    "deploy:linode": "bash deployToLinode.sh ./public sutil '' deploy@213.52.129.104 /home/deploy/apps"
   },
   "dependencies": {
     "d3-scale": "^3.2.3",

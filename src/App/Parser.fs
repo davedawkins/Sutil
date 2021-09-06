@@ -98,7 +98,7 @@ let orElse first second =
 
 let ( <|> ) = orElse
 
-let parseKeyword keyword=
+let parseKeyword (keyword:string) =
     let inner (input:string) =
         let input' = skipWhite input
         if input'.StartsWith(keyword) then

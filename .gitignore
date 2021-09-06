@@ -182,6 +182,7 @@ csx/
 # Microsoft Azure Emulator
 ecf/
 rcf/
+public/samples
 
 # Windows Store app package directories and files
 AppPackages/
@@ -300,3 +301,5 @@ examples/HelloWorld/package-lock.json
 examples/HelloWorld/public/bundle.js
 devtools/js/bundle.js
 devtools/js/bundle.js
+tests/public/test-bundle.js
+tests/public/test-bundle.js

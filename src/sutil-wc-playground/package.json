@@ -8,8 +8,5 @@
   "devDependencies": {
     "@snowpack/plugin-dotenv": "~2.2.0",
     "snowpack": "~3.8.7"
-  },
-  "dependencies": {
-    "haunted": "^4.8.2"
   }
 }

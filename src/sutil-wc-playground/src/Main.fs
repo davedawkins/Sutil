@@ -11,9 +11,8 @@ open Sutil.Attr
 
 importSideEffects "./styles.css"
 
-type Haunted =
-  static member defineCustomElement(name: string, renderFn: obj, ?opts: obj) =
-    importMember "./web-component.js"
+let defineCustomElement (name: string, defaults: obj, el: obj) =
+  importMember "./web-component.js"
 
 type Stuff = { name: string; age: int }
 
@@ -36,6 +35,6 @@ let view (props: Stuff) =
     ]
   ]
 
-Haunted.defineCustomElement ("my-element", view, {| useShadowDOM = false |})
+defineCustomElement ("my-element", { name = "Frank"; age = 0 }, view)
 // same view, different component with different defaults
-Haunted.defineCustomElement ("my-element-2", view, {| useShadowDOM = true |})
+defineCustomElement ("my-element-2", { name = "Peter"; age = 10 }, view)

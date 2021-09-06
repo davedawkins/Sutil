@@ -64,7 +64,7 @@ let private update msg model =
     | CancelSignIn ->
         { model with Page = Main }
 
-let create() =
+let view() =
     let model, dispatch = () |> Store.makeElmishSimple init update ignore
 
     bulma.container [

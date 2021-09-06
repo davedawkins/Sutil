@@ -48,12 +48,12 @@ open type Feliz.length
 
 
 let allExamples = [
-        { Category = "Introduction";Title = "Hello World";  Create = HelloWorld.helloWorld ; Sections = ["HelloWorld.fs"]}
+        { Category = "Introduction";Title = "Hello World";  Create = HelloWorld.view ; Sections = ["HelloWorld.fs"]}
         { Category = "Introduction";Title = "Dynamic attributes";  Create = DynamicAttributes.view ; Sections = ["DynamicAttributes.fs"]}
         { Category = "Introduction";Title = "Styling";  Create = StylingExample.view ; Sections = ["Styling.fs"]}
         { Category = "Introduction";Title = "Nested components";  Create = NestedComponents.view ; Sections = ["NestedComponents.fs"; "Nested.fs"]}
         { Category = "Introduction";Title = "HTML tags";  Create = HtmlTags.view ; Sections = ["HtmlTags.fs"]}
-        { Category = "Reactivity";Title = "Reactive assignments";  Create = Counter.Counter ; Sections = ["Counter.fs"]}
+        { Category = "Reactivity";Title = "Reactive assignments";  Create = Counter.view ; Sections = ["Counter.fs"]}
         { Category = "Reactivity";Title = "Reactive declarations";  Create = ReactiveDeclarations.view ; Sections = ["ReactiveDeclarations.fs"]}
         { Category = "Reactivity";Title = "Reactive statements";  Create = ReactiveStatements.view ; Sections = ["ReactiveStatements.fs"]}
         { Category = "Logic"; Title = "If blocks"; Create = LogicIf.view; Sections = ["LogicIf.fs"] }
@@ -86,12 +86,12 @@ let allExamples = [
         { Category = "Svg";   Title = "Bar chart";  Create = BarChart.view ; Sections = ["BarChart.fs"]}
         { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = Spreadsheet.view ; Sections = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
         { Category = "Miscellaneous";   Title = "Modal";  Create = Modal.view ; Sections = ["Modal.fs"]}
-        { Category = "Miscellaneous";   Title = "Login";  Create = LoginExample.create ; Sections = ["LoginExample.fs"; "Login.fs"]}
-        { Category = "Miscellaneous";   Title = "Drag-sortable list";  Create = SortableTimerList.create ; Sections = ["SortableTimerList.fs"; "DragDropListSort.fs"; "TimerWithButton.fs"; "TimerLogic.fs"]}
+        { Category = "Miscellaneous";   Title = "Login";  Create = LoginExample.view ; Sections = ["LoginExample.fs"; "Login.fs"]}
+        { Category = "Miscellaneous";   Title = "Drag-sortable list";  Create = SortableTimerList.view ; Sections = ["SortableTimerList.fs"; "DragDropListSort.fs"; "TimerWithButton.fs"; "TimerLogic.fs"]}
         { Category = "Miscellaneous";   Title = "SAFE client";  Create = SAFE.view ; Sections = ["SafeClient.fs"]}
         //{ Category = "Miscellaneous";   Title = "Fragment";  Create = Fragment.view ; Sections = ["Fragment.fs"]}
         { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sections = ["Cells.fs"]}
-        { Category = "7Guis";   Title = "CRUD";  Create = CRUD.create ; Sections = ["CRUD.fs"]}
+        { Category = "7Guis";   Title = "CRUD";  Create = CRUD.view ; Sections = ["CRUD.fs"]}
     ]
 
 let initBooks = [
@@ -180,7 +180,7 @@ let init() =
     }, []
 
 let update msg model : Model * Cmd<Message> =
-    //Browser.Dom.console.log($"{msg}")
+    //Browser.Dom.console.log($"update {msg}")
     match msg with
     | SetIsMobile m ->
         { model with IsMobile = m }, Cmd.none
@@ -227,7 +227,9 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
         Css.positionFixed
         Css.width (length.vw 100)
         Css.backgroundColor "white"
-        Css.padding 12
+        Css.paddingLeft (px 12)
+        Css.paddingTop (px 6)
+        Css.paddingBottom (px 6)
         Css.boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
         Css.marginBottom 4
         Css.zIndex 1   // Messes with .modal button
@@ -238,7 +240,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     ]
 
     rule ".app-contents" [
-        Css.backgroundColor "#676778"
+        Css.backgroundColor "#164460"//"#676778"
         Css.color "white"
         Css.overflowScroll
     ]
@@ -267,12 +269,18 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".app-main-section" [
         Css.marginTop 0
-        Css.paddingTop 50
+        Css.paddingTop (px 44)
         Css.height (percent 100)
+    ]
+
+    rule ".app-page-section" [
+        Css.displayFlex
+        Css.flexDirectionColumn
     ]
 
     rule ".app-page" [
         Css.backgroundColor "white"
+        Css.overflowYScroll
     ]
 
     rule ".app-heading a" [
@@ -343,7 +351,7 @@ let viewSource (model : IStore<Model>) =
     Html.div [
         Html.pre [
             Html.code [
-                class' "fsharp"
+                class' "language-fsharp"
                 Bind.fragment (model .> source) (exclusive << text)
             ]
         ]
@@ -414,14 +422,21 @@ let appMain () =
 
         Html.div [
             class' "app-heading"
-            Html.h1 [
-                class' "title is-4"
-                Html.a [
-                    Attr.href "https://github.com/davedawkins/Sutil"
-                    Html.div [ class' "slogo"; Html.span [ text "<>" ] ]
-                    text " SUTIL"
-                ]
+            Html.a [
+                Attr.href "https://sutil.dev"
+                Html.img [
+                    Attr.src "images/logo-wide.png"
+                    Attr.style [ Css.height (px 25) ]
+                    ]
             ]
+            // Html.h1 [
+            //     class' "title is-4"
+            //     Html.a [
+            //         Attr.href "https://github.com/davedawkins/Sutil"
+            //         Html.div [ class' "slogo"; Html.span [ text "<>" ] ]
+            //         text " SUTIL"
+            //     ]
+            // ]
 
             Bind.fragment (model .> books) <| fun books ->
                 Html.span [
@@ -470,7 +485,7 @@ let appMain () =
 let app () =
     Html.app [
         // Page title
-        headTitle "Sutil"
+        headTitle "sutil"
 
         // Bulma style framework
         headStylesheet "https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"

@@ -105,7 +105,7 @@ let dragDropStyle = [
     ]
 ]
 
-let create() =
+let view() =
 
     let model, dispatch = () |> Store.makeElmish init update ignore
 

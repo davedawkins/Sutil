@@ -1,10 +1,10 @@
 <!doctype html>
 <html>
 <head>
-  <title>Fable</title>
+  <title>sutil</title>
   <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="shortcut icon" href="fable.ico" />
+  <link rel="shortcut icon" href="images/logo-small.png" />
   <link rel="preload" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css" as="style">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Coda+Caption:wght@800&display=swap" rel="stylesheet">
@@ -21,25 +21,27 @@
   <!-- Syntax highlighting for example source code -->
   <script src="highlight.min.js"></script>
 
+  <!-- TODO: Move this into Fsharp code, doesn't need to  be JS -->
+  <script>
+    document.addEventListener('sutil-updated', (event) => {
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
+    });
+  </script>
+
+  <!-- For drag/drop example on mobile -->
   <script src="mobile-drag-drop.min.js"></script>
 
   <script>
-      // options are optional ;)
       MobileDragDrop.polyfill({
-          // use this to make use of the scroll behaviour
           dragImageTranslateOverride: MobileDragDrop.scrollBehaviourDragImageTranslateOverride
       });
   </script>
+
 </head>
 <body>
     <div id="sutil-app"></div>
     <script src="bundle.js"></script>
-    <script>
-        document.addEventListener('sutil-updated', (event) => {
-            document.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightBlock(block);
-            });
-        });
-    </script>
 </body>
 </html>

@@ -3,7 +3,7 @@ module.exports = {
     mount: {
         public: { url: '/', static: true },
         src: { url: '/dist' },
-        "../Sutil": { url: '/Sutil/src/Sutil', static: true }
+        "../Sutil": { url: '/Sutil', static: true }
     },
     plugins: ['@snowpack/plugin-dotenv'],
     routes: [],

@@ -3,19 +3,30 @@ module Main
 open Sutil
 open Sutil.DOM
 open Fable.Core
-open Fable.Core.DynamicExtensions
 open Fable.Core.JsInterop
 open Browser.Types
 open Browser.Dom
 open Sutil.Attr
-open System.Collections.Generic
 
 importSideEffects "./styles.css"
 
-let defineCustomElement (name: string, defaults: obj, el: obj) =
+type WebComponentRenderer<'T when 'T :> HTMLElement> =
+  IStore<'T> -> IStore<JS.Map<string, string>> -> SutilElement
+
+type WebComponentOptions<'InitialValues, 'WebComponentElement when 'WebComponentElement :> HTMLElement> =
+  {| renderFunction: WebComponentRenderer<'WebComponentElement>
+     properties: 'InitialValues
+     attributes: string array option
+     useLightDOM: bool option |}
+
+let defineCustomElement<'InitialValues, 'WebComponentElement when 'WebComponentElement :> HTMLElement>
+  (
+    name: string,
+    options: WebComponentOptions<'InitialValues, 'WebComponentElement>
+  ) =
   importMember "./web-component.js"
 
-type Stuff = { name: string; age: int }
+type Stuff = {| name: string; age: int |}
 
 [<AllowNullLiteral>]
 type SampleElement =
@@ -65,8 +76,23 @@ let view
   ]
 
 [<Emit("view")>]
-let ViewRef: obj = jsNative
+let ViewRef: IStore<SampleElement>
+  -> IStore<JS.Map<string, string>>
+  -> SutilElement =
+  jsNative
 
-defineCustomElement ("my-element", { name = "Frank"; age = 0 }, ViewRef)
+defineCustomElement (
+  "my-element",
+  {| properties = Some {| name = "Frank"; age = 0 |}
+     attributes = None
+     useLightDOM = None
+     renderFunction = ViewRef |}
+)
 // same view, different component with different defaults
-defineCustomElement ("my-element-2", { name = "Peter"; age = 10 }, ViewRef)
+defineCustomElement (
+  "my-element-2",
+  {| properties = Some {| name = "Frank"; age = 0 |}
+     attributes = Some [| "name" |]
+     useLightDOM = None
+     renderFunction = ViewRef |}
+)

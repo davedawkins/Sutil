@@ -1387,6 +1387,9 @@ let wait (el:HTMLElement) (andThen : unit -> Promise<unit>) =
 let mountOn app host =
     build app (makeContext host)
 
+let mountAfter app (node : HTMLElement) =
+    build app  { (makeContext node.parentElement) with Previous = DomNode node }
+
 let computedStyleOpacity e =
     try
         float (Window.getComputedStyle(e).opacity)

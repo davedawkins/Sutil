@@ -8,3 +8,4 @@
 # Concepts
 - [HTML](html.md)
 - [Stores](stores.md)
+- [Styling](styling.md)

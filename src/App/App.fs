@@ -116,6 +116,7 @@ type Model = {
     CurrentBook : Book
     CurrentPage : Page
     CurrentSection : string
+    PageView : PageView
 }
 
 let source m = m.Source
@@ -146,6 +147,7 @@ let defaultBook (books : Book list) = books.Head
 let findBookPage (books : Book list) (pv : PageView) =
     let defBk = defaultBook books
     let bookP =
+        Fable.Core.JS.console.log($"Trying to find {pv.PageName} in {pv.BookName}")
         books
             |> List.tryFind (fun b -> sanitize b.Title = sanitize pv.BookName)
             |> Option.map (fun bk -> bk, findPage bk pv.PageName)
@@ -169,29 +171,37 @@ let fetchSource file dispatch =
     |> ignore
 
 let init() =
+    let currentBook = defaultBook initBooks
+    let currentPage = currentBook.defaultPage
     {
         Source = ""
         ShowContents = false
         IsMobile = false
         Books = initBooks
-        CurrentBook = defaultBook initBooks
-        CurrentPage = (defaultBook initBooks).defaultPage
+        CurrentBook = currentBook
+        CurrentPage = currentPage
         CurrentSection = ""
+        PageView = {
+            BookName = currentBook.Title
+            PageName = currentPage.Title
+            SectionName = ""
+        }
     }, []
 
 let update msg model : Model * Cmd<Message> =
-    //Browser.Dom.console.log($"update {msg}")
+    Browser.Dom.console.log($"update {msg}")
     match msg with
     | SetIsMobile m ->
         { model with IsMobile = m }, Cmd.none
 
     | AddBook book ->
         { model with Books = book :: model.Books },
-            Cmd.ofMsg (SetPageView {
-                BookName = model.CurrentBook.Title
-                PageName = model.CurrentPage.Title
-                SectionName = model.CurrentSection
-                })
+            Cmd.ofMsg (SetPageView model.PageView)
+            // Cmd.ofMsg (SetPageView {
+            //     BookName = model.CurrentBook.Title
+            //     PageName = model.CurrentPage.Title
+            //     SectionName = model.CurrentSection
+            //     })
 
     | SetPageView pv ->
         let book, page = pv |> findBookPage model.Books
@@ -206,7 +216,13 @@ let update msg model : Model * Cmd<Message> =
                 //Cmd.none, loadingString
             else
                 Cmd.none, ""
-        { model with CurrentPage = page; CurrentBook = book; CurrentSection = section; ShowContents = false; Source = src} , cmd
+        { model with
+            CurrentPage = page;
+            CurrentBook = book;
+            CurrentSection = section;
+            ShowContents = false;
+            PageView = pv
+            Source = src} , cmd
 
     | ToggleShowContents ->
         { model with ShowContents = not model.ShowContents }, Cmd.none

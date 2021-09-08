@@ -53,7 +53,7 @@ let css =
         ]
     ]
 
-let neitherThese() = 
+let neitherThese() =
     Html.p "I'm different"
     /// to add styles to a particular HTML Node
     /// use the `withStyle` function which takes a list of rules
@@ -85,17 +85,17 @@ Only the `p` nodes that don't have another particular style associated with it a
 This also means that you can use `seq` expressions and `yield!` to append different styles for example:
 
 ```fsharp
-let myArticleStyles = 
+let myArticleStyles =
     seq {
         yield! globalRules
-        match article.state with 
+        match article.state with
         | Published -> yield! publishedStyles
         | OnRevision -> yield! onRevisionStyles
         | Draft -> yield! [ rule "article" [ Css.color "rebeccapurple" ] ]
-        
+
     } |> Seq.toList
 
-Html.article [ (* ... content ... *) ] |> withStyle myArticleStyles
+Html.article [ (* ... content ... *) ] |> withStyle myArticleStyles//norepl
 ```
 
 that's perhaps not the best example, but I'll leave the creative minds do the actual work and just let you know that anything might be possible :)

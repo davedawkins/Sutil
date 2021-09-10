@@ -142,14 +142,14 @@ let findPreCode (node : Browser.Types.HTMLElement) =
 
 let makeExample (code:string) =
     let codeWithOpens (c:string) =
-        if c.StartsWith("open") then c else openSutil + "\n\n" + c
+        if c.Contains("open Sutil") then c else openSutil + "\n\n" + c
 
     let codeWithMount (c:string) =
         if c.Contains("mountElement") then c
         else
             c + " |> Program.mountElement \"sutil-app\""
 
-    code.Trim() |> codeWithOpens |> codeWithMount
+    code.TrimEnd() |> codeWithOpens |> codeWithMount
 //
 // Make an "Open in REPL" button for the given code example
 //

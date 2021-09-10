@@ -1,3 +1,9 @@
+### 1.0.0-beta-003
+
+- Implemented "Open in REPL" in docs (App)
+- Fix CSS for mobile
+- Added DOM.mountAfter
+
 ### 1.0.0-beta-002
 
 - Remove proxy.js and unused function makeProxy, unused

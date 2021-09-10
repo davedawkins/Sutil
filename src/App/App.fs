@@ -292,6 +292,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     rule ".app-page-section" [
         Css.displayFlex
         Css.flexDirectionColumn
+        Css.height (percent 100)
     ]
 
     rule ".app-page" [

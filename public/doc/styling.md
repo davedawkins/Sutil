@@ -48,51 +48,126 @@ Html.div [
 ```
 ## Component Style Sheets
 
+### withStyle
+
+Sutil also allows you to create stylesheets, which can then be applied to your component.
+
+- Create a list of Css `rule`s
+- Apply to your element using `withStyle`
+
 ```fsharp
-open Feliz
-open Sutil
-open Sutil.Styling
-open Sutil.DOM
+let css = [
+    rule "div" [
+        Css.color "red"
+        Css.textTransformCapitalize
+    ]
+]
+
+Html.div [
+    Html.text "hello world"
+] |> withStyle css
+```
+
+An example where we use class selectors:
+
+```fsharp
+let css =
+    [
+        rule ".red-caps" [
+            Css.color "red"
+            Css.textTransformCapitalize
+        ]
+        rule ".blue-yelling" [
+            Css.color "blue"
+            Css.textTransformUppercase
+        ]
+    ]
+
+Html.div [
+    Html.p [
+        class' "red-caps"
+        text "this sentence should be capitalized in red"
+    ]
+    Html.p [
+        class' "blue-yelling"
+        text "this sentence should be shouting in blue"
+    ]
+] |> withStyle css
+```
+
+An important feature of inline stylesheets applied using `withStyle` is that they can be either be merged with parent stylesheets or completely insulated.
+
+In this example, note how the subcomponent's `<p>` element isn't affected by the main component's styling:
+
+```fsharp
+module SubComponent =
+    let subCss = [
+        rule "div" [
+            Css.borderColor "gray"
+            Css.borderRadius (length.px 5)
+            Css.borderWidth (length.px 1)
+            Css.borderStyleSolid
+            Css.padding (length.px 4)
+        ]
+    ]
+
+    let view() =
+        Html.div [
+            Html.p "I'm a subcomponent"
+        ] |> withStyle subCss
 
 let css =
-    // use the rule function to specify a set of css properties
-    // just like you would in normal css files
-    [ rule "p" [
-            // give it a list of css properties
+    [
+        rule "p" [
+            Css.textAlignRight
             Css.color "orange"
-            Css.fontFamily "'Comic Sans MS', cursive"
-            Css.fontSize (length.em 2.0)
         ]
     ]
 
-let neitherThese() =
-    Html.p "I'm different"
-    /// to add styles to a particular HTML Node
-    /// use the `withStyle` function which takes a list of rules
-    |> withStyle [ rule "p" [Css.color "rebeccapurple"] ]
-
-Html.article [
-    Html.div [
-        Html.p [
-            text "These styles..."
-        ]
-        neitherThese()
+Html.div [
+    Html.p [
+        text "I'm the main component"
     ]
-    Html.p "don't affect these"
-    |> withStyle []
-]
-|> withStyle css
+    SubComponent.view()
+] |> withStyle css
 ```
 
-Even if the whole article HTML node has the following css rule
-```css
-p {
-    color: orange;
-    font-family: 'Comic Sans MS', cursive;
-    font-size: 2em;
-}
+### withStyleAppend
+
+Compare this with the use of `withStyleAppend` in the same example. In this case, the effect is to append the subcomponent's stylesheet into any parent stylesheet.
+
+```fsharp
+module SubComponent =
+    let subCss = [
+        rule "div" [
+            Css.borderColor "gray"
+            Css.borderRadius (length.px 5)
+            Css.borderWidth (length.px 1)
+            Css.borderStyleSolid
+            Css.padding (length.px 4)
+        ]
+    ]
+
+    let view() =
+        Html.div [
+            Html.p "I'm a subcomponent"
+        ] |> withStyleAppend subCss
+
+let css =
+    [
+        rule "p" [
+            Css.textAlignRight
+            Css.color "orange"
+        ]
+    ]
+
+Html.div [
+    Html.p [
+        text "I'm the main component"
+    ]
+    SubComponent.view()
+] |> withStyle css
 ```
-Only the `p` nodes that don't have another particular style associated with them are affected. Each call to `withStyles` creates a particular scope which can help you to encapsulate styles and avoid global conflicts.
 
 ## Advanced Styling
 

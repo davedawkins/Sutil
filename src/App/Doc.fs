@@ -48,8 +48,10 @@ let styleCs = """
 """
 
 let openSutil = """open Sutil
+open Sutil.Styling
 open Sutil.DOM
-open Sutil.Attr"""
+open Sutil.Attr
+open Feliz"""
 
 let buildReplQuery (names : string array) (codes : string array) (html:string) (css:string) =
     let queryData : Map<string,string> =

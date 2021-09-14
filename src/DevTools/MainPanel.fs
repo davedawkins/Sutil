@@ -240,23 +240,23 @@ let buildStoresTable (idVals : StoreIdVal array) =
 
 let viewStores model dispatch =
     Html.div [
-        bind (model .> stores) buildStoresTable
+        Bind.fragment (model .> stores) buildStoresTable
     ]
 
 let viewMountPoints model dispatch =
     Html.div [
         Html.ul [
-            each (model .> mountPoints) (fun mp ->
+            Bind.each((model .> mountPoints), (fun mp ->
                 Html.li [
                     text mp.Id
                     Html.button [
                         class' "button is-small"
-                        style [ Css.marginLeft "12px" ]
+                        style [ Css.marginLeft (Feliz.length.px 12) ]
                         text "Remount"
                         onClick (fun _ -> remount mp.Id) []
                     ]
                 ]
-            ) []
+            ))
         ]
     ]
 

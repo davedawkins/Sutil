@@ -3,6 +3,9 @@ module Sutil.Interop
 open Fable.Core
 open Fable.Core.JsInterop
 
+[<Emit("Math.random()")>]
+let random() : float = jsNative
+
 [<Emit("new CustomEvent($0, $1)")>]
 let customEvent name data = jsNative
 

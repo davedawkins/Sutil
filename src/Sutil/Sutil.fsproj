@@ -36,6 +36,7 @@
     <Compile Include="Navigable.fs" />
     <Compile Include="Program.fs" />
     <Compile Include="Bulma.fs" />
+    <Compile Include="DataSimulation.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Feliz.Engine.Bulma" Version="1.0.0-beta-005" />

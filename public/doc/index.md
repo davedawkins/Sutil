@@ -12,7 +12,7 @@
 - [HTML](html.md)
 - [Styling](styling.md)
 - [Stores](stores.md)
-- [Lists](lists.md)
+- [Collections](collections.md)
 - [Forms - coming soon](coming_soon.md)
 - [Transitions - coming soon](coming_soon.md)
 - [Media Queries - coming soon](coming_soon.md)

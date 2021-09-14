@@ -139,8 +139,9 @@ open Sutil.Transition
 
 let create  (items:IObservable<list<'T>>)
             (slot : 'T -> SutilElement)
-            (key:'T -> 'K) (trans : TransitionAttribute list)
+            (key:'T -> 'K)
+            (trans : TransitionAttribute list)
             (dispatch : DragOperation -> unit) =
     let state = DragState()
-    Bindings.eachk items (slotWrapper state slot dispatch) key trans
+    Bind.each(items, (slotWrapper state slot dispatch), key, trans)
 

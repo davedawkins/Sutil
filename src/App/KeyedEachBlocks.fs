@@ -67,12 +67,12 @@ let view() =
 
             Html.div [
                 Html.h2 [ text "Keyed" ]
-                eachiko things (snd>>makeThing) (snd>>Id) []
+                Bind.each( things, snd>>makeThing, (snd>>Id) )
             ]
 
             Html.div [
                 Html.h2 [ text "Unkeyed" ]
-                eachio things (snd>>makeThing) []
+                Bind.eachi( things, (snd>>makeThing) )
             ]
         ]
     ]

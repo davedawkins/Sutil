@@ -61,6 +61,7 @@
     <Compile Include="TimerWithButton.fs" />
     <Compile Include="DragDropListSort.fs" />
     <Compile Include="SortableTimerList.fs" />
+    <Compile Include="DataSim.fs" />
     <Compile Include="StudyOfResourceManagement.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>

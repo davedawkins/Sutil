@@ -1,40 +1,50 @@
-# WIP: Rendering Lists
 
 [Syntax]: http://
 [examples]: https://sutil.dev/#examples-each-blocks?EachBlocks.fs
 [Stores]: https://
 [each keyed]: https://sutil.dev/#examples-keyed-each-blocks?KeyedEachBlocks.fs
 
-> A little lost? check the [Syntax] first!
->
-> Also check the [examples]
+## Static Collections
 
-Rendering lists (or any enumerable, iterable) is a common task in any web application. Let's see how it can be done.
+Rendering collections such as lists, arrays, sequences is a common task in any web application.
 
-The most basic form is to do a foreach or any iterating functions that F# provides like List.map or Seq.map
+For a static collection, we can use a `for` loop:
 
 ```fsharp
-let numbers = [1;2;3;4;5;6;7;8;9]
-
 Html.ul [
-    for number in numbers do
+    for number in [1..9] do
         Html.li [ text $"{number}" ]
 ]
 ```
 
-This will create a `li` tag for each element in the list although this approach is not recommended because it may cause performance issues, specially if you have a large list of elements or you need to re-arrange the order of these elements.
+Another example for static collections using `List.mapi`:
 
+```fsharp
+let contributors = [ "Alfonso Garcia"; "Angel Munoz"; "Daniel Sokil" ]
+Html.ul
+    (contributors
+        |> List.mapi (fun i v ->
+            sprintf "%i : %s" i v |> Html.div))
+ |> Program.mountElement "sutil-app"
+ ```
 
-## each, eachi, eachio, eachk, eachiko
+## Dynamic Collections
 
-For the purpose of efficient rendering you should `each`, `eachi`, `eachio`, `eachk`, `eachiko` all of these create a tracked elements with make it more performant when dealing with larger and more complex lists specially those that you may need to manipulate often.
+For collections of values that are going to change, use `Bind.each` which will use the given template function for each element in the collection
 
+```fsharp
+let numbers = DataSimulation.CountList(1,5,500)
 
-> Many things are bound to [Stores] in Sutil so if things get confusing around stores, you should take a look at that page.
+Html.ul [
+    Bind.each(numbers,fun n -> Html.li n)
+]
+```
 
-All of the above operate on observable instances and you will need to make them in order to make it work propperly.
+## Other 'each' functions
 
-### each 
+These are the functions that are used by `Bind.each`. They are useful when you want to use partial application or pipe syntax, but the `Bind.each` API's use of overloads may result in cleaner looking code.
+
+### each
 
 `each` takes three parameters
 
@@ -48,7 +58,7 @@ Html.div [
   Html.ul [
       disposeOnUnmount [ items ]
       each
-        items 
+        items
         (fun item -> Html.li [text $"{item}"])
         []
   ]
@@ -75,7 +85,7 @@ Html.div [
   Html.ul [
     disposeOnUnmount [ items ]
     eachi
-      items 
+      items
       (fun index item -> Html.li [ text $"{index} - {item}" ])
       []
   ]
@@ -97,13 +107,13 @@ Internally the key for each of these objects will be the index of the element.
 
 ```fsharp
 
-let renderIndex (index: IObservable<int>) = 
+let renderIndex (index: IObservable<int>) =
     Html.span [
         // bind an observable to a span
         bindFragment index <| fun index -> text $"{index}"
     ]
 
-let renderItem<'T> (item: IObservable<'T>) = 
+let renderItem<'T> (item: IObservable<'T>) =
     Html.b [
         // bind an observable to a <b></b>
         bindFragment item <| fun item -> text $"{item}"
@@ -141,7 +151,7 @@ This might not look that useful but once you get to know stores better you'll se
 
 Html.div [
   let items =
-    Store.make 
+    Store.make
         [ {| name = "Peter"; lastName = "Parker"|}
           {| name = "Bruce"; lastName = "Wayne"|} ]
   Html.ul [
@@ -169,13 +179,13 @@ Html.div [
 
 ```fsharp
 
-let renderIndex (index: IObservable<int>) = 
+let renderIndex (index: IObservable<int>) =
     Html.span [
         // bind an observable to a span
         bindFragment index <| fun index -> text $"{index}"
     ]
 
-let renderItem (item: IObservable<{| name: string; lastName : string |}>) = 
+let renderItem (item: IObservable<{| name: string; lastName : string |}>) =
     Html.b [
         // bind an observable to a <b></b>
         bindFragment item <| fun item -> text $"{item.lastName} {item.name}"
@@ -183,7 +193,7 @@ let renderItem (item: IObservable<{| name: string; lastName : string |}>) =
 
 Html.div [
   let items =
-    Store.make 
+    Store.make
         [ {| name = "Peter"; lastName = "Parker"|}
           {| name = "Bruce"; lastName = "Wayne"|} ]
   Html.ul [

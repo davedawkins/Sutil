@@ -116,9 +116,7 @@ let view_attempt_1() =
     let store = [ "one (i)" (*; "two (i)" *)] |> Store.make
 
     Html.div [
-        each store (fun item ->
-            Html.div item
-        ) []
+        Bind.each(store, Html.div)
         Html.button [
             text "Add item (i)"
             onClick (fun e ->
@@ -132,9 +130,9 @@ let view_attempt_2() =
     let store = ([ "one (ii)"] : string list) |> Store.make
 
     fragment [
-        each store (fun item ->
+        Bind.each(store,(fun item ->
             Html.div item
-        ) []
+        ))
         Html.button [
             text "Add item (ii)"
             onClick (fun e ->
@@ -148,9 +146,9 @@ let view_attempt_3() =
 
     fragment [
         Html.div "Header item (iii)"
-        each store (fun item ->
+        Bind.each(store,(fun item ->
             Html.div item
-        ) []
+        ))
         Html.button [
             text "Add item (iii)"
             onClick (fun e ->

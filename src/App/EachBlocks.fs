@@ -31,14 +31,14 @@ let view() =
             // If the list changes, the view will update accordingly.
             // It isn't necessary to make a store to loop over a data structure,
             // see StaticEach.fs and StaticEachWithIndex.fs
-            eachi cats (fun (i,cat) ->
+            Bind.eachi( cats, (fun (i,cat) ->
                 Html.li [
                     Html.a [
                         Attr.target "_blank"
                         Attr.href $"https://www.youtube.com/watch?v={cat.Id}"
                         text $"{i + 1}: {cat.Name}"
                     ]
-                ]) []
+                ]))
         ]
         Html.button [
             attr("style",  [ Css.marginTop 12 ])

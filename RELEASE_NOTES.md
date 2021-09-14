@@ -3,6 +3,8 @@
 - Implemented "Open in REPL" in docs (App)
 - Fix CSS for mobile
 - Added DOM.mountAfter
+- Added Bind.each overloads
+- Added DataSimulation / SampleData for examples, docs and repl
 
 ### 1.0.0-beta-002
 

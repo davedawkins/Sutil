@@ -12,17 +12,8 @@ let sampleNames = [ "Alice"; "Bob"; "Claire"; "Dan"; "Emily"; "Francis"; "Greta"
 let sampleRecords =
     sampleNames |> List.map (fun name -> { Name = name; Count = name.Length })
 
-let randomInt min max =
-    min + int(System.Math.Round(Interop.random() * float(max-min)))
-
-let randomSign(n:float)=
-    n * if randomInt 0 1 = 0 then 1.0 else -1.0
-
 let updateRecord (r : Record) =
-    { r with Count = r.Count + int(randomSign(1.0)) }
-
-let updateStock (r : Sutil.SampleData.Stock) =
-    { r with Price = r.Price * (1.0 + randomSign(0.01)) }
+    { r with Count = r.Count + int(Random.randomSign(1.0)) }
 
 let view() =
 
@@ -37,7 +28,7 @@ let view() =
     let list = DataSimulation.CountList(20,30,900)
 
     let records = DataSimulation.Records(sampleRecords,updateRecord,1000)
-    let stocks = DataSimulation.Records(Sutil.SampleData.sampleStocks(10),updateStock,5,false,1000)
+    let stocks = SampleData.stockFeed 10 1000
 
     Html.div [
         DOM.disposeOnUnmount [ numbers; ints_25_75; ints_1_10; count; list; records ]
@@ -86,7 +77,7 @@ let view() =
             Html.table [
                 class' "table"
                 Html.tbody [
-                    Bind.each(stocks,fun r ->
+                    Bind.each(stocks,fun (r:SampleData.Stock) ->
                         Html.tr [
                             Html.td r.Symbol
                             Html.td (sprintf "%-5.2f" r.Price)

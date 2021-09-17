@@ -148,7 +148,6 @@ let defaultBook (books : Book list) = books.Head
 let findBookPage (books : Book list) (pv : PageView) =
     let defBk = defaultBook books
     let bookP =
-        Fable.Core.JS.console.log($"Trying to find {pv.PageName} in {pv.BookName}")
         books
             |> List.tryFind (fun b -> sanitize b.Title = sanitize pv.BookName)
             |> Option.map (fun bk -> bk, findPage bk pv.PageName)

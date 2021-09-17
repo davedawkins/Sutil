@@ -33,66 +33,44 @@ Html.ul
 For collections of values that are going to change, use `Bind.each` which will use the given template function for each element in the collection
 
 ```fsharp
-let numbers = DataSimulation.CountList(1,5,500)
+let stocks = SampleData.stockFeed 10 500
 
-Html.ul [
-    Bind.each(numbers,fun n -> Html.li n)
+Html.table [
+    class' "table"
+    Html.tbody [
+        Bind.each(stocks,fun r ->
+            Html.tr [
+                Html.td r.Symbol
+                Html.td (sprintf "%-5.2f" r.Price)
+            ]
+        )
+    ]
+    disposeOnUnmount [stocks]
 ]
 ```
 
-## Other 'each' functions
-
-These are the functions that are used by `Bind.each`. They are useful when you want to use partial application or pipe syntax, but the `Bind.each` API's use of overloads may result in cleaner looking code.
-
-### each
-
-`each` takes three parameters
-
-- An observable of a list of items
-- A templating function (a function that returns a SutilNode)
-- A list of transitions
+Use `Bind.eachi` if you need the element index:
 
 ```fsharp
-Html.div [
-  let items = Store.make [ for i in 0..10 do i ]
-  Html.ul [
-      disposeOnUnmount [ items ]
-      each
-        items
-        (fun item -> Html.li [text $"{item}"])
-        []
-  ]
+let todos = SampleData.todosFeed 5 3000
+
+let viewTodo (i,todo:SampleData.Todo) =
+    Html.tr [
+        Html.td (i+1)
+        Html.td todo.Description
+        Html.td [
+            Html.input [
+                Attr.typeCheckbox
+                if todo.Completed then
+                    Attr.isChecked true ]
+        ]
+    ]
+
+Html.table [
+    class' "table"
+    Bind.eachi(todos, viewTodo)
 ]
 ```
-
-Internally the key for each of these objects will be the result of a `GetHashCode()` method call.
-
-
-### eachi
-
-`eachi` takes three parameters
-
-- An observable of a list of items
-- A templating function
-
-    The difference betwen `each` and `eachi` is that `eachi` gives you the index in the templating function
-
-- A list of transitions
-
-```fsharp
-Html.div [
-  let items = Store.make [ for i in 10..20 do i ]
-  Html.ul [
-    disposeOnUnmount [ items ]
-    eachi
-      items
-      (fun index item -> Html.li [ text $"{index} - {item}" ])
-      []
-  ]
-]
-```
-
-Internally the key for each of these objects will be the index of the element.
 
 ### eachio
 

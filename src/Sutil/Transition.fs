@@ -325,6 +325,7 @@ let transitionNode  (el : HTMLElement)
                     (isVisible : bool)
                     (start: HTMLElement -> unit)
                     (complete: HTMLElement -> unit) =
+
     let mutable ruleName = ""
 
     let cancelTick () =
@@ -388,7 +389,7 @@ let transitionNode  (el : HTMLElement)
         if ruleName <> "" then deleteRule el ruleName
         dispatchSimple el "outroend"
 
-    let rec show() =
+    let show() =
         log $"show {nodeStr el}"
         showEl el true
         complete el

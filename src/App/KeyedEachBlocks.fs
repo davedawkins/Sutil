@@ -67,7 +67,7 @@ let view() =
 
             Html.div [
                 Html.h2 [ text "Keyed" ]
-                Bind.each( things, snd>>makeThing, (snd>>Id) )
+                Bind.eachi( things, snd>>makeThing, (snd>>Id) )
             ]
 
             Html.div [

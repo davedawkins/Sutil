@@ -609,34 +609,39 @@ module BindApi =
         static member selected<'T when 'T : equality>  (store : IStore<'T option>) = bindSelectOptional store
         static member selected<'T when 'T : equality>  (store : IStore<'T>) = bindSelectSingle store
 
+        // -- Simple cases: 'T -> view ---------------------------
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement, trans : TransitionAttribute list) =
             each items view trans
 
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement) =
             each items view []
 
-        // Keyed
+        // -- Keyed ----------------------------------------------
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement, key:'T -> 'K, trans : TransitionAttribute list) : SutilElement =
             eachk items view key trans
 
-        // Keyed
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement, key:'T -> 'K) : SutilElement =
             eachk items view key []
 
-        static member each (items:IObservable<list<'T>>,view : IObservable<int> * IObservable<'T> -> SutilElement,key:int*'T->'K,trans : TransitionAttribute list) : SutilElement =
-            eachiko items view key trans
-
-        static member each (items:IObservable<list<'T>>,view : IObservable<int> * IObservable<'T> -> SutilElement,key:int*'T->'K) : SutilElement =
-            eachiko items view key []
-
+        // -- Indexed --------------------------------------------
         static member eachi (items:IObservable<list<'T>>, view : (int*'T) -> SutilElement, trans : TransitionAttribute list) : SutilElement =
             eachi items view trans
 
         static member eachi (items:IObservable<list<'T>>, view : (int*'T) -> SutilElement ) : SutilElement =
             eachi items view []
 
-        static member eachi (items:IObservable<list<'T>>, view : (IObservable<int>*IObservable<'T>) -> SutilElement, trans : TransitionAttribute list) : SutilElement =
+        // -- Observable views
+
+
+        static member eachi (items:IObservable<list<'T>>, view : IObservable<int> * IObservable<'T> -> SutilElement, trans : TransitionAttribute list) : SutilElement =
             eachio items view trans
 
-        static member eachi (items:IObservable<list<'T>>, view : (IObservable<int>*IObservable<'T>) -> SutilElement ) : SutilElement =
+        static member eachi (items:IObservable<list<'T>>, view : IObservable<int> * IObservable<'T> -> SutilElement ) : SutilElement =
             eachio items view []
+
+        static member eachi (items:IObservable<list<'T>>,view : IObservable<int> * IObservable<'T> -> SutilElement,key:int*'T->'K,trans : TransitionAttribute list) : SutilElement =
+            eachiko items view key trans
+
+        static member eachi (items:IObservable<list<'T>>,view : IObservable<int> * IObservable<'T> -> SutilElement,key:int*'T->'K) : SutilElement =
+            eachiko items view key []
+

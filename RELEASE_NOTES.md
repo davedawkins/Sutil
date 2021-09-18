@@ -2,6 +2,7 @@
 
 - Bind.fragment deprecated, use Bind.el instead
 - Documentation code examples have max height, with faded text and Exand/Collapse buttons
+
 ### 1.0.0-beta-003
 
 - Implemented "Open in REPL" in docs (App)

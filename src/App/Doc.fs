@@ -10,6 +10,8 @@ open Fable.Formatting.Markdown
 open Fable.Core.Util
 open Fable.Core
 open Browser.Types
+open Browser.CssExtensions
+open Browser.Dom
 
 [<ImportAll("./highlight.min.js")>]
 let hljs : obj = jsNative;
@@ -19,9 +21,7 @@ type ILzString =
 [<ImportAll("lz-string")>]
 let lzString : ILzString = jsNative;
 
-
 let inline toEl (node : Browser.Types.Node) = node :?> Browser.Types.HTMLElement
-
 
 let indexHtml = """<!DOCTYPE html>
 <html lang="en">
@@ -155,27 +155,51 @@ let makeExample (code:string) =
 //
 // Make an "Open in REPL" button for the given code example
 //
-let replButton (code : Browser.Types.HTMLElement) =
-    Html.a [
-        Sutil.Attr.style [ Css.fontSize (Feliz.length.percent 50)]
-        text "Open in REPL"
-        Sutil.Attr.onClick (fun _ ->
-            let q =
-                buildReplQuery
-                    [| "Main.fs" |]
-                    [| makeExample code.innerText |]
-                    indexHtml
-                    styleCs
-            Browser.Dom.window.location.href <- "https://sutil.dev/repl/#?" + q
-        ) []
-    ]
+let replButton (wantExpandButton : bool) (code : Browser.Types.HTMLElement) =
+    Html.span [
+        Html.a [
+            Sutil.Attr.style [ Css.fontSize (Feliz.length.percent 75)]
+            text "Open in REPL"
+            Sutil.Attr.onClick (fun _ ->
+                let q =
+                    buildReplQuery
+                        [| "Main.fs" |]
+                        [| makeExample code.innerText |]
+                        indexHtml
+                        styleCs
+                Browser.Dom.window.location.href <- "https://sutil.dev/repl/#?" + q
+            ) []
+        ]
+        if wantExpandButton then
+            let expanded = Store.make false
+            Bind.el expanded (fun isExpanded ->
+                Html.a [
+                    Sutil.Attr.style [
+                        Css.fontSize (Feliz.length.percent 75)
+                        Css.marginLeft (Feliz.length.rem 0.5)
+                        ]
+                    text (if isExpanded then "Collapse" else "Expand")
+                    Sutil.Attr.onClick (fun _ ->
+                        if isExpanded then
+                            code.classList.add("more")
+                            code.classList.remove("full")
+                        else
+                            code.classList.add("full")
+                            code.classList.remove("more")
+                        expanded |> Store.modify not
+                    ) []
 
+                    disposeOnUnmount [expanded]
+                ])
+    ]
 //
 // Append a REPL button immediately after the <pre><code> block
 //
-let addReplButton (preCode : Browser.Types.Element) =
-    let preEl = preCode.parentElement
-    mountAfter (replButton  (preCode :?> Browser.Types.HTMLElement)) preEl
+let addReplButton (preCode : Browser.Types.HTMLElement) =
+    let wantExpandButton = preCode.clientHeight > 182.0
+    if wantExpandButton then
+        preCode.classList.add( "more" )
+    mountAfter (replButton wantExpandButton preCode) (preCode.parentElement)
 
 //
 // Add "Open in REPL" buttons to all <pre><code> example code blocks
@@ -184,7 +208,7 @@ let addReplButtons (markdown : Browser.Types.HTMLElement) =
     markdown
         |> findPreCode
         |> Seq.filter processReplDirectives
-        |> Seq.iter (addReplButton >> ignore)
+        |> Seq.iter (toEl >> addReplButton >> ignore)
 
 let pageView title source () =
     let content = Store.make "Loading.."
@@ -196,7 +220,7 @@ let pageView title source () =
         Html.h2 [ text title ]
         Html.div [
             Html.span [
-                Bind.fragment content <| fun t ->
+                Bind.el content <| fun t ->
                     html $"{parsed t}"
                         |> postProcess addReplButtons
             ] |> withStyle Markdown.style

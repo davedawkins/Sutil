@@ -85,7 +85,7 @@ let view() =
         ]
 
         block [
-            Bind.fragment selected <| fun q ->
+            Bind.el selected <| fun q ->
                 Html.p [
                     text $"Selected question {q.Id}"
                 ]

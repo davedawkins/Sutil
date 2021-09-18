@@ -45,7 +45,7 @@ let view() =
             ]
         ]
 
-        Bind.fragment fileSeq <| fun _files ->
+        Bind.el fileSeq <| fun _files ->
                                 Html.div [
                                     class' "control"
                                     Html.h3 [ text "Selected files" ]

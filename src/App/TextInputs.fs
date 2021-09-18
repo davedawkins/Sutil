@@ -22,6 +22,6 @@ let view() =
         ]
         Html.p [
             class' "block"
-            Bind.fragment name (fun s -> text $"Hello {nameOrStranger s}")
+            Bind.el name (fun s -> text $"Hello {nameOrStranger s}")
         ]
     ]

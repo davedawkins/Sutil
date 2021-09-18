@@ -33,7 +33,7 @@ let view() =
         Html.div [
             customDispatchButton()
 
-            Bind.fragment m <| fun s ->
+            Bind.el m <| fun s ->
                 Html.p [
                     text $"Got: [{s}]"
 

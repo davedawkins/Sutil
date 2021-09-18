@@ -47,6 +47,6 @@ let view() =
         ]
         Html.p [
             class' "block"
-            Bind.fragment2 a b (fun (a',b') -> text $"{a'} + {b'} = {a' + b'}")
+            Bind.el2 a b (fun (a',b') -> text $"{a'} + {b'} = {a' + b'}")
         ]
     ]

@@ -192,7 +192,7 @@ let view () : SutilElement =
     Html.div [
         let rowsXcols = Observable.zip (model .> rows) (model .> cols) |> Observable.distinctUntilChanged
 
-        Bind.fragment rowsXcols <| fun (rows,cols) -> Html.table [
+        Bind.el rowsXcols <| fun (rows,cols) -> Html.table [
             do log("Render table")
 
             Html.thead [

@@ -369,7 +369,7 @@ let viewSource (model : IStore<Model>) =
         Html.pre [
             Html.code [
                 class' "language-fsharp"
-                Bind.fragment (model .> source) (exclusive << text)
+                Bind.el (model .> source) (exclusive << text)
             ]
         ]
     ]
@@ -377,7 +377,7 @@ let viewSource (model : IStore<Model>) =
 let viewPage page model =
     Html.div [
         class' "column app-page"
-        Bind.fragment (model .> currentSection |> Observable.distinctUntilChanged) <| fun section ->
+        Bind.el (model .> currentSection |> Observable.distinctUntilChanged) <| fun section ->
             match section with
             | "" ->
                 try
@@ -455,7 +455,7 @@ let appMain () =
             //     ]
             // ]
 
-            Bind.fragment (model .> books) <| fun books ->
+            Bind.el (model .> books) <| fun books ->
                 Html.span [
                     class' "app-tab-menu"
                     books |> List.map (fun bk -> Html.a [ Attr.href <| makeBookHref bk; text bk.Title ]) |> fragment
@@ -469,7 +469,7 @@ let appMain () =
             ]
         ]
 
-        Bind.fragment currentBook <| fun tab ->
+        Bind.el currentBook <| fun tab ->
             Html.div [
                 class' "columns app-main-section"
 
@@ -480,7 +480,7 @@ let appMain () =
                         tab.Pages |> pageCategories |> List.map (fun title -> Section tab title) |> fragment
                     ]
 
-                Bind.fragment currentPage <| fun page ->
+                Bind.el currentPage <| fun page ->
                     Html.div [
                         class' "column app-page-section"
 

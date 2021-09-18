@@ -144,7 +144,7 @@ let view() =
         Html.div [
             class' "chart"
 
-            Bind.fragment model <| fun m ->
+            Bind.el model <| fun m ->
                 Svg.svg [
                     Svg.g [
                         class' "axis y-axis"

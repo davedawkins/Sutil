@@ -61,7 +61,7 @@ let view() =
 
         // Think of this line as
         // text $"Counter = {model.counter}"
-        Bind.fragment (model |> Store.map getCounter) <| fun n ->
+        Bind.el (model |> Store.map getCounter) <| fun n ->
             text $"Counter = {n}"
 
         Html.div [

@@ -3,7 +3,6 @@
 [examples]: https://sutil.dev/#examples-each-blocks?EachBlocks.fs
 [Stores]: https://
 [each keyed]: https://sutil.dev/#examples-keyed-each-blocks?KeyedEachBlocks.fs
-
 ## Static Collections
 
 Rendering collections such as lists, arrays, sequences is a common task in any web application.
@@ -71,6 +70,64 @@ Html.table [
     Bind.eachi(todos, viewTodo)
 ]
 ```
+### Keyed Collections
+
+For keyed collections, we get persistent element views. Sutil knows if a view has already been created for a given element (record) and won't rebuild it, even if the element moves in the collection.
+
+This example captures the initial value of the stock being displayed. Note how the view template now takes an `Observable`.
+
+```fsharp
+open System
+open Sutil
+open Sutil.DOM
+open Sutil.Attr
+open SampleData
+
+let stocks = SampleData.stockFeed 10 500
+
+let symbol (s : Stock) = s.Symbol
+let floatStr (n : float) = sprintf "%-5.2f" n
+let priceStr (s : Stock) = s.Price |> floatStr
+let changeStr (init : Stock) (current : Stock)  =
+    (current.Price - init.Price) |> floatStr
+
+Html.table [
+    class' "table"
+    Html.thead [
+        Html.tr [
+            Html.th "Stock"
+            Html.th "Initial"
+            Html.th "Current"
+            Html.th "Change"
+        ]
+    ]
+    Html.tbody [
+        Bind.each(
+            stocks,
+            fun (s:IObservable<Stock>) ->
+                let init = s |> Store.current
+                Html.tr [
+                    Html.td (init.Symbol)
+                    Html.td [
+                        class' "has-text-right"
+                        text (init |> priceStr)
+                    ]
+                    Html.td [
+                        class' "has-text-right"
+                        Html.text (s |> Store.map priceStr)
+                    ]
+                    Html.td [
+                        class' "has-text-right"
+                        Html.text (s |> Store.map (changeStr init))
+                    ]
+            ],
+            symbol
+        )
+    ]
+    disposeOnUnmount [stocks]
+]
+```
+
 
 ### eachio
 

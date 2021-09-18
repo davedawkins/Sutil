@@ -17,7 +17,7 @@ let view() =
     Html.div [
         disposeOnUnmount [ user ]
 
-        Bind.fragment user <| fun u ->
+        Bind.el user <| fun u ->
             Html.div [
                 if u.loggedIn then
                     Html.button [

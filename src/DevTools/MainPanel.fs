@@ -240,7 +240,7 @@ let buildStoresTable (idVals : StoreIdVal array) =
 
 let viewStores model dispatch =
     Html.div [
-        Bind.fragment (model .> stores) buildStoresTable
+        Bind.el (model .> stores) buildStoresTable
     ]
 
 let viewMountPoints model dispatch =

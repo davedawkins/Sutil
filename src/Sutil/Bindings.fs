@@ -85,11 +85,10 @@ let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit
     unitResult(ctx,"bindSub")
 
 
-let bindFragment<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) = nodeFactory <| fun ctx ->
+let bindElement<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) = nodeFactory <| fun ctx ->
     let mutable node = EmptyNode
     let vnode = NodeGroup("bind",ctx.Parent,ctx.Previous)
     let bindNode = GroupNode vnode
-    //vnode.Parent <- ctx.Parent
 
     log($"bindFragment: {vnode.Id} ctx={ctx.Action} prev={ctx.Previous}")
     ctx.AddChild bindNode
@@ -106,6 +105,8 @@ let bindFragment<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) =
 
     sutilResult bindNode
 
+/// Backwards compatibility
+let bindFragment = bindElement
 
 let bindFragment2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> SutilElement) = nodeFactory <| fun ctx ->
     let mutable node : SutilNode = EmptyNode
@@ -599,9 +600,16 @@ module BindApi =
 
         /// Binding from value to a DOM fragment. Each change in value replaces the current DOM fragment
         /// with a new one.
-        static member fragment<'T>  (value : IObservable<'T>)  (element: 'T -> SutilElement) = bindFragment value element
+        static member el<'T>  (value : IObservable<'T>)  (element: 'T -> SutilElement) = bindElement value element
+
+        /// Deprecated naming, use Bind.el
+        static member fragment<'T>  (value : IObservable<'T>)  (element: 'T -> SutilElement) = bindElement value element
+
 
         /// Binding from two values to a DOM fragment. See fragment<'T>
+        static member el2<'A,'B>  (valueA : IObservable<'A>) (valueB : IObservable<'B>) (element: 'A * 'B -> SutilElement) = bindFragment2 valueA valueB element
+
+        /// Deprecated naming, use Bind.el
         static member fragment2<'A,'B>  (valueA : IObservable<'A>) (valueB : IObservable<'B>) (element: 'A * 'B -> SutilElement) = bindFragment2 valueA valueB element
 
         static member selected<'T when 'T : equality>  (value : IObservable<'T list>, dispatch : 'T list -> unit) = bindSelected value dispatch
@@ -610,18 +618,34 @@ module BindApi =
         static member selected<'T when 'T : equality>  (store : IStore<'T>) = bindSelectSingle store
 
         // -- Simple cases: 'T -> view ---------------------------
+
+        /// Bind collections to a simple template, with transitions
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement, trans : TransitionAttribute list) =
             each items view trans
 
+        /// Bind collections to a simple template
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement) =
             each items view []
 
         // -- Keyed ----------------------------------------------
+
+        /// Bind keyed collections to a simple template, with transitions
+        /// Deprecated: Use a view template that takes IObservable<'T>
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement, key:'T -> 'K, trans : TransitionAttribute list) : SutilElement =
             eachk items view key trans
 
+        /// Bind keyed collections to a simple template
+        /// Deprecated: Use a view template that takes IObservable<'T>
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement, key:'T -> 'K) : SutilElement =
             eachk items view key []
+
+        /// Bind keyed collections to a simple template, with transitions
+        static member each (items:IObservable<list<'T>>, view : IObservable<'T> -> SutilElement, key:'T -> 'K, trans : TransitionAttribute list) : SutilElement =
+            eachiko items (snd>>view) (snd>>key) trans
+
+        /// Bind keyed collections to a simple template, with transitions
+        static member each (items:IObservable<list<'T>>, view : IObservable<'T> -> SutilElement, key:'T -> 'K) : SutilElement =
+            eachiko items (snd>>view) (snd>>key) []
 
         // -- Indexed --------------------------------------------
         static member eachi (items:IObservable<list<'T>>, view : (int*'T) -> SutilElement, trans : TransitionAttribute list) : SutilElement =

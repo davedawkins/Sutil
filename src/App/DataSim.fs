@@ -39,11 +39,11 @@ let view() =
             Attr.style [
                 Css.minWidth (Feliz.length.percent 25)
             ]
-            Bind.fragment numbers (fun n -> sprintf "%f" n |> Html.div)
-            Bind.fragment ints_25_75 (fun n -> sprintf "%d" n |> Html.div)
-            Bind.fragment ints_1_10 (fun n -> sprintf "%d" n |> Html.div)
-            Bind.fragment numbers (fun n -> sprintf "%f" n |> Html.div)
-            Bind.fragment count (fun n -> sprintf "%d" n |> Html.div)
+            Bind.el numbers (fun n -> sprintf "%f" n |> Html.div)
+            Bind.el ints_25_75 (fun n -> sprintf "%d" n |> Html.div)
+            Bind.el ints_1_10 (fun n -> sprintf "%d" n |> Html.div)
+            Bind.el numbers (fun n -> sprintf "%f" n |> Html.div)
+            Bind.el count (fun n -> sprintf "%d" n |> Html.div)
         ]
 
         Html.div [

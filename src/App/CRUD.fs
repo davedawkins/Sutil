@@ -196,11 +196,11 @@ let view() =
                     let viewNames =
                         model .> filteredNames |> Observable.distinctUntilChanged
 
-                    each viewNames (fun n ->
+                    Bind.each(viewNames,(fun n ->
                         Html.option [
                             Attr.value n.Id
                             (sprintf "%s, %s" n.Surname n.Name) |> DOM.text
-                            ])  []
+                            ]))
 
                     Bind.selected (model .> selection, List.exactlyOne >> Select >> dispatch)
                 ]
@@ -221,7 +221,7 @@ let view() =
 
         bulma.field.div [
             color.hasTextDanger
-            Bind.fragment (model .> error) DOM.text
+            Bind.el (model .> error) DOM.text
         ]
 
     ] |> withStyle appStyle

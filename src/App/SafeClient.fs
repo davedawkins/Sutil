@@ -117,8 +117,10 @@ let containerBox (model : IObservable<Model>) (dispatch : Msg -> unit) =
     bulma.box [
         bulma.content [
             Html.ol [
-                eachk (model |>> mTodos) (fun todo ->
-                    Html.li [ Html.text todo.Description ]) tId []
+                Bind.each(
+                    model |>> mTodos,
+                    (fun todo -> Html.li [ Html.text todo.Description ]),
+                    tId)
             ]
         ]
         bulma.field.div [

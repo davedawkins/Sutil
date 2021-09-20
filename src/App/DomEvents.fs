@@ -21,7 +21,7 @@ let view() =
         disposeOnUnmount [m]
 
         onMouseMove handleMousemove []
-        Bind.fragment m <| fun (x,y) -> text $"The mouse position is {x} x {y}"
+        Bind.el m <| fun (x,y) -> text $"The mouse position is {x} x {y}"
     ] |> withStyle [
         rule "div" [
             Css.width (vw 100)

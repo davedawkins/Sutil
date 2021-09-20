@@ -76,7 +76,7 @@ let tests = testList "Sutil.DOM" [
         let store = Store.make 0
         let app =
             fragment [
-                Bind.fragment store <| fun n ->
+                Bind.el store <| fun n ->
                     Html.div (string n)
             ]
         mountTestApp app
@@ -90,9 +90,9 @@ let tests = testList "Sutil.DOM" [
         let store2 = Store.make 20
         let app =
             fragment [
-                Bind.fragment store1 <| fun n ->
+                Bind.el store1 <| fun n ->
                     Html.div (string n)
-                Bind.fragment store2 <| fun n ->
+                Bind.el store2 <| fun n ->
                     Html.div (string n)
             ]
         mountTestApp app
@@ -116,12 +116,12 @@ let tests = testList "Sutil.DOM" [
         let store2 = Store.make 20
         let app =
             Html.div [
-                Bind.fragment store1 <| fun n ->
+                Bind.el store1 <| fun n ->
                     fragment [
                         Html.div "Binding 1"
                         Html.div (string n)
                     ]
-                Bind.fragment store2 <| fun n ->
+                Bind.el store2 <| fun n ->
                     fragment [
                         Html.div "Binding 2"
                         Html.div (string n)
@@ -154,7 +154,7 @@ let tests = testList "Sutil.DOM" [
         let app =
             Html.div [
                 Html.div "Header"
-                each store1 (fun item -> Html.div item) []
+                Bind.each(store1, Html.div)
                 Html.div "Footer"
             ]
 
@@ -180,8 +180,8 @@ let tests = testList "Sutil.DOM" [
         let app =
             Html.div [
                 Html.div "Header"
-                each store1 (fun item -> Html.div item) []
-                each store2 (fun item -> Html.div item) []
+                Bind.each(store1, Html.div)
+                Bind.each(store2, Html.div)
                 Html.div "Footer"
             ]
 
@@ -227,8 +227,8 @@ let tests = testList "Sutil.DOM" [
         let app =
             Html.div [
                 Html.div "Header"
-                each store1 (fun item -> Html.div item) []
-                each store2 (fun item -> Html.div item) []
+                Bind.each(store1, Html.div)
+                Bind.each(store2, Html.div)
                 Html.div "Footer"
             ]
 
@@ -274,9 +274,9 @@ let tests = testList "Sutil.DOM" [
         let app =
             Html.div [
                 Html.div "Header"
-                each store1 (fun item -> Html.div item) []
+                Bind.each(store1, Html.div)
                 Html.div "Middle"
-                each store2 (fun item -> Html.div item) []
+                Bind.each(store2, Html.div)
                 Html.div "Footer"
             ]
 

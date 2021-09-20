@@ -177,7 +177,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
         class' title
         Html.h2 [ text title ]
 
-        eachk filteredTodos (fun todo ->
+        Bind.each(filteredTodos,(fun todo ->
             Html.label [
                 Html.input [
                     type' "checkbox"
@@ -189,7 +189,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
                     text "x"
                 ]
             ]
-        ) key [In tin; Out tout]
+        ),key,[In tin; Out tout] )
     ]
 
 let makeStore arg = Store.makeElmishSimple init update ignore arg
@@ -227,7 +227,7 @@ let view () : SutilElement =
 
         Html.div [
             class' "complete-all-container"
-            Bind.fragment model <| fun m -> Html.a [
+            Bind.el model <| fun m -> Html.a [
                 Attr.href "#"
                 text "toggle sort"
                 onClick (fun _ -> not m.Sort |> SetSort |> dispatch) [ PreventDefault ]
@@ -239,7 +239,7 @@ let view () : SutilElement =
             ]
             Html.span [
                 class' "kudos"
-                Bind.fragment completed (fun x -> text $"{x.Length} tasks completed! Good job!")
+                Bind.el completed (fun x -> text $"{x.Length} tasks completed! Good job!")
             ] |> fader lotsDone
         ]
 

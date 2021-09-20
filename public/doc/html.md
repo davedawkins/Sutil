@@ -5,7 +5,7 @@ Sutil comes batteries-included with `Feliz.Engine` as a DOM builder.
 All HTML elements are member functions of an `HTML` object. The general format is
 
 ```fsharp
-Html.<elementName> [ <child-element> | <attribute> ]
+Html.<elementName> [ <child-element> | <attribute> ]//norepl
 ```
 
 For example:
@@ -26,6 +26,8 @@ let app() =
             ]
         ]
     ]
+
+app() |> Program.mountElement "sutil-app"
 ```
 
 This would produce the following HTML:
@@ -62,7 +64,9 @@ Html.a [
     Attr.href "https://sutil.dev"
     Html.text "Sutil"
 ]
+```
 
+```fsharp
 Html.input [
     Attr.type "email"
     Attr.value "bob@foo.com"
@@ -81,13 +85,17 @@ Html.div [
     Attr.className "container is-active"
     Attr.id "main"
 ]
+```
 
+```fsharp
 Html.div [
     class' "container is-active"
     id' "main"
 ]
 ```
+
 will both produce
+
 ```html
 <div class="container is-active" id="main"></div>
 ```
@@ -99,7 +107,7 @@ Fragments look like elements, but their children and attributes belong to the fr
 ```fsharp
 Html.div [
     Html.p "First line"
-    Html.fragment [
+    fragment [
         Html.p "Fragment"
     ]
     Html.p "Last line"
@@ -118,18 +126,16 @@ Html.div [
 
 Fragments are useful for defining functions that return a collection of elements, attributes and events that you want to be inserted without having to create a wrapper element (such as a `div`).
 
-For example, you may have a function like this:
+For example, you may have a function `okButton()`, and use it like this:
+
 ```fsharp
 let okButton() =
-    Html.button "OK"
-```
+    Html.button [ text "OK" ]
 
-and you might use it like this:
-```fsharp
-    Html.div [
-        Html.text "Press OK to continue"
-        okButton()
-    ]
+Html.div [
+    Html.text "Press OK to continue "
+    okButton()
+]
 ```
 
 This works just fine, but perhaps you want to define a list of buttons, like this:
@@ -137,9 +143,9 @@ This works just fine, but perhaps you want to define a list of buttons, like thi
 ```fsharp
 let buttons() =
     [
-        Html.button "Cancel"
-        Html.button "OK"
-    ]
+        Html.button [ text "Cancel" ]
+        Html.button [ text "OK" ]
+    ]//norepl
 ```
 
 Your initial attempt to use this function will cause a compilation error:
@@ -147,15 +153,15 @@ Your initial attempt to use this function will cause a compilation error:
 Html.div [
     Html.text "Press OK to continue, or Cancel"
     buttons() // Won't compile
-]
+] //norepl
 ```
 
 You can fix this by using a fragment:
 ```fsharp
 let buttons() =
-    Html.fragment [
-        Html.button "Cancel"
-        Html.button "OK"
+    fragment [
+        Html.button [ text "Cancel" ]
+        Html.button [ text "OK" ]
     ]
 
 Html.div [

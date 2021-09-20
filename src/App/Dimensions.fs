@@ -41,7 +41,7 @@ let view() =
         ]
 
         Html.div [
-            Bind.fragment2 w h <| fun (w',h') -> DOM.text $"Size: {w'}px x {h'}px"
+            Bind.el2 w h <| fun (w',h') -> DOM.text $"Size: {w'}px x {h'}px"
         ]
 
         Html.div [
@@ -50,7 +50,7 @@ let view() =
             bindPropOut "clientHeight" h
             Html.span [
                 Bind.attr( "style", size |> Store.map (fun n -> $"font-size: {n}px") )
-                Bind.fragment text DOM.text
+                Bind.el text DOM.text
             ]
         ]
     ] |> withStyle style

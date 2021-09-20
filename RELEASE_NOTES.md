@@ -1,3 +1,16 @@
+### 1.0.0-beta-004
+
+- Bind.fragment deprecated, use Bind.el instead
+- Documentation code examples have max height, with faded text and Exand/Collapse buttons
+
+### 1.0.0-beta-003
+
+- Implemented "Open in REPL" in docs (App)
+- Fix CSS for mobile
+- Added DOM.mountAfter
+- Added Bind.each overloads
+- Added DataSimulation / SampleData for examples, docs and repl
+
 ### 1.0.0-beta-002
 
 - Remove proxy.js and unused function makeProxy, unused

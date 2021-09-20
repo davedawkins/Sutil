@@ -9,7 +9,7 @@ let view() =
         bindStore 0 <| fun count -> fragment [
             Html.div [
                 class' "block"
-                Bind.fragment count <| fun n -> text $"Counter = {n}"
+                Bind.el count <| fun n -> text $"Counter = {n}"
             ]
 
             Html.div [

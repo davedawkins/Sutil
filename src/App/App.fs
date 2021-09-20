@@ -89,6 +89,7 @@ let allExamples = [
         { Category = "Miscellaneous";   Title = "Login";  Create = LoginExample.view ; Sections = ["LoginExample.fs"; "Login.fs"]}
         { Category = "Miscellaneous";   Title = "Drag-sortable list";  Create = SortableTimerList.view ; Sections = ["SortableTimerList.fs"; "DragDropListSort.fs"; "TimerWithButton.fs"; "TimerLogic.fs"]}
         { Category = "Miscellaneous";   Title = "SAFE client";  Create = SAFE.view ; Sections = ["SafeClient.fs"]}
+        { Category = "Miscellaneous";   Title = "Data Simulation";  Create = DataSim.view ; Sections = ["DataSim.fs"]}
         //{ Category = "Miscellaneous";   Title = "Fragment";  Create = Fragment.view ; Sections = ["Fragment.fs"]}
         { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sections = ["Cells.fs"]}
         { Category = "7Guis";   Title = "CRUD";  Create = CRUD.view ; Sections = ["CRUD.fs"]}
@@ -116,6 +117,7 @@ type Model = {
     CurrentBook : Book
     CurrentPage : Page
     CurrentSection : string
+    PageView : PageView
 }
 
 let source m = m.Source
@@ -169,29 +171,37 @@ let fetchSource file dispatch =
     |> ignore
 
 let init() =
+    let currentBook = defaultBook initBooks
+    let currentPage = currentBook.defaultPage
     {
         Source = ""
         ShowContents = false
         IsMobile = false
         Books = initBooks
-        CurrentBook = defaultBook initBooks
-        CurrentPage = (defaultBook initBooks).defaultPage
+        CurrentBook = currentBook
+        CurrentPage = currentPage
         CurrentSection = ""
+        PageView = {
+            BookName = currentBook.Title
+            PageName = currentPage.Title
+            SectionName = ""
+        }
     }, []
 
 let update msg model : Model * Cmd<Message> =
-    //Browser.Dom.console.log($"update {msg}")
+    Browser.Dom.console.log($"update {msg}")
     match msg with
     | SetIsMobile m ->
         { model with IsMobile = m }, Cmd.none
 
     | AddBook book ->
         { model with Books = book :: model.Books },
-            Cmd.ofMsg (SetPageView {
-                BookName = model.CurrentBook.Title
-                PageName = model.CurrentPage.Title
-                SectionName = model.CurrentSection
-                })
+            Cmd.ofMsg (SetPageView model.PageView)
+            // Cmd.ofMsg (SetPageView {
+            //     BookName = model.CurrentBook.Title
+            //     PageName = model.CurrentPage.Title
+            //     SectionName = model.CurrentSection
+            //     })
 
     | SetPageView pv ->
         let book, page = pv |> findBookPage model.Books
@@ -206,7 +216,13 @@ let update msg model : Model * Cmd<Message> =
                 //Cmd.none, loadingString
             else
                 Cmd.none, ""
-        { model with CurrentPage = page; CurrentBook = book; CurrentSection = section; ShowContents = false; Source = src} , cmd
+        { model with
+            CurrentPage = page;
+            CurrentBook = book;
+            CurrentSection = section;
+            ShowContents = false;
+            PageView = pv
+            Source = src} , cmd
 
     | ToggleShowContents ->
         { model with ShowContents = not model.ShowContents }, Cmd.none
@@ -276,6 +292,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     rule ".app-page-section" [
         Css.displayFlex
         Css.flexDirectionColumn
+        Css.height (percent 100)
     ]
 
     rule ".app-page" [
@@ -352,7 +369,7 @@ let viewSource (model : IStore<Model>) =
         Html.pre [
             Html.code [
                 class' "language-fsharp"
-                Bind.fragment (model .> source) (exclusive << text)
+                Bind.el (model .> source) (exclusive << text)
             ]
         ]
     ]
@@ -360,7 +377,7 @@ let viewSource (model : IStore<Model>) =
 let viewPage page model =
     Html.div [
         class' "column app-page"
-        Bind.fragment (model .> currentSection |> Observable.distinctUntilChanged) <| fun section ->
+        Bind.el (model .> currentSection |> Observable.distinctUntilChanged) <| fun section ->
             match section with
             | "" ->
                 try
@@ -438,7 +455,7 @@ let appMain () =
             //     ]
             // ]
 
-            Bind.fragment (model .> books) <| fun books ->
+            Bind.el (model .> books) <| fun books ->
                 Html.span [
                     class' "app-tab-menu"
                     books |> List.map (fun bk -> Html.a [ Attr.href <| makeBookHref bk; text bk.Title ]) |> fragment
@@ -452,7 +469,7 @@ let appMain () =
             ]
         ]
 
-        Bind.fragment currentBook <| fun tab ->
+        Bind.el currentBook <| fun tab ->
             Html.div [
                 class' "columns app-main-section"
 
@@ -463,7 +480,7 @@ let appMain () =
                         tab.Pages |> pageCategories |> List.map (fun title -> Section tab title) |> fragment
                     ]
 
-                Bind.fragment currentPage <| fun page ->
+                Bind.el currentPage <| fun page ->
                     Html.div [
                         class' "column app-page-section"
 

@@ -84,7 +84,7 @@ let view() =
         ]
 
         block [
-            Bind.fragment2 scoops flavours (fun (s,f) ->
+            Bind.el2 scoops flavours (fun (s,f) ->
                 match (s,f) with
                 | (_,[]) -> text "Please select at least one flavour"
                 | (s,f) when f.Length > s -> text "Can't order more flavours than scoops!"

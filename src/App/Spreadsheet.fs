@@ -104,7 +104,7 @@ let view () : SutilElement =
     let model, dispatch = makeStore()
 
     Html.div [
-        Bind.fragment model <| fun m -> Html.table [
+        Bind.el model <| fun m -> Html.table [
 
             Html.thead [
                 Html.tr [

@@ -55,9 +55,6 @@ let view() =
     let visible = Store.make false
 
     Html.div [
-        disposeOnUnmount [visible]
-        onMount (fun _ -> visible <~ true) []
-
         class' "container"
 
         Html.label [
@@ -77,5 +74,7 @@ let view() =
                 Html.span [ text "transitions!" ]
             ]
 
+        disposeOnUnmount [visible]
+        onMount (fun _ -> true |> Store.set visible) [] // Force a transition upon first showing
     ] |> withStyle styleSheet
 

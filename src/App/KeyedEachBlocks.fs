@@ -31,7 +31,7 @@ let ThingView (viewId : int) (thing : IObservable<Thing>) : SutilElement =
         ]
 
         Html.div [
-            Bind.fragment thing <| fun t ->
+            Bind.el thing <| fun t ->
                 Html.p [
                     Html.span [ style [ Css.backgroundColor t.Color ]; text $"{t.Id} {t.Color} #{viewId}" ]
                     Html.span [ style [ Css.backgroundColor initialColor ]; text "initial" ]
@@ -67,12 +67,12 @@ let view() =
 
             Html.div [
                 Html.h2 [ text "Keyed" ]
-                eachiko things (snd>>makeThing) (snd>>Id) []
+                Bind.eachi( things, snd>>makeThing, (snd>>Id) )
             ]
 
             Html.div [
                 Html.h2 [ text "Unkeyed" ]
-                eachio things (snd>>makeThing) []
+                Bind.eachi( things, (snd>>makeThing) )
             ]
         ]
     ]

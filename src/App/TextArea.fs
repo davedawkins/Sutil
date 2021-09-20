@@ -47,6 +47,6 @@ let view() =
         ]
 
         Html.span [
-            Bind.fragment inputText <| fun t -> html $"{marked t}"
+            Bind.el inputText <| fun t -> html $"{marked t}"
         ] |> withStyle Markdown.style
     ] |> withStyle style

@@ -8,4 +8,4 @@ Transitions and most examples are ported directly from [Svelte](https://svelte.d
 
 At first I thought that we might make use of a Fable compiler plugin to generate boilerplate, but it turns out that F# does a pretty good job of that itself.
 
-See the [Sutil website](https://sutil.dev/) for [demos](https://sutil.dev/#examples-animation) and documentation for [getting started](https://sutil.dev/#documentation-installation)
+See the [Sutil website](https://sutil.dev/) for [demos](https://sutil.dev/#examples-animation) and documentation for [getting started](https://sutil.dev/#documentation-with-online-repl)

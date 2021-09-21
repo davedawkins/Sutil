@@ -11,7 +11,7 @@ open Sutil.Attr
 importSideEffects "./styles.css"
 
 type WebComponentRenderer<'T when 'T :> HTMLElement> =
-  IStore<'T> -> IStore<JS.Map<string, string>> -> SutilElement
+  IStore<'T> -> IStore<JS.Map<string, string>> -> HTMLElement -> SutilElement
 
 type WebComponentOptions<'InitialValues, 'WebComponentElement when 'WebComponentElement :> HTMLElement> =
   {| renderFunction: WebComponentRenderer<'WebComponentElement>
@@ -37,6 +37,7 @@ type SampleElement =
 let view
   (props: IStore<SampleElement>)
   (attributes: Store<JS.Map<string, string>>)
+  (host: HTMLElement)
   =
   let age = props .> (fun store -> store.age)
 
@@ -78,6 +79,7 @@ let view
 [<Emit("view")>]
 let ViewRef: IStore<SampleElement>
   -> IStore<JS.Map<string, string>>
+  -> HTMLElement
   -> SutilElement =
   jsNative
 
@@ -92,7 +94,7 @@ defineCustomElement (
 defineCustomElement (
   "my-element-2",
   {| properties = Some {| name = "Frank"; age = 0 |}
-     attributes = Some [| "name" |]
+     attributes = Some [| "name"; |]
      useLightDOM = None
      renderFunction = ViewRef |}
 )

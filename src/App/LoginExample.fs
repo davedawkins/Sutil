@@ -70,13 +70,13 @@ let view() =
     bulma.container [
         disposeOnUnmount [ model ]
 
-        Bind.el (model .> page) <| fun p ->
+        Bind.el (model .> page,fun p ->
             match p with
 
             | Main ->
                 bulma.section [
 
-                    Bind.el model <| fun m ->
+                    Bind.el( model, fun m ->
                         match m.User with
                         | Some u ->
                             Html.span [
@@ -97,6 +97,7 @@ let view() =
                                     onClick (fun _ -> dispatch SignIn) [PreventDefault]
                                 ]
                             ]
+                    )
                 ]
 
             | Login ->
@@ -107,9 +108,10 @@ let view() =
                 let onCancel() = dispatch CancelSignIn
 
                 Html.div [
-                    Bind.el model <| fun m ->
+                    Bind.el(model,fun m ->
                         let init = { LoginDetails.Default with Username = loggedInName "" m }
                         Login.create init onLogin onCancel // The Login component
+                    )
                 ]
-
+            )
         ] |> withStyle appStyleSheet

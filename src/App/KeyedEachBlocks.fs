@@ -31,11 +31,11 @@ let ThingView (viewId : int) (thing : IObservable<Thing>) : SutilElement =
         ]
 
         Html.div [
-            Bind.el thing <| fun t ->
+            Bind.el(thing,fun t ->
                 Html.p [
                     Html.span [ style [ Css.backgroundColor t.Color ]; text $"{t.Id} {t.Color} #{viewId}" ]
                     Html.span [ style [ Css.backgroundColor initialColor ]; text "initial" ]
-                ] |> withStyle thingStyle
+                ] |> withStyle thingStyle)
         ]
 
 let view() =

@@ -227,11 +227,11 @@ let view () : SutilElement =
 
         Html.div [
             class' "complete-all-container"
-            Bind.el model <| fun m -> Html.a [
+            Bind.el(model,fun m -> Html.a [
                 Attr.href "#"
                 text "toggle sort"
                 onClick (fun _ -> not m.Sort |> SetSort |> dispatch) [ PreventDefault ]
-            ]
+            ])
             Html.a [
                 Attr.href "#"
                 text "complete all"
@@ -239,7 +239,7 @@ let view () : SutilElement =
             ]
             Html.span [
                 class' "kudos"
-                Bind.el completed (fun x -> text $"{x.Length} tasks completed! Good job!")
+                Bind.el(completed,fun x -> text $"{x.Length} tasks completed! Good job!")
             ] |> fader lotsDone
         ]
 

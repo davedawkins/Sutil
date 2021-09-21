@@ -19,7 +19,7 @@ let bindMediaQuery (query:string) (view : bool -> SutilElement) =
     let u = listenMedia query (fun m -> s <~ m)
     fragment [
         disposeOnUnmount [ Helpers.disposable u; s ]
-        Bind.el s view
+        Bind.el(s,view)
     ]
 
 let showIfMedia2 (query:string) (f:bool->bool) (trans) (view : SutilElement) =

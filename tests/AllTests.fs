@@ -7,6 +7,7 @@ open System
 Browser.Dom.console.log("Running tests")
 
 let main() = runTests [
+        Test.Binding.tests
         Test.Store.tests
         Test.Observable.tests
         Test.DOM.tests

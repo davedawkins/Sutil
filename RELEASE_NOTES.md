@@ -1,7 +1,14 @@
+### 1.0.0-beta-005
+
+- Additional overloads for Bind.el, allowing keyed bindings
+- Support for web components
+- Fixes to node disposal
+- Front page for docs/website
+
 ### 1.0.0-beta-004
 
 - Bind.fragment deprecated, use Bind.el instead
-- Documentation code examples have max height, with faded text and Exand/Collapse buttons
+- Documentation code examples have max height, with faded text and Expand/Collapse buttons
 
 ### 1.0.0-beta-003
 

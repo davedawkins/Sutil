@@ -45,11 +45,11 @@ let view() =
             ]
         ]
 
-        Bind.el fileSeq <| fun _files ->
+        Bind.el(fileSeq, fun _files ->
                                 Html.div [
                                     class' "control"
                                     Html.h3 [ text "Selected files" ]
                                     for file in _files do
                                         Html.p [ text $"{file.name} ({file.size} bytes)" ]
-                                ]
+                                ])
     ]

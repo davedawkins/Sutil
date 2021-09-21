@@ -144,7 +144,7 @@ let view() =
         Html.div [
             class' "chart"
 
-            Bind.el model <| fun m ->
+            Bind.el(model, fun m ->
                 Svg.svg [
                     Svg.g [
                         class' "axis y-axis"
@@ -191,6 +191,7 @@ let view() =
                             i <- i + 1
                     ]
                 ]
+            )
             listenToProp "clientWidth"  (dispatch << UpdateWidth)
             listenToProp "clientHeight" (dispatch << UpdateHeight)
             ]

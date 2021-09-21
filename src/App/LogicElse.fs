@@ -17,7 +17,7 @@ let view() =
     Html.div [
         disposeOnUnmount [ user ]
 
-        Bind.el user <| fun u ->
+        Bind.el(user, fun u ->
             Html.div [
                 if u.loggedIn then
                     Html.button [
@@ -29,5 +29,5 @@ let view() =
                         onClick toggle []
                         text "Log in"
                     ]
-            ]
+            ])
     ]

@@ -221,7 +221,7 @@ let view() =
 
         bulma.field.div [
             color.hasTextDanger
-            Bind.el (model .> error) DOM.text
+            Bind.el (model .> error, DOM.text)
         ]
 
     ] |> withStyle appStyle

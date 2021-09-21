@@ -50,7 +50,7 @@ let view() =
             bindPropOut "clientHeight" h
             Html.span [
                 Bind.attr( "style", size |> Store.map (fun n -> $"font-size: {n}px") )
-                Bind.el text DOM.text
+                Bind.el(text,DOM.text)
             ]
         ]
     ] |> withStyle style

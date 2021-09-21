@@ -23,7 +23,7 @@ let view() =
         Html.button [
             class' "block"
             onClick handleClick []
-            Bind.el count (fun n -> text $"Count: {n}")
+            Bind.el( count, fun n -> text $"Count: {n}")
         ]
 
         Html.p [

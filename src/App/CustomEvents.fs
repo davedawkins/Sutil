@@ -33,11 +33,11 @@ let view() =
         Html.div [
             customDispatchButton()
 
-            Bind.el m <| fun s ->
+            Bind.el(m,fun s ->
                 Html.p [
                     text $"Got: [{s}]"
 
                     style [ Css.marginTop (px 12) ]
-                ]
+                ] )
         ]
     ]

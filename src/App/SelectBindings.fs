@@ -19,7 +19,7 @@ let questions = [
     { Id = 1; Text = "How much water have you drunk today?" }
     { Id = 2; Text = "When did you last take a break?" }
     { Id = 3; Text = "Do you plan to go for a walk later?" }
-];
+]
 
 let appStyle = [
     rule "input" [
@@ -85,9 +85,9 @@ let view() =
         ]
 
         block [
-            Bind.el selected <| fun q ->
+            Bind.el( selected, fun q ->
                 Html.p [
                     text $"Selected question {q.Id}"
-                ]
+                ] )
         ]
     ] |> withStyle appStyle

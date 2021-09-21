@@ -172,7 +172,7 @@ let replButton (wantExpandButton : bool) (code : Browser.Types.HTMLElement) =
         ]
         if wantExpandButton then
             let expanded = Store.make false
-            Bind.el expanded (fun isExpanded ->
+            Bind.el(expanded,fun isExpanded ->
                 Html.a [
                     Sutil.Attr.style [
                         Css.fontSize (Feliz.length.percent 75)
@@ -220,9 +220,9 @@ let pageView title source () =
         Html.h2 [ text title ]
         Html.div [
             Html.span [
-                Bind.el content <| fun t ->
+                Bind.el(content,fun t ->
                     html $"{parsed t}"
-                        |> postProcess addReplButtons
+                        |> postProcess addReplButtons)
             ] |> withStyle Markdown.style
         ]
     ]

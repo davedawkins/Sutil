@@ -192,9 +192,7 @@ let view () : SutilElement =
     Html.div [
         let rowsXcols = Observable.zip (model .> rows) (model .> cols) |> Observable.distinctUntilChanged
 
-        Bind.el rowsXcols <| fun (rows,cols) -> Html.table [
-            do log("Render table")
-
+        Bind.el(rowsXcols, fun (rows,cols) -> Html.table [
             Html.thead [
                 Html.tr [
                     Html.th [ text "" ]
@@ -240,5 +238,5 @@ let view () : SutilElement =
             let refreshS =  (model |> Observable.map (fun m -> m.NeedsRefresh) |> filterSome)
 
             bindSub refreshS (renderCellAt renderPlainCell)
-        ]
+        ])
     ] |> withStyle styleSheet

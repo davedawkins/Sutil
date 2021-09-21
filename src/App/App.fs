@@ -12,6 +12,7 @@ open Browser.Types
 open Types
 
 open type Feliz.length
+open Fable.Core
 
 //
 // Books
@@ -90,6 +91,7 @@ let allExamples = [
         { Category = "Miscellaneous";   Title = "Drag-sortable list";  Create = SortableTimerList.view ; Sections = ["SortableTimerList.fs"; "DragDropListSort.fs"; "TimerWithButton.fs"; "TimerLogic.fs"]}
         { Category = "Miscellaneous";   Title = "SAFE client";  Create = SAFE.view ; Sections = ["SafeClient.fs"]}
         { Category = "Miscellaneous";   Title = "Data Simulation";  Create = DataSim.view ; Sections = ["DataSim.fs"]}
+        { Category = "Miscellaneous";   Title = "Web Components";  Create = WebComponents.view ; Sections = ["WebComponents.fs"]}
         //{ Category = "Miscellaneous";   Title = "Fragment";  Create = Fragment.view ; Sections = ["Fragment.fs"]}
         { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sections = ["Cells.fs"]}
         { Category = "7Guis";   Title = "CRUD";  Create = CRUD.view ; Sections = ["CRUD.fs"]}
@@ -103,28 +105,50 @@ let initBooks = [
 let urlBase = "https://raw.githubusercontent.com/davedawkins/Sutil/main/src/App"
 
 // View as specified by the URL
-type PageView = {
+type ViewRequest = {
     BookName : string
     PageName : string
     SectionName : string
 }
 
-type Model = {
+type BookPageView = {
+    Book : Book
+    Page : Page
+    Section : string
     Source : string // For an "Example" Page, a Section is the name of a source file. Contents are fetched to Source
+}
+
+type MainView =
+    | FrontPage
+    | PageView of BookPageView
+
+type Model = {
     ShowContents : bool
     IsMobile : bool
     Books : Book list
-    CurrentBook : Book
-    CurrentPage : Page
-    CurrentSection : string
-    PageView : PageView
+    View : MainView
+    ViewRequest : ViewRequest option
 }
 
-let source m = m.Source
+let bindOpt (model : System.IObservable<'T option>) (view : 'T -> SutilElement) : SutilElement =
+    Bind.el(model,fun optVal ->
+        match optVal with
+        | None -> fragment []
+        | Some v -> view v)
+
+
+let getSource (v : BookPageView) = v.Source
+let getPage (v : BookPageView) = v.Page
+let getBook (v : BookPageView) = v.Book
+let getSection (v : BookPageView) = v.Section
+
+let getView (m : Model) = m.View
+
+let currentBook m = match m.View with PageView v -> Some v.Book| _ -> None
+let currentPage m = match m.View with PageView v -> Some v.Page| _ -> None
+let currentSection m = match m.View with PageView v -> Some v.Section| _ -> None
+
 let books m = m.Books
-let currentBook m = m.CurrentBook
-let currentPage m = m.CurrentPage
-let currentSection m = m.CurrentSection
 let isMobile m = m.IsMobile
 let showContents m = m.ShowContents
 
@@ -132,7 +156,7 @@ type Message =
     | SetSource of string
     | SetIsMobile of bool
     | AddBook of Book
-    | SetPageView of PageView
+    | SetPageView of ViewRequest
     | ToggleShowContents
 
 ///
@@ -145,7 +169,7 @@ let makeHref book page section =
 let makeBookHref bk = makeHref bk.Title bk.defaultPage.Title ""
 let findPage bk title = bk.Pages |> List.tryFind (fun p -> sanitize p.Title = sanitize title)
 let defaultBook (books : Book list) = books.Head
-let findBookPage (books : Book list) (pv : PageView) =
+let findBookPage (books : Book list) (pv : ViewRequest) =
     let defBk = defaultBook books
     let bookP =
         books
@@ -156,11 +180,13 @@ let findBookPage (books : Book list) (pv : PageView) =
     | Some (bk, None) -> bk, bk.defaultPage
     | _ -> defBk, defBk.defaultPage
 
-
-let compareBook (a:Book) (b:Book) = (a.Title = b.Title)
-let comparePage (a:Page) (b:Page) = (a.Title = b.Title)
-let onBookChange source = source |> Observable.distinctUntilChangedCompare compareBook
-let onPageChange source = source |> Observable.distinctUntilChangedCompare comparePage
+let ducc = Observable.distinctUntilChangedCompare
+let duc = Observable.distinctUntilChangedCompare
+let compareBook (a:Book option) (b:Book option) = match (a,b) with Some a', Some b' -> (a'.Title = b'.Title) | _ -> false
+let comparePage (a:Page option) (b:Page option) = match (a,b) with Some a', Some b' -> (a'.Title = b'.Title) | _ -> false
+let compareSection (a:string option) (b:string option) = a = b
+let onBookChange source = source |> ducc compareBook
+let onPageChange source = source |> ducc comparePage
 let pageCategories (all : Page list) = all |> List.map (fun p -> p.Category) |> List.distinct
 
 let fetchSource file dispatch =
@@ -170,22 +196,29 @@ let fetchSource file dispatch =
     |> Promise.map (SetSource >> dispatch)
     |> ignore
 
-let init() =
+let defaultBookPageView() =
     let currentBook = defaultBook initBooks
     let currentPage = currentBook.defaultPage
     {
+        Book = currentBook
+        Page = currentPage
+        Section = ""
         Source = ""
+    }
+
+let init() =
+    let defaultBpv = defaultBookPageView()
+    {
         ShowContents = false
         IsMobile = false
         Books = initBooks
-        CurrentBook = currentBook
-        CurrentPage = currentPage
-        CurrentSection = ""
-        PageView = {
-            BookName = currentBook.Title
-            PageName = currentPage.Title
-            SectionName = ""
-        }
+        View = FrontPage //PageView defaultBpv
+        ViewRequest = None
+        // {
+        //     BookName = defaultBpv.Book.Title
+        //     PageName = defaultBpv.Page.Title
+        //     SectionName = ""
+        // }
     }, []
 
 let update msg model : Model * Cmd<Message> =
@@ -195,40 +228,44 @@ let update msg model : Model * Cmd<Message> =
         { model with IsMobile = m }, Cmd.none
 
     | AddBook book ->
+        let cmd = model.ViewRequest |> Option.map (Cmd.ofMsg << SetPageView) |> Option.defaultValue Cmd.none
         { model with Books = book :: model.Books },
-            Cmd.ofMsg (SetPageView model.PageView)
-            // Cmd.ofMsg (SetPageView {
-            //     BookName = model.CurrentBook.Title
-            //     PageName = model.CurrentPage.Title
-            //     SectionName = model.CurrentSection
-            //     })
+            cmd
 
-    | SetPageView pv ->
-        let book, page = pv |> findBookPage model.Books
-        let loadingString = "[ Loading ]"
-        let section = if (page.Sections |> List.contains pv.SectionName) then pv.SectionName else ""
+    | SetPageView request ->
+        if request.BookName = "" then
+            { model with View = FrontPage; ViewRequest = None }, Cmd.none
+        else
+            let book, page = request |> findBookPage model.Books
+            let section = if (page.Sections |> List.contains request.SectionName) then request.SectionName else ""
 
-        // Fetch the source file for section. Non-empty section refers to source file for example
-        // This may change!
-        let cmd, src =
-            if (section <> "" && section <> model.CurrentSection && model.Source <> loadingString) then
-                [ fetchSource section ], loadingString
-                //Cmd.none, loadingString
-            else
-                Cmd.none, ""
-        { model with
-            CurrentPage = page;
-            CurrentBook = book;
-            CurrentSection = section;
-            ShowContents = false;
-            PageView = pv
-            Source = src} , cmd
+            // Fetch the source file for section. Non-empty section refers to source file for example
+            // This may change!
+            let cmd, src =
+                let loadingString = "[ Loading ]"
+                match model.View with
+                | PageView bpv when (section <> "" && section <> bpv.Section && bpv.Source <> loadingString) ->
+                    [ fetchSource section ], loadingString
+                | _ -> Cmd.none, ""
+
+            { model with
+                View = PageView {
+                    Page = page
+                    Book = book
+                    Section = section
+                    Source = src
+                }
+                ShowContents = false
+                ViewRequest = Some request} , cmd
 
     | ToggleShowContents ->
         { model with ShowContents = not model.ShowContents }, Cmd.none
 
     | SetSource content ->
-        { model with Source = content }, Cmd.none
+        match model.View with
+        | PageView pageView ->
+            { model with View = PageView { pageView with Source = content } }, Cmd.none
+        | _ -> model,Cmd.none
 
 let mainStyleSheet = Bulma.withBulmaHelpers [
 
@@ -343,50 +380,6 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     ]
 ]
 
-let Section tab (name:string) = fragment [
-    Html.h5 [ class' "title is-6"; text (name.ToUpper()) ]
-    Html.ul [
-        for d in tab.Pages |> List.filter (fun x -> x.Category = name) do
-            Html.li [
-                Html.a [
-                    Attr.href <| makeHref tab.Title  d.Title ""
-                    text d.Title
-                ]
-            ]
-        ]
-    ]
-
-let sectionItem tab (page:Page) name  =
-    Html.li [
-        Html.a [
-            Attr.href <| makeHref tab.Title page.Title (if name = page.Title then "" else name)
-            text name
-        ]
-    ]
-
-let viewSource (model : IStore<Model>) =
-    Html.div [
-        Html.pre [
-            Html.code [
-                class' "language-fsharp"
-                Bind.el (model .> source) (exclusive << text)
-            ]
-        ]
-    ]
-
-let viewPage page model =
-    Html.div [
-        class' "column app-page"
-        Bind.el (model .> currentSection |> Observable.distinctUntilChanged) <| fun section ->
-            match section with
-            | "" ->
-                try
-                    page.Create()
-                with
-                    |x -> Html.div[ text $"Creating example {page.Title}: {x.Message}" ]
-            | _ -> viewSource model
-    ]
-
 module UrlParser =
     let parseHash (location: Location) =
         let hash =
@@ -408,7 +401,7 @@ module UrlParser =
         | 1 -> "", items.[0]
         | _ -> items.[0], items.[1]
 
-    let parsePageView (loc:Location) : PageView =
+    let parsePageView (loc:Location) : ViewRequest =
         let hash, query = (parseUrl loc)
         let book, page = parseBookPage hash
 
@@ -418,6 +411,233 @@ module UrlParser =
             SectionName = query
         }
 
+let Section tab (name:string) = fragment [
+    Html.h5 [ class' "title is-6"; text (name.ToUpper()) ]
+    Html.ul [
+        for d in tab.Pages |> List.filter (fun x -> x.Category = name) do
+            Html.li [
+                Html.a [
+                    Attr.href <| makeHref tab.Title  d.Title ""
+                    text d.Title
+                ]
+            ]
+        ]
+    ]
+
+let sectionItem tab (page:Page) name  =
+    Html.li [
+        Html.a [
+            Attr.href <| makeHref tab.Title page.Title (if name = page.Title then "" else name)
+            text name
+        ]
+    ]
+
+let viewSource (bookPage : System.IObservable<BookPageView>) =
+    Html.div [
+        Html.pre [
+            Html.code [
+                class' "language-fsharp"
+                Bind.el(bookPage .> getSource, exclusive << text)
+            ]
+        ]
+    ]
+
+let viewPage (bookPage:System.IObservable<BookPageView>) =
+    let page = bookPage |> Store.current |> getPage
+    Html.div [
+        class' "column app-page"
+        Bind.el (bookPage, fun bpv ->
+            match bpv.Section with
+            | "" ->
+                try
+                    page.Create()
+                with
+                    |x -> Html.div[ text $"Creating example {page.Title}: {x.Message}" ]
+            | _ -> viewSource bookPage)
+    ]
+
+
+let viewPageWithHeader (bookPage:System.IObservable<BookPageView>) =
+    let book = bookPage |> Store.current |> getBook
+
+    Bind.el( bookPage, fun bpv' ->
+        let page = bpv'.Page
+        Html.div [
+            class' "column app-page-section"
+
+            if (page.Sections <> []) then
+                Html.div [
+                    class' "app-toolbar"
+                    Html.ul [
+                        class' "app-tab"
+                        sectionItem book page page.Title
+                        page.Sections |> List.map (sectionItem book page) |> fragment
+                    ]
+                ]
+
+            viewPage bookPage
+        ])
+
+let viewBook showContents (bookPageView : System.IObservable<BookPageView>) =
+    let book = bookPageView |> Store.current |> getBook
+    Html.div [
+        class' "columns app-main-section"
+
+        transition [fly |> withProps [ Duration 500.0; X -500.0 ] |> In] showContents <|
+            Html.div [
+                class' "column is-one-quarter app-contents"
+
+                book.Pages |> pageCategories |> List.map (fun title -> Section book title) |> fragment
+            ]
+
+        viewPageWithHeader bookPageView
+    ]
+
+let articleTile cls title subtitle =
+    Html.div [
+        class' "tile is-parent"
+        Html.article [
+            class' ("tile is-child box " + cls)
+            Html.p [
+                class' "title has-text-white"
+                text title
+            ]
+            Html.p [
+                class' "subtitle has-text-white"
+                text subtitle
+            ]
+        ]
+    ]
+
+let frontPageRules = [
+    rule "div.front-page" [
+        Css.paddingTop (length.rem 1)
+    ]
+    rule ".hero p" [
+        Css.fontSize (length.percent 150.0)
+    ]
+    rule ".tile.is-parent" [
+        Css.padding (length.rem 0.75)
+    ]
+    rule ".tile.is-ancestor" [
+        Css.marginLeft (length.rem 0.75)
+        Css.marginRight (length.rem 0.75)
+        Css.marginTop (length.rem 0.75)
+    ]
+
+    rule ".color-1" [
+        Css.backgroundColor ("hsl(327, 48%, 39%)")
+    ]
+
+    rule ".color-2" [
+        Css.backgroundColor ("hsl(210, 48%, 39%)")
+    ]
+
+    rule ".color-3" [
+        Css.backgroundColor ("hsl(120, 48%, 39%)")
+    ]
+]
+
+let tiles = [
+
+    Html.div [
+        class' "tile is-ancestor"
+        style [ Css.positionAbsolute ]
+        articleTile
+            "color-1"
+            "Tiny Footprint"
+            "No dependencies on other frameworks - Sutil is pure F#"
+        articleTile
+            "color-2"
+            "Awesome Transitions"
+            "One-liner transitions"
+        articleTile
+            "color-3"
+            "Easy DOM"
+            "Build content with code-completion and tooltips"
+    ]
+
+    Html.div [
+        class' "tile is-ancestor"
+        style [ Css.positionAbsolute ]
+        articleTile
+            "color-2"
+            "Batteries Included"
+            "Everything you need to build an awesome application"
+        articleTile
+            "color-3"
+            "Fully Reactive"
+            "Connect your data directly to your view"
+        articleTile
+            "color-1"
+            "Integration Friendly"
+            "Plays well with other frameworks"
+    ]
+    Html.div [
+        class' "tile is-ancestor"
+        style [ Css.positionAbsolute ]
+        articleTile
+            "color-3"
+            "Component Styling"
+            "Easily define stylesheets that apply to your component"
+        articleTile
+            "color-1"
+            "DevTools Included"
+            "Take a look under the hood in the browser dev console"
+        articleTile
+            "color-2"
+            "Typesafe Development"
+            "The compiler is your best buddy. "
+    ]
+]
+
+let slideshow interval trans (elements : SutilElement list) =
+    let currentTileIndex = Store.make 0
+    let numElements = elements.Length
+
+    let ticker =
+        DOM.interval
+            (fun _ -> currentTileIndex |> Store.modify (fun x -> (x + 1) % numElements))
+            interval
+
+    let transitionElements =
+        elements
+        |> List.mapi (fun i tile ->  transition trans (currentTileIndex |> Store.map ((=) i)) tile)
+
+    let cleanupElements = [
+        disposeOnUnmount [ currentTileIndex ]
+        unsubscribeOnUnmount [ ticker ]
+    ]
+
+    transitionElements @ cleanupElements |> fragment
+
+let viewFrontPage() =
+    let tileFade = fade |> withProps [Duration 1000.0]
+
+    Html.div [
+        class' "app-main-section"
+
+        Html.div [
+            class' "front-page"
+            Html.section [
+                class' "hero"
+                Html.div [
+                    class' "hero-body has-text-centered"
+                    Html.p [
+                        class' "title is-size-1"
+                        text "sutil"
+                    ]
+                    Html.p [
+                        class' "subtitle"
+                        text "A pure F# web application framework"
+                    ]
+                ]
+            ]
+
+            slideshow 5000 [ InOut tileFade ] tiles
+        ]
+    ] |> withStyle frontPageRules
+
 let appMain () =
     let model, dispatch = () |> Store.makeElmish init update ignore
 
@@ -426,9 +646,7 @@ let appMain () =
     let umedia = MediaQuery.listenMedia "(max-width: 768px)" (dispatch << SetIsMobile)
     let upage  = Navigable.listenLocation UrlParser.parsePageView (dispatch << SetPageView)
 
-    let currentBook = model .> currentBook |> onBookChange
-    let currentPage = model .> currentPage |> onPageChange
-
+    let defaultBpv = defaultBookPageView()
     Doc.getBook() |> Promise.map (dispatch << AddBook) |> ignore
 
     Html.div [
@@ -455,11 +673,11 @@ let appMain () =
             //     ]
             // ]
 
-            Bind.el (model .> books) <| fun books ->
+            Bind.el (model .> books,fun books ->
                 Html.span [
                     class' "app-tab-menu"
                     books |> List.map (fun bk -> Html.a [ Attr.href <| makeBookHref bk; text bk.Title ]) |> fragment
-                ]
+                ])
 
             transition [InOut fade] (model .> isMobile) <| Html.a [
                 class' "show-contents-button"
@@ -469,34 +687,25 @@ let appMain () =
             ]
         ]
 
-        Bind.el currentBook <| fun tab ->
-            Html.div [
-                class' "columns app-main-section"
+        // Using a keyed binding prevents the book from being redrawn when different pages and sections
+        // are selected. This is only noticable if the contents window is scrolled. You want
+        // the contents (part of the book rendering) to remain unchanged while clicking into
+        // different pages
 
-                transition [fly |> withProps [ Duration 500.0; X -500.0 ] |> In] showContents <|
-                    Html.div [
-                        class' "column is-one-quarter app-contents"
+        let keyForView = function FrontPage -> "FrontPage" | PageView v -> v.Book.Title
 
-                        tab.Pages |> pageCategories |> List.map (fun title -> Section tab title) |> fragment
-                    ]
+        Bind.el (model |> Store.map getView, keyForView, fun (view:System.IObservable<MainView>) ->
 
-                Bind.el currentPage <| fun page ->
-                    Html.div [
-                        class' "column app-page-section"
+            // Because of key, only called when book changes or we transition to/from front page
+            // We won't be called for any other model changes (such as the page or section changing)
 
-                        if (page.Sections <> []) then
-                            Html.div [
-                                class' "app-toolbar"
-                                Html.ul [
-                                    class' "app-tab"
-                                    sectionItem tab page page.Title
-                                    page.Sections |> List.map (sectionItem tab page) |> fragment
-                                ]
-                            ]
+            match (view |> Store.current) with
+            | FrontPage ->
+                viewFrontPage()
+            | PageView _ ->
+                viewBook showContents (view |> Store.map (function PageView pv -> pv|_ -> failwith "unreachable"))
+        )
 
-                        viewPage page model
-                    ]
-            ]
     ]
 
 let app () =

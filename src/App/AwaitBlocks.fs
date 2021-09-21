@@ -46,7 +46,7 @@ let view() =
 
         Html.div [
             class' "block"
-            Bind.el randomName <| function
+            Bind.el(randomName,function
                 | Waiting ->
                     text "...waiting"
                 | Result n ->
@@ -54,6 +54,6 @@ let view() =
                 | Error x -> Html.p [
                     style [ Css.color "red" ]
                     text (string x.Message)
-                ]
+                ])
         ]
     ]

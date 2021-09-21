@@ -19,47 +19,47 @@ type SutilHtmlEngine() as this =
         ctx |> ContextHelpers.withParent (DomNode (ctx.Document.querySelector selector)) |> buildChildren xs
         unitResult(ctx,"parent")
 
-    member _.text (v : IObservable<string>) = Bind.el (v |> Store.distinct) DOM.text
-    member _.text (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct) DOM.text
-    member _.text (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct) DOM.text
+    member _.text (v : IObservable<string>) = Bind.el (v |> Store.distinct, DOM.text)
+    member _.text (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, DOM.text)
+    member _.text (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, DOM.text)
 
-    member _.td (v : IObservable<string>) = Bind.el (v |> Store.distinct) this.td
-    member _.td (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct) this.td
-    member _.td (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct) this.td
+    member _.td (v : IObservable<string>) = Bind.el (v |> Store.distinct, this.td)
+    member _.td (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, this.td)
+    member _.td (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, this.td)
 
-    member _.span (v : IObservable<string>) = Bind.el (v |> Store.distinct) this.span
-    member _.span (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct) this.span
-    member _.span (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct) this.span
+    member _.span (v : IObservable<string>) = Bind.el (v |> Store.distinct, this.span)
+    member _.span (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, this.span)
+    member _.span (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, this.span)
 
-    member _.h1 (v : IObservable<string>) = Bind.el (v |> Store.distinct) this.h1
-    member _.h1 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct) this.h1
-    member _.h1 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct) this.h1
+    member _.h1 (v : IObservable<string>) = Bind.el (v |> Store.distinct, this.h1)
+    member _.h1 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, this.h1)
+    member _.h1 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, this.h1)
 
-    member _.h2 (v : IObservable<string>) = Bind.el (v |> Store.distinct) this.h2
-    member _.h2 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct) this.h2
-    member _.h2 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct) this.h2
+    member _.h2 (v : IObservable<string>) = Bind.el (v |> Store.distinct, this.h2)
+    member _.h2 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, this.h2)
+    member _.h2 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, this.h2)
 
-    member _.h3 (v : IObservable<string>) = Bind.el (v |> Store.distinct) this.h3
-    member _.h3 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct) this.h3
-    member _.h3 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct) this.h3
+    member _.h3 (v : IObservable<string>) = Bind.el (v |> Store.distinct, this.h3)
+    member _.h3 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, this.h3)
+    member _.h3 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, this.h3)
 
-    member _.h4 (v : IObservable<string>) = Bind.el (v |> Store.distinct) this.h4
-    member _.h4 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct) this.h4
-    member _.h4 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct) this.h4
+    member _.h4 (v : IObservable<string>) = Bind.el (v |> Store.distinct, this.h4)
+    member _.h4 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, this.h4)
+    member _.h4 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, this.h4)
 
-    member _.h5 (v : IObservable<string>) = Bind.el (v |> Store.distinct) this.h5
-    member _.h5 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct) this.h5
-    member _.h5 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct) this.h5
+    member _.h5 (v : IObservable<string>) = Bind.el (v |> Store.distinct, this.h5)
+    member _.h5 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, this.h5)
+    member _.h5 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, this.h5)
 
-    member _.h6 (v : IObservable<string>) = Bind.el (v |> Store.distinct) this.h6
-    member _.h6 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct) this.h6
-    member _.h6 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct) this.h6
+    member _.h6 (v : IObservable<string>) = Bind.el (v |> Store.distinct, this.h6)
+    member _.h6 (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, this.h6)
+    member _.h6 (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, this.h6)
 
-    member _.div (v : IObservable<string>) = Bind.el (v |> Store.distinct) this.div
-    member _.div (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct) this.div
-    member _.div (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct) this.div
+    member _.div (v : IObservable<string>) = Bind.el (v |> Store.distinct, this.div)
+    member _.div (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, this.div)
+    member _.div (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, this.div)
 
-    member _.fragment (v : IObservable<SutilElement>) = Bind.el v id
+    member _.fragment (v : IObservable<SutilElement>) = Bind.el(v,id)
 
 type SutilAttrEngine() =
     inherit AttrEngine<SutilElement>((fun key value -> attr(key, value)),

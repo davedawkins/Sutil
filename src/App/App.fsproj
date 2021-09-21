@@ -61,6 +61,7 @@
     <Compile Include="DragDropListSort.fs" />
     <Compile Include="SortableTimerList.fs" />
     <Compile Include="DataSim.fs" />
+    <Compile Include="WebComponents.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>

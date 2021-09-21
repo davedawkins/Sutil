@@ -21,6 +21,11 @@ type Expect =
         Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
         Expect.areEqual el.innerText expected
 
+    static member queryNumChildren (query:string) (expected:int) =
+        let el = document.querySelector("#" + testAppId + ">" + query) :?> HTMLElement
+        Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
+        Expect.areEqual el.children.length expected
+
 type TestCase = {
     Name : string
     Test : unit -> JS.Promise<unit>

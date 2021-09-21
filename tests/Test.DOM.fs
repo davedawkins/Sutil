@@ -76,8 +76,7 @@ let tests = testList "Sutil.DOM" [
         let store = Store.make 0
         let app =
             fragment [
-                Bind.el store <| fun n ->
-                    Html.div (string n)
+                Bind.el(store, Html.div)
             ]
         mountTestApp app
         Expect.queryText "div" "0"
@@ -90,10 +89,8 @@ let tests = testList "Sutil.DOM" [
         let store2 = Store.make 20
         let app =
             fragment [
-                Bind.el store1 <| fun n ->
-                    Html.div (string n)
-                Bind.el store2 <| fun n ->
-                    Html.div (string n)
+                Bind.el(store1, Html.div)
+                Bind.el(store2, Html.div)
             ]
         mountTestApp app
 
@@ -116,16 +113,16 @@ let tests = testList "Sutil.DOM" [
         let store2 = Store.make 20
         let app =
             Html.div [
-                Bind.el store1 <| fun n ->
+                Bind.el(store1,fun n ->
                     fragment [
                         Html.div "Binding 1"
                         Html.div (string n)
-                    ]
-                Bind.el store2 <| fun n ->
+                    ])
+                Bind.el(store2,fun n ->
                     fragment [
                         Html.div "Binding 2"
                         Html.div (string n)
-                    ]
+                    ])
             ]
         mountTestApp app
 

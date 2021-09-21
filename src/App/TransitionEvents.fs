@@ -19,7 +19,7 @@ let view() =
         Html.p [
             class' "block"
             text "status: "
-            Bind.el status text
+            Bind.el(status,text)
         ]
         Html.label [
             Html.input [

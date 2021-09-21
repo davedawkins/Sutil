@@ -159,32 +159,9 @@ let nodeStrShort (node : Node) =
         | _ -> $"?'{tc}'#{svId node}"
 
 open Fable.Core.JsInterop
+open Fable.Core
 
-module DomEdit =
-    let log s =
-        if Interop.exists window "domeditlog" then
-            window?domeditlog(s)
-        else
-            Logging.log "dom" s
 
-    let appendChild (parent:Node) (child:Node) =
-        log $"appendChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
-        parent.appendChild(child) |> ignore
-        log $"after: appendChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
-
-    let removeChild (parent:Node) (child:Node) =
-        log $"removeChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
-        parent.removeChild(child) |> ignore
-        log $"after: removeChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
-
-    let insertBefore (parent:Node) (child:Node) (refNode:Node) =
-        log $"insertBefore parent='{nodeStrShort parent}' child='{nodeStrShort child}' refNode='{nodeStrShort refNode}'"
-        parent.insertBefore(child,refNode) |> ignore
-        log $"after: insertBefore parent='{nodeStrShort parent}' child='{nodeStrShort child}' refNode='{nodeStrShort refNode}'"
-
-    let insertAfter (parent : Node) (newChild : Node) (refChild : Node) =
-        let beforeChild = if isNull refChild then parent.firstChild else refChild.nextSibling
-        insertBefore parent newChild beforeChild
 
 let children (node:Node) =
     let rec visit (child:Node) =
@@ -211,8 +188,6 @@ let rec descendantsDepthFirst (node:Node) =
 
 let isSameNode (a:Node) (b:Node) =
     if isNull a then isNull b else a.isSameNode(b)
-
-
 
 let private hasDisposables (node:Node) : bool =
     Interop.exists node NodeKey.Disposables
@@ -243,6 +218,33 @@ let assertTrue condition message =
 let private cleanupDeep (node:Node) : unit=
     descendantsDepthFirst node |> Array.ofSeq |> Array.iter cleanup
     cleanup node
+
+module DomEdit =
+    let log s =
+        if Interop.exists window "domeditlog" then
+            window?domeditlog(s)
+        else
+            Logging.log "dom" s
+
+    let appendChild (parent:Node) (child:Node) =
+        log $"appendChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
+        parent.appendChild(child) |> ignore
+        log $"after: appendChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
+
+    let removeChild (parent:Node) (child:Node) =
+        log $"removeChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
+        cleanupDeep child
+        parent.removeChild(child) |> ignore
+        log $"after: removeChild parent='{nodeStrShort parent}' child='{nodeStrShort child}'"
+
+    let insertBefore (parent:Node) (child:Node) (refNode:Node) =
+        log $"insertBefore parent='{nodeStrShort parent}' child='{nodeStrShort child}' refNode='{nodeStrShort refNode}'"
+        parent.insertBefore(child,refNode) |> ignore
+        log $"after: insertBefore parent='{nodeStrShort parent}' child='{nodeStrShort child}' refNode='{nodeStrShort refNode}'"
+
+    let insertAfter (parent : Node) (newChild : Node) (refChild : Node) =
+        let beforeChild = if isNull refChild then parent.firstChild else refChild.nextSibling
+        insertBefore parent newChild beforeChild
 
 // Cleanup all descendants and this node
 // Remove node from parent
@@ -441,6 +443,7 @@ type SutilNode =
         member node.Dispose() =
             match node with
             | GroupNode v -> v.Dispose()
+            | DomNode n -> cleanupDeep n
             | _ -> ()
 
         static member GetDisposables(node:Node) =
@@ -790,26 +793,6 @@ and NodeGroup(_name,_parent,_prevInit) as this =
             _children <- _children @ [ child ]
             updateChildrenPrev()
 
-        (*
-            fragment [
-                A
-            ]
-            fragment [
-                fragment [
-                    X
-                ]
-            ]
-
-            div [
-                fragment [
-                    A
-                    B
-                ]
-                fragment [
-                    X
-                ]
-            ]
-        *)
         member this.AppendChild(child : SutilNode) =
             //log($"NodeGroup.AppendChild: this='{this.Name} #{this.Id}' child='{child}' parent='{this.Parent}' prevDom='{nodeStrShort this.PrevDomNode}'")
             match this.Parent with
@@ -860,17 +843,6 @@ and NodeGroup(_name,_parent,_prevInit) as this =
 
         member this.InsertAfter (child : SutilNode, prev : SutilNode ) =
             this.InsertBefore( child, this.ChildAfter(prev) )
-
-        (*
-            insert 'div' into fragment#2 after  <empty>
-            <DIV> #0
-               <'bind'> #1
-                   <'fragment'> #2
-               <'bind'> #5
-                   <'fragment'> #6
-                       <DIV> #7
-                           'Binding 2'
-        *)
 
         member private this.InsertBefore (child : SutilNode, refNode : SutilNode ) =
             let refDomNode =
@@ -960,7 +932,9 @@ and NodeGroup(_name,_parent,_prevInit) as this =
         member _.Id
             with get() = id and set id' = id <- id'
         member _.Children = _children
-        member _.SetDispose d = _dispose <- d
+        member _.SetDispose d =
+            //SutilNode.RegisterUnsubscribe(parentDomNode(),d)
+            _dispose <- d
         member _.Dispose() = _dispose()
 
 type BuildResult = SutilNode
@@ -969,7 +943,7 @@ type BuildResult = SutilNode
 type DomAction =
     | Append  // appendChild
     | Replace of SutilNode*Node // bindings use this to replace the previous DOM fragment
-
+    | Nothing
 type BuildContext =
     {
         Document : Browser.Types.Document
@@ -987,6 +961,7 @@ type BuildContext =
         member this.ParentNode : Node = this.Parent.AsDomNode
         member ctx.AddChild (node: SutilNode) : unit =
             match ctx.Action with
+            | Nothing -> ()
             | Append ->
                 log $"ctx.Append '{node}' to '{ctx.Parent}' after {ctx.Previous}"
                 ctx.Parent.InsertAfter(node,ctx.Previous)
@@ -1009,6 +984,18 @@ let private makeContext (parent:Node) =
         Parent = DomNode parent
         Previous = EmptyNode
         Action = Append
+        StyleSheet = None
+        Debug = false
+        MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
+    }
+
+let private makeShadowContext (customElement : Node) =
+    let gen = Helpers.makeIdGenerator()
+    {
+        Document = customElement.ownerDocument
+        Parent = DomNode customElement
+        Previous = EmptyNode
+        Action = Nothing
         StyleSheet = None
         Debug = false
         MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
@@ -1383,6 +1370,29 @@ let wait (el:HTMLElement) (andThen : unit -> Promise<unit>) =
         p.``then`` run |> ignore
     else
         run()
+
+open Fable.Core
+[<Global>]
+type ShadowRoot() =
+    member this.appendChild(el: Browser.Types.Node) = jsNative
+
+let mountOnShadowRoot app (host : Node) : (unit -> unit)=
+    let el = build app (makeShadowContext host)
+    match el with
+    | DomNode node ->
+        let shadowRoot : ShadowRoot = host?shadowRoot
+        shadowRoot.appendChild(node)
+    | GroupNode group ->
+        let shadowRoot : ShadowRoot = host?shadowRoot
+        for node in group.DomNodes() do
+            shadowRoot.appendChild(node)
+    | EmptyNode ->
+        failwith "Custom components must return at least one node"
+
+    let dispose() =
+        JS.console.log($"mountOnShadowRoot: disposing {el}")
+        el.Dispose()
+    dispose
 
 let mountOn app host =
     build app (makeContext host)

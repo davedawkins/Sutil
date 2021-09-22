@@ -56,6 +56,8 @@ log "Adding remote installation script into deploy directory"
 cat > ${SOURCEDIR}/localInstall.sh <<EOF2
 #!/bin/bash
 ln -s ${TARGETDIR}/../repl ${TARGETDIR}/repl
+mkdir ${TARGETDIR}/src
+ln -s ${TARGETDIR}/../repl/js/repl/fable-repl-lib ${TARGETDIR}/src/Fable.Repl.Lib
 EOF2
 
 log "Sending deploy directory to remote instance"

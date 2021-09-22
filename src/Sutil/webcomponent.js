@@ -59,16 +59,19 @@ export function makeWebComponent(name, ctor, initModel) {
 
     // Let the class name magic happen.
     let className = name.replace(/-/g, '');
-    let ctorJs = `
-        let ${className} = function() {
-            let _ = Reflect.construct(HTMLElement,[], ${className});
-            return init(_, attributes);
-        };
-        ${className}.observedAttributes = attributes;
-        ${className};
-    `;
-    let classCtor = eval(ctorJs);
-
+    // let ctorJs = `
+    //     let ${className} = function() {
+    //         let _ = Reflect.construct(HTMLElement,[], ${className});
+    //         return init(_, attributes);
+    //     };
+    //     ${className}.observedAttributes = attributes;
+    //     ${className};
+    // `;
+    let classCtor = function() {
+        let _ = Reflect.construct(HTMLElement,[], classCtor);
+        return init(_, attributes);
+    };
+    classCtor.observedAttributes = attributes;
     Object.setPrototypeOf(classCtor.prototype, HTMLElement.prototype);
     Object.setPrototypeOf(classCtor, HTMLElement);
 

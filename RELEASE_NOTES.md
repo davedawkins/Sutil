@@ -1,3 +1,7 @@
+### 1.0.0-beta-006
+
+- Eliminate use of eval in webcomponent.js
+
 ### 1.0.0-beta-005
 
 - Additional overloads for Bind.el, allowing keyed bindings

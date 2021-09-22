@@ -1,7 +1,5 @@
 module WebComponents
 
-open Fable.Core
-
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
@@ -14,8 +12,6 @@ type CounterProps = {
 
 let Counter (model : IStore<CounterProps>) =
     Html.div [
-        unsubscribeOnUnmount [(fun _ -> JS.console.log("disposing counter")) ]
-
         Bind.el(model |> Store.map (fun m -> m.label),Html.span)
         Bind.el(model |> Store.map (fun m -> m.value),Html.text)
 
@@ -31,6 +27,8 @@ let Counter (model : IStore<CounterProps>) =
         ]
     ]
 
+registerWebComponent "my-counter" Counter { label = ""; value = 0}
+
 type GreetingProps = {
     greeting : string
     subject : string
@@ -38,16 +36,10 @@ type GreetingProps = {
 
 let Greeting (model : IStore<GreetingProps>) =
     Html.div [
-        unsubscribeOnUnmount [(fun _ -> JS.console.log("disposing counter")) ]
-
         Bind.el(model |> Store.map (fun m -> m.greeting),Html.span)
         text " "
         Bind.el(model |> Store.map (fun m -> m.subject),Html.text)
     ]
-
-
-registerWebComponent "my-counter" Counter { label = ""; value = 0}
-
 
 registerWebComponent "my-greeting" Greeting { greeting = "Bonjour"; subject = "Marie-France"}
 

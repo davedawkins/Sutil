@@ -13,6 +13,7 @@
 - [Styling](styling.md)
 - [Stores](stores.md)
 - [Collections](collections.md)
+- [Web Components](webcomponents.md)
 - [Forms - coming soon](coming_soon.md)
 - [Transitions - coming soon](coming_soon.md)
 - [Media Queries - coming soon](coming_soon.md)

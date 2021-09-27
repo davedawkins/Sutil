@@ -31,7 +31,7 @@ let view() =
     let stocks = SampleData.stockFeed 10 1000
 
     Html.div [
-        DOM.disposeOnUnmount [ numbers; ints_25_75; ints_1_10; count; list; records ]
+        DOM.disposeOnUnmount [ numbers; ints_25_75; ints_1_10; count; list; records; stocks ]
 
         Attr.style [ Css.displayFlex; Css.flexDirectionRow ]
 

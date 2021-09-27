@@ -107,10 +107,17 @@ module ObservableStore =
         let initialise (doc:Document) =
             DevToolsControl.initialise doc (controlBlock())
 
+    let mutable private _nextStoreId = 0
+    let private nextStoreId() =
+        let n = _nextStoreId
+        _nextStoreId <- n + 1
+        n
+
     // Allow stores that can handle mutable 'Model types (eg, <input>.FileList). In this
     // case we can pass (fun _ _ -> true)
     type Store<'Model>(init: unit -> 'Model, dispose: 'Model -> unit) =
         let mutable uid = 0
+        let storeId = nextStoreId()
         let mutable _modelInitialized = false
         let mutable _model = Unchecked.defaultof<_>
         let model() =
@@ -121,12 +128,15 @@ module ObservableStore =
         let subscribers =
             Collections.Generic.Dictionary<_, IObserver<'Model>>()
 
+        override _.ToString() = $"#{storeId}={_model}"
+
         member _.Value = model()
 
-        member _.Update(f: 'Model -> 'Model) =
+        member this.Update(f: 'Model -> 'Model) =
             let newModel = f (model())
 
             // Send every update. Use 'distinctUntilChanged' with fastEquals to get previous behaviour
+            //Fable.Core.JS.console.log($"Update {_model} -> {newModel}")
             _model <- newModel
 
             if subscribers.Count > 0 then

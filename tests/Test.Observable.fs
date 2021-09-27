@@ -17,8 +17,8 @@ let tests = testList "Sutil.Observable" [
         [ 1; 1; 1; 2; 2; 2 ] |> List.iter (Store.set s1)
         [ 1; 1; 1; 2; 2; 2 ] |> List.iter (Store.set s2)
 
-        Expect.areEqual 7 n1 // 0 1 1 1 2 2 2
-        Expect.areEqual 3 n2 // 0 1 2
+        Expect.areEqual(7,n1) // 0 1 1 1 2 2 2
+        Expect.areEqual(3,n2) // 0 1 2
 
 
     testCase "distinctUntilChangedCompare" <| fun () ->
@@ -36,8 +36,8 @@ let tests = testList "Sutil.Observable" [
         data |> List.iter (Store.set s1)
         data |> List.iter (Store.set s2)
 
-        Expect.areEqual 7 n1 // - a A a b B b
-        Expect.areEqual 3 n2 // - a b
+        Expect.areEqual(7,n1) // - a A a b B b
+        Expect.areEqual(3,n2) // - a b
 
     //testCase "exists" <| fun () ->
     //    let s1 = Store.make '-'

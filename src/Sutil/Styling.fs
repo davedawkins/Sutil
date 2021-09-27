@@ -58,6 +58,10 @@ let specifySelector (styleName : string) (selectors : string) =
     let trans s = if isPseudo s || isGlobal s then s else sprintf "%s.%s" s styleName  // button -> button.styleA
     splitMapJoin ',' (splitMapJoin ' ' (splitMapJoin ':' trans)) selectors
 
+let styleSheetAsText (styleSheet : StyleSheet) =
+    let ruleToText rule = rule.SelectorSpec + " { " +  String.Join ("", rule.Style |> Seq.map (fun (nm,v) -> $"{nm}: {v};")) + " }"
+    String.Join("\n", styleSheet |> List.map ruleToText)
+
 let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheet) =
     let isSutilRule (nm:string,v) = nm.StartsWith("sutil")
     let style = newStyleElement doc
@@ -131,3 +135,65 @@ let showEl (el : HTMLElement) isVisible =
     let ev = Interop.customEvent (if isVisible then Event.Show else Event.Hide) {|  |}
     el.dispatchEvent(ev) |> ignore
     ()
+
+
+open Browser.Css
+open Fable.Core.JsInterop
+
+
+open Fable.Core
+
+module private CssPolyfill =
+    let cssPolyfillUrl = "https://unpkg.com/construct-style-sheets-polyfill"
+
+    let needsCssPolyfill() =
+        document.head.querySelector("script[src='" + cssPolyfillUrl + "']") |> isNull
+
+    let mutable waitingForLoad : (unit -> unit) list = []
+
+    let addCssPolyfill( onload : unit -> unit ) =
+        if needsCssPolyfill() then
+            waitingForLoad <- onload :: waitingForLoad
+            //JS.console.log("Adding polyfill")
+
+            let scriptEl = document.createElement("script")
+            scriptEl.setAttribute("src", cssPolyfillUrl)
+            scriptEl.onload <- fun _ ->
+                let tmp = waitingForLoad
+                waitingForLoad <- []
+                tmp |> List.iter (fun cb -> cb())
+
+            document.head.appendChild(scriptEl) |> ignore
+        else if (List.isEmpty waitingForLoad) then
+            //JS.console.log("Polyfill already loaded, not waiting for load")
+            onload()
+        else
+            //JS.console.log("Polyfill being loaded")
+            waitingForLoad <- onload :: waitingForLoad
+
+    do
+        addCssPolyfill(ignore) // Prevent FOUC where possible
+
+let adoptStyleSheet (styleSheet : StyleSheet) = nodeFactory <| fun ctx ->
+    let host = ctx.ParentNode
+
+    let run() =
+        let sheet = CSSStyleSheet.Create()
+        sheet.replaceSync (styleSheetAsText styleSheet)
+
+        let rootNode : Node = host?getRootNode()
+        let host = rootNode?host
+        if (not (isNull host)) then
+            host?shadowRoot?adoptedStyleSheets <- [| sheet |]
+        else
+            host?adoptedStyleSheets <- [| sheet |]
+
+    let onPolyfillLoaded() =
+        if not (ctx.Parent.IsConnected()) then
+            once "sutil-connected" host (fun _ -> run())
+        else
+            run()
+
+    CssPolyfill.addCssPolyfill onPolyfillLoaded
+
+    unitResult(ctx,"adoptStyleSheet")

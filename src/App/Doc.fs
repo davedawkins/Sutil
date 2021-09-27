@@ -31,6 +31,7 @@ let indexHtml = """<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css" as="style">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Sutil</title>
     <style>
       </style>
@@ -156,7 +157,9 @@ let makeExample (code:string) =
 // Make an "Open in REPL" button for the given code example
 //
 let replButton (wantExpandButton : bool) (code : Browser.Types.HTMLElement) =
+    let expanded = Store.make false
     Html.span [
+        disposeOnUnmount [ expanded ]
         Html.a [
             Sutil.Attr.style [ Css.fontSize (Feliz.length.percent 75)]
             text "Open in REPL"
@@ -171,7 +174,6 @@ let replButton (wantExpandButton : bool) (code : Browser.Types.HTMLElement) =
             ) []
         ]
         if wantExpandButton then
-            let expanded = Store.make false
             Bind.el(expanded,fun isExpanded ->
                 Html.a [
                     Sutil.Attr.style [
@@ -188,8 +190,6 @@ let replButton (wantExpandButton : bool) (code : Browser.Types.HTMLElement) =
                             code.classList.remove("more")
                         expanded |> Store.modify not
                     ) []
-
-                    disposeOnUnmount [expanded]
                 ])
     ]
 //
@@ -201,11 +201,18 @@ let addReplButton (preCode : Browser.Types.HTMLElement) =
         preCode.classList.add( "more" )
     mountAfter (replButton wantExpandButton preCode) (preCode.parentElement)
 
+let addClasses (node : Browser.Types.HTMLElement) =
+    node
+        |> querySelectorAll "table"
+        |> Seq.iter (fun e ->
+            (toEl e).classList.add("table"))
+    node
 //
 // Add "Open in REPL" buttons to all <pre><code> example code blocks
 //
 let addReplButtons (markdown : Browser.Types.HTMLElement) =
     markdown
+        |> addClasses
         |> findPreCode
         |> Seq.filter processReplDirectives
         |> Seq.iter (toEl >> addReplButton >> ignore)

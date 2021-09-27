@@ -18,13 +18,15 @@ function toBool(s) {
 
 function id(s) { return s; }
 
-export function makeWebComponent(name, ctor, initModel) {
-    console.log("makeWebComponent " + name);
+let instanceId = 0
 
+export function makeWebComponent(name, ctor, initModel) {
     function init(_) {
         _.attachShadow({ mode: 'open' });
 
-        _.sutilCallbacks = ctor(_);
+        let cb = ctor(_);
+
+        _.sutilCallbacks = cb;
 
         for (const key of Object.keys(initModel)) {
             let val = initModel[key]
@@ -40,11 +42,11 @@ export function makeWebComponent(name, ctor, initModel) {
                 configurable: false,
                 enumerable: true,
                 get: () =>
-                    _.sutilCallbacks.GetModel()[key],
+                    cb.GetModel()[key],
                 set: (value) => {
-                    let m = _.sutilCallbacks.GetModel()
-                    m[key] = convert(value);
-                    _.sutilCallbacks.SetModel(m);
+                    let m0 = cb.GetModel()
+                    let m1 = Object.assign({}, m0, {[key]:convert(value)})
+                    cb.SetModel(m1);
                 }
             });
         }
@@ -56,17 +58,6 @@ export function makeWebComponent(name, ctor, initModel) {
     for (const key of Object.keys(initModel)) {
         attributes.push(key.toLowerCase())
     }
-
-    // Let the class name magic happen.
-    let className = name.replace(/-/g, '');
-    // let ctorJs = `
-    //     let ${className} = function() {
-    //         let _ = Reflect.construct(HTMLElement,[], ${className});
-    //         return init(_, attributes);
-    //     };
-    //     ${className}.observedAttributes = attributes;
-    //     ${className};
-    // `;
     let classCtor = function() {
         let _ = Reflect.construct(HTMLElement,[], classCtor);
         return init(_, attributes);
@@ -89,6 +80,7 @@ export function makeWebComponent(name, ctor, initModel) {
                 this[key] = this.getAttribute(key);
             }
         }
+        this.sutilCallbacks.OnConnected()
     }
 
     classCtor.prototype.disconnectedCallback = function () {

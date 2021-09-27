@@ -315,6 +315,9 @@ let rec private forEachChild (parent:Node) (f : Node -> unit) =
         f child
         child <- child.nextSibling
 
+let nodeIsConnected (node : Node) :  bool =
+    node?isConnected
+
 /// SutilNode is a DOM node, the result of evaluating a SutilElement. Fragment and binding elements will return a GroupNode,
 /// which is a grouping of DOM nodes, so a SutilNode can also be a GroupNode. Finally, SutilNode can be an EmptyNode to represent
 /// the concept of None (or null)
@@ -331,9 +334,37 @@ type SutilNode =
         member this.iter f = this.mapDefault f ()
         member this.iterElement (f : HTMLElement -> unit) = this.mapDefault (applyIfElement f) ()
 
+        member this.IsConnected() =
+            match this with
+            | EmptyNode -> false
+            | DomNode n -> nodeIsConnected n
+            | GroupNode g -> g.IsConnected()
+
+        member this.AssertIsConnected() =
+            match this with
+            | EmptyNode -> failwith "Not connected: empty node"
+            | DomNode n -> if (not (nodeIsConnected n)) then failwith $"Not connected: {n}"
+            | GroupNode g -> g.AssertIsConnected()
+
+        member this.Register( childGroup : NodeGroup ) =
+            match this with
+            | EmptyNode -> ()
+            | DomNode n ->
+                let cleanupGroups() =
+                    //JS.console.log("Cleaning up groups")
+                    let groups : (NodeGroup list) option = NodeKey.get n NodeKey.Groups
+                    groups |> Option.iter (List.iter (fun g -> g.Dispose()))
+                    NodeKey.clear n NodeKey.Groups
+                let groups = NodeKey.getCreate n NodeKey.Groups (fun () -> [])
+                if List.isEmpty groups then
+                    SutilNode.RegisterUnsubscribe(n, cleanupGroups)
+                Interop.set n NodeKey.Groups (groups @ [ childGroup ])
+            | GroupNode g ->
+                g.Register(childGroup)
+
         member this.PrettyPrint(label:string) =
             let rec pr level deep node =
-                let indent l = new String(' ', l*4)
+                let indent l = String(' ', l*4)
                 let log l s = log((indent l) + s)
                 let rec prDomNode l (dn:Node) =
                     let groups = NodeGroup.GroupsOf dn
@@ -497,12 +528,16 @@ type SutilNode =
 
         member this.InsertAfter(node:SutilNode,refNode:SutilNode) =
             match this with
-            |EmptyNode -> ()
+            |EmptyNode ->
+                JS.console.warn("InsertAfter called for empty node - disposing child")
+                node.Dispose()
             |DomNode parent ->
                 log($"InsertAfter (parent = {this}: refNode={refNode} refNode.NextDomNode={nodeStr refNode.NextDomNode}")
                 let refDomNode = refNode.NextDomNode
-                node.collectDomNodes() |> List.iter (fun child -> DomEdit.insertBefore parent child refDomNode)
-            |GroupNode g -> g.InsertAfter(node,refNode)
+                node.collectDomNodes()
+                    |> List.iter (fun child -> DomEdit.insertBefore parent child refDomNode)
+            |GroupNode g ->
+                g.InsertAfter(node,refNode)
 
         member this.InsertAfter(node:Node,refNode:Node) =
             this.iter (fun parent -> DomEdit.insertAfter parent node refNode)
@@ -527,13 +562,13 @@ type SutilNode =
             | DomNode parent -> DomEdit.appendChild parent child
             | GroupNode parent -> parent.AppendChild(DomNode child)
 
-        member this.AppendChild (child : SutilNode) =
-            match this with
-            | EmptyNode -> ()
-            | DomNode parent ->
-                child.collectDomNodes() |> List.iter (fun child -> DomEdit.appendChild parent child)
-            | GroupNode parent ->
-                parent.AppendChild(child)
+        // member this.AppendChild (child : SutilNode) =
+        //     match this with
+        //     | EmptyNode -> ()
+        //     | DomNode parent ->
+        //         child.collectDomNodes() |> List.iter (fun child -> DomEdit.appendChild parent child)
+        //     | GroupNode parent ->
+        //         parent.AppendChild(child)
 
         member this.FirstDomNodeInOrAfter =
             match this with
@@ -566,14 +601,18 @@ type SutilNode =
         member this.Children : list<SutilNode> =
             match this with
             | EmptyNode -> []
-            | DomNode n -> [] // Careful!   div [ div[] fragment[] div[] ] -> Children of n are: DomNode, GroupNode, DomNode
+            | DomNode n -> [] // Careful! With n = div [ div[] fragment[] div[] ] -> Children of n are: DomNode, GroupNode, DomNode
             | GroupNode v -> v.Children
 
-and NodeGroup(_name,_parent,_prevInit) as this =
+        static member MakeGroup( name : string, parent : SutilNode, prevInit : SutilNode ) =
+            NodeGroup.Create(name,parent,prevInit)
+
+and NodeGroup private (_name,_parent,_prevInit) as this =
     let mutable id = domId() |> string
     let mutable _dispose = ignore
     let mutable _children = []
     let mutable _prev = _prevInit
+    let mutable _childGroups = []
     let childDomNodes() = _children |> List.map (function |DomNode n -> [n]|_ -> [])
 
     let childStrs() = _children |> List.map string
@@ -601,60 +640,33 @@ and NodeGroup(_name,_parent,_prevInit) as this =
             |GroupNode v -> findParent v.Parent
         findParent _parent
     do
-        let p = parentDomNode()
-        let groups = NodeKey.getCreate p NodeKey.Groups (fun () -> [])
-        Interop.set p NodeKey.Groups (groups @ [ this ])
+        _parent.Register(this)
         ()
     with
         member this.Document = parentDomNode().ownerDocument
+
+        static member internal Create(name,parent,prevInit) =
+            NodeGroup(name,parent,prevInit)
+
+        member this.IsConnected() =
+            parentDomNode() |> nodeIsConnected
+
+        member this.AssertIsConnected() =
+            if (not <| this.IsConnected()) then failwith $"Not connected: {this}"
 
         override this.ToString() =
             _name + "[" + (String.Join(",", _children |> List.map (fun n -> n.ToString()))) + "]#" + id
 
         member this.Parent = _parent
 
+        member this.Register (childGroup : NodeGroup) =
+            _childGroups <- childGroup :: _childGroups
+
         member this.PrevNode with get () = _prev and set v = _prev <- v
 
         member this.DomNodes() =
             this.Children |> List.collect (fun c -> c.DomNodes())
 
-        (*
-            div [
-                fragment [ ] // PrevDomNode = null
-            ]
-
-            div [
-                div2
-                fragment [ ] // PrevDomNode = div2
-            ]
-
-            div [
-                fragment [ div2 ]
-                fragment [ ] // PrevDomNode = div2
-            ]
-
-            div [
-                fragment [
-                    fragment [ ] // PrevDomNode = div2
-                ]
-            ]
-
-            div [
-                div2
-                fragment [
-                    fragment [ ] // PrevDomNode = div2
-                ]
-            ]
-
-            div [
-
-                fragment [
-                    fragment [
-                        // Prev = null
-                    ]
-                ]
-            ]
-        *)
         member this.PrevDomNode =
             let result =
                 match this.PrevNode with
@@ -669,41 +681,6 @@ and NodeGroup(_name,_parent,_prevInit) as this =
                     | _ -> null
             log($"PrevDomNode of {this} -> '{nodeStr result}' PrevNode={this.PrevNode}")
             result
-
-        (*
-            div [
-                fragment [ ] // NextDomNode = null, PrevDomNode = null
-            ]
-            div [
-                fragment [ div1 ] // NextDomNode = null, PrevDomNode = null
-            ]
-            div [
-                fragment [ ] // NextDomNode = div2, PrevDomNode = null
-                div2
-            ]
-            div [
-                fragment [ div1 ] // NextDomNode = div2, PrevDomNode = null
-                div2
-            ]
-            div [
-                div0
-                fragment [ ] // NextDomNode = div2, PrevDomNode = div0
-                div2
-            ]
-            div [
-                div0
-                fragment [ div1 ] // NextDomNode = div2, PrevDomNode = div0
-                div2
-            ]
-            div [
-                div0
-                fragment [ ] // NextDomNode = null, PrevDomNode = div0
-            ]
-            div [
-                div0
-                fragment [ div1 ] // NextDomNode = null, PrevDomNode = div0
-            ]
-        *)
 
         member this.NextDomNode =
             //log($"NextDomNode this={this}")
@@ -854,7 +831,6 @@ and NodeGroup(_name,_parent,_prevInit) as this =
             let parent = parentDomNode()
             let len = _children.Length
 
-
             for dnode in child.collectDomNodes() do
                 DomEdit.insertBefore parent dnode refDomNode
 
@@ -935,7 +911,9 @@ and NodeGroup(_name,_parent,_prevInit) as this =
         member _.SetDispose d =
             //SutilNode.RegisterUnsubscribe(parentDomNode(),d)
             _dispose <- d
-        member _.Dispose() = _dispose()
+        member _.Dispose() =
+            _childGroups |> List.iter (fun c -> c.Dispose())
+            _dispose()
 
 type BuildResult = SutilNode
 
@@ -1342,12 +1320,9 @@ let buildChildren(xs : seq<SutilElement>) (ctx:BuildContext) : unit =
     ()
 
 let fragment (elements : SutilElement seq) = nodeFactory <| fun ctx ->
-    let v = NodeGroup("fragment",ctx.Parent,ctx.Previous)
-    let fragmentNode = GroupNode v
-    let oldId = v.Id
-    log($"fragment action='{ctx.Action}' #" + v.Id)
+    let group = SutilNode.MakeGroup("fragment",ctx.Parent,ctx.Previous)
+    let fragmentNode = GroupNode group
     ctx.AddChild fragmentNode
-    log($"fragment now #" + v.Id + " (was #" + oldId + $"). Parent={v.Parent} Prev={v.PrevNode}" )
 
     let childCtx = { ctx with Parent = fragmentNode; Action = Append }
     childCtx |> buildChildren elements

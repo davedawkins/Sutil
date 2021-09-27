@@ -29,8 +29,16 @@ let Counter (model : IStore<CounterProps>) =
 Register the component:
 
 ```fsharp
-registerWebComponent "my-counter" Counter { label = ""; value = 0}
+WebComponent.Register( "my-counter", Counter, { label = ""; value = 0} )//norepl
 ```
+
+The arguments to `WebComponent.Register` are:
+
+| Name          | Type           | Description        |
+| ------------- | -------------  | ------------------ |
+| name          | `string`         | Name of component. Must contain '-' |
+| constructor   | `IStore<'Props> -> SutilElement` | Constructor function. Returns an Html.XXX element |
+| init          | `'Props`         | Initial value for properties. |
 
 Now you can use this component anywhere in your HTML, like this
 
@@ -54,6 +62,7 @@ Here is the full example which you can run in the REPL.
 ```fsharp
 open Fable.Core
 open Sutil
+open Feliz
 open Sutil.Attr
 open Sutil.DOM
 open Sutil.WebComponents
@@ -63,8 +72,21 @@ type CounterProps = {
     label : string
 }
 
+let CounterStyles = [
+    rule "div" [
+        Css.backgroundColor "#DEEEFF"
+        Css.width (length.percent 50)
+        Css.padding (length.rem 0.5)
+    ]
+    rule "button" [
+        Css.padding (length.rem 0.25)
+    ]
+]
+
 let Counter (model : IStore<CounterProps>) =
     Html.div [
+        adoptStyleSheet CounterStyles
+
         Bind.el(model |> Store.map (fun m -> m.label),Html.span)
         Bind.el(model |> Store.map (fun m -> m.value),Html.text)
 
@@ -80,7 +102,7 @@ let Counter (model : IStore<CounterProps>) =
         ]
     ]
 
-registerWebComponent "my-counter" Counter { label = ""; value = 0}
+WebComponent.Register("my-counter",Counter,{ label = ""; value = 0})
 
 type GreetingProps = {
     greeting : string
@@ -94,7 +116,7 @@ let Greeting (model : IStore<GreetingProps>) =
         Bind.el(model |> Store.map (fun m -> m.subject),Html.text)
     ]
 
-registerWebComponent "my-greeting" Greeting { greeting = "Bonjour"; subject = "Marie-France"}
+WebComponent.Register("my-greeting",Greeting,{ greeting = "Bonjour"; subject = "Marie-France"})
 
 let view() =
     DOM.html """
@@ -106,3 +128,37 @@ let view() =
 view() |> Program.mountElement "sutil-app"
 ```
 
+## Shadow Styles
+
+Use `adoptStyleSheet` to assign a stylesheet to the root element of a web component:
+
+```fsharp
+let styles = [
+    rule "div" [
+        Css.backgroundColor "#DEEEFF"
+        Css.width (length.percent 50)
+        Css.padding (length.rem 0.5)
+    ]
+    rule "button" [
+        Css.padding (Feliz.length.rem 0.25)
+    ]
+]
+
+let Counter (model : IStore<CounterProps>) =
+    Html.div [
+        adoptStyleSheet styles
+        // ...
+    ]//norepl
+```
+
+## Constructable Stylesheets
+
+At the time of writing [Constructable Style Sheets](https://github.com/WICG/construct-stylesheets/blob/gh-pages/explainer.md) is not fully implemented across browsers other than Google Chrome, so Sutil uses a [polyfill](https://www.npmjs.com/package/construct-style-sheets-polyfill). Sutil injects the polyfill automatically at run-time
+
+```html
+    <script src='https://unpkg.com/construct-style-sheets-polyfill'></script>
+```
+
+## Event Handling
+
+(coming soon)

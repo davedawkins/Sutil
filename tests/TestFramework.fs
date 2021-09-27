@@ -13,18 +13,23 @@ type Expect =
         if not cond then
             failwith message
 
-    static member areEqual<'T when 'T:equality>(actual : 'T) (expected: 'T)= Expect.assertTrue (expected=actual) $"areEqual: expected: '{expected}' actual: '{actual}'"
+    static member areEqual<'T when 'T:equality>(actual : 'T, expected: 'T, message : string ) =
+        Expect.assertTrue (expected=actual) $"{message}: areEqual: expected: '{expected}' actual: '{actual}'"
+
+    static member areEqual<'T when 'T:equality>(actual : 'T, expected: 'T) =
+        Expect.areEqual(actual, expected, "")
+
     static member notNull (actual:obj)= Expect.assertTrue (not(isNull actual)) "notNull: actual: '{obj}'"
 
     static member queryText (query:string) (expected:string) =
         let el = document.querySelector("#" + testAppId + ">" + query) :?> HTMLElement
         Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
-        Expect.areEqual el.innerText expected
+        Expect.areEqual(el.innerText,expected, "queryText")
 
     static member queryNumChildren (query:string) (expected:int) =
         let el = document.querySelector("#" + testAppId + ">" + query) :?> HTMLElement
         Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
-        Expect.areEqual el.children.length expected
+        Expect.areEqual(el.children.length,expected,"queryNumChildren")
 
 type TestCase = {
     Name : string
@@ -135,6 +140,6 @@ let runTests (tests : TestSuite list) =
     nextTestSuite { StartTime = timeNow(); NumPass = 0; NumFail = 0; TestSuites = tests; TestCases = [] }
 
 let expectListEqual (expected:List<'T>) (value: List<'T>) =
-    Expect.areEqual expected.Length value.Length
+    Expect.areEqual(expected.Length,value.Length,"List lengths")
     for p in List.zip expected value do
-        Expect.areEqual (fst p) (snd p)
+        Expect.areEqual((fst p),(snd p),"List elements equal")

@@ -188,6 +188,8 @@ let compareSection (a:string option) (b:string option) = a = b
 let onBookChange source = source |> ducc compareBook
 let onPageChange source = source |> ducc comparePage
 let pageCategories (all : Page list) = all |> List.map (fun p -> p.Category) |> List.distinct
+let compareBookPageView (a : BookPageView) (b : BookPageView) =
+    a.Book.Title = b.Book.Title && a.Page.Title = b.Page.Title
 
 let fetchSource file dispatch =
     let url = sprintf "%s/%s" urlBase file
@@ -222,7 +224,7 @@ let init() =
     }, []
 
 let update msg model : Model * Cmd<Message> =
-    Browser.Dom.console.log($"update {msg}")
+    //Browser.Dom.console.log($"update {msg}")
     match msg with
     | SetIsMobile m ->
         { model with IsMobile = m }, Cmd.none
@@ -281,11 +283,12 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
         Css.width (length.vw 100)
         Css.backgroundColor "white"
         Css.paddingLeft (px 12)
-        Css.paddingTop (px 6)
+        Css.paddingTop (rem 0.7)
         Css.paddingBottom (px 6)
         Css.boxShadow "-0.4rem 0.01rem 0.3rem rgba(0,0,0,.5)"
         Css.marginBottom 4
         Css.zIndex 1   // Messes with .modal button
+        Css.height (rem 3.0)
     ]
 
     rule ".app-heading h1" [
@@ -322,7 +325,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".app-main-section" [
         Css.marginTop 0
-        Css.paddingTop (px 44)
+        Css.paddingTop (rem 3.0)
         Css.height (percent 100)
     ]
 
@@ -373,6 +376,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
 
     rule ".show-contents-button" [
         Css.fontSize 18
+        Css.marginRight (rem 1.0)
     ]
 
     rule ".app-tab-menu a" [
@@ -443,10 +447,10 @@ let viewSource (bookPage : System.IObservable<BookPageView>) =
     ]
 
 let viewPage (bookPage:System.IObservable<BookPageView>) =
-    let page = bookPage |> Store.current |> getPage
     Html.div [
         class' "column app-page"
         Bind.el (bookPage, fun bpv ->
+            let page = getPage bpv
             match bpv.Section with
             | "" ->
                 try
@@ -511,7 +515,7 @@ let articleTile cls title subtitle =
 
 let frontPageRules = [
     rule "div.front-page" [
-        Css.paddingTop (length.rem 1)
+        Css.paddingTop (length.rem 3.0)
     ]
     rule ".hero p" [
         Css.fontSize (length.percent 150.0)
@@ -582,12 +586,12 @@ let tiles = [
             "Easily define stylesheets that apply to your component"
         articleTile
             "color-1"
-            "DevTools Included"
-            "Take a look under the hood in the browser dev console"
+            "Supports MVU/Elmish"
+            "Blend in aspects of MVU/Elmish with reactive programming as needed"
         articleTile
             "color-2"
             "Typesafe Development"
-            "The compiler is your best buddy. "
+            "The compiler is your best buddy. String-based programming only pretends to be your friend."
     ]
 ]
 
@@ -625,7 +629,13 @@ let viewFrontPage() =
                     class' "hero-body has-text-centered"
                     Html.p [
                         class' "title is-size-1"
-                        text "sutil"
+                        Html.img [
+                            Attr.src "https://sutil.dev/images/logo-wide.png"
+                            style [
+                                Css.width (px 300)
+                            ]
+                        ]
+                        //text "sutil"
                     ]
                     Html.p [
                         class' "subtitle"
@@ -657,27 +667,44 @@ let appMain () =
 
         Html.div [
             class' "app-heading"
-            Html.a [
-                Attr.href "https://sutil.dev"
-                Html.img [
-                    Attr.src "images/logo-wide.png"
-                    Attr.style [ Css.height (px 25) ]
-                    ]
+            Html.span [
+                Html.a [
+                    Attr.href "https://sutil.dev"
+                    Html.img [
+                        Attr.src "images/logo-wide.png"
+                        Attr.style [ Css.height (px 25) ]
+                        ]
+                ]
             ]
-            // Html.h1 [
-            //     class' "title is-4"
-            //     Html.a [
-            //         Attr.href "https://github.com/davedawkins/Sutil"
-            //         Html.div [ class' "slogo"; Html.span [ text "<>" ] ]
-            //         text " SUTIL"
-            //     ]
-            // ]
 
-            Bind.el (model .> books,fun books ->
-                Html.span [
-                    class' "app-tab-menu"
-                    books |> List.map (fun bk -> Html.a [ Attr.href <| makeBookHref bk; text bk.Title ]) |> fragment
-                ])
+            Html.span [
+                Bind.el (model .> books,fun books ->
+                    Html.span [
+                        class' "app-tab-menu"
+                        books |> List.map (fun bk -> Html.a [ Attr.href <| makeBookHref bk; text bk.Title ]) |> fragment
+                        Html.a [ text "REPL"; Attr.href "https://sutil.dev/repl" ]
+                    ])
+
+                fragment [
+
+                    Html.a [
+                        Attr.href "https://github.com/davedawkins/Sutil"
+                        Html.i [
+                            Attr.style [ Css.color "rgb(61,80,80)"; Css.marginRight (rem 1.0); Css.verticalAlignMiddle ]
+                            class' "fa fa-github"
+                        ]
+                    ]
+
+                    Html.a [
+                        Attr.href "https://www.nuget.org/packages/Sutil"
+                        Html.img [
+                            Attr.style [ Css.marginRight (rem 1.0); Css.verticalAlignMiddle ]
+                            Attr.src "https://img.shields.io/nuget/vpre/Sutil?color=rgb%2861%2C80%2C80%29&label=%20nuget&style=social"
+                        ]
+                    ]
+
+                ] |> transition [] (model .> (not << isMobile))
+            ]
 
             transition [InOut fade] (model .> isMobile) <| Html.a [
                 class' "show-contents-button"
@@ -695,15 +722,19 @@ let appMain () =
         let keyForView = function FrontPage -> "FrontPage" | PageView v -> v.Book.Title
 
         Bind.el (model |> Store.map getView, keyForView, fun (view:System.IObservable<MainView>) ->
-
             // Because of key, only called when book changes or we transition to/from front page
             // We won't be called for any other model changes (such as the page or section changing)
+
+            let pageView =
+                view
+                |> Store.map (function PageView pv -> pv|_ -> failwith "unreachable")
+                |> Observable.distinctUntilChangedCompare compareBookPageView
 
             match (view |> Store.current) with
             | FrontPage ->
                 viewFrontPage()
             | PageView _ ->
-                viewBook showContents (view |> Store.map (function PageView pv -> pv|_ -> failwith "unreachable"))
+                viewBook showContents pageView
         )
 
     ]

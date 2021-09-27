@@ -86,22 +86,27 @@ let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit
 
 let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> SutilElement) (compare : 'T -> 'T -> bool)= nodeFactory <| fun ctx ->
     let mutable node = EmptyNode
-    let vnode = NodeGroup("bind",ctx.Parent,ctx.Previous)
-    let bindNode = GroupNode vnode
+    let group = SutilNode.MakeGroup("bind",ctx.Parent,ctx.Previous)
+    let bindNode = GroupNode group
 
-    log($"bindo: {vnode.Id} ctx={ctx.Action} prev={ctx.Previous}")
+    log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
     ctx.AddChild bindNode
 
-    let bindCtx = { ctx with Parent = bindNode }
-    let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
-        try
-            node <- build (element(store)) (bindCtx |> ContextHelpers.withReplace (node,vnode.NextDomNode))
-        with
-        | x -> Logging.error $"Exception in bindo: {x.Message} parent {ctx.Parent} node {node.ToString()} node.Parent "
-    )
+    let run() =
+        let bindCtx = { ctx with Parent = bindNode }
+        let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
+            try
+                log($"bind: rebuild {group.Id} with {next}")
+                node <- build (element(store)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+            with
+            | x -> Logging.error $"Exception in bindo: {x.Message} parent {ctx.Parent} node {node.ToString()} node.Parent "
+        )
+        group.SetDispose ( fun () ->
+            log($"dispose: Bind.el: {group}")
+            disposable.Dispose())
 
-    vnode.SetDispose (Helpers.unsubify disposable)
-    //vnode.SetDispose (fun _ -> JS.console.log("dispose binding"); disposable.Dispose())
+
+    run()
 
     sutilResult bindNode
 
@@ -113,20 +118,20 @@ let bindFragment = bindElement
 
 let bindFragment2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> SutilElement) = nodeFactory <| fun ctx ->
     let mutable node : SutilNode = EmptyNode
-    let vnode = NodeGroup("bind2",ctx.Parent,ctx.Previous)
-    let bindNode = GroupNode vnode
+    let group = SutilNode.MakeGroup("bind2",ctx.Parent,ctx.Previous)
+    let bindNode = GroupNode group
     ctx.AddChild bindNode
 
     let bindCtx = { ctx with Parent = bindNode }
 
     let d = Store.subscribe2 a b (fun next ->
         try
-            node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,vnode.NextDomNode))
+            node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
         with
         | x -> Logging.error $"Exception in bind: {x.Message}"
     )
 
-    vnode.SetDispose (Helpers.unsubify d)
+    group.SetDispose (Helpers.unsubify d)
 
     sutilResult bindNode
 
@@ -406,7 +411,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
     let log s = Logging.log "each" s
     nodeFactory <| fun ctx ->
         log($"eachiko: Previous = {ctx.Previous}")
-        let eachGroup = NodeGroup("each",ctx.Parent,ctx.Previous)
+        let eachGroup = SutilNode.MakeGroup("each",ctx.Parent,ctx.Previous)
         let eachNode = GroupNode eachGroup
         ctx.AddChild eachNode
 

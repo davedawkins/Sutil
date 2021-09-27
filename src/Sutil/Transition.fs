@@ -485,8 +485,7 @@ let transitionOpt   (trans : TransitionAttribute list)
                     (store : IObservable<bool>)
                     (element: SutilElement)
                     (elseElement : SutilElement option) : SutilElement = nodeFactory <| fun ctx ->
-    let transNode = NodeGroup( "transition", ctx.Parent, ctx.Previous )
-    let transResult = GroupNode transNode
+    let transResult = SutilNode.MakeGroup( "transition", ctx.Parent, ctx.Previous ) |> GroupNode
     ctx.AddChild transResult
     let transCtx = ctx |> ContextHelpers.withParent transResult
 

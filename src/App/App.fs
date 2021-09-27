@@ -182,13 +182,17 @@ let findBookPage (books : Book list) (pv : ViewRequest) =
 
 let ducc = Observable.distinctUntilChangedCompare
 let duc = Observable.distinctUntilChangedCompare
-let compareBook (a:Book option) (b:Book option) = match (a,b) with Some a', Some b' -> (a'.Title = b'.Title) | _ -> false
-let comparePage (a:Page option) (b:Page option) = match (a,b) with Some a', Some b' -> (a'.Title = b'.Title) | _ -> false
+//let compareBook (a:Book option) (b:Book option) = match (a,b) with Some a', Some b' -> (a'.Title = b'.Title) | _ -> false
+//let comparePage (a:Page option) (b:Page option) = match (a,b) with Some a', Some b' -> (a'.Title = b'.Title) | _ -> false
 let compareSection (a:string option) (b:string option) = a = b
-let onBookChange source = source |> ducc compareBook
-let onPageChange source = source |> ducc comparePage
+//let onBookChange source = source |> ducc compareBook
+//let onPageChange source = source |> ducc comparePage
 let pageCategories (all : Page list) = all |> List.map (fun p -> p.Category) |> List.distinct
-let compareBookPageView (a : BookPageView) (b : BookPageView) =
+
+let compareBook (a : BookPageView) (b : BookPageView) =
+    a.Book.Title = b.Book.Title
+
+let compareBookPage (a : BookPageView) (b : BookPageView) =
     a.Book.Title = b.Book.Title && a.Page.Title = b.Page.Title
 
 let fetchSource file dispatch =
@@ -446,10 +450,15 @@ let viewSource (bookPage : System.IObservable<BookPageView>) =
         ]
     ]
 
-let viewPage (bookPage:System.IObservable<BookPageView>) =
+let viewPage (view:System.IObservable<BookPageView>) =
+    let compareSectionSource a b =
+        compareBookPage a b && a.Section = b.Section && a.Source = b.Source
+
+    let sectionView = view |> Observable.distinctUntilChangedCompare compareSectionSource
     Html.div [
+
         class' "column app-page"
-        Bind.el (bookPage, fun bpv ->
+        Bind.el (sectionView, fun bpv ->
             let page = getPage bpv
             match bpv.Section with
             | "" ->
@@ -457,14 +466,17 @@ let viewPage (bookPage:System.IObservable<BookPageView>) =
                     page.Create()
                 with
                     |x -> Html.div[ text $"Creating example {page.Title}: {x.Message}" ]
-            | _ -> viewSource bookPage)
+            | _ -> viewSource view)
     ]
 
 
-let viewPageWithHeader (bookPage:System.IObservable<BookPageView>) =
-    let book = bookPage |> Store.current |> getBook
+let viewPageWithHeader (view:System.IObservable<BookPageView>) =
+    let book = view |> Store.current |> getBook
 
-    Bind.el( bookPage, fun bpv' ->
+    // Only sees changes to book x page
+    let bookPageOnly = view |> Observable.distinctUntilChangedCompare compareBookPage
+
+    Bind.el( bookPageOnly, fun bpv' ->
         let page = bpv'.Page
         Html.div [
             class' "column app-page-section"
@@ -479,7 +491,7 @@ let viewPageWithHeader (bookPage:System.IObservable<BookPageView>) =
                     ]
                 ]
 
-            viewPage bookPage
+            viewPage view
         ])
 
 let viewBook showContents (bookPageView : System.IObservable<BookPageView>) =
@@ -728,7 +740,6 @@ let appMain () =
             let pageView =
                 view
                 |> Store.map (function PageView pv -> pv|_ -> failwith "unreachable")
-                |> Observable.distinctUntilChangedCompare compareBookPageView
 
             match (view |> Store.current) with
             | FrontPage ->

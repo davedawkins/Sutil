@@ -1,7 +1,14 @@
+### 1.0.0-beta-008
+
+- Remove log message
+- Fix "fetch source" in App
+- Rename webcomponent.js to webcomponentinterop.js to avoid name clash
+
 ### 1.0.0-beta-007
 
 - Support for adopted stylesheets
 - Fixes for disposal of bind nodes
+
 ### 1.0.0-beta-006
 
 - Eliminate use of eval in webcomponent.js

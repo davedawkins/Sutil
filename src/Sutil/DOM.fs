@@ -1365,7 +1365,7 @@ let mountOnShadowRoot app (host : Node) : (unit -> unit)=
         failwith "Custom components must return at least one node"
 
     let dispose() =
-        JS.console.log($"mountOnShadowRoot: disposing {el}")
+        //JS.console.log($"mountOnShadowRoot: disposing {el}")
         el.Dispose()
     dispose
 

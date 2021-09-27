@@ -7,6 +7,7 @@
     "postinstall": "dotnet tool restore",
     "publish": "node publish.js",
     "publish:package": "dotnet fsi build.fsx --target publish",
+    "build:samples": "dotnet fsi build.fsx --target samples",
     "start": "dotnet fable watch src/App --run webpack serve",
     "build": "dotnet fable       src/App --run webpack --mode production",
     "watch:devtools": "dotnet fable watch src/DevTools --runWatch webpack --config webpack.devtools.js",

@@ -11,7 +11,7 @@ module WebComponent =
         OnConnected : unit -> unit
     }
 
-    [<Import("makeWebComponent", "./webcomponent.js")>]
+    [<Import("makeWebComponent", "./webcomponentinterop.js")>]
     let makeWebComponent<'T> name (ctor : Node -> Callbacks<'T>) (init : 'T) : unit = jsNative
 
 open Fable.Core.JsInterop

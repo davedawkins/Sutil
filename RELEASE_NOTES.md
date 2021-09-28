@@ -1,3 +1,6 @@
+### 1.0.0-beta-009
+
+- Chrome Extension example + minimal chrome.* api bindings
 ### 1.0.0-beta-008
 
 - Remove log message

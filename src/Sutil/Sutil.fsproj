@@ -38,6 +38,7 @@
     <Compile Include="Bulma.fs" />
     <Compile Include="WebComponent.fs" />
     <Compile Include="DataSimulation.fs" />
+    <Compile Include="Chrome.DevTools.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Feliz.Engine.Bulma" Version="1.0.0-beta-005" />

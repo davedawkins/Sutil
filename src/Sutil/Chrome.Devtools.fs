@@ -19,6 +19,15 @@ type Port = interface
     abstract postMessage: obj -> unit
     end
 
+[<RequireQualifiedAccess>]
+module Storage =
+    type Sync() =
+        [<Emit("chrome.storage.sync.get($0...)")>]
+        static member get( keys : obj, callback : obj -> unit ) : unit = jsNative
+
+        [<Emit("chrome.storage.sync.set($0)")>]
+        static member set( keyValues : obj ) : unit = jsNative
+
 type Runtime() =
     [<Emit("chrome.runtime.connect($0)")>]
     static member connect (connectInfo: obj) : Port = jsNative
@@ -28,6 +37,9 @@ type Runtime() =
 
     [<Emit("chrome.runtime.onConnect")>]
     static member onConnect : Event<obj> = jsNative
+
+    [<Emit("chrome.runtime.onInstalled")>]
+    static member onInstalled : Event<obj> = jsNative
 
 [<RequireQualifiedAccess>]
 module Devtools =

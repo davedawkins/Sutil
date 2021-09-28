@@ -3,7 +3,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Chrome.Devtools.fs" />
     <Compile Include="MainPanel.fs" />
   </ItemGroup>
   <ItemGroup>

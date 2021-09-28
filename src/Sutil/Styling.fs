@@ -143,36 +143,7 @@ open Fable.Core.JsInterop
 
 open Fable.Core
 
-module private CssPolyfill =
-    let cssPolyfillUrl = "https://unpkg.com/construct-style-sheets-polyfill"
-
-    let needsCssPolyfill() =
-        document.head.querySelector("script[src='" + cssPolyfillUrl + "']") |> isNull
-
-    let mutable waitingForLoad : (unit -> unit) list = []
-
-    let addCssPolyfill( onload : unit -> unit ) =
-        if needsCssPolyfill() then
-            waitingForLoad <- onload :: waitingForLoad
-            //JS.console.log("Adding polyfill")
-
-            let scriptEl = document.createElement("script")
-            scriptEl.setAttribute("src", cssPolyfillUrl)
-            scriptEl.onload <- fun _ ->
-                let tmp = waitingForLoad
-                waitingForLoad <- []
-                tmp |> List.iter (fun cb -> cb())
-
-            document.head.appendChild(scriptEl) |> ignore
-        else if (List.isEmpty waitingForLoad) then
-            //JS.console.log("Polyfill already loaded, not waiting for load")
-            onload()
-        else
-            //JS.console.log("Polyfill being loaded")
-            waitingForLoad <- onload :: waitingForLoad
-
-    do
-        addCssPolyfill(ignore) // Prevent FOUC where possible
+Fable.Core.JsInterop.importSideEffects("construct-style-sheets-polyfill")
 
 let adoptStyleSheet (styleSheet : StyleSheet) = nodeFactory <| fun ctx ->
     let host = ctx.ParentNode
@@ -194,6 +165,6 @@ let adoptStyleSheet (styleSheet : StyleSheet) = nodeFactory <| fun ctx ->
         else
             run()
 
-    CssPolyfill.addCssPolyfill onPolyfillLoaded
+    onPolyfillLoaded()
 
     unitResult(ctx,"adoptStyleSheet")

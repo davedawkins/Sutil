@@ -25322,74 +25322,6 @@ function fromBytesBE(bytes, unsigned) {
 
 /***/ }),
 
-/***/ "./src/DevTools/Chrome.Devtools.fs.js":
-/*!********************************************!*\
-  !*** ./src/DevTools/Chrome.Devtools.fs.js ***!
-  \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "Runtime": () => /* binding */ Runtime,
-/* harmony export */   "Runtime$reflection": () => /* binding */ Runtime$reflection,
-/* harmony export */   "Runtime_$ctor": () => /* binding */ Runtime_$ctor,
-/* harmony export */   "Devtools_InspectedWindow_EvalExceptionInfo": () => /* binding */ Devtools_InspectedWindow_EvalExceptionInfo,
-/* harmony export */   "Devtools_InspectedWindow_EvalExceptionInfo$reflection": () => /* binding */ Devtools_InspectedWindow_EvalExceptionInfo$reflection,
-/* harmony export */   "Helpers_inject": () => /* binding */ Helpers_inject
-/* harmony export */ });
-/* harmony import */ var _fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./.fable/fable-library.3.3.0/Reflection.js */ "./src/DevTools/.fable/fable-library.3.3.0/Reflection.js");
-/* harmony import */ var _fable_fable_library_3_3_0_Types_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./.fable/fable-library.3.3.0/Types.js */ "./src/DevTools/.fable/fable-library.3.3.0/Types.js");
-/* harmony import */ var _fable_fable_library_3_3_0_String_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./.fable/fable-library.3.3.0/String.js */ "./src/DevTools/.fable/fable-library.3.3.0/String.js");
-
-
-
-
-class Runtime {
-    constructor() {
-    }
-}
-
-function Runtime$reflection() {
-    return (0,_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.class_type)("Chrome.Runtime", void 0, Runtime);
-}
-
-function Runtime_$ctor() {
-    return new Runtime();
-}
-
-class Devtools_InspectedWindow_EvalExceptionInfo extends _fable_fable_library_3_3_0_Types_js__WEBPACK_IMPORTED_MODULE_1__.Record {
-    constructor(code, description, details, isError, isException, value) {
-        super();
-        this.code = code;
-        this.description = description;
-        this.details = details;
-        this.isError = isError;
-        this.isException = isException;
-        this.value = value;
-    }
-}
-
-function Devtools_InspectedWindow_EvalExceptionInfo$reflection() {
-    return (0,_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.record_type)("Chrome.Devtools.InspectedWindow.EvalExceptionInfo", [], Devtools_InspectedWindow_EvalExceptionInfo, () => [["code", _fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.string_type], ["description", _fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.string_type], ["details", (0,_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.array_type)(_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.obj_type)], ["isError", _fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.bool_type], ["isException", _fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.bool_type], ["value", _fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.string_type]]);
-}
-
-function Helpers_inject(fn, arg) {
-    return new Promise(((fulfil, fail) => {
-        chrome.devtools.inspectedWindow.eval((0,_fable_fable_library_3_3_0_String_js__WEBPACK_IMPORTED_MODULE_2__.toText)((0,_fable_fable_library_3_3_0_String_js__WEBPACK_IMPORTED_MODULE_2__.interpolate)("(%P())(%P())", [fn, JSON.stringify(arg)])),{},((result) => {
-            if (typeof result === 'undefined') {
-                fail(new Error("Unknown error"));
-            }
-            else {
-                fulfil(result);
-            }
-        }));
-    }));
-}
-
-
-
-/***/ }),
-
 /***/ "./src/DevTools/MainPanel.fs.js":
 /*!**************************************!*\
   !*** ./src/DevTools/MainPanel.fs.js ***!
@@ -25451,7 +25383,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _fable_fable_library_3_3_0_Types_js__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./.fable/fable-library.3.3.0/Types.js */ "./src/DevTools/.fable/fable-library.3.3.0/Types.js");
 /* harmony import */ var _fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./.fable/fable-library.3.3.0/Reflection.js */ "./src/DevTools/.fable/fable-library.3.3.0/Reflection.js");
-/* harmony import */ var _Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Chrome.Devtools.fs.js */ "./src/DevTools/Chrome.Devtools.fs.js");
+/* harmony import */ var _Sutil_Chrome_DevTools_fs_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Sutil/Chrome.DevTools.fs.js */ "./src/Sutil/Chrome.DevTools.fs.js");
 /* harmony import */ var _inject_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./inject.js */ "./src/DevTools/inject.js");
 /* harmony import */ var _Sutil_Types_fs_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Sutil/Types.fs.js */ "./src/Sutil/Types.fs.js");
 /* harmony import */ var _Sutil_Promise_fs_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Sutil/Promise.fs.js */ "./src/Sutil/Promise.fs.js");
@@ -25524,31 +25456,31 @@ function dispatchPromise(success, failure, p) {
 }
 
 function getMountPoints() {
-    return (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_1__.GetMountPoints, void 0);
+    return (0,_Sutil_Chrome_DevTools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_1__.GetMountPoints, void 0);
 }
 
 function getStores() {
-    return (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_1__.GetStores, void 0);
+    return (0,_Sutil_Chrome_DevTools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_1__.GetStores, void 0);
 }
 
 function getOptions() {
-    return (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_1__.GetOptions, void 0);
+    return (0,_Sutil_Chrome_DevTools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_1__.GetOptions, void 0);
 }
 
 function getLogCategories() {
-    return (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_1__.GetLogCategories, void 0);
+    return (0,_Sutil_Chrome_DevTools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_1__.GetLogCategories, void 0);
 }
 
 function writeLogCategories(lcs) {
-    void (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)((nameState) => (0,_inject_js__WEBPACK_IMPORTED_MODULE_1__.SetLogCategories)(nameState), lcs);
+    void (0,_Sutil_Chrome_DevTools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)((nameState) => (0,_inject_js__WEBPACK_IMPORTED_MODULE_1__.SetLogCategories)(nameState), lcs);
 }
 
 function writeOptions(opt) {
-    void (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)((options) => (0,_inject_js__WEBPACK_IMPORTED_MODULE_1__.SetOptions)(options), opt);
+    void (0,_Sutil_Chrome_DevTools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)((options) => (0,_inject_js__WEBPACK_IMPORTED_MODULE_1__.SetOptions)(options), opt);
 }
 
 function remount(mountId) {
-    void (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)((id) => (0,_inject_js__WEBPACK_IMPORTED_MODULE_1__.Remount)(id), mountId);
+    void (0,_Sutil_Chrome_DevTools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)((id) => (0,_inject_js__WEBPACK_IMPORTED_MODULE_1__.Remount)(id), mountId);
 }
 
 class Page extends _fable_fable_library_3_3_0_Types_js__WEBPACK_IMPORTED_MODULE_15__.Union {
@@ -25807,7 +25739,7 @@ function initialiseConnectedApp(model, dispatch) {
 
 function startMessageHandlers(model, dispatch) {
     (chrome.devtools.panels.elements).onSelectionChanged.addListener(() => {
-        const pr = (0,_Chrome_Devtools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_1__.Dollar0, void 0);
+        const pr = (0,_Sutil_Chrome_DevTools_fs_js__WEBPACK_IMPORTED_MODULE_0__.Helpers_inject)(_inject_js__WEBPACK_IMPORTED_MODULE_1__.Dollar0, void 0);
         pr.then(((dollar0) => {
             sidePanel().setObject(dollar0, "Selected", () => {
             });
@@ -27012,6 +26944,74 @@ function BindApi_Bind_eachi_18A314FB(items, view, key, trans) {
 
 function BindApi_Bind_eachi_5D3DCB1F(items, view, key) {
     return eachiko(items, view, key, (0,_DevTools_fable_fable_library_3_3_0_List_js__WEBPACK_IMPORTED_MODULE_11__.empty)());
+}
+
+
+
+/***/ }),
+
+/***/ "./src/Sutil/Chrome.DevTools.fs.js":
+/*!*****************************************!*\
+  !*** ./src/Sutil/Chrome.DevTools.fs.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Runtime": () => /* binding */ Runtime,
+/* harmony export */   "Runtime$reflection": () => /* binding */ Runtime$reflection,
+/* harmony export */   "Runtime_$ctor": () => /* binding */ Runtime_$ctor,
+/* harmony export */   "Devtools_InspectedWindow_EvalExceptionInfo": () => /* binding */ Devtools_InspectedWindow_EvalExceptionInfo,
+/* harmony export */   "Devtools_InspectedWindow_EvalExceptionInfo$reflection": () => /* binding */ Devtools_InspectedWindow_EvalExceptionInfo$reflection,
+/* harmony export */   "Helpers_inject": () => /* binding */ Helpers_inject
+/* harmony export */ });
+/* harmony import */ var _DevTools_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.3.0/Reflection.js */ "./src/DevTools/.fable/fable-library.3.3.0/Reflection.js");
+/* harmony import */ var _DevTools_fable_fable_library_3_3_0_Types_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.3.0/Types.js */ "./src/DevTools/.fable/fable-library.3.3.0/Types.js");
+/* harmony import */ var _DevTools_fable_fable_library_3_3_0_String_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../DevTools/.fable/fable-library.3.3.0/String.js */ "./src/DevTools/.fable/fable-library.3.3.0/String.js");
+
+
+
+
+class Runtime {
+    constructor() {
+    }
+}
+
+function Runtime$reflection() {
+    return (0,_DevTools_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.class_type)("Chrome.Runtime", void 0, Runtime);
+}
+
+function Runtime_$ctor() {
+    return new Runtime();
+}
+
+class Devtools_InspectedWindow_EvalExceptionInfo extends _DevTools_fable_fable_library_3_3_0_Types_js__WEBPACK_IMPORTED_MODULE_1__.Record {
+    constructor(code, description, details, isError, isException, value) {
+        super();
+        this.code = code;
+        this.description = description;
+        this.details = details;
+        this.isError = isError;
+        this.isException = isException;
+        this.value = value;
+    }
+}
+
+function Devtools_InspectedWindow_EvalExceptionInfo$reflection() {
+    return (0,_DevTools_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.record_type)("Chrome.Devtools.InspectedWindow.EvalExceptionInfo", [], Devtools_InspectedWindow_EvalExceptionInfo, () => [["code", _DevTools_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.string_type], ["description", _DevTools_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.string_type], ["details", (0,_DevTools_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.array_type)(_DevTools_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.obj_type)], ["isError", _DevTools_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.bool_type], ["isException", _DevTools_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.bool_type], ["value", _DevTools_fable_fable_library_3_3_0_Reflection_js__WEBPACK_IMPORTED_MODULE_0__.string_type]]);
+}
+
+function Helpers_inject(fn, arg) {
+    return new Promise(((fulfil, fail) => {
+        chrome.devtools.inspectedWindow.eval((0,_DevTools_fable_fable_library_3_3_0_String_js__WEBPACK_IMPORTED_MODULE_2__.toText)((0,_DevTools_fable_fable_library_3_3_0_String_js__WEBPACK_IMPORTED_MODULE_2__.interpolate)("(%P())(%P())", [fn, JSON.stringify(arg)])),{},((result) => {
+            if (typeof result === 'undefined') {
+                fail(new Error("Unknown error"));
+            }
+            else {
+                fulfil(result);
+            }
+        }));
+    }));
 }
 
 

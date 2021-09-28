@@ -14,8 +14,10 @@
 - [Stores](stores.md)
 - [Collections](collections.md)
 - [Web Components](webcomponents.md)
+- [Chrome Extensions](chrome_extension.md)
 - [Forms - coming soon](coming_soon.md)
 - [Transitions - coming soon](coming_soon.md)
 - [Media Queries - coming soon](coming_soon.md)
 - [Elmish / MVU - coming soon](coming_soon.md)
 - [DevTools - coming soon](coming_soon.md)
+

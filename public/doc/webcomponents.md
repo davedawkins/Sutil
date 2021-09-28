@@ -58,75 +58,7 @@ $0.setAttribute("value", "40")
 
 ![Example of setting attributes and properties](images/CounterGreetingComponent.gif)
 
-Here is the full example which you can run in the REPL.
-```fsharp
-open Fable.Core
-open Sutil
-open Feliz
-open Sutil.Attr
-open Sutil.DOM
-open Sutil.WebComponents
-
-type CounterProps = {
-    value : int
-    label : string
-}
-
-let CounterStyles = [
-    rule "div" [
-        Css.backgroundColor "#DEEEFF"
-        Css.width (length.percent 50)
-        Css.padding (length.rem 0.5)
-    ]
-    rule "button" [
-        Css.padding (length.rem 0.25)
-    ]
-]
-
-let Counter (model : IStore<CounterProps>) =
-    Html.div [
-        adoptStyleSheet CounterStyles
-
-        Bind.el(model |> Store.map (fun m -> m.label),Html.span)
-        Bind.el(model |> Store.map (fun m -> m.value),Html.text)
-
-        Html.div [
-            Html.button [
-                text "+"
-                onClick (fun _ -> model |> Store.modify (fun m -> { m with value = m.value + 1 } )) []
-            ]
-            Html.button [
-                text "-"
-                onClick (fun _ -> model |> Store.modify (fun m -> { m with value = m.value - 1 } )) []
-            ]
-        ]
-    ]
-
-WebComponent.Register("my-counter",Counter,{ label = ""; value = 0})
-
-type GreetingProps = {
-    greeting : string
-    subject : string
-}
-
-let Greeting (model : IStore<GreetingProps>) =
-    Html.div [
-        Bind.el(model |> Store.map (fun m -> m.greeting),Html.span)
-        text " "
-        Bind.el(model |> Store.map (fun m -> m.subject),Html.text)
-    ]
-
-WebComponent.Register("my-greeting",Greeting,{ greeting = "Bonjour"; subject = "Marie-France"})
-
-let view() =
-    DOM.html """
-        <my-counter value='10' label='Counter: '></my-counter>
-        <br>
-        <my-greeting></my-greeting>
-    """
-
-view() |> Program.mountElement "sutil-app"
-```
+For a more detailed example, go to the [REPL](http://sutil.dev/repl) and select `Miscellaneous -> WebComponents`, or see the [WebComponents example](https://sutil.dev/#examples-web-components).
 
 ## Shadow Styles
 

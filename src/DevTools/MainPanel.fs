@@ -8,6 +8,7 @@ module Sutil.Devtools
 
 open System
 open Browser.Types
+open Feliz
 open Sutil
 open Sutil.DOM
 open Sutil.Attr
@@ -146,40 +147,42 @@ let mutable panel: Chrome.Devtools.Panels.ExtensionPanel = Unchecked.defaultof<_
 let mutable sidePanel : Chrome.Devtools.Panels.ExtensionSidebarPane = Unchecked.defaultof<_>
 let mutable panelDoc : Document = Unchecked.defaultof<_>
 
+open type Feliz.length
+
 let styleSheet = [
-    rule ".sv-container" [ Css.padding "12px";Css.minHeight "100vh" ]
-    rule ".sv-main" [ Css.background "white"; Css.minHeight "100vh" ]
-    rule ".sv-sidebar" [ Css.background "#eeeeee";Css.borderRight "1pt solid #cccccc"; Css.paddingRight "0" ]
-    rule "#sv-title" [ Css.marginBottom "4px" ]
-    rule ".sv-menu li" [ Css.fontSize "90%"; Css.cursor "pointer"; Css.paddingLeft "4px" ]
-    rule ".sv-menu li:hover" [ Css.textDecoration "underline" ]
+    rule ".sv-container" [ Css.padding (px 12);Css.minHeight (vh 100) ]
+    rule ".sv-main" [ Css.backgroundColor "white"; Css.minHeight (vh 100) ]
+    rule ".sv-sidebar" [ Css.backgroundColor "#eeeeee"; Css.borderRight(pt 1,borderStyle.solid,"#cccccc"); Css.paddingRight (px 0) ]
+    rule "#sv-title" [ Css.marginBottom (px 4) ]
+    rule ".sv-menu li" [ Css.fontSize (percent 90); Css.cursor "pointer"; Css.paddingLeft (px 4) ]
+    rule ".sv-menu li:hover" [ Css.textDecorationUnderline ]
     rule ".sv-menu li.active" [
-        Css.borderTop "1pt solid #cccccc"
-        Css.borderLeft "1pt solid #cccccc"
-        Css.borderBottom "1pt solid #cccccc"
-        Css.borderTopLeftRadius "4px"
-        Css.borderBottomLeftRadius "4px"
-        Css.background "white"
-        Css.marginRight "-2px"
-        Css.marginLeft "-4px"
-        Css.paddingLeft "8px" ]
+        Css.borderTop(pt 1, borderStyle.solid, "#cccccc")
+        Css.borderLeft(pt 1, borderStyle.solid, "#cccccc")
+        Css.borderBottom(pt 1, borderStyle.solid, "#cccccc")
+        Css.custom("border-top-left-radius", "4px")
+        Css.custom("border-bottom-left-radius", "4px")
+        Css.backgroundColor "white"
+        Css.marginRight (px -2)
+        Css.marginLeft (px -4)
+        Css.paddingLeft (px 8) ]
     rule ".o-val"   [ Css.color "#1F618D" ]
     rule ".o-str"   [ Css.color "#B03A2E" ]
     rule ".o-bool"  [ Css.color "#3498DB" ]
     rule ".o-int"   [ Css.color "#117864" ]
     rule ".o-float" [ Css.color "#117864" ]
     rule ".table" [
-        Css.fontSize "8pt"
+        Css.fontSize (pt 8)
         Css.fontFamily "Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif"
     ]
     rule ".options" [
-        Css.fontSize "80%"
+        Css.fontSize (percent 80)
     ]
     rule ".log-categories" [
-        Css.marginLeft "16px"
+        Css.marginLeft (px 16)
     ]
     rule ".log-categories .field" [
-        Css.marginBottom "0.5rem"
+        Css.marginBottom (rem 0.5)
     ]
 ]
 
@@ -240,7 +243,7 @@ let buildStoresTable (idVals : StoreIdVal array) =
 
 let viewStores model dispatch =
     Html.div [
-        Bind.el (model .> stores) buildStoresTable
+        Bind.el(model .> stores,buildStoresTable)
     ]
 
 let viewMountPoints model dispatch =
@@ -269,7 +272,7 @@ let bindCheckboxField label (model:IObservable<bool>) dispatch =
         labelc "checkbox" [
             Html.input [
                 type' "checkbox"
-                bindAttrNotify "checked" model dispatch
+                bindAttrBoth "checked" model dispatch
             ]
             text $" {label}"
         ]
@@ -279,11 +282,11 @@ let viewOptions (model:IObservable<Model>) dispatch =
     divc "options" [
         bindCheckboxField "Slow Animations" (model .> slowAnimations) (dispatch << SetSlowAnimations)
         bindCheckboxField "Logging Enabled" (model .> loggingEnabled) (dispatch << SetLoggingEnabled)
-        bind (model .> logCategories) <| fun lcs ->
+        Bind.el(model .> logCategories, fun lcs ->
             divc "log-categories" [
                 for (name,state) in lcs do
                     bindCheckboxField name (Store.make state) (fun v -> (name,v) |> SetLogCategory |> dispatch)
-            ]
+            ])
     ]
 
 let makeStore doc = ObservableStore.makeElmishWithDocument doc init update ignore
@@ -412,7 +415,7 @@ let createMainPanel() =
         let model, dispatch = makeStore panelDoc ()
 
         view model dispatch
-            |> mountElementOnDocument panelDoc "sutil-app"
+            |> Program.mountElementOnDocument panelDoc "sutil-app"
 
         startMessageHandlers model dispatch
         initialiseConnectedApp model dispatch

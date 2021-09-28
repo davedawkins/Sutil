@@ -37,8 +37,8 @@ let getDefault<'a> (ob:obj) (name:string) (defaultValue : 'a): 'a =
     | false -> defaultValue
     | true -> get ob name
 
-//[<Emit("typeof $0 === undefined")>]
-//let isUndefined (x: 'a) : bool = jsNative
+[<Emit("typeof $0 === 'undefined'")>]
+let isUndefined (x: 'a) : bool = jsNative
 
 open Browser.Dom
 open Browser.CssExtensions

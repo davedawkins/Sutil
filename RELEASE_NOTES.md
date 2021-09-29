@@ -1,3 +1,7 @@
+### 1.0.0-beta-010
+
+- Replace npm 'constructable-stylesheets-polyfill' with nuget package 'ConstructableStylesheetsPolyfill'
+
 ### 1.0.0-beta-009
 
 - Chrome Extension example + minimal chrome.* api bindings

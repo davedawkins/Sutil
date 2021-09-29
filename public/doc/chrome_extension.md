@@ -11,13 +11,14 @@ This example was derived from [Getting Started with Chrome Extensions](https://d
 The extension is ready-built in the `./dist` folder. Clone the repo and try it out as follows:
 
 (By the way, these are the same instructions you'll find [here](https://developer.chrome.com/docs/extensions/mv3/getstarted/))
+
 - In Chrome, go to `chrome://extensions`
 - Click `Load unpacked`
 - Select the `dist` folder
 
 If all is well, you'll be able test the extension as follows:
 
-![ChromeExtension](https://user-images.githubusercontent.com/285421/135155734-782f5929-4ac8-46fb-9c18-53cfada3d91f.gif)
+![Sutil Chrome Extension](https://user-images.githubusercontent.com/285421/135159208-eaaa6fbc-7611-4a9f-94a5-53135e191f89.gif)
 
 ### Developing the Extension
 
@@ -44,12 +45,14 @@ $ npm run build
 
 Upon each build, go back to the `chrome://extensions` page and `refresh` the extension.
 
+<img width="539" alt="image" src="https://user-images.githubusercontent.com/285421/135159835-bd6ec235-612f-4d2f-a72b-0a07466338d4.png">
+
 ### Console Output
 
 Output from `Background.fs` will be visible in the developer window accessible from `Inspect views:
 service worker` link, found on the `chrome://extensions` page.
 
-Output from `Popup.js` will be visible from the developer window accessible when you `right-click -> Inspect` inside the window created from `popup.html` (i.e., where the button appears when you activate the extension)
+Output from `Popup.fs` will be visible from the developer window accessible when you `right-click -> Inspect` inside the window created from `popup.html` (i.e., where the button appears when you activate the extension)
 
 ### Browser APIs
 

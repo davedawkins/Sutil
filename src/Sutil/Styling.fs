@@ -143,7 +143,8 @@ open Fable.Core.JsInterop
 
 open Fable.Core
 
-Fable.Core.JsInterop.importSideEffects("construct-style-sheets-polyfill")
+//Fable.Core.JsInterop.importSideEffects("construct-style-sheets-polyfill")
+ConstructStyleSheetsPolyfill.register()
 
 let adoptStyleSheet (styleSheet : StyleSheet) = nodeFactory <| fun ctx ->
     let host = ctx.ParentNode

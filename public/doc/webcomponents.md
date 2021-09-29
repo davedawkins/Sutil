@@ -85,11 +85,7 @@ let Counter (model : IStore<CounterProps>) =
 
 ## Constructable Stylesheets
 
-At the time of writing [Constructable Style Sheets](https://github.com/WICG/construct-stylesheets/blob/gh-pages/explainer.md) is not fully implemented across browsers other than Google Chrome, so Sutil uses a [polyfill](https://www.npmjs.com/package/construct-style-sheets-polyfill). Sutil injects the polyfill automatically at run-time
-
-```html
-    <script src='https://unpkg.com/construct-style-sheets-polyfill'></script>
-```
+At the time of writing [Constructable Style Sheets](https://github.com/WICG/construct-stylesheets/blob/gh-pages/explainer.md) is not fully implemented across browsers other than Google Chrome, so Sutil uses a [polyfill](https://www.nuget.org/packages/ConstructStyleSheetsPolyfill). Sutil injects the polyfill automatically at run-time.
 
 ## Event Handling
 

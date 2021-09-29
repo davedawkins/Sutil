@@ -1,3 +1,7 @@
+### 1.0.0-beta-011
+
+- Fix case for Chrome.DevTools.fs
+
 ### 1.0.0-beta-010
 
 - Replace npm 'constructable-stylesheets-polyfill' with nuget package 'ConstructableStylesheetsPolyfill'

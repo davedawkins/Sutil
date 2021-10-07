@@ -2,7 +2,6 @@ module App
 
 open Fetch
 
-open Feliz
 open Sutil
 open Sutil.Attr
 open Sutil.Styling
@@ -284,7 +283,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
         Css.flexDirectionRow
         Css.justifyContentSpaceBetween
         Css.positionFixed
-        Css.width (length.vw 100)
+        Css.width (vw 100)
         Css.backgroundColor "white"
         Css.paddingLeft (px 12)
         Css.paddingTop (rem 0.7)
@@ -527,18 +526,18 @@ let articleTile cls title subtitle =
 
 let frontPageRules = [
     rule "div.front-page" [
-        Css.paddingTop (length.rem 3.0)
+        Css.paddingTop (rem 3.0)
     ]
     rule ".hero p" [
-        Css.fontSize (length.percent 150.0)
+        Css.fontSize (percent 150.0)
     ]
     rule ".tile.is-parent" [
-        Css.padding (length.rem 0.75)
+        Css.padding (rem 0.75)
     ]
     rule ".tile.is-ancestor" [
-        Css.marginLeft (length.rem 0.75)
-        Css.marginRight (length.rem 0.75)
-        Css.marginTop (length.rem 0.75)
+        Css.marginLeft (rem 0.75)
+        Css.marginRight (rem 0.75)
+        Css.marginTop (rem 0.75)
     ]
 
     rule ".color-1" [

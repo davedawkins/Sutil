@@ -1146,6 +1146,9 @@ let findSvIdElement (doc : Document) id : HTMLElement =
 
 let splitBySpace (s:string) = s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries)
 
+let setClass (className : string) (e:HTMLElement) =
+    e.className <- className
+
 let addToClasslist classes (e:HTMLElement) =
     e.classList.add( classes |> splitBySpace )
 

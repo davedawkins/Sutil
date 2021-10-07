@@ -20,7 +20,7 @@ let view() =
         Html.body [
             Html.div [
                 class' "modal"
-                bindClass active "is-active"
+                Bind.toggleClass(active,"is-active")
 
                 Html.div [ class' "modal-background" ]
                 Html.div [

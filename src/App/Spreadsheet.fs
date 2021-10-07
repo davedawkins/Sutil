@@ -2,7 +2,6 @@ module Spreadsheet
 
 // Based on http://tomasp.net/blog/2018/write-your-own-excel/
 
-open Feliz
 open type Feliz.length
 open type Feliz.borderStyle
 open Sutil

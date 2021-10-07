@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="HelloWorldTest.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\src\Fable.Expect\Fable.Expect.fsproj" />
+    <ProjectReference Include="..\..\src\Sutil\Sutil.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Fable.Browser.Event" Version="1.4.6" />
+  </ItemGroup>
+</Project>

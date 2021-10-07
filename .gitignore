@@ -303,3 +303,4 @@ devtools/js/bundle.js
 devtools/js/bundle.js
 tests/public/test-bundle.js
 tests/public/test-bundle.js
+tests-headless/build

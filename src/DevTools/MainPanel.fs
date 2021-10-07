@@ -293,7 +293,7 @@ let makeStore doc = ObservableStore.makeElmishWithDocument doc init update ignor
 
 let view model dispatch =
 
-    let activeWhen p = bindClass (model .> (page >> (=) p)) "active"
+    let activeWhen p = Bind.toggleClass(model .> (page >> (=) p), "active")
 
     Html.div [
         class' "sv-container"

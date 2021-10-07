@@ -8,7 +8,6 @@ open Sutil.Styling
 open Sutil.Attr
 open Sutil.DOM
 open Browser.Types
-open Feliz
 open type Feliz.length
 open Sutil.Transition
 

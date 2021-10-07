@@ -5,7 +5,6 @@ module SevenGuisCells
 //
 // Still being refactored. Gets better on each pass
 //
-open Feliz
 open type Feliz.borderStyle
 open type Feliz.length
 open Sutil

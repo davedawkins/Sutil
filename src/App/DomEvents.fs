@@ -4,7 +4,6 @@ module DomEvents
 // https://svelte.dev/examples
 
 open Sutil
-open Feliz
 open type Feliz.length
 open Sutil.DOM
 open Sutil.Attr

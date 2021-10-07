@@ -1,10 +1,11 @@
 module Sutil.Bulma
 
-open Feliz
-open type Feliz.length
+open Sutil
 open Sutil.Styling
 open Sutil.DOM
 open Sutil.Attr
+
+open type Feliz.length
 
 module Helpers =
     // Issue #2110
@@ -55,13 +56,13 @@ let styleHelpers = [
     rule "input[type='number']" [
         addClass "input"
         addClass "is-small"
-        Css.maxWidth (length.percent 50)
+        Css.maxWidth (percent 50)
     ]
 
     rule "input[type='range']" [
         addClass "input"
         addClass "is-small"
-        Css.maxWidth (length.percent 50)
+        Css.maxWidth (percent 50)
     ]
 ]
 

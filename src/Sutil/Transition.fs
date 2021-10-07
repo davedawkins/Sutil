@@ -422,6 +422,11 @@ let transitionNode  (el : HTMLElement)
                     let t = runTick tr b d
                     t.Promise)
 
+    // Save the value of display for use by showEl
+    let _display = el.style.display
+    if not (isNull _display) && _display <> "" && _display <> "none" then
+        Interop.set el "_display" _display
+
     match tr with
     | None ->
         showEl el isVisible

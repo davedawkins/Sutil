@@ -73,5 +73,6 @@
     <PackageReference Include="Feliz.Engine.Bulma" Version="1.*-*" />
     <PackageReference Include="Fable.Fetch" Version="2.2.0" />
     <PackageReference Include="Fable.ShadowStyles" Version="1.0.0-*" />
+    <PackageReference Include="Feliz.ReactFlow" Version="0.2.2" />
   </ItemGroup>
 </Project>

@@ -77,6 +77,10 @@ type SutilAttrEngine() =
             bindAttrBoth "value" value dispatch
 
     member _.style (cssAttrs : (string*obj) seq) = cssAttrs |> Sutil.Attr.style
+    member _.style (cssAttrs : IObservable< #seq<string*obj> >) = Bind.style cssAttrs
+
+    member _.none = nodeFactory <| fun ctx -> unitResult(ctx,"none")
+
 
 let Html = SutilHtmlEngine()
 

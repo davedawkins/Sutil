@@ -129,7 +129,10 @@ let rule selector style =
 
 let showEl (el : HTMLElement) isVisible =
     if isVisible then
-        removeStyleAttr el "display"
+        if Interop.exists el "_display" then
+            addStyleAttr el "display" (Interop.get el "_display")
+        else
+            removeStyleAttr el "display"
     else
         addStyleAttr el "display" "none"
     let ev = Interop.customEvent (if isVisible then Event.Show else Event.Hide) {|  |}

@@ -1,3 +1,9 @@
+### 1.0.0-beta-012
+
+- Headless tests using Fable.Expect
+- Remove "open Feliz" to avoid clash when integrating with React
+- New static Bind members: visibility, style, toggleClass, className, classNames
+
 ### 1.0.0-beta-011
 
 - Fix case for Chrome.DevTools.fs

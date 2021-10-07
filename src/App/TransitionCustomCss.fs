@@ -3,7 +3,6 @@ module TransitionCustomCss
 // Adapted from
 // https://svelte.dev/examples
 
-open Feliz
 open type Feliz.length
 open type Feliz.transform
 open System

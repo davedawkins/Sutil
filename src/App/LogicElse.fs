@@ -4,7 +4,6 @@ module LogicElse
 // https://svelte.dev/examples
 
 open Sutil
-open Sutil.Bindings
 open Sutil.DOM
 open Sutil.Attr
 

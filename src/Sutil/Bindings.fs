@@ -1,73 +1,6 @@
 [<AutoOpen>]
 module Sutil.Bindings
 
-(*
-
-Grouping cases
-
-1. Fragment
-
-        div [
-            div "Header"
-            fragment [
-                p "Body 1"
-                p "Body 2"
-            ]
-            div "Footer"
-        ]
-
-        <div>
-            <div>Header</div>
-            <p>Body 1</p>
-            <p>Body 2</p>
-            <div>Footer</div>
-        </div>
-
-2. Binding to text
-
-        div [
-            div "Header"
-            bind store (fun v -> text (string v))
-            div "Footer"
-        ]
-
-3. Binding to element
-
-        div [
-            div "Header"
-            bind store (fun v -> div (string v))
-            div "Footer"
-        ]
-
-4. Binding to fragment
-
-        div [
-            div "Header"
-            bind store (fun v -> fragment [
-                div "Value is"
-                div (string v)
-            ])
-            div "Footer"
-        ]
-
-5. Each of element
-        div [
-            div "Header"
-            each items (fun item -> div (string item))
-            div "Footer"
-        ]
-
-6. Each of fragment - not supported as yet - use a div wrapper
-
-7. Each of binding
-        div [
-            div "Header"
-            each items (fun item -> div (string item))
-            div "Footer"
-        ]
-*)
-
-
 open Transition
 open DOM
 open Browser.Types
@@ -78,7 +11,7 @@ let private log s = Logging.log "bind" s
 
 let private bindId = Helpers.makeIdGenerator()
 
-// All bindings ought to either end up calling this or at least doing the same registration
+// Binding helper
 let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit) = nodeFactory <| fun ctx ->
     let unsub = source.Subscribe( handler ctx )
     SutilNode.RegisterDisposable(ctx.Parent,unsub)
@@ -116,7 +49,7 @@ let bindElement<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) : 
 /// Backwards compatibility
 let bindFragment = bindElement
 
-let bindFragment2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> SutilElement) = nodeFactory <| fun ctx ->
+let bindElement2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> SutilElement) = nodeFactory <| fun ctx ->
     let mutable node : SutilNode = EmptyNode
     let group = SutilNode.MakeGroup("bind2",ctx.Parent,ctx.Previous)
     let bindNode = GroupNode group
@@ -144,7 +77,7 @@ let bindPromiseStore<'T>  (p : ObservablePromise<'T>)
         (result: 'T -> SutilElement)
         (fail : Exception -> SutilElement)
         : SutilElement =
-    bindFragment p <| (function
+    bindElement p <| (function
         | Waiting -> waiting
         | Result r -> result r
         | Error x -> fail x)
@@ -273,12 +206,26 @@ let bindRadioGroup<'T> (store:Store<'T>) : SutilElement = nodeFactory <| fun ctx
 
     unitResult(ctx,"bindRadioGroup")
 
-let bindClass (toggle:IObservable<bool>) (classes:string) =
+let bindClassToggle (toggle:IObservable<bool>) (classesWhenTrue:string) (classesWhenFalse:string) =
     bindSub toggle <| fun ctx active ->
         if active then
-            ctx.ParentElement |> addToClasslist classes
+            ctx.ParentElement |> removeFromClasslist classesWhenFalse
+            ctx.ParentElement |> addToClasslist classesWhenTrue
         else
-            ctx.ParentElement |> removeFromClasslist classes
+            ctx.ParentElement |> removeFromClasslist classesWhenTrue
+            ctx.ParentElement |> addToClasslist classesWhenFalse
+
+// Deprecated
+let bindClass (toggle:IObservable<bool>) (classes:string) = bindClassToggle toggle classes ""
+
+let bindClassNames (classNames:IObservable<#seq<string>>)  =
+    bindSub classNames <| fun ctx current ->
+        ctx.ParentElement.className <- ""
+        ctx.ParentElement.classList.add( current |> Array.ofSeq )
+
+let bindClassName (classNames:IObservable<string>)  =
+    bindSub classNames <| fun ctx current ->
+        ctx.ParentElement.className <- current
 
 // Bind a store value to an element attribute. Updates to the element are unhandled
 let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : SutilElement = nodeFactory <| fun ctx ->
@@ -534,10 +481,10 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
 let private duc = Observable.distinctUntilChanged
 
 let each (items:IObservable<list<'T>>) (view : 'T -> SutilElement) (trans : TransitionAttribute list) =
-    eachiko items (fun (_,item) -> bindFragment (duc item) view) (fun (i,v) -> i,v.GetHashCode()) trans
+    eachiko items (fun (_,item) -> bindElement (duc item) view) (fun (i,v) -> i,v.GetHashCode()) trans
 
 let eachi (items:IObservable<list<'T>>) (view : (int*'T) -> SutilElement)  (trans : TransitionAttribute list) : SutilElement =
-    eachiko items (fun (index,item) -> bindFragment2 (duc index) (duc item) view) fst trans
+    eachiko items (fun (index,item) -> bindElement2 (duc index) (duc item) view) fst trans
 
 let eachio (items:IObservable<list<'T>>) (view : (IObservable<int>*IObservable<'T>) -> SutilElement)  (trans : TransitionAttribute list) =
     eachiko items view fst trans
@@ -545,9 +492,12 @@ let eachio (items:IObservable<list<'T>>) (view : (IObservable<int>*IObservable<'
 let eachk (items:IObservable<list<'T>>) (view : 'T -> SutilElement)  (key:'T -> 'K) (trans : TransitionAttribute list) =
     eachiko
         items
-        (fun (_,item) -> bindFragment (duc item) view)
+        (fun (_,item) -> bindElement (duc item) view)
         (snd>>key)
         trans
+
+(*
+    // This is best done with (say) Bind.toggleClass and an event handler updating a store
 
 //
 // Turn events into an IObservable using a map function
@@ -562,6 +512,7 @@ let bindEvent<'T> (event:string) (map:Event -> 'T) (app:IObservable<'T> -> DOM.S
 
 let bindEventU<'T> (event:string) (map:Event -> 'T) (app:IObservable<'T> -> unit) : DOM.SutilElement =
      bindEvent event map (fun s -> app(s); fragment[])
+*)
 
 let bindStore<'T> (init:'T) (app:Store<'T> -> DOM.SutilElement) : DOM.SutilElement = nodeFactory <| fun ctx ->
     let s = Store.make init
@@ -571,8 +522,9 @@ let bindStore<'T> (init:'T) (app:Store<'T> -> DOM.SutilElement) : DOM.SutilEleme
 let declareStore<'T> (init : 'T) (f : Store<'T> -> unit) =
     declareResource (fun () -> Store.make init) f
 
-let (|=>) a b = bindFragment a b
+let (|=>) store element = bindElement store element
 
+(*
 let selectApp (selectors : (IObservable<bool> * (unit ->SutilElement)) list) = nodeFactory <| fun ctx ->
     let s = selectors |> List.map fst |> firstOf
     let apps = selectors |> List.map snd |> Array.ofList
@@ -583,7 +535,7 @@ let selectApp (selectors : (IObservable<bool> * (unit ->SutilElement)) list) = n
     )
 
     unitResult(ctx,"selectApp")
-
+*)
 
 // BindApi is a way for me to refactor this module into a public-facing documentation API with
 // overloads where appropriate.
@@ -591,7 +543,14 @@ let selectApp (selectors : (IObservable<bool> * (unit ->SutilElement)) list) = n
 
 [<AutoOpen>]
 module BindApi =
+
+    let private cssAttrsToString (cssAttrs) =
+        cssAttrs |> Seq.map (fun (n,v) -> $"{n}: {v};") |> String.concat ""
     type Bind =
+
+        static member visibility( isVisible : IObservable<bool>) = Transition.transition [] isVisible
+        static member visibility( isVisible : IObservable<bool>,trans : TransitionAttribute list) = Transition.transition trans isVisible
+
         /// Dual-binding for a given attribute. Changes to value are written to the attribute, while
         /// changes to the attribute are written back to the store. Note that an IStore is also
         /// an IObservable, for which a separate overload exists.
@@ -609,6 +568,20 @@ module BindApi =
         static member attr<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) =
             bindAttrBoth name value dispatch
 
+        static member style (attrs : IObservable<#seq<string * obj>>) =
+            Bind.attr("style", attrs |> Store.map cssAttrsToString)
+
+        static member toggleClass (toggle:IObservable<bool>, activeClass : string, inactiveClass : string) =
+            bindClassToggle toggle activeClass inactiveClass
+
+        static member toggleClass (toggle:IObservable<bool>, activeClass : string) =
+            bindClassToggle toggle activeClass ""
+
+        static member className (name:IObservable<string>) =
+            bindClassName name
+
+        static member classNames (name:IObservable<#seq<string>>) =
+            bindClassNames name
 
         /// Binding from value to a DOM fragment. Each change in value replaces the current DOM fragment
         /// with a new one.
@@ -623,10 +596,10 @@ module BindApi =
 
 
         /// Binding from two values to a DOM fragment. See fragment<'T>
-        static member el2<'A,'B>  (valueA : IObservable<'A>) (valueB : IObservable<'B>) (element: 'A * 'B -> SutilElement) = bindFragment2 valueA valueB element
+        static member el2<'A,'B>  (valueA : IObservable<'A>) (valueB : IObservable<'B>) (element: 'A * 'B -> SutilElement) = bindElement2 valueA valueB element
 
         /// Deprecated naming, use Bind.el
-        static member fragment2<'A,'B>  (valueA : IObservable<'A>) (valueB : IObservable<'B>) (element: 'A * 'B -> SutilElement) = bindFragment2 valueA valueB element
+        static member fragment2<'A,'B>  (valueA : IObservable<'A>) (valueB : IObservable<'B>) (element: 'A * 'B -> SutilElement) = bindElement2 valueA valueB element
 
         static member selected<'T when 'T : equality>  (value : IObservable<'T list>, dispatch : 'T list -> unit) = bindSelected value dispatch
         static member selected<'T when 'T : equality>  (store : IStore<'T list>) = bindSelectMultiple store

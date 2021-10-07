@@ -1,7 +1,6 @@
 module CounterWithTransition
 
 open Sutil
-open Feliz
 open type Feliz.length
 open Sutil.DOM
 open Sutil.Attr
@@ -21,7 +20,7 @@ let private counterStyle = [
     ]
 
     rule "button" [
-        Css.border(px 1, borderStyle.solid, color.transparent)
+        Css.border(px 1, Feliz.borderStyle.solid, Feliz.color.transparent)
         Css.borderRadius 4
         Css.boxShadowNone
         Css.fontSize (rem 1.0)

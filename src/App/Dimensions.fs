@@ -3,8 +3,8 @@ module Dimensions
 // Adapted from
 // https://svelte.dev/examples
 
-open Feliz
 open type Feliz.length
+open type Feliz.borderStyle
 open Sutil
 open Sutil.Attr
 open Sutil.DOM
@@ -17,7 +17,7 @@ let style = Bulma.withBulmaHelpers [
     ]
     rule "div.resizing" [
         Css.displayInlineBlock
-        Css.border( pt 1, borderStyle.solid, "#dddddd")
+        Css.border( pt 1, solid, "#dddddd")
         Css.resizeBoth
     ]
 ]

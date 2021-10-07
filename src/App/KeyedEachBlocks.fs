@@ -8,7 +8,6 @@ open Sutil.Attr
 open Sutil.DOM
 open Sutil.Styling
 open System
-open Feliz
 open type Feliz.length
 
 type Thing = { Id : int; Color : string }

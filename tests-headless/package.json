@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "scripts": {
+      "install": "dotnet tool restore",
+      "bundle": "cd src/Fable.Expect && esbuild queries.js --bundle --outfile=queries.bundle.js --format=esm",
+      "publish": "dotnet fsi build.fsx publish",
+      "test": "dotnet fable test -o build/test --run web-test-runner build/test/*Test.js --node-resolve",
+      "test:watch": "dotnet fable watch test -o build/test --run web-test-runner build/test/*Test.js --node-resolve --watch"
+  },
+  "devDependencies": {
+      "@web/test-runner": "^0.13.18",
+      "@web/test-runner-commands": "^0.5.13",
+      "aria-query": "^5.0.0",
+      "dom-accessibility-api": "^0.5.7",
+      "esbuild": "^0.13.4"
+  }
+}

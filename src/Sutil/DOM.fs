@@ -1498,3 +1498,7 @@ let html text : SutilElement = nodeFactory <| fun ctx ->
                                             applyCustomRules ns ch)
         Event.notifyUpdated ctx.Document)
     sutilResult <| ctx.Parent
+
+let host (render : HTMLElement -> unit) = nodeFactory <| fun ctx ->
+    ctx.ParentElement |> render
+    unitResult(ctx,"host")

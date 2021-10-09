@@ -15,6 +15,7 @@
 - [Collections](collections.md)
 - [Web Components](webcomponents.md)
 - [Chrome Extensions](chrome_extension.md)
+- [Hosting React](hosting_react.md)
 - [Forms - coming soon](coming_soon.md)
 - [Transitions - coming soon](coming_soon.md)
 - [Media Queries - coming soon](coming_soon.md)

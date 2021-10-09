@@ -3,7 +3,10 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BrowserFramework.fs" />
+    <Compile Include="Describe.fs" />
     <Compile Include="HelloWorldTest.fs" />
+    <Compile Include="OtherTest.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Fable.Expect\Fable.Expect.fsproj" />

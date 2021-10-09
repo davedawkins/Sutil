@@ -1,27 +1,17 @@
 module HelloWorldTest
 
-open Fable.Core
-open Fable.Core.JsInterop
-open Expect
-open Expect.Dom
+open Describe
+
+#if HEADLESS
 open WebTestRunner
-open Browser
-open Browser.Types
+#endif
 
 open Sutil
 
 describe "Hello World" <| fun () ->
-    it "can say hello" <| fun () -> promise {
-        use container = Container.New()
+    it "says hello" <| fun () -> promise {
+        mountTestApp <| Html.div "Hello World"
 
-        let mutable sideEffect = 0
-
-        let hello = Html.div "Hello World"
-
-        Sutil.DOM.mountOn hello container.El |> ignore
-
-        let div = container.El.getSelector("div")
-
-        Expect.Dom.Expect.innerText "Hello World" div
+        Expect.queryText "div" "Hello World"
     }
 

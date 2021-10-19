@@ -51,6 +51,7 @@ module Event =
     let Show = "sutil-show"
     let Hide = "sutil-hide"
     let Updated = "sutil-updated"
+    let Connected = "sutil-connected"
     //let NewStore = "sutil-new-store"
     //let DisposeStore = "sutil-dispose-store"
 
@@ -263,6 +264,10 @@ let listen (event:string) (e:EventTarget) (fn: (Event -> unit)) : (unit -> unit)
 let raf (f : float -> unit) = Window.requestAnimationFrame( fun t -> try f t with|x -> Logging.error $"raf: {x.Message}" )
 let rafu (f : unit -> unit) = Window.requestAnimationFrame( fun _ -> try f() with|x -> Logging.error $"rafu: {x.Message}" ) |> ignore
 
+let anyof (events : string list) (target:EventTarget) (fn : Event->Unit) : unit =
+    let rec inner e = events |> List.iter (fun e -> target.removeEventListener( e, inner )); fn(e)
+    events |> List.iter (fun e -> listen e target inner |> ignore)
+
 let once (event:string) (target:EventTarget) (fn : Event->Unit) : unit =
     let rec inner e = target.removeEventListener( event, inner ); fn(e)
     listen event target inner |> ignore
@@ -301,13 +306,30 @@ type StyleRule = {
     Style : (string*obj) list
 }
 
-type StyleSheet = StyleRule list
+type KeyFrame = {
+    StartAt: int
+    Style : (string * obj) list
+}
+type KeyFrames = {
+    Name : string
+    Frames : KeyFrame list
+}
+type StyleSheetDefinition =
+    | Rule of StyleRule
+    | KeyFrames of KeyFrames
+
+type StyleSheet = StyleSheetDefinition list
 
 type NamedStyleSheet = {
     Name : string
     StyleSheet : StyleSheet
     Parent : NamedStyleSheet option
 }
+
+let rulesOf (styleSheet : StyleSheet) =
+    styleSheet
+        |> List.map (function Rule r -> Some r | _ -> None)
+        |> List.choose id
 
 let rec private forEachChild (parent:Node) (f : Node -> unit) =
     let mutable child = parent.firstChild
@@ -940,13 +962,20 @@ type BuildContext =
         member ctx.AddChild (node: SutilNode) : unit =
             match ctx.Action with
             | Nothing -> ()
+
             | Append ->
                 log $"ctx.Append '{node}' to '{ctx.Parent}' after {ctx.Previous}"
                 ctx.Parent.InsertAfter(node,ctx.Previous)
 
+                if (ctx.Parent.IsConnected()) then
+                    node.collectDomNodes() |> List.iter (fun n -> dispatchSimple n Event.Connected)
+
             | Replace (existing,insertBefore)->
                 log $"ctx.Replace '{existing}' with '{node}' before '{nodeStrShort insertBefore}'"
                 ctx.Parent.ReplaceGroup(node,existing,insertBefore)
+
+                if (ctx.Parent.IsConnected()) then
+                    node.collectDomNodes() |> List.iter (fun n -> dispatchSimple n Event.Connected)
 
             ()
 
@@ -1090,7 +1119,7 @@ let getSutilClasses (e:HTMLElement) =
 let rec applyCustomRules (namedSheet:NamedStyleSheet) (e:HTMLElement) =
     // TODO: Remove all classes added by previous calls to this function
     // TODO: Store them in a custom attribute on 'e'
-    let sheet = namedSheet.StyleSheet
+    let sheet = namedSheet.StyleSheet |> rulesOf
     for rule in sheet |> List.filter (ruleMatchEl e) do
         for custom in rule.Style |> List.filter (fun (nm,v) -> nm.StartsWith("sutil")) do
             match custom with
@@ -1112,7 +1141,10 @@ let rec applyCustomRules (namedSheet:NamedStyleSheet) (e:HTMLElement) =
 
 let build (f : SutilElement) (ctx : BuildContext) =
     let result = f.Builder ctx
+    //if (nodeIsConnected ctx.ParentElement) then
     result.collectDomNodes() |> List.iter (fun n -> dispatchSimple n Event.Mount)
+    //else
+    //    Fable.Core.JS.console.log("Cannot issue mount when not connected: " + (nodeStrShort ctx.ParentElement))
     result
 
 let asDomNode (element:SutilNode) (ctx : BuildContext) : Node =

@@ -1,18 +1,25 @@
-﻿module Test.Store
+﻿module StoreTest
+
+open Describe
+
+#if HEADLESS
+open WebTestRunner
+#endif
 
 open Sutil
-open TestFramework
+open Sutil.DOM
 
-let tests = testList "Sutil.Store" [
+describe "Sutil.Store" <| fun () ->
 
-    testCase "Immediate initialisation upon subscription" <| fun () ->
+    it "Immediate initialisation upon subscription" <| fun () -> promise {
         let s = Store.make 42
         let mutable v = 0
         let u = s |> Store.subscribe (fun v' -> v <- v')
         u.Dispose()
         Expect.areEqual(v,42)
+    }
 
-    testCase "Store updates when no subscribers" <| fun () ->
+    it "Store updates when no subscribers" <| fun () -> promise {
         let s = Store.make 42
         Store.set s 43
 
@@ -20,8 +27,9 @@ let tests = testList "Sutil.Store" [
         let u = s |> Store.subscribe (fun v' -> v <- v')
         u.Dispose()
         Expect.areEqual(v,43)
+    }
 
-    testCase "Update store notifies subscriber" <| fun () ->
+    it "Update store notifies subscriber" <| fun () -> promise {
         let s = Store.make 42
         let mutable v = 0
         let u = s |> Store.subscribe (fun v' -> v <- v')
@@ -31,8 +39,9 @@ let tests = testList "Sutil.Store" [
 
         u.Dispose()
         Expect.areEqual(v,43)
+    }
 
-    testCase "Multiple subscribers initialize" <| fun () ->
+    it "Multiple subscribers initialize" <| fun () -> promise {
         let s = Store.make 42
 
         let mutable v1 = 0
@@ -43,8 +52,9 @@ let tests = testList "Sutil.Store" [
 
         Expect.areEqual(v1,42)
         Expect.areEqual(v2,42)
+    }
 
-    testCase "Multiple subscribers update" <| fun () ->
+    it "Multiple subscribers update" <| fun () -> promise {
         let s = Store.make 42
 
         let mutable v1 = 0
@@ -59,8 +69,9 @@ let tests = testList "Sutil.Store" [
 
         Expect.areEqual(v1,43)
         Expect.areEqual(v2,43)
+    }
 
-    testCase "Dispose terminates subscription" <| fun () ->
+    it "Dispose terminates subscription" <| fun () -> promise {
         let s = Store.make 42
 
         let mutable v1 = 0
@@ -78,9 +89,9 @@ let tests = testList "Sutil.Store" [
 
         Expect.areEqual(v1,42)
         Expect.areEqual(v2,43)
+    }
 
-
-    testCase "No dispose on number of subscribers becoming 0" <| fun () ->
+    it "No dispose on number of subscribers becoming 0" <| fun () -> promise {
         let s = Store.make 42
 
         let mutable v1 = 0
@@ -97,8 +108,9 @@ let tests = testList "Sutil.Store" [
 
         Expect.areEqual(v1,42)
         Expect.areEqual(v2,43)
+    }
 
-    testCase "Notify all updates even when equal" <| fun () ->
+    it "Notify all updates even when equal" <| fun () -> promise {
         let inputValue = 42
 
         let s = Store.make inputValue
@@ -113,5 +125,6 @@ let tests = testList "Sutil.Store" [
         u.Dispose()
 
         Expect.areEqual(n,3)
+    }
 
-]
+let init() = ()

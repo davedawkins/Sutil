@@ -36,24 +36,14 @@ type Context(name:string) =
     member _.AddTest( test : TestCase ) =
         tests <- tests @ [ test ]
 
-    member this.Build(level : int) =
-        log "debug" "Build"
-
+    member this.Build(level : int) : unit =
         let rec suites (name : string) (ctx:Context) =
             seq {
                 yield testList name ctx.Tests
                 for g in ctx.Groups do
                     yield! suites (ctx.Name + "/" + g.Name) g
             }
-
-        BrowserFramework.runTests ((suites this.Name this) |> List.ofSeq)
-
-        ()
-        // logH name
-        // for g in groups do
-        //     g.Execute(level+1)
-        // for t in tests do
-        //     t.Run(level+1)
+        (suites this.Name this) |> Seq.iter addSuite
 
 [<AutoOpen>]
 module Mocha =
@@ -77,9 +67,10 @@ module Mocha =
 let TestAppId = "test-app"
 
 let mountTestApp app =
-    currentEl <- document.querySelector("#" + TestAppId) :?> HTMLElement
-    currentEl.innerHTML <- ""
-    Sutil.DOM.mountOn app currentEl |> ignore
+    let host = document.querySelector("#" + TestAppId) :?> HTMLElement
+    host.innerHTML <- ""
+    let result = Sutil.DOM.mountOn app host
+    currentEl <- host
 
 #endif
 
@@ -97,12 +88,12 @@ type Expect =
     static member notNull (actual:obj) = Expect.assertTrue (not(isNull actual)) "notNull: actual: '{obj}'"
 
     static member queryText (query:string) (expected:string) =
-        let el = currentEl.querySelector(query) :?> HTMLElement
+        let el = currentEl.querySelector(":scope " + query) :?> HTMLElement
         Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
         Expect.areEqual(el.innerText,expected, "queryText")
 
     static member queryNumChildren (query:string) (expected:int) =
-        let el = currentEl.querySelector(query) :?> HTMLElement
+        let el = currentEl.querySelector(":scope " + query) :?> HTMLElement
         Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
         Expect.areEqual(el.children.length,expected,"queryNumChildren")
 

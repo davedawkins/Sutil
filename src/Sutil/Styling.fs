@@ -58,16 +58,39 @@ let specifySelector (styleName : string) (selectors : string) =
     let trans s = if isPseudo s || isGlobal s then s else sprintf "%s.%s" s styleName  // button -> button.styleA
     splitMapJoin ',' (splitMapJoin ' ' (splitMapJoin ':' trans)) selectors
 
+let styleListToText (css : list<string * obj>) =
+    " {\n" +  String.Join ("\n", css |> Seq.map (fun (nm,v) -> $"    {nm}: {v};")) + " }\n"
+
+let frameToText (f : KeyFrame) =
+    sprintf "%d%% %s" f.StartAt (styleListToText f.Style)
+
+let framesToText (frames : KeyFrames) =
+    sprintf "@keyframes %s {\n%s\n}\n"
+        frames.Name
+        (String.Join("\n", frames.Frames |> List.map frameToText))
+
 let styleSheetAsText (styleSheet : StyleSheet) =
-    let ruleToText rule = rule.SelectorSpec + " { " +  String.Join ("", rule.Style |> Seq.map (fun (nm,v) -> $"{nm}: {v};")) + " }"
-    String.Join("\n", styleSheet |> List.map ruleToText)
+    let ruleToText rule = rule.SelectorSpec + (styleListToText rule.Style)
+    let entryToText = function
+        | Rule r -> ruleToText r
+        | KeyFrames frames -> framesToText frames
+    String.Join("\n", styleSheet |> List.map entryToText)
 
 let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheet) =
     let isSutilRule (nm:string,v) = nm.StartsWith("sutil")
     let style = newStyleElement doc
-    for rule in styleSheet do
-        let styleText = String.Join ("", rule.Style |> Seq.filter (not << isSutilRule) |> Seq.map (fun (nm,v) -> $"{nm}: {v};"))
-        [ specifySelector styleName rule.SelectorSpec; " {"; styleText; "}" ] |> String.concat "" |> doc.createTextNode |> style.appendChild |> ignore
+    for entry in styleSheet do
+        match entry with
+        | Rule rule ->
+            let styleText = String.Join ("\n", rule.Style |> Seq.filter (not << isSutilRule) |> Seq.map (fun (nm,v) -> $"    {nm}: {v};"))
+            [
+                specifySelector styleName rule.SelectorSpec
+                " {\n"
+                styleText
+                "}\n"
+            ] |> String.concat "" |> doc.createTextNode |> style.appendChild |> ignore
+        | KeyFrames frames
+            -> framesToText frames |> doc.createTextNode |> style.appendChild |> ignore
 
 let headStylesheet (url : string) : SutilElement = nodeFactory <| fun ctx ->
     let doc = ctx.Document
@@ -119,13 +142,25 @@ let withStyleAppend styleSheet (element : SutilElement) : SutilElement = nodeFac
     ctx |> build element
 
 let rule selector style =
-    let result = {
+    let result = Rule {
         SelectorSpec = selector
         Selector = parseSelector selector
         Style = style
     }
-    log($"%s{selector} -> %A{result.Selector}")
+    //log($"%s{selector} -> %A{result.Selector}")
     result
+
+let keyframe startAt style =
+    {
+        StartAt = startAt
+        Style = style
+    }
+
+let keyframes name frames =
+    KeyFrames {
+        Name = name
+        Frames = frames
+    }
 
 let showEl (el : HTMLElement) isVisible =
     if isVisible then
@@ -142,33 +177,32 @@ let showEl (el : HTMLElement) isVisible =
 
 open Browser.Css
 open Fable.Core.JsInterop
+//open Browser.CssExtensions
 
+ConstructStyleSheetsPolyfill.register()
 
 open Fable.Core
 
-//Fable.Core.JsInterop.importSideEffects("construct-style-sheets-polyfill")
-ConstructStyleSheetsPolyfill.register()
+type Node with
+    /// returns this DocumentOrShadow adopted stylesheets or sets them.
+    /// https://wicg.github.io/construct-stylesheets/#using-constructed-stylesheets
+    [<Emit("$0.adoptedStyleSheets{{=$1}}")>]
+    member __.adoptedStyleSheets with get(): CSSStyleSheet array = jsNative and set(v: CSSStyleSheet array) = jsNative
+    [<Emit("$0.getRootNode()")>]
+    member __.getRootNode() : Node = jsNative
 
 let adoptStyleSheet (styleSheet : StyleSheet) = nodeFactory <| fun ctx ->
-    let host = ctx.ParentNode
-
     let run() =
         let sheet = CSSStyleSheet.Create()
         sheet.replaceSync (styleSheetAsText styleSheet)
 
-        let rootNode : Node = host?getRootNode()
-        let host = rootNode?host
-        if (not (isNull host)) then
-            host?shadowRoot?adoptedStyleSheets <- [| sheet |]
-        else
-            host?adoptedStyleSheets <- [| sheet |]
+        let rootNode : Node = ctx.ParentNode.getRootNode()
 
-    let onPolyfillLoaded() =
-        if not (ctx.Parent.IsConnected()) then
-            once "sutil-connected" host (fun _ -> run())
-        else
-            run()
+        rootNode.adoptedStyleSheets <- Array.concat [ rootNode.adoptedStyleSheets; [| sheet |] ]
 
-    onPolyfillLoaded()
+    if ctx.Parent.IsConnected() then
+        run()
+    else
+        rafu run
 
     unitResult(ctx,"adoptStyleSheet")

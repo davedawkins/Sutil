@@ -1,11 +1,17 @@
-﻿module Test.Observable
+﻿module ObservableTest
+
+open Describe
+
+#if HEADLESS
+open WebTestRunner
+#endif
 
 open Sutil
-open TestFramework
+open Sutil.DOM
 
-let tests = testList "Sutil.Observable" [
+describe "Sutil.Observable" <| fun () ->
 
-    testCase "distinctUntilChanged" <| fun () ->
+    it "distinctUntilChanged" <| fun () -> promise {
         let s1 = Store.make 0
         let s2 = Store.make 0
         let mutable n1 = 0
@@ -19,9 +25,9 @@ let tests = testList "Sutil.Observable" [
 
         Expect.areEqual(7,n1) // 0 1 1 1 2 2 2
         Expect.areEqual(3,n2) // 0 1 2
+    }
 
-
-    testCase "distinctUntilChangedCompare" <| fun () ->
+    it "distinctUntilChangedCompare" <| fun () -> promise {
         let s1 = Store.make '-'
         let s2 = Store.make '-'
         let mutable n1 = 0
@@ -38,12 +44,13 @@ let tests = testList "Sutil.Observable" [
 
         Expect.areEqual(7,n1) // - a A a b B b
         Expect.areEqual(3,n2) // - a b
+    }
 
-    //testCase "exists" <| fun () ->
+    //it "exists" <| fun () ->
     //    let s1 = Store.make '-'
     //    let s2 =
 (*
-    testCase "choose" <| fun () ->
+    it "choose" <| fun () -> promise {
         let s1 = Store.make '-'
         let s2 = Store.make '-'
         let mutable n1 = 0
@@ -59,5 +66,7 @@ let tests = testList "Sutil.Observable" [
         data |> List.iter (Store.set s2)
 
         Expect.areEqual 7 n1 // - a A a b B b
-        Expect.areEqual 3 n2 // - a b *)
-]
+        Expect.areEqual 3 n2 // - a b
+     }*)
+
+let init() = ()

@@ -1,22 +1,28 @@
-﻿module Test.DOM
+module DOMTest
 
-open TestFramework
+open Describe
+
+#if HEADLESS
+open WebTestRunner
+#endif
+
 open Sutil
 open Sutil.DOM
 
-let tests = testList "Sutil.DOM" [
+describe "DOM" <| fun () ->
 
     // Simplest case
-    testCase "Hello World" <| fun () ->
+    it "Hello World" <| fun () -> promise {
         let app =
             Html.div "Hello World"
 
         mountTestApp app
 
         Expect.queryText "div" "Hello World"
+    }
 
     // Basic fragment
-    testCase "Fragment" <| fun () ->
+    it "Fragment" <| fun () -> promise {
         let app =
             Html.div [
                 Html.div "Header"
@@ -31,9 +37,10 @@ let tests = testList "Sutil.DOM" [
         Expect.queryText "div>div:nth-child(1)" "Header"
         Expect.queryText "div>div:nth-child(2)" "Body"
         Expect.queryText "div>div:nth-child(3)" "Footer"
+    }
 
     // Basic fragment
-    testCase "Adjacent Fragments" <| fun () ->
+    it "Adjacent Fragments" <| fun () -> promise {
         let app =
             Html.div [
                 fragment [
@@ -52,27 +59,26 @@ let tests = testList "Sutil.DOM" [
         Expect.queryText "div>div:nth-child(2)" "Item 1.a"
         Expect.queryText "div>h2:nth-child(3)" "Section 2"
         Expect.queryText "div>div:nth-child(4)" "Item 2.a"
+    }
 
-    testCaseP "Delay" <| fun () ->
-        promise {
-            let app1 = Html.div "Delay: Waiting"
-            let app2 = Html.div "Delay: Done"
-            mountTestApp app1
-            do! Promise.sleep(40)
-            mountTestApp app2
-        }
+    it "Delay" <| fun () -> promise {
+        let app1 = Html.div "Delay: Waiting"
+        let app2 = Html.div "Delay: Done"
+        mountTestApp app1
+        do! Promise.sleep(40)
+        mountTestApp app2
+    }
 
-    testCaseP "Animation frame" <| fun () ->
-        promise {
-            let app1 = Html.div "Frame: Waiting"
-            let app2 = Html.div "Frame: Done"
-            mountTestApp app1
-            for t in [1..1] do
-                do! waitAnimationFrame()
-            mountTestApp app2
-        }
+    it "Animation frame" <| fun () -> promise {
+        let app1 = Html.div "Frame: Waiting"
+        let app2 = Html.div "Frame: Done"
+        mountTestApp app1
+        for t in [1..1] do
+            do! BrowserFramework.waitAnimationFrame()
+        mountTestApp app2
+    }
 
-    testCase "Binding" <| fun () ->
+    it "Binding" <| fun () -> promise {
         let store = Store.make 0
         let app =
             fragment [
@@ -82,9 +88,9 @@ let tests = testList "Sutil.DOM" [
         Expect.queryText "div" "0"
         store |> Store.modify ((+)1)
         Expect.queryText "div" "1"
+    }
 
-
-    testCase "Consecutive Bindings" <| fun () ->
+    it "Consecutive Bindings" <| fun () -> promise {
         let store1 = Store.make 10
         let store2 = Store.make 20
         let app =
@@ -106,9 +112,9 @@ let tests = testList "Sutil.DOM" [
 
         Expect.queryText "div:nth-child(1)" "11"
         Expect.queryText "div:nth-child(2)" "21"
+    }
 
-
-    testCase "Consecutive Binding Fragments" <| fun () ->
+    it "Consecutive Binding Fragments" <| fun () -> promise {
         let store1 = Store.make 10
         let store2 = Store.make 20
         let app =
@@ -144,8 +150,9 @@ let tests = testList "Sutil.DOM" [
         Expect.queryText "div>div:nth-child(2)" "11"
         Expect.queryText "div>div:nth-child(3)" "Binding 2"
         Expect.queryText "div>div:nth-child(4)" "21"
+    }
 
-    testCase "Each" <| fun () ->
+    it "Each" <| fun () -> promise {
         let cons x xs = x :: xs
         let store1 = Store.make ([ ] : string list)
         let app =
@@ -165,12 +172,10 @@ let tests = testList "Sutil.DOM" [
         Expect.queryText "div>div:nth-child(1)" "Header"
         Expect.queryText "div>div:nth-child(2)" "A"
         Expect.queryText "div>div:nth-child(3)" "Footer"
+    }
 
-//]
 
-//let tests = testList "Sutil.DOM" [
-
-    testCase "Consecutive Each" <| fun () ->
+    it "Consecutive Each" <| fun () -> promise {
         let cons x xs = x :: xs
         let store1 = Store.make ([ ] : string list)
         let store2 = Store.make ([ ] : string list)
@@ -216,8 +221,9 @@ let tests = testList "Sutil.DOM" [
         Expect.queryText "div>div:nth-child(4)" "Y"
         Expect.queryText "div>div:nth-child(5)" "X"
         Expect.queryText "div>div:nth-child(6)" "Footer"
+    }
 
-    testCase "Consecutive Each Update Sequence #2" <| fun () ->
+    it "Consecutive Each Update Sequence #2" <| fun () -> promise {
         let cons x xs = x :: xs
         let store1 = Store.make ([ ] : string list)
         let store2 = Store.make ([ ] : string list)
@@ -263,8 +269,9 @@ let tests = testList "Sutil.DOM" [
         Expect.queryText "div>div:nth-child(4)" "Y"
         Expect.queryText "div>div:nth-child(5)" "X"
         Expect.queryText "div>div:nth-child(6)" "Footer"
+    }
 
-    testCase "Separated each" <| fun () ->
+    it "Separated each" <| fun () -> promise {
         let cons x xs = x :: xs
         let store1 = Store.make ([ ] : string list)
         let store2 = Store.make ([ ] : string list)
@@ -311,11 +318,11 @@ let tests = testList "Sutil.DOM" [
         Expect.queryText "div>div:nth-child(5)" "Y"
         Expect.queryText "div>div:nth-child(6)" "X"
         Expect.queryText "div>div:nth-child(7)" "Footer"
-
+    }
     //testCaseP "400ms" <| fun () ->
     //    promise {
     //        do! Promise.sleep(400)
     //    }
 
-
-]
+let init() =
+    ()

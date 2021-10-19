@@ -44,6 +44,7 @@
     <PackageReference Include="ConstructStyleSheetsPolyfill" Version="1.0.0-beta-001" />
     <PackageReference Include="Feliz.Engine.Bulma" Version="1.0.0-beta-005" />
     <PackageReference Include="Feliz.Engine" Version="1.0.0-beta-004" />
+    <PackageReference Include="Feliz.Engine.Event" Version="1.0.0-beta-004" />
     <PackageReference Include="Fable.Browser.Css" Version="2.*" />
     <PackageReference Include="Fable.Browser.Dom" Version="2.*" />
     <PackageReference Include="Fable.Browser.Event" Version="1.*" />

@@ -1,3 +1,10 @@
+### 1.0.0-beta-013
+
+- Typesafe events from Feliz.Engine.Event
+- Fixes to adopted style sheets
+- Finish conversion of old tests into headless/browser
+- Few extra SVG attributes and elements (needs an engine)
+
 ### 1.0.0-beta-012
 
 - Headless tests using Fable.Expect

@@ -1,4 +1,4 @@
-module TestFramework
+module BrowserFramework
 
 open System
 open Browser.Dom
@@ -7,29 +7,7 @@ open Fable.Core
 
 
 let testAppId = "test-app"
-
-type Expect =
-    static member assertTrue (cond:bool) (message:string) =
-        if not cond then
-            failwith message
-
-    static member areEqual<'T when 'T:equality>(actual : 'T, expected: 'T, message : string ) =
-        Expect.assertTrue (expected=actual) $"{message}: areEqual: expected: '{expected}' actual: '{actual}'"
-
-    static member areEqual<'T when 'T:equality>(actual : 'T, expected: 'T) =
-        Expect.areEqual(actual, expected, "")
-
-    static member notNull (actual:obj)= Expect.assertTrue (not(isNull actual)) "notNull: actual: '{obj}'"
-
-    static member queryText (query:string) (expected:string) =
-        let el = document.querySelector("#" + testAppId + ">" + query) :?> HTMLElement
-        Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
-        Expect.areEqual(el.innerText,expected, "queryText")
-
-    static member queryNumChildren (query:string) (expected:int) =
-        let el = document.querySelector("#" + testAppId + ">" + query) :?> HTMLElement
-        Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
-        Expect.areEqual(el.children.length,expected,"queryNumChildren")
+let mutable currentEl : HTMLElement = Unchecked.defaultof<_>
 
 type TestCase = {
     Name : string
@@ -38,9 +16,9 @@ type TestCase = {
 
 type TestSuite = {
     Name : string
+    Suites : TestSuite list
     Tests : TestCase list
 }
-
 
 let logC s = Browser.Dom.console.log(s)
 
@@ -91,7 +69,7 @@ let testCaseP (name:string) (f:unit -> JS.Promise<unit>) =
         Test = f
     }
 
-let testList (name:string) (tests : TestCase list) = { Name = name; Tests = tests }
+let testList (name:string) (tests : TestCase list) = { Name = name; Tests = tests; Suites = [] }
 
 type TestContext = {
     StartTime : float
@@ -133,13 +111,15 @@ and nextTestSuite (testCtx : TestContext) =
         logH (suite.Name)
         nextTestCase { testCtx with TestCases = suite.Tests; TestSuites = suites }
 
+let mutable testSuites : TestSuite list = []
+
+let addSuite suite =
+    testSuites <- testSuites @ [ suite ]
 
 let runTests (tests : TestSuite list) =
     logH $"Test Suite"
     logI $"{timestamp(0.)}: Starting test"
     nextTestSuite { StartTime = timeNow(); NumPass = 0; NumFail = 0; TestSuites = tests; TestCases = [] }
 
-let expectListEqual (expected:List<'T>) (value: List<'T>) =
-    Expect.areEqual(expected.Length,value.Length,"List lengths")
-    for p in List.zip expected value do
-        Expect.areEqual((fst p),(snd p),"List elements equal")
+let runAll() =
+    runTests testSuites

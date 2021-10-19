@@ -754,9 +754,6 @@ let app () =
         // Page title
         headTitle "sutil"
 
-        // Bulma style framework
-        headStylesheet "https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
-
         appMain() |> withStyle mainStyleSheet
     ]
 

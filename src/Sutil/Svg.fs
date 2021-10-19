@@ -8,11 +8,16 @@ let svgel (tag:string) (xs:seq<SutilElement>) =
 let svg xs : SutilElement = svgel "svg" xs
 let g xs : SutilElement = svgel "g" xs
 let rect xs : SutilElement = svgel "rect" xs
+let circle xs : SutilElement = svgel "circle" xs
+let pattern xs : SutilElement = svgel "pattern" xs
 let text xs : SutilElement = svgel "text" xs
 let line xs : SutilElement = svgel "line" xs
 
 let x obj = attr("x",obj)
 let y obj = attr("y",obj)
+let cx obj = attr("cx",obj)
+let cy obj = attr("cy",obj)
+let r obj = attr("r",obj)
 let x1 obj = attr("x1",obj)
 let y1 obj = attr("y1",obj)
 let x2 obj = attr("x2",obj)

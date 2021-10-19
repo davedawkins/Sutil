@@ -1,14 +1,18 @@
-module Test.Binding
+module BindingTest
 
-open TestFramework
+
+open Describe
+
+#if HEADLESS
+open WebTestRunner
+#endif
+
 open Sutil
 open Sutil.DOM
-open Fable.Core
 
-let tests = testList "Sutil.Binding" [
+describe "Sutil.Binding" <| fun () ->
 
-
-  testCase "Bind counter" <| fun () ->
+  it "Bind counter" <| fun () -> promise {
         let store = Store.make 0
         let app =
             Html.div [
@@ -24,9 +28,9 @@ let tests = testList "Sutil.Binding" [
 
         Expect.queryNumChildren "div" 1
         Expect.queryText "div>div" "1"
+  }
 
-
-  testCase "Bind dispose div" <| fun () ->
+  it "Bind dispose div" <| fun () ->promise {
         let store = Store.make 0
         let mutable disposed = 0
         let app =
@@ -48,10 +52,10 @@ let tests = testList "Sutil.Binding" [
 
         Expect.queryText "div>div" "1"
         Expect.areEqual(disposed,1)
+  }
 
 
-
-  testCase "Bind disposal nestx2" <| fun () ->
+  it "Bind disposal nestx2" <| fun () ->promise {
         let storeInner = Store.make 0
         let storeOuter = Store.make 0
         let mutable disposed = 0
@@ -78,9 +82,9 @@ let tests = testList "Sutil.Binding" [
         Expect.areEqual(storeInner.Debugger.NumSubscribers,1)
         Expect.areEqual(storeOuter.Debugger.NumSubscribers,1)
         Expect.areEqual(disposed,1)
+  }
 
-
-  testCase "Bind disposal nestx3" <| fun () ->
+  it "Bind disposal nestx3" <| fun () ->promise {
         let storeInner = Store.make 0
         let storeOuter = Store.make 0
         let storeOuter2 = Store.make 0
@@ -145,5 +149,5 @@ let tests = testList "Sutil.Binding" [
         Expect.areEqual(storeOuter.Debugger.NumSubscribers,1,"NumSubscribers")
         Expect.areEqual(disposed,3,"disposed")
         Expect.areEqual(numRenders,2,"numRenders #4")
-
-]
+  }
+let init() = ()

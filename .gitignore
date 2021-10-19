@@ -300,7 +300,5 @@ src/Sutil/Scratch.txt
 examples/HelloWorld/package-lock.json
 examples/HelloWorld/public/bundle.js
 devtools/js/bundle.js
-devtools/js/bundle.js
 tests/public/test-bundle.js
-tests/public/test-bundle.js
-tests-headless/build
+tests/build

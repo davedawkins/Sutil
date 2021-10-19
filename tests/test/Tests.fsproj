@@ -6,7 +6,11 @@
     <Compile Include="BrowserFramework.fs" />
     <Compile Include="Describe.fs" />
     <Compile Include="HelloWorldTest.fs" />
-    <Compile Include="OtherTest.fs" />
+    <Compile Include="DOMTest.fs" />
+    <Compile Include="BindingTest.fs" />
+    <Compile Include="ObservableTest.fs" />
+    <Compile Include="StoreTest.fs" />
+    <Compile Include="Main.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Fable.Expect\Fable.Expect.fsproj" />

@@ -32,7 +32,7 @@ type WebComponent =
             {   Dispose = disposeWrapper
                 GetModel = (fun () -> model |> Store.current)
                 SetModel = Store.set model
-                OnConnected = fun _ -> DOM.dispatchSimple (host?shadowRoot?firstChild) "sutil-connected"
+                OnConnected = fun _ -> DOM.dispatchSimple (host?shadowRoot?firstChild) Event.Connected //"sutil-connected"
                 }
 
         WebComponent.makeWebComponent name wrapper init

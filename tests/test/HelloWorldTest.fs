@@ -15,3 +15,5 @@ describe "Hello World" <| fun () ->
         Expect.queryText "div" "Hello World"
     }
 
+let init() =
+    System.Console.WriteLine("HelloWorld init")

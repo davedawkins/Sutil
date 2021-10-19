@@ -8,6 +8,10 @@ open System
 // Dummy type to avoid problems with overload resolution in HtmlEngine
 type [<Fable.Core.Erase>] NodeAttr = NodeAttr of SutilElement
 
+type SutilEventEngine() as this =
+    inherit EventEngine<SutilElement>( fun (event:string) handler -> Sutil.Attr.on (event.ToLower()) handler [] )
+
+
 type SutilHtmlEngine() as this =
     inherit HtmlEngine<SutilElement>( el, text, (fun () -> fragment []) )
     member _.app (xs : seq<SutilElement>) : SutilElement = fragment xs
@@ -85,6 +89,8 @@ type SutilAttrEngine() =
 let Html = SutilHtmlEngine()
 
 let Attr = SutilAttrEngine()
+
+let Ev = SutilEventEngine()
 
 let Css =  CssEngine(fun k v -> k, box v)
 

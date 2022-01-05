@@ -180,6 +180,86 @@ module ObservableStore =
         interface IDisposable with
             member this.Dispose() = this.Dispose()
 
+    type VirtualStore<'T, 'Model when 'T: equality>
+        (
+            initialModel: 'Model,
+            obs: IObservable<'Model>,
+            f: 'Model -> 'T,
+            updateCallback: 'T -> unit
+        ) as _this
+        =
+        let mutable uid = 0
+        let mutable _value = f initialModel
+        let subscribers = Collections.Generic.Dictionary<_, IObserver<'T>>()
+        let subDisposable = obs.Subscribe _this.ProcessNewModel
+
+        override _.ToString() = $"#VirtualStore={_value}"
+
+        member _.Value = _value
+
+        member _.UpdateCallback = updateCallback
+
+        member _.Update(f: 'T -> 'T) =
+            let newValue = f _value
+            newValue |> updateCallback
+
+        member private _.ProcessNewModel(model: 'Model) =
+            let newValue = f model
+
+            // Send every update. Use 'distinctUntilChanged' with fastEquals to get previous behaviour
+            // Fable.Core.JS.console.log($"Update {model}, {_value} -> {newValue}")
+            if newValue <> _value then
+                _value <- newValue
+                if subscribers.Count > 0 then
+                    subscribers.Values
+                        |> Seq.iter (fun s -> s.OnNext(_value))
+
+        member _.Subscribe(observer: IObserver<'T>): IDisposable =
+            let id = uid
+            uid <- uid + 1
+
+            Logging.log "vstore" $"subscribe {id}"
+
+            subscribers.Add(id, observer)
+
+            // TODO: Is this the right way to report the model to the subscriber immediately?
+            //Fable.Core.JS.setTimeout (fun _ -> observer.OnNext(model)) 0 |> ignore
+
+            // Sutil depends on an immediate callback
+            observer.OnNext(_value)
+
+            Helpers.disposable <| fun () ->
+                Logging.log "vstore" $"unsubscribe {id}"
+                subscribers.Remove(id) |> ignore
+
+        member this.Dispose() =
+            subscribers.Values |> Seq.iter (fun x -> x.OnCompleted())
+            subscribers.Clear()
+            _value <- Unchecked.defaultof<_>
+            subDisposable.Dispose()
+            Registry.notifyDisposeStore this
+
+        interface IVirtualStore<'T> with
+            member this.Subscribe(observer: IObserver<'T>) = this.Subscribe(observer)
+            member this.Value = this.Value
+            member this.Update(f) = this.Update(f)
+            member this.UpdateCallback = this.UpdateCallback
+            member this.Debugger = {
+                new IStoreDebugger with
+                    member _.Value = upcast this.Value
+                    member _.NumSubscribers = subscribers.Count }
+            member this.Dispose() = this.Dispose()
+
+    module VirtualStore =
+        let ofStore (f: 'Model -> 'T) (callback: 'T -> unit) (store: IReadOnlyStore<'Model>): IVirtualStore<'T> =
+            new VirtualStore<'T, 'Model>(store.Value, store, f, callback)
+            :> IVirtualStore<'T>
+
+        let map (f: 'T -> 'U, invF: 'U -> 'T) (vStore: IVirtualStore<'T>): IVirtualStore<'U> =
+            new VirtualStore<'U, _>(vStore.Value, vStore, f, invF >> vStore.UpdateCallback)
+            :> IVirtualStore<'U>
+
+
     let makeElmishWithCons (init: 'Props -> 'Model * Cmd<'Msg>)
                            (update: 'Msg -> 'Model -> 'Model * Cmd<'Msg>)
                            (dispose: 'Model -> unit)

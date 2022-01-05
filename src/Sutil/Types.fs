@@ -52,16 +52,32 @@ module DevToolsControl =
 
 type Unsubscribe = unit -> unit
 
-type IStore<'T> =
+type IReadOnlyStore<'T> =
     interface
         inherit IObservable<'T>
         inherit IDisposable
-        abstract Update : f: ('T -> 'T) -> unit
         abstract Value : 'T
         abstract Debugger : IStoreDebugger
     end
 
+type IStore<'T> =
+    interface
+        inherit IReadOnlyStore<'T>
+        abstract Update : f: ('T -> 'T) -> unit
+        // abstract Name : string with get, set
+    end
+
+type IVirtualStore<'T> =
+    interface
+        inherit IStore<'T>
+        abstract member UpdateCallback: ('T -> unit)
+    end
+
 type Store<'T> = IStore<'T>
+
+type ReadOnlyStore<'T> = IReadOnlyStore<'T>
+
+type VirtualStore<'T> = IVirtualStore<'T>
 
 type Update<'Model> = ('Model -> 'Model) -> unit // A store updater. Store updates by being passed a model updater
 

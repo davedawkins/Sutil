@@ -24,22 +24,21 @@ module Observable =
     let zip<'A,'B> (a:IObservable<'A>) (b:IObservable<'B>) : IObservable<'A*'B> =
         { new System.IObservable<'A*'B> with
             member _.Subscribe( h : IObserver<'A*'B> ) =
-                let mutable initState = 0
-                let mutable valueA = Unchecked.defaultof<'A>
-                let mutable valueB = Unchecked.defaultof<'B>
+                let mutable valueA = None
+                let mutable valueB = None
 
                 let notify() =
-                    if initState = 2 then h.OnNext( valueA, valueB )
+                    // unfortunately, there's no Option.iter2
+                    Option.map2 (fun a b -> h.OnNext(a, b)) valueA valueB
+                    |> ignore
 
                 let disposeA = a.Subscribe( fun v ->
-                    if (initState = 0) then initState <- 1
-                    valueA <- v
+                    valueA <- Some v
                     notify()
                 )
 
                 let disposeB = b.Subscribe( fun v ->
-                    if (initState = 1) then initState <- 2
-                    valueB <- v
+                    valueB <- Some v
                     notify()
                 )
 

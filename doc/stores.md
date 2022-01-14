@@ -1,13 +1,8 @@
-In React the view function is evaluated constantly and through a diffing algorithm, and when the view is evaulated and returns a different value then the corresponding nodes are updated (Via a Virtual DOM).
+Sutil's reactivity model is based on observables. You declare bindings between sections of your view and observable values, and Sutil rebuilds that view section *only*  when those values change.
 
-In contrast Svelte doesn't do that svelte uses observables to detect changes and update the nodes accordingly that's why Svelte claims it is a truly reactive.
+This contrasts with React, where the *whole* view is rebuilt when *any* values change. React uses a virtual DOM and some clever diffing algorithms to make this as efficient as possible.
 
-that means a couple of things
-
-- Views are evaluated once
-- Subsecuent changes that are not reactive don't trigger UI updates
-
-In Sutil Stores provided are observables so they are are in tune with Svelte's reactive system
+Observables are read-only. Sutil's `Store` makes an observable to which you can write values.
 
 A Store is defined as follows
 ```fs
@@ -17,22 +12,19 @@ type IStore<'T> =
         inherit IDisposable
         abstract Update : f: ('T -> 'T) -> unit
         abstract Value : 'T
-        abstract Debugger : IStoreDebugger
     end
 ```
 
-> Stores are Observables and Disposables, this means you can work with them as any other observable out there (like [rxjs](https://rxjs.dev/) if you come from javascript). Also, the [FSharp.Core](https://fsharp.github.io/fsharp-core-docs/) library provdes Observable functions that will allow you to work fine with them.
+Stores are `IObservable` and `IDisposable`.
 
+As an `IObservable`, they are compatible with other libraries such as [FSharp.Core](https://fsharp.github.io/fsharp-core-docs/).
 
-> **Notice**: as any other observable, these are disposable, so keep in mind that stores in your views must be disposed to prevent memory leaks
-
-
-Sutil Provides a few out of the box functions that will ease your time working with them.
+As an `IDisposable`, they must be disposed of when no longer used. Sutil provides constructs to help with this.
 
 ## Functions
 
-### Store.make
-The starting point for any store, use `Store.make` to create a new store
+### Store.make : 'T -> IStore<'T>
+Create a new store, with the given initial value.
 
 #### Examples
 ```fsharp
@@ -47,9 +39,8 @@ intStore.Dispose()
 anonymousStore.Dispose()
 ```
 
-### Store.get
-Obtains the current value of the store, use this when you need the contents of the store without the observable wrapper
-
+### Store.get : () -> 'T
+Retrieve the current value of the store
 
 #### Examples
 ```fs
@@ -60,8 +51,8 @@ let value2 = Store.get anonymousStore
 Option.isNone value2.prop2 // true
 ```
 
-### Store.set
-`Store.set` replaces the current value of the store
+### Store.set: 'T -> unit
+Set the current value of the store. Subscriptions will be notified, even if the new value is the same as the current value.
 
 #### Examples
 ```fs
@@ -69,11 +60,15 @@ Store.set intStore 2
 let value = Store.get intStore
 value = 1 // false
 ```
-### Store.subscribe
-`Store.subscribe` provides a subscription that invokes a callback every time the store value is updated
+### Store.subscribe: ('T -> unit) -> IObservable<'T> -> IDisposable
+Create a subscription that invokes a callback every time the store value is updated.
+
+Note that subscriptions are notified even if the new value for the store is the same as its current value.
+
+Cancel the subscription by disposing the returned object. Upon subscription, the callback will be called immediately with the store's current value.
 
 #### Examples
-```fsharp
+```fs
 let subscription =
     Store.subscribe (fun value -> printfn $"{value}") intStore
 
@@ -81,10 +76,8 @@ let subscription =
 
 subscription.Dispose()
 ```
-### Store.map
-`Store.map` returns an observable that will resolve to the result of said callback
-
-This is useful when you need to compute results or transform the results based on user input
+### Store.map: ('T -> 'R) -> IObservable<'T> -> IObservable<'R>
+Project an observable using a mapping function.
 
 #### Examples
 
@@ -181,7 +174,7 @@ HTML.article [
 ```
 
 ### Store.getMap
-`Store.getMap` takes a store and applies a mapping function then returns the value from the evaluated function, this can be useful to perform one off transformation over store values
+`Store.getMap` takes an observable and applies a mapping function then returns the value from the evaluated function, this can be useful to perform a single transformation over store values
 
 #### Examples
 ```fs
@@ -331,8 +324,8 @@ Alias for `Store.getMap`, takes a store and applies a mapping function then retu
 
 #### Example
 ```fs
-    let store: IStore&lt;{| name: string; budget: decimal |}> =
-    Store.make {| name = "Frank"; budget = 547863.26M
+    let store: IStore<{| name: string; budget: decimal |}> =
+        Store.make {| name = "Frank"; budget = 547863.26M
 
     let formattedBudget: string =
         store |-> (fun model -> sprintf $"$ %0.00M{model.budget}")
@@ -342,7 +335,7 @@ Alias for `Store.getMap`, takes a store and applies a mapping function then retu
 Alias for `Store.map`, returns an observable that will resolve to the result of said callback
 #### Example
 ```fs
-let subscription: IObservable&lt;string&gt; =
+let subscription: IObservable<string> =
     intStore .> (fun value -> $"{value}")
 (* after you are done with the subscription *)
 subscription.Dispose()
@@ -352,7 +345,7 @@ subscription.Dispose()
 Alias for `Store.set`,  replaces the current value of the store
 #### Example
 ```fs
-intStore &lt;~ 2
+intStore <~ 2
 let value = Store.get intStore
 value = 1 // false
 ```
@@ -370,11 +363,11 @@ value = 1 // false
 Alias for `Store.modify`. Modify the store by mapping its current value with a callback
 #### Example
 ```fs
-let store: IStore&lt;int> = Store.make 2
+let store: IStore<int> = Store.make 2
 let squareMe() =
-    store &lt;~= (fun model -> model * model)
+    store <~= (fun model -> model * model)
 Html.div [
-    bindFragment store &lt;| fun model -> text $"The value is {model}"
+    bindFragment store <| fun model -> text $"The value is {model}"
     Html.button [
         onClick (fun _ -> squareMe()) []
         text "Square me"
@@ -386,11 +379,11 @@ Html.div [
 Alias for `Store.modify`. Modify the store by mapping its current value with a callback
 #### Example
 ```fs
-let store: IStore&lt;int> = Store.make 2
+let store: IStore<int> = Store.make 2
 let squareMe() =
     (fun model -> model * model) =~> store
 Html.div [
-    bindFragment store &lt;| fun model -> text $"The value is {model}"
+    bindFragment store <| fun model -> text $"The value is {model}"
     Html.button [
         onClick (fun _ -> squareMe()) []
         text "Square me"

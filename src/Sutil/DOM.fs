@@ -1203,13 +1203,24 @@ let nullToEmpty s =
     if isNull s then "" else s
 
 let setAttribute (el:HTMLElement) (name:string) (value:obj) =
+    let isBooleanAttribute name = (name= "hidden" || name = "disabled" || name = "readonly" || name = "required")
     let svalue = string value
     if name = "class" then
         el |> addToClasslist svalue
     else  if name = "class-" then
         el |> removeFromClasslist svalue
-    else if svalue = "false" && (name = "disabled" || name = "readonly" || name = "required") then
-        el.removeAttribute( name )
+    else if isBooleanAttribute name then
+        let bValue =
+            if value :? bool then
+                value :?> bool
+            else
+                svalue <> "false"
+        // we'd call el.toggleAttribute( name, bValue) if it was available
+        if bValue then
+            el.setAttribute( name, "" )
+        else
+            el.removeAttribute name
+
     else if name = "value" then
         Interop.set el "__value" value // raw value
         Interop.set el "value" svalue //

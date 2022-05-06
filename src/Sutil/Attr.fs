@@ -6,9 +6,9 @@ open Fable.Core.JsInterop
 
 let autofocus : SutilElement =
     nodeFactory <| fun ctx ->
-        let e = ctx.Parent
+        let e = ctx.ParentElement
         DOM.rafu (fun _ ->
-            e?focus()
+            e.focus()
             e?setSelectionRange(99999,99999)
             )
         unitResult(ctx, "autofocus")

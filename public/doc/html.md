@@ -68,7 +68,7 @@ Html.a [
 
 ```fsharp
 Html.input [
-    Attr.type "email"
+    Attr.type' "email"
     Attr.value "bob@foo.com"
 ]
 ```

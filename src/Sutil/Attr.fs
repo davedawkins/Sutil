@@ -20,7 +20,12 @@ let for' n         = attr("for",n)
 let class' n       = attr("class",n)
 let unclass n      = attr("class-", n)
 let unclass' n     = attr("class-", n)
-let style (cssAttrs: (string * obj) seq) = attr("style", cssAttrs |> Seq.map (fun (n,v) -> $"{n}: {v};") |> String.concat "")
+
+let style (cssAttrs: (string * obj) seq) =
+    attr("style", cssAttrs |> Seq.map (fun (n,v) -> $"{n}: {v};") |> String.concat "")
+
+let styleAppend (cssAttrs: (string * obj) seq) =
+    attr("style+", cssAttrs |> Seq.map (fun (n,v) -> $"{n}: {v};") |> String.concat "")
 
 // Events
 

@@ -12,6 +12,49 @@ open Sutil.DOM
 
 describe "Sutil.Binding" <| fun () ->
 
+  it "Doesn't dispose items when re-ordering" <| fun () -> promise {
+      let sort = Store.make false
+
+      let items = [ 3; 4; 2; 1 ]
+
+      let sortedList useSort =
+            items |> List.sortBy (fun n -> if useSort then n else 0)
+
+      let mutable unmountCount = 0
+      let app =
+        Html.div [
+            Bind.each(
+                (sort |> Store.map sortedList),
+                (fun (n : int) ->
+                    Html.div [
+                        DOM.unsubscribeOnUnmount [fun _ -> unmountCount <- unmountCount + 1]
+                        text (string n)
+                    ]),
+                (fun n -> n)
+            )
+        ]
+
+      mountTestApp app
+
+      Expect.queryText "div>div:nth-child(1)" "3"
+      Expect.queryText "div>div:nth-child(2)" "4"
+      Expect.queryText "div>div:nth-child(3)" "2"
+      Expect.queryText "div>div:nth-child(4)" "1"
+
+      Expect.areEqual(unmountCount, 0)
+
+      true |> Store.set sort
+
+      Expect.queryText "div>div:nth-child(1)" "1"
+      Expect.queryText "div>div:nth-child(2)" "2"
+      Expect.queryText "div>div:nth-child(3)" "3"
+      Expect.queryText "div>div:nth-child(4)" "4"
+
+      Expect.areEqual(unmountCount, 0)
+
+      return ()
+  }
+
   it "Bind counter" <| fun () -> promise {
         let store = Store.make 0
         let app =

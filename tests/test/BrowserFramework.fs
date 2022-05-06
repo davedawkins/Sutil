@@ -20,9 +20,9 @@ type TestSuite = {
     Tests : TestCase list
 }
 
-let logC s = Browser.Dom.console.log(s)
+let logC (s: string) = Browser.Dom.console.log(s)
 
-let log (category:string) s =
+let log (category:string) (s : string) =
     logC(s)
     let logE = document.querySelector("#test-log")
     if not(isNull logE) then

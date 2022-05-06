@@ -45,18 +45,28 @@ let newStyleElement (doc : Document)=
     style
 
 let splitMapJoin (delim:char) (f : string -> string) (s:string) =
-    s.Split([| delim |], StringSplitOptions.RemoveEmptyEntries)
+    s.Split([| delim |], StringSplitOptions.RemoveEmptyEntries )
         |> Array.map f
         |> fun values -> String.Join(string delim, values)
 
+let mapPseudo (f : string -> string) (s : string) =
+    let i = s.IndexOf(':')
+    if i < 0 then
+        f s
+    else
+        f (s.Substring(0,i)) + (s.Substring(i))
+
 let isPseudo s =
-    s = "hover" || s = "active" || s = "visited" || s = "link" || s = "before" || s = "after" || s = "checked"
+    s = "hover" || s = "active" || s = "visited" || s = "link" || s = "before" || s = "after" || s = "checked" || s = "marker"
 
 let isGlobal s = s = "body" || s = "html"
 
 let specifySelector (styleName : string) (selectors : string) =
-    let trans s = if isPseudo s || isGlobal s then s else sprintf "%s.%s" s styleName  // button -> button.styleA
-    splitMapJoin ',' (splitMapJoin ' ' (splitMapJoin ':' trans)) selectors
+    if (styleName = "") then
+        selectors
+    else
+        let trans s = if isPseudo s || isGlobal s then s else sprintf "%s.%s" s styleName  // button -> button.styleA
+        splitMapJoin ',' (splitMapJoin ' ' (mapPseudo trans)) selectors
 
 let styleListToText (css : list<string * obj>) =
     " {\n" +  String.Join ("\n", css |> Seq.map (fun (nm,v) -> $"    {nm}: {v};")) + " }\n"
@@ -69,28 +79,36 @@ let framesToText (frames : KeyFrames) =
         frames.Name
         (String.Join("\n", frames.Frames |> List.map frameToText))
 
+let private isSutilRule (nm:string,v) = nm.StartsWith("sutil")
+
+let private ruleToText (styleName : string) (rule:StyleRule) =
+    //rule.SelectorSpec + (styleListToText rule.Style)
+    let styleText = String.Join ("\n", rule.Style |> Seq.filter (not << isSutilRule) |> Seq.map (fun (nm,v) -> $"    {nm}: {v};"))
+    [
+        specifySelector styleName rule.SelectorSpec
+        " {\n"
+        styleText
+        "}\n"
+    ] |> String.concat ""
+
+let rec mediaRuleToText styleName rule =
+    sprintf "@media %s {\n%s\n}\n" (rule.Condition) (rule.Rules |> List.map (entryToText styleName) |> String.concat "\n")
+
+and entryToText (styleName : string) = function
+    | Rule rule ->
+        ruleToText styleName rule
+    | KeyFrames frames ->
+        framesToText frames
+    | MediaRule rule ->
+        mediaRuleToText styleName rule
+
 let styleSheetAsText (styleSheet : StyleSheet) =
-    let ruleToText rule = rule.SelectorSpec + (styleListToText rule.Style)
-    let entryToText = function
-        | Rule r -> ruleToText r
-        | KeyFrames frames -> framesToText frames
-    String.Join("\n", styleSheet |> List.map entryToText)
+    String.Join("\n", styleSheet |> List.map (entryToText ""))
 
 let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheet) =
-    let isSutilRule (nm:string,v) = nm.StartsWith("sutil")
     let style = newStyleElement doc
     for entry in styleSheet do
-        match entry with
-        | Rule rule ->
-            let styleText = String.Join ("\n", rule.Style |> Seq.filter (not << isSutilRule) |> Seq.map (fun (nm,v) -> $"    {nm}: {v};"))
-            [
-                specifySelector styleName rule.SelectorSpec
-                " {\n"
-                styleText
-                "}\n"
-            ] |> String.concat "" |> doc.createTextNode |> style.appendChild |> ignore
-        | KeyFrames frames
-            -> framesToText frames |> doc.createTextNode |> style.appendChild |> ignore
+        entryToText styleName entry |> doc.createTextNode |> style.appendChild |> ignore
 
 let headStylesheet (url : string) : SutilElement = nodeFactory <| fun ctx ->
     let doc = ctx.Document

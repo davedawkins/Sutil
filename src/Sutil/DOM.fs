@@ -314,9 +314,15 @@ type KeyFrames = {
     Name : string
     Frames : KeyFrame list
 }
-type StyleSheetDefinition =
+
+type MediaRule = {
+    Condition : string
+    Rules : StyleSheetDefinition list
+}
+and  StyleSheetDefinition =
     | Rule of StyleRule
     | KeyFrames of KeyFrames
+    | MediaRule of MediaRule
 
 type StyleSheet = StyleSheetDefinition list
 
@@ -325,6 +331,12 @@ type NamedStyleSheet = {
     StyleSheet : StyleSheet
     Parent : NamedStyleSheet option
 }
+
+let makeMediaRule condition rules =
+    MediaRule {
+        Condition = condition
+        Rules = rules
+    }
 
 let rulesOf (styleSheet : StyleSheet) =
     styleSheet
@@ -1187,6 +1199,9 @@ let addToClasslist classes (e:HTMLElement) =
 let removeFromClasslist classes (e:HTMLElement) =
     e.classList.remove( classes |> splitBySpace )
 
+let nullToEmpty s =
+    if isNull s then "" else s
+
 let setAttribute (el:HTMLElement) (name:string) (value:obj) =
     let svalue = string value
     if name = "class" then
@@ -1198,6 +1213,8 @@ let setAttribute (el:HTMLElement) (name:string) (value:obj) =
     else if name = "value" then
         Interop.set el "__value" value // raw value
         Interop.set el "value" svalue //
+    else if name = "style+" then
+        el.setAttribute("style", (nullToEmpty (el.getAttribute("style"))) + svalue )
     else
         el.setAttribute( name, svalue )
 
@@ -1482,6 +1499,19 @@ let el tag (xs : seq<SutilElement>) : SutilElement = nodeFactory <| fun ctx ->
 
     domResult e
 
+let elAppend selector (xs : seq<SutilElement>) : SutilElement = nodeFactory <| fun ctx ->
+    let e : Element = ctx.Document.querySelector(selector)
+    if isNull e then
+        failwith ("Not found " + selector)
+    let snodeEl = DomNode e
+
+    let id = domId()
+    log("append <" + selector + "> #" + string id)
+    setSvId e id
+
+    ctx |> ContextHelpers.withParent snodeEl |> buildChildren xs
+
+    unitResult(ctx,"elAppend")
 (*
 let buildSolitaryElement (f : SutilElement) ctx : HTMLElement =
     log $"buildSolitaryElement: {ctx.Action}"
@@ -1534,3 +1564,5 @@ let html text : SutilElement = nodeFactory <| fun ctx ->
 let host (render : HTMLElement -> unit) = nodeFactory <| fun ctx ->
     ctx.ParentElement |> render
     unitResult(ctx,"host")
+
+let nothing = nodeFactory <| fun ctx -> unitResult(ctx, "nothing")

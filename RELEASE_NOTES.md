@@ -1,3 +1,8 @@
+### 1.0.0-beta-014
+
+- Support for media queries in `withStyle`
+- Bug fix for Observable.distinctUntilChangedCompare
+
 ### 1.0.0-beta-013
 
 - Typesafe events from Feliz.Engine.Event

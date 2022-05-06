@@ -53,14 +53,17 @@ module Observable =
         { new System.IObservable<'T> with
             member _.Subscribe( h : IObserver<'T> ) =
                 let mutable value = Unchecked.defaultof<'T>
+                let mutable init = false
 
-                // Help! Is this OK?
-                let safeEq next = not(isNull(unbox value)) && eq value next
+                // For Fable: isNull(unbox(None)) = true
+                // Can't use Unchecked.defaultof<'T> as meaning "init = false"
+                let safeEq next = init && eq value next
 
                 let disposeA = source.Subscribe( fun next ->
                     if not (safeEq next) then
                         h.OnNext next
                         value <- next
+                        init <- true
                 )
 
                 Helpers.disposable (fun _ ->

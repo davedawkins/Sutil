@@ -17,6 +17,32 @@ let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit
     SutilNode.RegisterDisposable(ctx.Parent,unsub)
     unitResult(ctx,"bindSub")
 
+
+let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (compare : 'T -> 'T -> bool)= nodeFactory <| fun ctx ->
+    let mutable node = EmptyNode
+    let group = SutilNode.MakeGroup("bind",ctx.Parent,ctx.Previous)
+    let bindNode = GroupNode group
+
+    log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
+    ctx.AddChild bindNode
+
+    let run() =
+        let bindCtx = { ctx with Parent = bindNode }
+        let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
+            try
+                log($"bind: rebuild {group.Id} with {next}")
+                node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+            with
+            | x -> Logging.error $"Exception in bindo: {x.Message} parent {ctx.Parent} node {node.ToString()} node.Parent "
+        )
+        group.SetDispose ( fun () ->
+            log($"dispose: Bind.el: {group}")
+            disposable.Dispose())
+
+    run()
+
+    sutilResult bindNode
+
 let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> SutilElement) (compare : 'T -> 'T -> bool)= nodeFactory <| fun ctx ->
     let mutable node = EmptyNode
     let group = SutilNode.MakeGroup("bind",ctx.Parent,ctx.Previous)
@@ -71,6 +97,10 @@ let bindElement2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: (
 let bindElementKO<'T,'K when 'K : equality> (store : IObservable<'T>) (element: IObservable<'T> -> SutilElement) (key : 'T -> 'K) : SutilElement =
     let compare a b = key a = key b
     bindElementCO store element compare
+
+let bindElementK<'T,'K when 'K : equality> (store : IObservable<'T>) (element: 'T -> SutilElement) (key : 'T -> 'K) : SutilElement =
+    let compare a b = key a = key b
+    bindElementC store element compare
 
 let bindPromiseStore<'T>  (p : ObservablePromise<'T>)
         (waiting : SutilElement)
@@ -252,7 +282,7 @@ let attrNotify<'T> (attrName:string) (value :'T) (onchange : 'T -> unit) : Sutil
     let unsubInput = listen "input" parent  <| fun _ ->
         Interop.get parent attrName |> onchange
     Interop.set parent attrName value
-    SutilNode.RegisterUnsubscribe(ctx.Parent,unsubInput)
+    SutilNode.RegisterUnsubscribe(ctx.Parent, unsubInput)
     unitResult(ctx,"attrNotify")
 
 // Bind an observable value to an element attribute. Listen for onchange events and dispatch the
@@ -466,7 +496,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
                     if not(isSameNode prevDomNode el.previousSibling) then
                         log($"reordering: ki={nodeStr el} prevNode={nodeStr prevDomNode}")
                         log($"reordering key {ki.Key} {nodeStrShort el} parent={el.parentNode}")
-                        ctx.Parent.RemoveChild(el) |> ignore
+                        //ctx.Parent.RemoveChild(el) |> ignore
                         ctx.Parent.InsertAfter(el, prevDomNode)
                     prevDomNode <- el
 
@@ -588,12 +618,14 @@ module BindApi =
         static member el<'T>  (value : IObservable<'T>, element: 'T -> SutilElement) : SutilElement =
             bindElement value element
 
+        static member el<'T,'K when 'K : equality>  (value : IObservable<'T>, key:'T->'K, element: 'T -> SutilElement) : SutilElement =
+            bindElementK value element key
+
         static member el<'T,'K when 'K : equality>  (value : IObservable<'T>, key:'T->'K, element: IObservable<'T> -> SutilElement) : SutilElement =
             bindElementKO value element key
 
         /// Deprecated naming, use Bind.el
         static member fragment<'T>  (value : IObservable<'T>)  (element: 'T -> SutilElement) = bindElement value element
-
 
         /// Binding from two values to a DOM fragment. See fragment<'T>
         static member el2<'A,'B>  (valueA : IObservable<'A>) (valueB : IObservable<'B>) (element: 'A * 'B -> SutilElement) = bindElement2 valueA valueB element

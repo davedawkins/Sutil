@@ -118,6 +118,7 @@ module ObservableStore =
     type Store<'Model>(init: unit -> 'Model, dispose: 'Model -> unit) =
         let mutable uid = 0
         let storeId = nextStoreId()
+        let mutable name = "store-" + (string storeId)
         let mutable _modelInitialized = false
         let mutable _model = Unchecked.defaultof<_>
         let model() =
@@ -161,6 +162,8 @@ module ObservableStore =
                 Logging.log "store" $"unsubscribe {id}"
                 subscribers.Remove(id) |> ignore
 
+        member this.Name with get() = name and set (v) = name <- v
+
         member this.Dispose() =
             subscribers.Values |> Seq.iter (fun x -> x.OnCompleted())
             subscribers.Clear()
@@ -172,6 +175,7 @@ module ObservableStore =
             member this.Subscribe(observer: IObserver<'Model>) = this.Subscribe(observer)
             member this.Update(f) = this.Update(f)
             member this.Value = this.Value
+            member this.Name with get() = this.Name and set (v:string) = this.Name <- v
             member this.Debugger = {
                     new IStoreDebugger with
                         member _.Value = upcast this.Value

@@ -59,6 +59,7 @@ type IStore<'T> =
         abstract Update : f: ('T -> 'T) -> unit
         abstract Value : 'T
         abstract Debugger : IStoreDebugger
+        abstract Name : string with get, set
     end
 
 type Store<'T> = IStore<'T>

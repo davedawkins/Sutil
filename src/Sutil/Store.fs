@@ -22,8 +22,8 @@ module Store =
     ///     let intStore: IStore&lt;int&gt; = Store.make 1
     ///
     ///     let anonymousStore:
-    ///         IStore&lt;{| prop1: number;
-    ///                   prop2: option string |}&gt;
+    ///         IStore&lt;{| prop1: int;
+    ///                   prop2: string option |}&gt;
     ///         = Store.make {| prop1 = 10; prop2 = None |}
     ///     (* After using the store *)
     ///     intStore.Dispose()

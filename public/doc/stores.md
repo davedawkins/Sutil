@@ -30,7 +30,7 @@ Create a new store, with the given initial value.
 ```fsharp
 let intStore: IStore<int> = Store.make 1
 
-let anonymousStore: IStore<{| prop1: number; prop2: option string |}> =
+let anonymousStore: IStore<{| prop1: int; prop2: string option |}> =
     Store.make {| prop1 = 10; prop2 = None |}
 
 (* After using the store *)

@@ -16,7 +16,7 @@ jobs:
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Install dotnet tools
-        run: dotnet tool restore
+        run: (cd ${{ github.workspace $}}; dotnet tool restore)
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Install packages
         run: npm install

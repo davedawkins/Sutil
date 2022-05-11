@@ -20,6 +20,7 @@ jobs:
           cd ${{ github.workspace }}
           cd tests
           npm install
+      - name: Run tests
           cd ${{ github.workspace }}
           npm run test
       - run: echo "🍏 This job's status is ${{ job.status }}."

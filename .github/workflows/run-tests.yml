@@ -14,8 +14,8 @@ jobs:
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Install dotnet tools
         run: |
-          cd ${{ github.workspace }}
-          cd tests
+          cd ${{ github.workspace }}/tests
+          pwd
           npm install
       - name: Run tests
         run:

@@ -19,11 +19,6 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           dotnet tool restore
+          npm install
+          npm run test
       - run: echo "🍏 This job's status is ${{ job.status }}."
-      - name: Install packages
-        run: (cd ${{ github.workspace }}; npm install)
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-      - name: Run tests
-        run: (cd ${{ github.workspace }}; npm run test)
-      - run: echo "🍏 This job's status is ${{ job.status }}."
-

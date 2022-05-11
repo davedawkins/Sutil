@@ -12,6 +12,14 @@ jobs:
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
       - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: Clean
+        run: |
+          cd ${{ github.workspace }}
+          dotnet clean src/Sutil && dotnet nuget locals all --clear
+          dotnet clean src/App && dotnet nuget locals all --clear
+          dotnet clean src/DevTools && dotnet nuget locals all --clear
+          dotnet clean tests/src/test && dotnet nuget locals all --clear
+          dotnet clean tests/src/Fable.Expect && dotnet nuget locals all --clear
       - name: Install dotnet tools
         run: |
           cd ${{ github.workspace }}/tests

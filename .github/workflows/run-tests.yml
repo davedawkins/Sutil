@@ -20,6 +20,8 @@ jobs:
           cd ${{ github.workspace }}
           dotnet tool restore
           npm install
-          (cd test; npm install)
+          cd tests
+          npm install
+          cd ${{ github.workspace }}
           npm run test
       - run: echo "🍏 This job's status is ${{ job.status }}."

@@ -18,7 +18,7 @@ jobs:
           dotnet clean src/Sutil && dotnet nuget locals all --clear
           dotnet clean src/App && dotnet nuget locals all --clear
           dotnet clean src/DevTools && dotnet nuget locals all --clear
-          dotnet clean tests/src/test && dotnet nuget locals all --clear
+          dotnet clean tests/test && dotnet nuget locals all --clear
           dotnet clean tests/src/Fable.Expect && dotnet nuget locals all --clear
       - name: Install dotnet tools
         run: |
@@ -26,7 +26,7 @@ jobs:
           pwd
           npm install
       - name: Run tests
-        run:
+        run: |
           cd ${{ github.workspace }}
           npm run test
       - run: echo "🍏 This job's status is ${{ job.status }}."

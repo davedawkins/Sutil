@@ -19,6 +19,6 @@ jobs:
           NUGET_KEY: ${{ secrets.TEST_SECRET }}
         run: |
           cd ${{ github.workspace }}
-          echo "$NUGET_KEY"
+          echo "$NUGET_KEY" | sed s/Hell/XXX/g
           echo npm run publish:package
       - run: echo "🍏 This job's status is ${{ job.status }}."

@@ -1,3 +1,6 @@
+### 1.0.0-beta-015
+- Support for arrays in `each`
+
 ### 1.0.0-beta-014
 
 - Support for media queries in `withStyle`

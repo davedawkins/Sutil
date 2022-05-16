@@ -384,7 +384,7 @@ let private findCurrentElement doc (current:Node) (id:int) =
 
 let private genEachId = Helpers.makeIdGenerator()
 
-let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable<'T> -> SutilElement) (key:int*'T->'K) (trans : TransitionAttribute list) : SutilElement =
+let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObservable<int> * IObservable<'T> -> SutilElement) (key:int*'T->'K) (trans : TransitionAttribute list) : SutilElement =
     let log s = Logging.log "each" s
     nodeFactory <| fun ctx ->
         log($"eachiko: Previous = {ctx.Previous}")
@@ -392,7 +392,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
         let eachNode = GroupNode eachGroup
         ctx.AddChild eachNode
 
-        let mutable state : KeyedStoreItem<'T,'K> list = []
+        let mutable state = ([| |] : KeyedStoreItem<'T,'K> array) .ToCollectionWrapper()
         let eachId = genEachId() + 1
         let idKey = "svEachId"
         let hasEid (n : Node) = Interop.exists n idKey
@@ -414,9 +414,9 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
             let wantAnimate = true
 
             log("-- Each Block Render -------------------------------------")
-            log($"caching rects for render. Previous: {state |> List.length} items. Current {newItems |> List.length} items")
+            log($"caching rects for render. Previous: {state |> CollectionWrapper.length} items. Current {newItems |> CollectionWrapper.length} items")
 
-            state <- state |> List.map (fun ki ->
+            state <- state |> CollectionWrapper.map (fun ki ->
                 let el = findCurrentElement ctx.Document (*ki.Element*)null ki.SvId
                 { ki with (*Element = el; *)Rect = el.getBoundingClientRect() })
 
@@ -428,9 +428,9 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
             //let prevNodeInit : Node = vnode.PrevDomNode
             let mutable prevNode = EmptyNode
 
-            let newState = newItems |> List.mapi (fun itemIndex item ->
+            let newState = newItems |> CollectionWrapper.mapi (fun itemIndex item ->
                 let itemKey = key(itemIndex,item)
-                let optKi = state |> Seq.tryFind (fun x -> x.Key = itemKey)
+                let optKi = state |> CollectionWrapper.tryFind (fun x -> x.Key = itemKey)
                 match optKi with
                 | None ->
                     let storePos = Store.make itemIndex
@@ -475,7 +475,7 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
             log("Remove old items")
             // Remove old items
             for oldItem in state do
-                if not (newState |> Seq.exists (fun x -> x.Key = oldItem.Key)) then
+                if not (newState |> CollectionWrapper.exists (fun x -> x.Key = oldItem.Key)) then
                     log($"removing key {oldItem.Key}")
                     let el = findCurrentElement ctx.Document null oldItem.SvId (*oldItem.Element*)
                     fixPosition el
@@ -508,23 +508,44 @@ let eachiko (items:IObservable<list<'T>>) (view : IObservable<int> * IObservable
         eachGroup.SetDispose (Helpers.unsubify unsub)
         sutilResult eachNode
 
+
 let private duc = Observable.distinctUntilChanged
 
-let each (items:IObservable<list<'T>>) (view : 'T -> SutilElement) (trans : TransitionAttribute list) =
-    eachiko items (fun (_,item) -> bindElement (duc item) view) (fun (i,v) -> i,v.GetHashCode()) trans
+let eachiko = eachiko_wrapper
 
-let eachi (items:IObservable<list<'T>>) (view : (int*'T) -> SutilElement)  (trans : TransitionAttribute list) : SutilElement =
+let each (items:IObservable<ICollectionWrapper<'T>>) (view : 'T -> SutilElement) (trans : TransitionAttribute list) =
+    eachiko_wrapper items (fun (_,item) -> bindElement (duc item) view) (fun (i,v) -> i,v.GetHashCode()) trans
+
+let eachi (items:IObservable<ICollectionWrapper<'T>>) (view : (int*'T) -> SutilElement)  (trans : TransitionAttribute list) : SutilElement =
     eachiko items (fun (index,item) -> bindElement2 (duc index) (duc item) view) fst trans
 
-let eachio (items:IObservable<list<'T>>) (view : (IObservable<int>*IObservable<'T>) -> SutilElement)  (trans : TransitionAttribute list) =
+let eachio (items:IObservable<ICollectionWrapper<'T>>) (view : (IObservable<int>*IObservable<'T>) -> SutilElement)  (trans : TransitionAttribute list) =
     eachiko items view fst trans
 
-let eachk (items:IObservable<list<'T>>) (view : 'T -> SutilElement)  (key:'T -> 'K) (trans : TransitionAttribute list) =
+let eachk (items:IObservable<ICollectionWrapper<'T>>) (view : 'T -> SutilElement)  (key:'T -> 'K) (trans : TransitionAttribute list) =
     eachiko
         items
         (fun (_,item) -> bindElement (duc item) view)
         (snd>>key)
         trans
+
+#if false
+let each_seq (items:IObservable<seq<'T>>) (view : 'T -> SutilElement) (trans : TransitionAttribute list) =
+    eachiko_seq items (fun (_,item) -> bindElement (duc item) view) (fun (i,v) -> i,v.GetHashCode()) trans
+
+let eachi_seq (items:IObservable<seq<'T>>) (view : (int*'T) -> SutilElement)  (trans : TransitionAttribute list) : SutilElement =
+    eachiko items (fun (index,item) -> bindElement2 (duc index) (duc item) view) fst trans
+
+let eachio_seq (items:IObservable<seq<'T>>) (view : (IObservable<int>*IObservable<'T>) -> SutilElement)  (trans : TransitionAttribute list) =
+    eachiko_seq items view fst trans
+
+let eachk_seq (items:IObservable<seq<'T>>) (view : 'T -> SutilElement)  (key:'T -> 'K) (trans : TransitionAttribute list) =
+    eachiko_seq
+        items
+        (fun (_,item) -> bindElement (duc item) view)
+        (snd>>key)
+        trans
+#endif
 
 (*
     // This is best done with (say) Bind.toggleClass and an event handler updating a store
@@ -576,6 +597,12 @@ module BindApi =
 
     let private cssAttrsToString (cssAttrs) =
         cssAttrs |> Seq.map (fun (n,v) -> $"{n}: {v};") |> String.concat ""
+
+    let listWrap( list : 'T list ) = list.ToCollectionWrapper()
+    let listWrapO (list : IObservable<'T list>) = list |> Store.map listWrap
+
+    let arrayWrap( arr : 'T array ) = arr.ToCollectionWrapper()
+    let arrayWrapO (arr : IObservable<'T array>) = arr |> Store.map arrayWrap
     type Bind =
 
         static member visibility( isVisible : IObservable<bool>) = Transition.transition [] isVisible
@@ -640,53 +667,87 @@ module BindApi =
 
         // -- Simple cases: 'T -> view ---------------------------
 
-        /// Bind collections to a simple template, with transitions
+        /// Bind lists to a simple template, with transitions
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement, trans : TransitionAttribute list) =
-            each items view trans
+            each (listWrapO items) view trans
 
-        /// Bind collections to a simple template
+        /// Bind lists to a simple template
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement) =
-            each items view []
+            each (listWrapO items) view []
 
         // -- Keyed ----------------------------------------------
 
-        /// Bind keyed collections to a simple template, with transitions
+        /// Bind keyed lists to a simple template, with transitions
         /// Deprecated: Use a view template that takes IObservable<'T>
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement, key:'T -> 'K, trans : TransitionAttribute list) : SutilElement =
-            eachk items view key trans
+            eachk (listWrapO items) view key trans
 
-        /// Bind keyed collections to a simple template
+        /// Bind keyed lists to a simple template
         /// Deprecated: Use a view template that takes IObservable<'T>
         static member each (items:IObservable<list<'T>>, view : 'T -> SutilElement, key:'T -> 'K) : SutilElement =
-            eachk items view key []
+            eachk (listWrapO items) view key []
 
-        /// Bind keyed collections to a simple template, with transitions
+        /// Bind keyed lists to a simple template, with transitions
         static member each (items:IObservable<list<'T>>, view : IObservable<'T> -> SutilElement, key:'T -> 'K, trans : TransitionAttribute list) : SutilElement =
-            eachiko items (snd>>view) (snd>>key) trans
+            eachiko (listWrapO items) (snd>>view) (snd>>key) trans
 
-        /// Bind keyed collections to a simple template, with transitions
+        /// Bind keyed lists to a simple template, with transitions
         static member each (items:IObservable<list<'T>>, view : IObservable<'T> -> SutilElement, key:'T -> 'K) : SutilElement =
-            eachiko items (snd>>view) (snd>>key) []
+            eachiko (listWrapO items) (snd>>view) (snd>>key) []
 
-        // -- Indexed --------------------------------------------
+        // -- Indexed Lists --------------------------------------------
+
         static member eachi (items:IObservable<list<'T>>, view : (int*'T) -> SutilElement, trans : TransitionAttribute list) : SutilElement =
-            eachi items view trans
+            eachi (listWrapO items) view trans
 
         static member eachi (items:IObservable<list<'T>>, view : (int*'T) -> SutilElement ) : SutilElement =
-            eachi items view []
+            eachi (listWrapO items) view []
 
         // -- Observable views
-
-
         static member eachi (items:IObservable<list<'T>>, view : IObservable<int> * IObservable<'T> -> SutilElement, trans : TransitionAttribute list) : SutilElement =
-            eachio items view trans
+            eachio (listWrapO items) view trans
 
         static member eachi (items:IObservable<list<'T>>, view : IObservable<int> * IObservable<'T> -> SutilElement ) : SutilElement =
-            eachio items view []
+            eachio (listWrapO items) view []
 
         static member eachi (items:IObservable<list<'T>>,view : IObservable<int> * IObservable<'T> -> SutilElement,key:int*'T->'K,trans : TransitionAttribute list) : SutilElement =
-            eachiko items view key trans
+            eachiko (listWrapO items) view key trans
 
         static member eachi (items:IObservable<list<'T>>,view : IObservable<int> * IObservable<'T> -> SutilElement,key:int*'T->'K) : SutilElement =
-            eachiko items view key []
+            eachiko (listWrapO items) view key []
+
+        type BindArray =
+            /// Bind arrays to a simple template, with transitions
+            static member each (items:IObservable<'T []>, view : 'T -> SutilElement, trans : TransitionAttribute list) =
+                each (arrayWrapO items) view trans
+
+            /// Bind arrays to a simple template
+            static member each (items:IObservable<'T []>, view : 'T -> SutilElement) =
+                each (arrayWrapO items) view []
+
+            /// Bind keyed arrays to a simple template, with transitions
+            /// Deprecated: Use a view template that takes IObservable<'T>
+            static member each (items:IObservable<array<'T>>, view : 'T -> SutilElement, key:'T -> 'K, trans : TransitionAttribute list) : SutilElement =
+                eachk (arrayWrapO items) view key trans
+
+            /// Bind keyed arrays to a simple template
+            /// Deprecated: Use a view template that takes IObservable<'T>
+            static member each (items:IObservable<array<'T>>, view : 'T -> SutilElement, key:'T -> 'K) : SutilElement =
+                eachk (arrayWrapO items) view key []
+
+            /// Bind keyed arrays to a simple template, with transitions
+            static member each (items:IObservable<array<'T>>, view : IObservable<'T> -> SutilElement, key:'T -> 'K, trans : TransitionAttribute list) : SutilElement =
+                eachiko (arrayWrapO items) (snd>>view) (snd>>key) trans
+
+            /// Bind keyed arrays to a simple template, with transitions
+            static member each (items:IObservable<array<'T>>, view : IObservable<'T> -> SutilElement, key:'T -> 'K) : SutilElement =
+                eachiko (arrayWrapO items) (snd>>view) (snd>>key) []
+
+            // -- Indexed Arrays --------------------------------------------
+
+            static member eachi (items:IObservable<array<'T>>, view : (int*'T) -> SutilElement, trans : TransitionAttribute list) : SutilElement =
+                eachi (arrayWrapO items) view trans
+
+            static member eachi (items:IObservable<array<'T>>, view : (int*'T) -> SutilElement ) : SutilElement =
+                eachi (arrayWrapO items) view []
 

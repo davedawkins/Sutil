@@ -1,6 +1,58 @@
 namespace Sutil
 
 open System
+type ICollectionWrapper<'T> =
+    abstract member ToList: unit -> List<'T>
+    abstract member ToArray: unit -> 'T array
+    abstract member Length : int
+    abstract member Mapi : (int -> 'T -> 'R) -> ICollectionWrapper<'R>
+    abstract member Map : ('T -> 'R) -> ICollectionWrapper<'R>
+    abstract member Exists: ('T -> bool) -> bool
+    abstract member TryFind: ('T -> bool) -> 'T option
+    inherit System.Collections.Generic.IEnumerable<'T>
+
+[<AutoOpen>]
+module CollectionWrapperExt =
+
+    type private ListW<'T>( list : 'T list) =
+        interface ICollectionWrapper<'T> with
+            member _.ToList() = list
+            member _.ToArray() = list |> Array.ofList
+            member _.Length = list.Length
+            member _.Mapi( f: (int -> 'T -> 'R)) = upcast ListW((list |> List.mapi f))
+            member _.Map( f: ('T -> 'R)) = upcast ListW(list |> List.map f)
+            member _.Exists (p : 'T -> bool) = list |> List.exists p
+            member _.TryFind (p : 'T -> bool) = list |> List.tryFind p
+        interface System.Collections.IEnumerable with
+            member _.GetEnumerator() = upcast (list |> Seq.ofList).GetEnumerator()
+        interface System.Collections.Generic.IEnumerable<'T> with
+            member _.GetEnumerator() = upcast (list |> Seq.ofList).GetEnumerator()
+
+    type private ArrayW<'T>( a : 'T array ) =
+        interface ICollectionWrapper<'T> with
+            member _.ToList() = a |> List.ofArray
+            member _.ToArray() = a
+            member _.Length = a.Length
+            member _.Mapi( f: (int -> 'T -> 'R)) = upcast ArrayW((a |> Array.mapi f))
+            member _.Map( f: ('T -> 'R)) = upcast ArrayW(a |> Array.map f)
+            member _.Exists (p : 'T -> bool) = a |> Array.exists p
+            member _.TryFind (p : 'T -> bool) = a |> Array.tryFind p
+        interface System.Collections.IEnumerable with
+            member _.GetEnumerator() = upcast (a |> Seq.ofArray).GetEnumerator()
+        interface System.Collections.Generic.IEnumerable<'T> with
+            member _.GetEnumerator() = upcast (a |> Seq.ofArray).GetEnumerator()
+
+    type List<'T> with
+        member __.ToCollectionWrapper() : ICollectionWrapper<'T> = upcast ListW(__)
+    type 'T ``[]`` with
+        member __.ToCollectionWrapper()  : ICollectionWrapper<'T> = upcast ArrayW(__)
+
+module CollectionWrapper =
+    let length (c : ICollectionWrapper<'T>) = c.Length
+    let mapi (f : (int -> 'T -> 'R)) (c : ICollectionWrapper<'T>) = c.Mapi f
+    let map (f : ('T -> 'R)) (c : ICollectionWrapper<'T>) = c.Map f
+    let exists f (c : ICollectionWrapper<'T>) = c.Exists(f)
+    let tryFind f (c : ICollectionWrapper<'T>) = c.TryFind(f)
 
 type IStoreDebugger =
     interface

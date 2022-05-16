@@ -19,6 +19,7 @@ jobs:
           NUGET_KEY: ${{ secrets.NUGET_KEY_SECRET }}
         run: |
           cd ${{ github.workspace }}
+          npm install
           dotnet build src/Sutil -c Release
           npm run publish:package
       - run: echo "🍏 This job's status is ${{ job.status }}."

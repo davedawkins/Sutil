@@ -1,5 +1,5 @@
 name: Sutil Publish Nuget
-on: [manual_trigger]
+on: [workflow_dispatch]
 jobs:
   Sutil-Publish:
     runs-on: ubuntu-latest

@@ -16,9 +16,9 @@ jobs:
           dotnet clean tests/src/Fable.Expect && dotnet nuget locals all --clear
       - name: Publish
         env:
-          NUGET_KEY: ${{ secrets.TEST_SECRET }}
+          NUGET_KEY: ${{ secrets.NUGET_KEY_SECRET }}
         run: |
           cd ${{ github.workspace }}
-          echo "$NUGET_KEY" | sed s/Hell/XXX/g
-          echo npm run publish:package
+          dotnet build src/Sutil -c Release
+          npm run publish:package
       - run: echo "🍏 This job's status is ${{ job.status }}."

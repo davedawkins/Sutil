@@ -1,7 +1,7 @@
 name: Sutil Publish Nuget
 on: [manual_trigger]
 jobs:
-  Run-Sutil-Tests:
+  Sutil-Publish:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code

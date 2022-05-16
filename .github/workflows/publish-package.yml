@@ -1,0 +1,24 @@
+name: Sutil Publish Nuget
+on: [manual_trigger]
+jobs:
+  Run-Sutil-Tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Clean
+        run: |
+          cd ${{ github.workspace }}
+          dotnet clean src/Sutil && dotnet nuget locals all --clear
+          dotnet clean src/App && dotnet nuget locals all --clear
+          dotnet clean src/DevTools && dotnet nuget locals all --clear
+          dotnet clean tests/test && dotnet nuget locals all --clear
+          dotnet clean tests/src/Fable.Expect && dotnet nuget locals all --clear
+      - name: Publish
+        env:
+          NUGET_KEY: ${{ secrets.TEST_SECRET }}
+        run: |
+          cd ${{ github.workspace }}
+          echo "$NUGET_KEY"
+          echo npm run publish:package
+      - run: echo "🍏 This job's status is ${{ job.status }}."

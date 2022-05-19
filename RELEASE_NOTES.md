@@ -1,3 +1,6 @@
+### 1.0.0-beta-016
+- Show exceptions from Bind both on screen and in console
+
 ### 1.0.0-beta-015
 - Support for arrays in `each`
 

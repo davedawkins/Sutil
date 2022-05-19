@@ -12,50 +12,59 @@ open Sutil.DOM
 
 describe "Sutil.Binding" <| fun () ->
 
-  it "Doesn't dispose items when re-ordering" <| fun () -> promise {
-      let sort = Store.make false
+    it "Shows exception if binding fails" <| fun () -> promise {
+        let data = Store.make 0
+        let app =
+            Bind.el( data, fun n -> failwith "expected-exception")
+        mountTestApp app
+        Expect.queryTextContains "div" "expected-exception"
+        return ()
+    }
 
-      let items = [ 3; 4; 2; 1 ]
+    it "Doesn't dispose items when re-ordering" <| fun () -> promise {
+        let sort = Store.make false
 
-      let sortedList useSort =
+        let items = [ 3; 4; 2; 1 ]
+
+        let sortedList useSort =
             items |> List.sortBy (fun n -> if useSort then n else 0)
 
-      let mutable unmountCount = 0
-      let app =
-        Html.div [
-            Bind.each(
-                (sort |> Store.map sortedList),
-                (fun (n : int) ->
-                    Html.div [
-                        DOM.unsubscribeOnUnmount [fun _ -> unmountCount <- unmountCount + 1]
-                        text (string n)
-                    ]),
-                (fun n -> n)
-            )
-        ]
+        let mutable unmountCount = 0
+        let app =
+            Html.div [
+                Bind.each(
+                    (sort |> Store.map sortedList),
+                    (fun (n : int) ->
+                        Html.div [
+                            DOM.unsubscribeOnUnmount [fun _ -> unmountCount <- unmountCount + 1]
+                            text (string n)
+                        ]),
+                    (fun n -> n)
+                )
+            ]
 
-      mountTestApp app
+        mountTestApp app
 
-      Expect.queryText "div>div:nth-child(1)" "3"
-      Expect.queryText "div>div:nth-child(2)" "4"
-      Expect.queryText "div>div:nth-child(3)" "2"
-      Expect.queryText "div>div:nth-child(4)" "1"
+        Expect.queryText "div>div:nth-child(1)" "3"
+        Expect.queryText "div>div:nth-child(2)" "4"
+        Expect.queryText "div>div:nth-child(3)" "2"
+        Expect.queryText "div>div:nth-child(4)" "1"
 
-      Expect.areEqual(unmountCount, 0)
+        Expect.areEqual(unmountCount, 0)
 
-      true |> Store.set sort
+        true |> Store.set sort
 
-      Expect.queryText "div>div:nth-child(1)" "1"
-      Expect.queryText "div>div:nth-child(2)" "2"
-      Expect.queryText "div>div:nth-child(3)" "3"
-      Expect.queryText "div>div:nth-child(4)" "4"
+        Expect.queryText "div>div:nth-child(1)" "1"
+        Expect.queryText "div>div:nth-child(2)" "2"
+        Expect.queryText "div>div:nth-child(3)" "3"
+        Expect.queryText "div>div:nth-child(4)" "4"
 
-      Expect.areEqual(unmountCount, 0)
+        Expect.areEqual(unmountCount, 0)
 
-      return ()
-  }
+        return ()
+    }
 
-  it "Bind counter" <| fun () -> promise {
+    it "Bind counter" <| fun () -> promise {
         let store = Store.make 0
         let app =
             Html.div [
@@ -71,9 +80,9 @@ describe "Sutil.Binding" <| fun () ->
 
         Expect.queryNumChildren "div" 1
         Expect.queryText "div>div" "1"
-  }
+    }
 
-  it "Bind dispose div" <| fun () ->promise {
+    it "Bind dispose div" <| fun () ->promise {
         let store = Store.make 0
         let mutable disposed = 0
         let app =
@@ -95,10 +104,10 @@ describe "Sutil.Binding" <| fun () ->
 
         Expect.queryText "div>div" "1"
         Expect.areEqual(disposed,1)
-  }
+    }
 
 
-  it "Bind disposal nestx2" <| fun () ->promise {
+    it "Bind disposal nestx2" <| fun () ->promise {
         let storeInner = Store.make 0
         let storeOuter = Store.make 0
         let mutable disposed = 0
@@ -125,9 +134,9 @@ describe "Sutil.Binding" <| fun () ->
         Expect.areEqual(storeInner.Debugger.NumSubscribers,1)
         Expect.areEqual(storeOuter.Debugger.NumSubscribers,1)
         Expect.areEqual(disposed,1)
-  }
+    }
 
-  it "Bind disposal nestx3" <| fun () ->promise {
+    it "Bind disposal nestx3" <| fun () ->promise {
         let storeInner = Store.make 0
         let storeOuter = Store.make 0
         let storeOuter2 = Store.make 0
@@ -192,5 +201,6 @@ describe "Sutil.Binding" <| fun () ->
         Expect.areEqual(storeOuter.Debugger.NumSubscribers,1,"NumSubscribers")
         Expect.areEqual(disposed,3,"disposed")
         Expect.areEqual(numRenders,2,"numRenders #4")
-  }
+    }
+
 let init() = ()

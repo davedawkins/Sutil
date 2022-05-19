@@ -22,4 +22,7 @@ jobs:
           npm install
           dotnet build src/Sutil -c Release
           npm run publish:package
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          file_pattern: src/Sutil/Sutil.fsproj
+          commit_message: Release to nuget

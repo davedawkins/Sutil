@@ -17,6 +17,12 @@ let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit
     SutilNode.RegisterDisposable(ctx.Parent,unsub)
     unitResult(ctx,"bindSub")
 
+let elementFromException (x : exn) =
+    el "div" [
+        attr ("style","color: #FF8888;")
+        attr ("title", "See console for details")
+        text ("sutil: exception in bind: " + x.Message)
+    ]
 
 let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (compare : 'T -> 'T -> bool)= nodeFactory <| fun ctx ->
     let mutable node = EmptyNode
@@ -33,7 +39,11 @@ let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (c
                 log($"bind: rebuild {group.Id} with {next}")
                 node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
             with
-            | x -> Logging.error $"Exception in bindo: {x.Message} parent {ctx.Parent} node {node.ToString()} node.Parent "
+            | x ->
+                //Logging.error $"Exception in bindo: {x.StackTrace}: parent={ctx.Parent} node={node.ToString()}"
+                JS.console.error(x)
+                node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+
         )
         group.SetDispose ( fun () ->
             log($"dispose: Bind.el: {group}")
@@ -42,6 +52,7 @@ let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (c
     run()
 
     sutilResult bindNode
+
 
 let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> SutilElement) (compare : 'T -> 'T -> bool)= nodeFactory <| fun ctx ->
     let mutable node = EmptyNode
@@ -58,7 +69,9 @@ let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> Su
                 log($"bind: rebuild {group.Id} with {next}")
                 node <- build (element(store)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
             with
-            | x -> Logging.error $"Exception in bindo: {x.Message} parent {ctx.Parent} node {node.ToString()} node.Parent "
+            | x ->
+                JS.console.error(x)
+                node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
         )
         group.SetDispose ( fun () ->
             log($"dispose: Bind.el: {group}")

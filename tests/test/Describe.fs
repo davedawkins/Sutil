@@ -85,7 +85,15 @@ type Expect =
     static member areEqual<'T when 'T:equality>(actual : 'T, expected: 'T) =
         Expect.areEqual(actual, expected, "")
 
+    static member textContains( actual : string, expected : string, message : string ) =
+        if not (actual.Contains(expected)) then failwith $"{message}: expected contained string: '{expected}' actual: '{actual}'"
+
     static member notNull (actual:obj) = Expect.assertTrue (not(isNull actual)) "notNull: actual: '{obj}'"
+
+    static member queryTextContains (query:string) (expected:string) =
+        let el = currentEl.querySelector(":scope " + query) :?> HTMLElement
+        Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
+        Expect.textContains(el.innerText, expected, "queryTextContains")
 
     static member queryText (query:string) (expected:string) =
         let el = currentEl.querySelector(":scope " + query) :?> HTMLElement

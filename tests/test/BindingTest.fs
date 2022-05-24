@@ -10,7 +10,63 @@ open WebTestRunner
 open Sutil
 open Sutil.DOM
 
+type Record = {
+    Id : int
+    Value : string
+}
+
+let viewItem (r : Record) =
+    Html.div [
+        text r.Value
+    ]
+
+let viewItemO (r : System.IObservable<Record>) =
+    Bind.el( r, viewItem )
+
 describe "Sutil.Binding" <| fun () ->
+
+
+    it "Doesn't dispose internal state for observable view function" <| fun () -> promise {
+        let items = Store.make [|
+                { Id = 0; Value = "Apples" }
+                { Id = 1; Value = "Oranges" }
+                { Id = 2; Value = "Pears" }
+            |]
+
+        let app =
+            BindArray.each( items, viewItemO, (fun x -> x.Id))
+
+        mountTestApp app
+
+        Expect.queryTextContains "div:nth-child(1)" "Apples"
+        Expect.queryTextContains "div:nth-child(2)" "Oranges"
+        Expect.queryTextContains "div:nth-child(3)" "Pears"
+
+        items.Update( fun _ -> [|
+                { Id = 0; Value = "Bananas" }
+                { Id = 1; Value = "Oranges" }
+                { Id = 2; Value = "Pears" }
+            |]
+        )
+
+        Expect.queryTextContains "div:nth-child(1)" "Bananas"
+        Expect.queryTextContains "div:nth-child(2)" "Oranges"
+        Expect.queryTextContains "div:nth-child(3)" "Pears"
+
+
+        items.Update( fun _ -> [|
+                { Id = 0; Value = "Pineapples" }
+                { Id = 1; Value = "Oranges" }
+                { Id = 2; Value = "Pears" }
+            |]
+        )
+
+        Expect.queryTextContains "div:nth-child(1)" "Pineapples"
+        Expect.queryTextContains "div:nth-child(2)" "Oranges"
+        Expect.queryTextContains "div:nth-child(3)" "Pears"
+
+        return ()
+    }
 
     it "Shows exception if binding fails" <| fun () -> promise {
         let data = Store.make 0

@@ -1,3 +1,6 @@
+### 1.0.0-beta-017
+- Fix for Bind.each taking a view function of type : IObservable<T> -> SutilElement
+
 ### 1.0.0-beta-016
 - Show exceptions from Bind both on screen and in console
 

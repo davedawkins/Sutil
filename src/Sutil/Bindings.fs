@@ -454,8 +454,8 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
                     let itemNode = ctx2 |> asDomElement sutilNode
                     DomEdit.log $"-- created #{svId itemNode} with prev='{nodeStrShort (itemNode.previousSibling)}'"
                     setEid itemNode
-                    SutilNode.RegisterDisposable(itemNode,storePos)
-                    SutilNode.RegisterDisposable(itemNode,storeVal)
+                    SutilNode.RegisterDisposable(sutilNode,storePos)
+                    SutilNode.RegisterDisposable(sutilNode,storeVal)
                     transitionNode itemNode trans [Key (string itemKey)] true ignore ignore
                     let newKi = {
                         SvId = svId itemNode
@@ -503,7 +503,7 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
             // Reorder
             let mutable prevDomNode = eachGroup.PrevDomNode
             for ki in newState do
-                log($"Re-order: #{ki.SvId}")
+                log($"Checking order: #{ki.SvId}")
                 let el = findCurrentElement ctx.Document null ki.SvId (*ki.Element*)
                 if not (isNull el) then
                     if not(isSameNode prevDomNode el.previousSibling) then

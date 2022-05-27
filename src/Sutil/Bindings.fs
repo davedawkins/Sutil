@@ -45,7 +45,7 @@ let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (c
                 node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
 
         )
-        group.SetDispose ( fun () ->
+        group.RegisterUnsubscribe ( fun () ->
             log($"dispose: Bind.el: {group}")
             disposable.Dispose())
 
@@ -73,7 +73,7 @@ let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> Su
                 JS.console.error(x)
                 node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
         )
-        group.SetDispose ( fun () ->
+        group.RegisterUnsubscribe ( fun () ->
             log($"dispose: Bind.el: {group}")
             disposable.Dispose())
 
@@ -103,7 +103,7 @@ let bindElement2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: (
         | x -> Logging.error $"Exception in bind: {x.Message}"
     )
 
-    group.SetDispose (Helpers.unsubify d)
+    group.RegisterUnsubscribe (Helpers.unsubify d)
 
     sutilResult bindNode
 
@@ -518,7 +518,7 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
             state <- newState
         )
 
-        eachGroup.SetDispose (Helpers.unsubify unsub)
+        eachGroup.RegisterUnsubscribe (Helpers.unsubify unsub)
         sutilResult eachNode
 
 

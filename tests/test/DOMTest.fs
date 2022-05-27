@@ -319,6 +319,173 @@ describe "DOM" <| fun () ->
         Expect.queryText "div>div:nth-child(6)" "X"
         Expect.queryText "div>div:nth-child(7)" "Footer"
     }
+
+    it "disposes conditional div" <| fun _ -> promise {
+        let switch = Store.make true
+        let mutable disposed = false
+        let mutable unsubbed = false
+
+        let app =
+            Bind.el( switch, fun flag ->
+                if flag then
+                    Html.div [
+                        unsubscribeOnUnmount [
+                            (fun _ -> unsubbed <- true)
+                        ]
+                        disposeOnUnmount [
+                         { new System.IDisposable with member _.Dispose() = disposed <- true }
+                        ]
+                    ]
+                else
+                    fragment []
+            )
+
+        mountTestApp app
+
+        Expect.areEqual( disposed, false )
+        Expect.areEqual( unsubbed, false )
+
+        switch |> Store.modify not
+
+        Expect.areEqual( disposed, true )
+        Expect.areEqual( unsubbed, true )
+
+        return ()
+    }
+
+    it "cleans up div"<| fun _ -> promise {
+        let mutable node1 = Unchecked.defaultof<_>
+        let mutable node2 = Unchecked.defaultof<_>
+        let mutable node2_unsubbed = false
+
+        let app =
+            Html.div [
+                hookParent (fun n -> node1 <- n)
+
+                Html.div [
+                    hookParent (fun n -> node2 <- n)
+                    text "node2"
+                    unsubscribeOnUnmount [
+                        (fun _ -> node2_unsubbed <- true)
+                    ]
+                ]
+            ]
+
+        mountTestApp app
+
+        Expect.queryText "div" "node2"
+        Expect.queryText "div>div" "node2"
+
+        DomEdit.removeChild node1 node2
+
+        Expect.queryText "div" ""
+        Expect.areEqual(node2_unsubbed,true)
+
+        return ()
+    }
+
+    it "cleans up fragment"<| fun _ -> promise {
+        let mutable node1 = Unchecked.defaultof<_>
+        let mutable node2 = Unchecked.defaultof<_>
+        let mutable node2_fragment_unsubbed = 0
+
+        let app =
+            Html.div [
+                hookParent (fun n -> node1 <- n)
+
+                Html.div [
+                    hookParent (fun n -> node2 <- n)
+                    fragment [
+                        text "node2"
+                        unsubscribeOnUnmount [
+                            (fun _ -> node2_fragment_unsubbed <- node2_fragment_unsubbed + 1)
+                        ]
+                    ]
+                ]
+            ]
+
+        mountTestApp app
+
+        Expect.queryText "div" "node2"
+        Expect.queryText "div>div" "node2"
+
+        DomEdit.removeChild node1 node2
+
+        Expect.queryText "div" ""
+        Expect.areEqual(node2_fragment_unsubbed,1)
+
+        return ()
+    }
+
+    it "cleans up fragment"<| fun _ -> promise {
+        let mutable node1 = Unchecked.defaultof<_>
+        let mutable node2 = Unchecked.defaultof<_>
+        let mutable node2_fragment_unsubbed = 0
+
+        let app =
+            Html.div [
+                hookParent (fun n -> node1 <- n)
+
+                Html.div [
+                    hookParent (fun n -> node2 <- n)
+                    fragment [
+                        text "node2"
+                        unsubscribeOnUnmount [
+                            (fun _ -> node2_fragment_unsubbed <- node2_fragment_unsubbed + 1)
+                        ]
+                    ]
+                ]
+            ]
+
+        mountTestApp app
+
+        Expect.queryText "div" "node2"
+        Expect.queryText "div>div" "node2"
+
+        DomEdit.removeChild node1 node2
+
+        Expect.queryText "div" ""
+        Expect.areEqual(node2_fragment_unsubbed,1)
+
+        return ()
+    }
+
+    it "disposes conditional fragment" <| fun _ -> promise {
+        let switch = Store.make true
+        let mutable disposed = false
+        let mutable unsubbed = false
+
+        let app =
+            Bind.el( switch, fun flag ->
+                if flag then
+                    fragment [
+                        text "frag001"
+                        unsubscribeOnUnmount [
+                            (fun _ -> unsubbed <- true)
+                        ]
+                        disposeOnUnmount [
+                        { new System.IDisposable with member _.Dispose() = disposed <- true }
+                        ]
+                    ]
+                else
+                    fragment []
+            )
+
+        mountTestApp app
+
+        Expect.areEqual(Expect.getInnerText(), "frag001")
+        Expect.areEqual( disposed, false )
+        Expect.areEqual( unsubbed, false )
+
+        switch |> Store.modify not
+
+        Expect.areEqual(Expect.getInnerText(), "")
+        Expect.areEqual( disposed, true )
+        Expect.areEqual( unsubbed, true )
+
+        return ()
+    }
+
     //testCaseP "400ms" <| fun () ->
     //    promise {
     //        do! Promise.sleep(400)

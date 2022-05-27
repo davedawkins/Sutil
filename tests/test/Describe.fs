@@ -95,10 +95,13 @@ type Expect =
         Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
         Expect.textContains(el.innerText, expected, "queryTextContains")
 
+    static member getInnerHtml() = currentEl.innerHTML
+    static member getInnerText() = currentEl.innerText
+
     static member queryText (query:string) (expected:string) =
         let el = currentEl.querySelector(":scope " + query) :?> HTMLElement
         Expect.assertTrue (not(isNull el)) ("queryText: Query failed: " + query)
-        Expect.areEqual(el.innerText,expected, "queryText")
+        Expect.areEqual(el.innerText,expected, "queryText: expected '" + expected + "', found '" + el.innerText + "'")
 
     static member queryNumChildren (query:string) (expected:int) =
         let el = currentEl.querySelector(":scope " + query) :?> HTMLElement

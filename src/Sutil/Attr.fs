@@ -46,6 +46,7 @@ let on (event : string) (fn : Event -> unit) (options : EventModifier list) = no
             | StopImmediatePropagation -> e.stopImmediatePropagation()
         fn(e)
     el.addEventListener(event, h)
+    SutilNode.RegisterUnsubscribe( ctx.Parent,  fun _ -> el.removeEventListener(event,h) )
     unitResult(ctx, "on")
 
 let onCustomEvent<'T> (event: string) (fn: CustomEvent<'T> -> unit) (options: EventModifier list) =

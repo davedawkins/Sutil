@@ -7,6 +7,7 @@ open Browser.CssExtensions
 open Interop
 
 let log = Logging.log "dom"
+//let log s = Fable.Core.JS.console.log(s)
 
 let dispatch (target:EventTarget) name (data:obj) =
     if not (isNull target) then
@@ -211,6 +212,7 @@ let private cleanup (node:Node) : unit =
     d |> List.iter safeDispose
 
     clearDisposables node
+
     dispatchSimple node Event.Unmount
 
 let assertTrue condition message =
@@ -374,24 +376,38 @@ type SutilNode =
             | DomNode n -> nodeIsConnected n
             | GroupNode g -> g.IsConnected()
 
+        static member GetGroups( node : Node ) =
+            let groups : (NodeGroup list) option = NodeKey.get node NodeKey.Groups
+            groups
+
+        static member GetCreateGroups( node : Node ) =
+            let groups : (NodeGroup list) = NodeKey.getCreate node NodeKey.Groups (fun () -> [])
+            groups
+
         member this.AssertIsConnected() =
             match this with
             | EmptyNode -> failwith "Not connected: empty node"
             | DomNode n -> if (not (nodeIsConnected n)) then failwith $"Not connected: {n}"
             | GroupNode g -> g.AssertIsConnected()
 
+        static member CleanupGroups(n : Node) =
+            Fable.Core.JS.console.log("Cleanup groups")
+            let groups = SutilNode.GetGroups(n)
+            groups |> Option.iter (List.iter (fun g ->
+                Fable.Core.JS.console.log("++ Cleanup group: " )
+                let sn = GroupNode g
+                sn.PrettyPrint("cleanup group: ")
+                Fable.Core.JS.console.log("-- Cleanup group: " )
+                g.Dispose()))
+            NodeKey.clear n NodeKey.Groups
+
         member this.Register( childGroup : NodeGroup ) =
             match this with
             | EmptyNode -> ()
             | DomNode n ->
-                let cleanupGroups() =
-                    //JS.console.log("Cleaning up groups")
-                    let groups : (NodeGroup list) option = NodeKey.get n NodeKey.Groups
-                    groups |> Option.iter (List.iter (fun g -> g.Dispose()))
-                    NodeKey.clear n NodeKey.Groups
-                let groups = NodeKey.getCreate n NodeKey.Groups (fun () -> [])
+                let groups = SutilNode.GetCreateGroups(n)
                 if List.isEmpty groups then
-                    SutilNode.RegisterUnsubscribe(n, cleanupGroups)
+                    SutilNode.RegisterUnsubscribe(n, fun _ -> SutilNode.CleanupGroups n )
                 Interop.set n NodeKey.Groups (groups @ [ childGroup ])
             | GroupNode g ->
                 g.Register(childGroup)
@@ -526,7 +542,7 @@ type SutilNode =
             match node with
             | EmptyNode -> ()
             | DomNode n -> SutilNode.RegisterDisposable(n,d)
-            | GroupNode v -> ()
+            | GroupNode v -> v.RegisterUnsubscribe( fun _ -> d.Dispose() )
 
         static member RegisterUnsubscribe (node : Node, d:unit->unit) : unit =
             SutilNode.RegisterDisposable (node,Helpers.disposable d)
@@ -643,7 +659,7 @@ type SutilNode =
 
 and NodeGroup private (_name,_parent,_prevInit) as this =
     let mutable id = domId() |> string
-    let mutable _dispose = ignore
+    let mutable _dispose : (unit -> unit) list= []
     let mutable _children = []
     let mutable _prev = _prevInit
     let mutable _childGroups = []
@@ -929,6 +945,9 @@ and NodeGroup private (_name,_parent,_prevInit) as this =
                 )
 
             deleteOldNodes()
+            match oldChild with
+            | GroupNode g -> g.Dispose()
+            | _ -> ()
 
             if isNull insertBefore || oldChild = EmptyNode then
                 this.AddChild child
@@ -942,12 +961,13 @@ and NodeGroup private (_name,_parent,_prevInit) as this =
         member _.Id
             with get() = id and set id' = id <- id'
         member _.Children = _children
-        member _.SetDispose d =
+        member _.RegisterUnsubscribe d =
             //SutilNode.RegisterUnsubscribe(parentDomNode(),d)
-            _dispose <- d
+            _dispose <- _dispose @ [ d ]
         member _.Dispose() =
             _childGroups |> List.iter (fun c -> c.Dispose())
-            _dispose()
+            _dispose |> List.iter (fun d -> d())
+            _dispose <- []
 
 type BuildResult = SutilNode
 
@@ -1392,10 +1412,31 @@ let fragment (elements : SutilElement seq) = nodeFactory <| fun ctx ->
 
     sutilResult fragmentNode
 
-let parentFragment (items : SutilElement seq) = nodeFactory <| fun ctx ->
+(*
+
+   // Nice idea, but cleanup doesn't work intuitively.
+   // Deleting a node containing a parentFragment should undo (dispose) any
+   // event handlers (for example) that were registered, but these have added
+   // dispose handlers to the parent node. May come back to this
+
+// Attempt 1
+let _parentFragment (items : SutilElement seq) = nodeFactory <| fun ctx ->
     once Event.Mount (ctx.ParentElement) <| fun _ ->
         ctx |> ContextHelpers.withParentNode (ctx.ParentElement.parentNode) |> buildChildren items
     unitResult( ctx, "parentFragment" )
+
+// Attempt 2
+let parentFragment (elements : SutilElement seq) = nodeFactory <| fun ctx ->
+    let group = SutilNode.MakeGroup("pfragment",ctx.Parent,ctx.Previous)
+    let fragmentNode = GroupNode group
+    ctx.AddChild fragmentNode
+
+    once Event.Mount (ctx.ParentElement) <| fun _ ->
+        ctx |> ContextHelpers.withParentNode (ctx.ParentElement.parentNode) |> buildChildren elements
+
+    sutilResult fragmentNode
+
+*)
 
 open Fable.Core.JS
 

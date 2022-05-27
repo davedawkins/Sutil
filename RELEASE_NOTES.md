@@ -1,3 +1,7 @@
+### 1.0.0-beta-019
+- Fix cleanup of fragments
+- Unregister event handlers created within fragment when fragment disposed
+
 ### 1.0.0-beta-018
 - parentFragment, allows you to apply elements to this element's parent
 - Bind.style, passing an updater function: 'T -> CSSStyleDeclaration -> unit

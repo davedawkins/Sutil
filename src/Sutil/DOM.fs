@@ -1392,6 +1392,11 @@ let fragment (elements : SutilElement seq) = nodeFactory <| fun ctx ->
 
     sutilResult fragmentNode
 
+let parentFragment (items : SutilElement seq) = nodeFactory <| fun ctx ->
+    once Event.Mount (ctx.ParentElement) <| fun _ ->
+        ctx |> ContextHelpers.withParentNode (ctx.ParentElement.parentNode) |> buildChildren items
+    unitResult( ctx, "parentFragment" )
+
 open Fable.Core.JS
 
 // ----------------------------------------------------------------------------

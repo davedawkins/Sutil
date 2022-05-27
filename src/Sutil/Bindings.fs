@@ -586,6 +586,29 @@ let bindStore<'T> (init:'T) (app:Store<'T> -> DOM.SutilElement) : DOM.SutilEleme
 let declareStore<'T> (init : 'T) (f : Store<'T> -> unit) =
     declareResource (fun () -> Store.make init) f
 
+open Browser.CssExtensions
+
+let bindStyle<'T> (value : IObservable<'T>) (f : CSSStyleDeclaration -> 'T -> unit) = nodeFactory <| fun ctx ->
+    let style = ctx.ParentElement.style
+    let unsub = value.Subscribe(f style)
+    SutilNode.RegisterDisposable( ctx.Parent, unsub )
+
+    unitResult(ctx,"bindStyle")
+
+let bindWidthHeight (wh: IObservable<float*float>) =
+    bindStyle wh (fun style (w,h) ->
+        if w <> 0.0 && h <> 0.0 then
+            style.width <- w.ToString() + "px"
+            style.height <- h.ToString() + "px"
+    )
+
+let bindLeftTop (xy : IObservable<float*float>) =
+    bindStyle xy (fun style (x,y) ->
+        if x <> 0.0 && y <> 0.0 then
+            style.left <- x.ToString() + "px"
+            style.top <- y.ToString() + "px"
+    )
+
 let (|=>) store element = bindElement store element
 
 (*
@@ -638,8 +661,19 @@ module BindApi =
         static member attr<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) =
             bindAttrBoth name value dispatch
 
+        /// One way binding from style values into style attribute
         static member style (attrs : IObservable<#seq<string * obj>>) =
             Bind.attr("style", attrs |> Store.map cssAttrsToString)
+
+        /// One way binding from custom values to style updater function. This allows updating of style object rather than the style attribute string.
+        static member style<'T>( values : IObservable<'T>, updater : CSSStyleDeclaration -> 'T -> unit ) =
+            bindStyle values updater
+
+        static member leftTop( xy : IObservable<float*float>) =
+            bindLeftTop xy
+
+        static member widthHeight( xy : IObservable<float*float>) =
+            bindWidthHeight xy
 
         static member toggleClass (toggle:IObservable<bool>, activeClass : string, inactiveClass : string) =
             bindClassToggle toggle activeClass inactiveClass

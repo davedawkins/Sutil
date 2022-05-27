@@ -1,3 +1,8 @@
+### 1.0.0-beta-018
+- parentFragment, allows you to apply elements to this element's parent
+- Bind.style, passing an updater function: 'T -> CSSStyleDeclaration -> unit
+- Bind.widthHeight, Bind.topLeft (wrappers on Bind.style)
+
 ### 1.0.0-beta-017
 - Fix for Bind.each taking a view function of type : IObservable<T> -> SutilElement
 

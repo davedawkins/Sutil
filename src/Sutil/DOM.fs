@@ -665,7 +665,7 @@ and NodeGroup private (_name,_parent,_prevInit) as this =
     let mutable _childGroups = []
     let childDomNodes() = _children |> List.map (function |DomNode n -> [n]|_ -> [])
 
-    let childStrs() = _children |> List.map string
+    //let childStrs() = _children |> List.map string
 
     let assertIsChild (child:SutilNode) =
         let isChild = _children |> List.exists (fun c -> c.IsSameNode(child))
@@ -674,7 +674,7 @@ and NodeGroup private (_name,_parent,_prevInit) as this =
             failwith $"Not a child: {child}"
 
     let updateChildrenPrev() =
-        log($"updating children {childStrs()}")
+        //log($"updating children {childStrs()}")
         let mutable p = EmptyNode
         for c in _children do
             match c with
@@ -848,7 +848,7 @@ and NodeGroup private (_name,_parent,_prevInit) as this =
             | xs -> xs |> List.last
 
         member private this.ChildAfter (prev : SutilNode) =
-            log($"ChildAfter: prev='{prev}' children={childStrs()} this='{this}'")
+            //log($"ChildAfter: prev='{prev}' children={childStrs()} this='{this}'")
             match prev with
             | EmptyNode -> this.FirstChild
             | _ ->
@@ -984,6 +984,7 @@ type BuildContext =
         Action   : DomAction  // Consider making this "SvId option" and then finding node to replace
         // Naming service
         MakeName : (string -> string)
+        Class : string option
         Debug : bool
         // Style context
         StyleSheet : NamedStyleSheet option }
@@ -1016,6 +1017,13 @@ type SutilElement = private { Builder: BuildContext -> BuildResult }
 
 let nodeFactory f = { Builder = f }
 
+let getSutilClasses (e:HTMLElement) =
+    let classes =
+        [0..e.classList.length-1]
+            |> List.map (fun i -> e.classList.[i])
+            |> List.filter (fun cls -> cls.StartsWith("sutil"));
+    classes
+
 let private makeContext (parent:Node) =
     let gen = Helpers.makeIdGenerator()
     {
@@ -1024,6 +1032,7 @@ let private makeContext (parent:Node) =
         Previous = EmptyNode
         Action = Append
         StyleSheet = None
+        Class = parent :?> HTMLElement |> Option.ofObj |> Option.bind (fun e -> getSutilClasses e |> List.tryHead)
         Debug = false
         MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
     }
@@ -1037,6 +1046,7 @@ let private makeShadowContext (customElement : Node) =
         Action = Nothing
         StyleSheet = None
         Debug = false
+        Class = None
         MakeName = fun baseName -> sprintf "%s-%d" baseName (gen())
     }
 
@@ -1107,17 +1117,17 @@ let rec internal parseSelector (source:string) : CssRules.CssSelector =
             CssRules.Tag (token.ToUpper())
 
     let rec parseAttr (token : string) =
-        if token.Contains("[") && token.EndsWith("]")
-            then
-                let i = token.IndexOf('[')
-                let single = parseSingle(token.Substring(0,i).Trim())
-                let attrExpr = token.Substring(i+1, token.Length - i - 2)
-                let attrTokens = attrExpr.Split([|'='|], 2)
-                if attrTokens.Length = 2 then
-                    CssRules.Attr (single, attrTokens.[0].Trim(), attrTokens.[1] |> trimQuotes )
-                else
-                    CssRules.NotImplemented
-            else parseSingle token
+        if token.Contains("[") && token.EndsWith("]") then
+            let i = token.IndexOf('[')
+            let single = parseSingle(token.Substring(0,i).Trim())
+            let attrExpr = token.Substring(i+1, token.Length - i - 2)
+            let attrTokens = attrExpr.Split([|'='|], 2)
+            if attrTokens.Length = 2 then
+                CssRules.Attr (single, attrTokens.[0].Trim(), attrTokens.[1] |> trimQuotes )
+            else
+                CssRules.NotImplemented
+        else
+            parseSingle token
 
     let rec parseAll (token : string) =
         let spacedItems = token.Split([| ' ' |], System.StringSplitOptions.RemoveEmptyEntries)
@@ -1140,13 +1150,6 @@ let rec rootStyle (sheet : NamedStyleSheet) =
 
 let rec rootStyleName sheet =
     (rootStyle sheet).Name
-
-let getSutilClasses (e:HTMLElement) =
-    let classes =
-        [0..e.classList.length-1]
-            |> List.map (fun i -> e.classList.[i])
-            |> List.filter (fun cls -> cls.StartsWith("sutil"));
-    classes
 
 let rec applyCustomRules (namedSheet:NamedStyleSheet) (e:HTMLElement) =
     // TODO: Remove all classes added by previous calls to this function
@@ -1264,7 +1267,7 @@ let attr (name,value:obj) : SutilElement = nodeFactory <| fun ctx ->
             applyCustomRules namedSheet e
         | None -> ()
 
-    with _ -> invalidOp (sprintf "Cannot set attribute %s on a %A %f %s" name parent parent.nodeType (parent :?> HTMLElement).tagName)
+    with _ -> invalidOp (sprintf "Cannot set attribute '%s' = '%A' on a %A %f %s" name value parent parent.nodeType (parent :?> HTMLElement).tagName)
     unitResult(ctx, "attr")
 
 let idSelector = sprintf "#%s"
@@ -1395,10 +1398,12 @@ let buildChildren(xs : seq<SutilElement>) (ctx:BuildContext) : unit =
 
     // Effect 3
     match ctx.StyleSheet with
-    | Some namedSheet ->
+    | Some (namedSheet: NamedStyleSheet) ->
         e.AddClass(namedSheet.Name)
         e.AsDomNode |> applyIfElement (applyCustomRules namedSheet)
     | None -> ()
+
+    ctx.Class |> Option.iter (fun cls -> e.AddClass cls)
 
     ()
 
@@ -1610,6 +1615,9 @@ let text value : SutilElement =
 let html text : SutilElement = nodeFactory <| fun ctx ->
     ctx.Parent.AsDomNode |> applyIfElement (fun el ->
         el.innerHTML <- text
+
+        ctx.Class |> Option.iter (fun cls -> visitElementChildren el (fun ch -> ch.classList.add cls))
+
         match ctx.StyleSheet with
         | None -> ()
         | Some ns -> visitElementChildren el (fun ch ->

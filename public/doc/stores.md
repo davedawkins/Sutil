@@ -246,7 +246,7 @@ type Msg =
     | Reset
 let init _ = { count = 0 }
 
-let upddate msg state =
+let update msg state =
     match msg with
     | Increment -> { state = state.count + 1 }
     | Decrement -> { state = state.count - 1 }
@@ -285,7 +285,7 @@ let wait1S () =
         do! Async.Sleep 1000
     }
 
-let upddate msg state =
+let update msg state =
     match msg with
     | Increment -> { state = state.count + 1 }, Cmd.none
     | Decrement -> { state = state.count - 1 }, Cmd.none

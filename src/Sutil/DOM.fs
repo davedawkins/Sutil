@@ -391,13 +391,13 @@ type SutilNode =
             | GroupNode g -> g.AssertIsConnected()
 
         static member CleanupGroups(n : Node) =
-            Fable.Core.JS.console.log("Cleanup groups")
+            //Fable.Core.JS.console.log("Cleanup groups")
             let groups = SutilNode.GetGroups(n)
             groups |> Option.iter (List.iter (fun g ->
-                Fable.Core.JS.console.log("++ Cleanup group: " )
+                //Fable.Core.JS.console.log("++ Cleanup group: " )
                 let sn = GroupNode g
-                sn.PrettyPrint("cleanup group: ")
-                Fable.Core.JS.console.log("-- Cleanup group: " )
+                //sn.PrettyPrint("cleanup group: ")
+                //Fable.Core.JS.console.log("-- Cleanup group: " )
                 g.Dispose()))
             NodeKey.clear n NodeKey.Groups
 

@@ -109,6 +109,7 @@ let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheet) =
     let style = newStyleElement doc
     for entry in styleSheet do
         entryToText styleName entry |> doc.createTextNode |> style.appendChild |> ignore
+    (fun () -> style.parentElement.removeChild(style) |> ignore)
 
 let headStylesheet (url : string) : SutilElement = nodeFactory <| fun ctx ->
     let doc = ctx.Document
@@ -151,12 +152,12 @@ let headTitle (title : string) : SutilElement = nodeFactory <| fun ctx ->
 
 let withStyle styleSheet (element : SutilElement) : SutilElement = nodeFactory <| fun ctx ->
     let name = ctx.MakeName "sutil"
-    addStyleSheet ctx.Document name styleSheet
+    addStyleSheet ctx.Document name styleSheet |> ignore
     ctx |> ContextHelpers.withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet} |> build element
 
 let withStyleAppend styleSheet (element : SutilElement) : SutilElement = nodeFactory <| fun ctx ->
     let name = match ctx.StyleSheet with | None -> "" | Some s -> s.Name
-    addStyleSheet ctx.Document name styleSheet
+    addStyleSheet ctx.Document name styleSheet |> ignore
     ctx |> build element
 
 let rule selector style =

@@ -2,8 +2,6 @@ namespace Sutil
 
 open System
 open Fable.Core
-open Fable.Core.JsInterop
-open Browser.Types
 
 [<AutoOpen>]
 module ObservablePromise =
@@ -24,4 +22,9 @@ module ObservablePromise =
         interface IObservable<State<'T>> with
             member this.Subscribe(observer: IObserver<State<'T>>) = store.Subscribe(observer)
 
+    type JS.Promise<'T> with
+        member self.ToObservable() : ObservablePromise<'T> =
+            let op = ObservablePromise<'T>()
+            op.Run(self)
+            op
 

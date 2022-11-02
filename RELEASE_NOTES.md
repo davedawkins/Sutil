@@ -1,9 +1,10 @@
 ### 1.0.0-beta-020
-**Unreleased - remove this message before building!**
-- addStyleSheet returns a function that will remove the sheet
+- Added `Bind.promise( p : Promise<'T>, view : 'T -> SutilElement )`
+- Added extension `ToObservable<'T>()` for `Promise<'T>`, used by `Bind.promise`
+- `addStyleSheet` returns a function that will remove the sheet
 - Stop diagnostic messages to console
 - Fix typos in `doc/stores.md` (thank you Jlll1!)
--
+
 ### 1.0.0-beta-019
 - Fix cleanup of fragments
 - Unregister event handlers created within fragment when fragment disposed

@@ -1,6 +1,6 @@
 Follow these steps to create a new Sutil project starting from scratch:
 
-- Install Fable template if you haven't already (check for latest template at https://www.nuget.org/packages/Fable.Template/):
+- Install Fable template if you haven't already (check for latest template at [https://www.nuget.org/packages/Fable.Template/](https://www.nuget.org/packages/Fable.Template/)):
 
 ```shell
 % dotnet new --install Fable.Template::3.2.1

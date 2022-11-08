@@ -763,13 +763,18 @@ module BindApi =
         static member eachi (items:IObservable<list<'T>>,view : IObservable<int> * IObservable<'T> -> SutilElement,key:int*'T->'K) : SutilElement =
             eachiko (listWrapO items) view key []
 
-        static member promise (p : JS.Promise<'T>) (view : 'T  -> SutilElement) =
+        static member promise (p : JS.Promise<'T>, view : 'T  -> SutilElement, waiting: SutilElement, error : Exception -> SutilElement)=
             Bind.el(  p.ToObservable(), fun state ->
                 match state with
-                | Waiting -> el "div" [ Attr.class' "promise-waiting"; text "loading..."]
-                | State.Error x -> el "div" [ Attr.class' "promise-error"; text x.Message ]
+                | Waiting -> waiting
+                | State.Error x -> error x
                 | Result r ->  view r
             )
+
+        static member promise (p : JS.Promise<'T>, view : 'T  -> SutilElement) =
+            let w = el "div" [ Attr.class' "promise-waiting"; text "loading..."]
+            let e (x : Exception) = el "div" [ Attr.class' "promise-error"; text x.Message ]
+            Bind.promise(p, view, w, e )
 
         type BindArray =
             /// Bind arrays to a simple template, with transitions

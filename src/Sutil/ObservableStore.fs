@@ -138,11 +138,12 @@ module ObservableStore =
 
             // Send every update. Use 'distinctUntilChanged' with fastEquals to get previous behaviour
             //Fable.Core.JS.console.log($"Update {_model} -> {newModel}")
-            _model <- newModel
+            if not (Helpers.fastEquals _model newModel) then
+                _model <- newModel
 
-            if subscribers.Count > 0 then
-                subscribers.Values
-                    |> Seq.iter (fun s -> s.OnNext(_model))
+                if subscribers.Count > 0 then
+                    subscribers.Values
+                        |> Seq.iter (fun s -> s.OnNext(_model))
 
         member this.Subscribe(observer: IObserver<'Model>): IDisposable =
             let id = uid

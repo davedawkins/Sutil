@@ -110,21 +110,21 @@ describe "Sutil.Store" <| fun () ->
         Expect.areEqual(v2,43)
     }
 
-    it "Notify all updates even when equal" <| fun () -> promise {
-        let inputValue = 42
+    // it "Notify all updates even when equal" <| fun () -> promise {
+    //     let inputValue = 42
 
-        let s = Store.make inputValue
-        let mutable n = 0
+    //     let s = Store.make inputValue
+    //     let mutable n = 0
 
-        // Will set n = 1 (immediate update)
-        let u = s |> Store.subscribe (fun _ -> n <- n + 1)
+    //     // Will set n = 1 (immediate update)
+    //     let u = s |> Store.subscribe (fun _ -> n <- n + 1)
 
-        Store.set s inputValue  // n := 2
-        Store.set s inputValue  // n := 3
+    //     Store.set s inputValue  // n := 2
+    //     Store.set s inputValue  // n := 3
 
-        u.Dispose()
+    //     u.Dispose()
 
-        Expect.areEqual(n,3)
-    }
+    //     Expect.areEqual(n,3)
+    // }
 
 let init() = ()

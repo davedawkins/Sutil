@@ -1,3 +1,8 @@
+### 1.0.0-beta-021
+- Additional overload for Bind.promise
+- Fix existing Bind.promise to be uncurried arguments
+- Use fastEquals to filter out identical updates to store
+
 ### 1.0.0-beta-020
 - Added `Bind.promise( p : Promise<'T>, view : 'T -> SutilElement )`
 - Added extension `ToObservable<'T>()` for `Promise<'T>`, used by `Bind.promise`

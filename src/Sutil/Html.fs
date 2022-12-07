@@ -85,6 +85,10 @@ type SutilAttrEngine() =
 
     member _.none = nodeFactory <| fun ctx -> unitResult(ctx,"none")
 
+    // Compatibility with code produced from https://thisfunctionaltom.github.io/Html2Feliz/
+    // Eg prop.text "Hello World"
+    member _.text s = DOM.text s
+
 
 let Html = SutilHtmlEngine()
 
@@ -106,3 +110,6 @@ type Media() =
 // Convenience
 let text s = DOM.text s
 
+// Compatibility with code produced by https://thisfunctionaltom.github.io/Html2Feliz/
+// Thanks to @dejanmilicic for the suggestion
+let prop = Attr

@@ -1561,6 +1561,35 @@ let el tag (xs : seq<SutilElement>) : SutilElement = nodeFactory <| fun ctx ->
 
     domResult e
 
+let keyedEl (tag : string) (key : string) (init : seq<SutilElement>) (update : seq<SutilElement>) = nodeFactory <| fun ctx ->
+    let e : Element =
+        let existing = ctx.Document.getElementById key
+        if existing <> null then
+            existing
+        else
+            let svid = domId()
+            log("create <" + tag + "> #" + string id)
+            let e' = ctx.Document.createElement(tag)
+            ctx |> ContextHelpers.withParent (DomNode e') |> buildChildren init
+            setSvId e' svid
+            e'.setAttribute("id",key)
+            e'
+
+    // Considering packing these effects into pipeline that lives on ctx.
+    // User can then extend the pipeline, or even re-arrange. No immediate
+    // need for it right now.
+
+    // Effect 1
+    ctx |> ContextHelpers.withParent (DomNode e) |> buildChildren update
+
+    if e.parentElement = null then
+    // Effect 40
+        ctx.AddChild (DomNode e)
+        // Effect 5
+        dispatchSimple e Event.ElementReady
+
+    domResult e
+
 let elAppend selector (xs : seq<SutilElement>) : SutilElement = nodeFactory <| fun ctx ->
     let e : Element = ctx.Document.querySelector(selector)
     if isNull e then

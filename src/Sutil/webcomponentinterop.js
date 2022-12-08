@@ -84,7 +84,7 @@ export function makeWebComponent(name, ctor, initModel) {
     }
 
     classCtor.prototype.disconnectedCallback = function () {
-        this.sutilCallbacks.Dispose();
+        this.sutilCallbacks.OnDisconnected();
     }
 
     customElements.define(name, classCtor);

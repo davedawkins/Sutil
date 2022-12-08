@@ -28,6 +28,5 @@ jobs:
       - name: Run tests
         run: |
           cd ${{ github.workspace }}
-          bash -c "while true; do pstree -uA; sleep 1; done &"
           npm run test
       - run: echo "🍏 This job's status is ${{ job.status }}."

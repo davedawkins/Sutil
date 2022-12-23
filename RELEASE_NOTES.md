@@ -1,3 +1,6 @@
+### 1.0.0-beta-023
+- Add global.json to prevent .NET7 for now
+
 ### 1.0.0-beta-022
 - rx,ry helpers for svg
 - prop, text helpers for code produced from Html2Feliz (thanks to @dejanmilicic)

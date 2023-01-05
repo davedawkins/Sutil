@@ -83,6 +83,11 @@ type SutilAttrEngine() =
     member _.styleAppend (cssAttrs : (string*obj) seq) = cssAttrs |> Sutil.Attr.styleAppend
     member _.style (cssAttrs : IObservable< #seq<string*obj> >) = Bind.style cssAttrs
 
+    member _.setClass(className : string) = DOM.setClass className
+    member _.toggleClass(className : string) = DOM.toggleClass className
+    member _.addClass(className : string) = DOM.addClass className
+    member _.removeClass(className : string) = DOM.removeClass className
+
     member _.none = nodeFactory <| fun ctx -> unitResult(ctx,"none")
 
     // Compatibility with code produced from https://thisfunctionaltom.github.io/Html2Feliz/
@@ -99,8 +104,10 @@ let Ev = SutilEventEngine()
 let Css =  CssEngine(fun k v -> k, box v)
 
 let cssAttr = id
-let addClass       (n:obj) = cssAttr("sutil-add-class",n)
-let useGlobal              = cssAttr("sutil-use-global","" :> obj)
+
+module PseudoCss =
+    let addClass       (n:obj) = cssAttr("sutil-add-class",n)
+    let useGlobal = cssAttr("sutil-use-global","" :> obj)
 
 type Media() =
     static member Custom (condition : string) rules = makeMediaRule condition rules

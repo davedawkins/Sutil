@@ -24,14 +24,14 @@ let questions = [
 
 let appStyle = [
     rule "input" [
-        addClass "input"
+        PseudoCss.addClass "input"
         Css.displayBlock
         Css.width 620
         Css.maxWidth (percent 100)
     ]
-    rule "button" [ addClass "button" ]
-    rule "form" [ addClass "block" ]
-    rule "h2" [ addClass "title"; addClass "is-2" ]
+    rule "button" [ PseudoCss.addClass "button" ]
+    rule "form" [ PseudoCss.addClass "block" ]
+    rule "h2" [ PseudoCss.addClass "title"; PseudoCss.addClass "is-2" ]
 ]
 
 // HTML helpers

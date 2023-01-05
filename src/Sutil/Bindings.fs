@@ -252,11 +252,11 @@ let bindRadioGroup<'T> (store:Store<'T>) : SutilElement = nodeFactory <| fun ctx
 let bindClassToggle (toggle:IObservable<bool>) (classesWhenTrue:string) (classesWhenFalse:string) =
     bindSub toggle <| fun ctx active ->
         if active then
-            ctx.ParentElement |> removeFromClasslist classesWhenFalse
-            ctx.ParentElement |> addToClasslist classesWhenTrue
+            ctx.ParentElement |> ClassHelpers.removeFromClasslist classesWhenFalse
+            ctx.ParentElement |> ClassHelpers.addToClasslist classesWhenTrue
         else
-            ctx.ParentElement |> removeFromClasslist classesWhenTrue
-            ctx.ParentElement |> addToClasslist classesWhenFalse
+            ctx.ParentElement |> ClassHelpers.removeFromClasslist classesWhenTrue
+            ctx.ParentElement |> ClassHelpers.addToClasslist classesWhenFalse
 
 // Deprecated
 let bindClass (toggle:IObservable<bool>) (classes:string) = bindClassToggle toggle classes ""
@@ -270,7 +270,7 @@ let bindClassName (classNames:IObservable<string>)  =
     bindSub classNames <| fun ctx current ->
         ctx.ParentElement.className <- current
 
-// Bind a store value to an element attribute. Updates to the element are unhandled
+/// Bind a store value to an element attribute. Updates to the element are unhandled
 let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : SutilElement = nodeFactory <| fun ctx ->
     let unsub =
         if attrName = "class" then
@@ -560,24 +560,6 @@ let eachk_seq (items:IObservable<seq<'T>>) (view : 'T -> SutilElement)  (key:'T 
         trans
 #endif
 
-(*
-    // This is best done with (say) Bind.toggleClass and an event handler updating a store
-
-//
-// Turn events into an IObservable using a map function
-// Pass IObservable to SutilElement function so that containing element can be side-effected (eg, bindClass)
-//
-let bindEvent<'T> (event:string) (map:Event -> 'T) (app:IObservable<'T> -> DOM.SutilElement) : DOM.SutilElement = nodeFactory <| fun ctx ->
-    let s = Store.make Unchecked.defaultof<'T>
-    let u = listen event ctx.ParentNode (map >> Store.set s)
-    SutilNode.RegisterDisposable(ctx.Parent,s)
-    SutilNode.RegisterUnsubscribe(ctx.Parent,u)
-    ctx |> (s |> app |> build)
-
-let bindEventU<'T> (event:string) (map:Event -> 'T) (app:IObservable<'T> -> unit) : DOM.SutilElement =
-     bindEvent event map (fun s -> app(s); fragment[])
-*)
-
 let bindStore<'T> (init:'T) (app:Store<'T> -> DOM.SutilElement) : DOM.SutilElement = nodeFactory <| fun ctx ->
     let s = Store.make init
     SutilNode.RegisterDisposable(ctx.Parent,s)
@@ -610,19 +592,6 @@ let bindLeftTop (xy : IObservable<float*float>) =
     )
 
 let (|=>) store element = bindElement store element
-
-(*
-let selectApp (selectors : (IObservable<bool> * (unit ->SutilElement)) list) = nodeFactory <| fun ctx ->
-    let s = selectors |> List.map fst |> firstOf
-    let apps = selectors |> List.map snd |> Array.ofList
-
-    let u = s.Subscribe(fun i ->
-        if i >= 0 then
-            build (exclusive (apps.[i]())) ctx |> ignore
-    )
-
-    unitResult(ctx,"selectApp")
-*)
 
 // BindApi is a way for me to refactor this module into a public-facing documentation API with
 // overloads where appropriate.

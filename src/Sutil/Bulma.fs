@@ -32,36 +32,36 @@ module Helpers =
     let selectMultiple (props : SutilElement list) = Html.div [ class' "select is-multiple"; Html.select ([ Attr.multiple true ] @ props) ]
 
 let styleHelpers = [
-    rule "h1" [ addClass "title"; addClass "is-1" ]
-    rule "h2" [ addClass "title"; addClass "is-2" ]
-    rule "h3" [ addClass "title"; addClass "is-3" ]
-    rule "h4" [ addClass "title"; addClass "is-4" ]
-    rule "h5" [ addClass "title"; addClass "is-5" ]
-    rule "button" [ addClass "button" ]
+    rule "h1" [ PseudoCss.addClass "title"; PseudoCss.addClass "is-1" ]
+    rule "h2" [ PseudoCss.addClass "title"; PseudoCss.addClass "is-2" ]
+    rule "h3" [ PseudoCss.addClass "title"; PseudoCss.addClass "is-3" ]
+    rule "h4" [ PseudoCss.addClass "title"; PseudoCss.addClass "is-4" ]
+    rule "h5" [ PseudoCss.addClass "title"; PseudoCss.addClass "is-5" ]
+    rule "button" [ PseudoCss.addClass "button" ]
 
-    rule "input[type='file']" [ addClass "file-cta" ]
+    rule "input[type='file']" [ PseudoCss.addClass "file-cta" ]
 
     rule "input[type='text']" [
-        addClass "input"
+        PseudoCss.addClass "input"
     ]
 
     rule "input[type='radio']" [
-        addClass "radio"
+        PseudoCss.addClass "radio"
     ]
 
     rule "input[type='checkbox']" [
-        addClass "checkbox"
+        PseudoCss.addClass "checkbox"
     ]
 
     rule "input[type='number']" [
-        addClass "input"
-        addClass "is-small"
+        PseudoCss.addClass "input"
+        PseudoCss.addClass "is-small"
         Css.maxWidth (percent 50)
     ]
 
     rule "input[type='range']" [
-        addClass "input"
-        addClass "is-small"
+        PseudoCss.addClass "input"
+        PseudoCss.addClass "is-small"
         Css.maxWidth (percent 50)
     ]
 ]

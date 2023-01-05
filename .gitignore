@@ -293,6 +293,7 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 .fable
+.vscode
 .ionide
 .DS_Store
 public/bundle.js
@@ -302,3 +303,4 @@ examples/HelloWorld/public/bundle.js
 devtools/js/bundle.js
 tests/public/test-bundle.js
 tests/build
+.vscode/settings.json

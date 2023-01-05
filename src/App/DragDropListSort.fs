@@ -1,30 +1,30 @@
 module DragDropListSort
 
-/// DragDropListSort
-///    Wrapper for Bindings.eachk that allows user to drag-drop sort the list elements
-///
-///    let create  (items:IObservable<list<'T>>)
-///                (slot : 'T -> SutilElement)
-///                (key:'T -> 'K) (trans : TransitionAttribute list)
-///                (dispatch : DragOperation -> unit)
-///
-///     items:     data items
-///     slot:      item template
-///     key:       return key value for data item
-///     dispatch:  callback to commit the insert operation
-///
-/// Classes
-///    Element being dragged
-///    .dragging-init - momentarily set, allows (some) browser(s) to capture a styled version of the drag element
-///    .dragging      - set while dragging
-///
-///    Element being dragged over
-///    .drag-over
-///       .insert-before  Insert before this element
-///       .insert-after   Insert after this element
-///
-/// Issues:
-/// - Can't drag to end of list. For now, drag to n-1, then move nth up 1 place
+// DragDropListSort
+//    Wrapper for Bindings.eachk that allows user to drag-drop sort the list elements
+//
+//    let create  (items:IObservable<list<'T>>)
+//                (slot : 'T -> SutilElement)
+//                (key:'T -> 'K) (trans : TransitionAttribute list)
+//                (dispatch : DragOperation -> unit)
+//
+//     items:     data items
+//     slot:      item template
+//     key:       return key value for data item
+//     dispatch:  callback to commit the insert operation
+//
+// Classes
+//    Element being dragged
+//    .dragging-init - momentarily set, allows (some) browser(s) to capture a styled version of the drag element
+//    .dragging      - set while dragging
+//
+//    Element being dragged over
+//    .drag-over
+//       .insert-before  Insert before this element
+//       .insert-after   Insert after this element
+//
+// Issues:
+// - Can't drag to end of list. For now, drag to n-1, then move nth up 1 place
 
 open Sutil
 open type Feliz.length
@@ -46,8 +46,8 @@ module private Private =
 
     let iterElem (f: HTMLElement -> unit)(node : Node option)  = node |> Option.iter (toElement >> f)
 
-    let addClasses node classes = node |> iterElem (DOM.addToClasslist classes)
-    let removeClasses node classes = node |> iterElem (DOM.removeFromClasslist classes)
+    let addClasses node classes = node |> iterElem (DOM.ClassHelpers.addToClasslist classes)
+    let removeClasses node classes = node |> iterElem (DOM.ClassHelpers.removeFromClasslist classes)
 
     let getKey (n : Node) : int = Interop.get n "_key"
 

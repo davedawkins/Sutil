@@ -1,17 +1,17 @@
 module TimerWithButton
 
-///
-/// Example component making use of the TimerLogic component.
-/// Applies a simple UI to the TimerLogic component, and allows the user to specify
-/// how the elapsed time is presented.
-///
-/// let create (slot : IObservable<bool * float> -> SutilElement)
-///
-///      slot - View for timer status. Argument is ( running : bool * elapsedTime : float )
-///
-/// Classes
-/// .running   Added when the timer is running
-///
+//
+// Example component making use of the TimerLogic component.
+// Applies a simple UI to the TimerLogic component, and allows the user to specify
+// how the elapsed time is presented.
+//
+// let create (slot : IObservable<bool * float> -> SutilElement)
+//
+//      slot - View for timer status. Argument is ( running : bool * elapsedTime : float )
+//
+// Classes
+// .running   Added when the timer is running
+//
 
 open Sutil
 open Sutil.Bulma

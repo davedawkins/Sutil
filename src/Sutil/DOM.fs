@@ -1211,27 +1211,31 @@ let asDomElement (element : SutilNode) (ctx : BuildContext): HTMLElement =
 let findSvIdElement (doc : Document) id : HTMLElement =
     downcast doc.querySelector($"[_svid='{id}']")
 
-let splitBySpace (s:string) = s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries)
+module ClassHelpers =
+    let splitBySpace (s:string) = s.Split([|' '|],StringSplitOptions.RemoveEmptyEntries)
 
-let setClass (className : string) (e:HTMLElement) =
-    e.className <- className
+    let setClass (className : string) (e:HTMLElement) =
+        e.className <- className
 
-let addToClasslist classes (e:HTMLElement) =
-    e.classList.add( classes |> splitBySpace )
+    let toggleClass (className : string) (e:HTMLElement) =
+        e.classList.toggle(className) |> ignore
 
-let removeFromClasslist classes (e:HTMLElement) =
-    e.classList.remove( classes |> splitBySpace )
+    let addToClasslist classes (e:HTMLElement) =
+        e.classList.add( classes |> splitBySpace )
+
+    let removeFromClasslist classes (e:HTMLElement) =
+        e.classList.remove( classes |> splitBySpace )
 
 let nullToEmpty s =
     if isNull s then "" else s
 
 let setAttribute (el:HTMLElement) (name:string) (value:obj) =
-    let isBooleanAttribute name = (name= "hidden" || name = "disabled" || name = "readonly" || name = "required")
+    let isBooleanAttribute name = (name= "hidden" || name = "disabled" || name = "readonly" || name = "required" || name = "checked")
     let svalue = string value
     if name = "class" then
-        el |> addToClasslist svalue
+        el |> ClassHelpers.addToClasslist svalue
     else  if name = "class-" then
-        el |> removeFromClasslist svalue
+        el |> ClassHelpers.removeFromClasslist svalue
     else if isBooleanAttribute name then
         let bValue =
             if value :? bool then
@@ -1332,10 +1336,12 @@ let rec visitElementChildren (parent:Node) (f : HTMLElement -> unit) =
 
 //let registeredDisposables = new System.Collections.Generic.Dictionary<IDisposable,Node>()
 
+/// Invoke Dispose() for each item when the element is unmounted
 let disposeOnUnmount (ds : IDisposable list) = nodeFactory <| fun ctx ->
     ds |> List.iter (fun d-> SutilNode.RegisterDisposable(ctx.Parent,d))
     unitResult(ctx, "disposeOnUnmount")
 
+/// Call each function of type `(unit -> unit)` when the element is unmounted
 let unsubscribeOnUnmount (ds : (unit->unit) list) = nodeFactory <| fun ctx ->
     ds |> List.iter (fun d -> SutilNode.RegisterUnsubscribe(ctx.Parent,d))
     unitResult(ctx, "unsubscribeOnUnmount")
@@ -1345,20 +1351,44 @@ let private updateCustom (el:HTMLElement) (name:string) (property:string) (value
     Interop.set r property value
     Interop.set el name r
 
+/// Remove all existing DOM children before constructing the given `SutilElement`
 let exclusive (f : SutilElement) = nodeFactory <| fun ctx ->
     log $"exclusive {ctx.Parent}"
     ctx.Parent.Clear()
     ctx |> build f
 
+/// Provides a hook for the build context. If you need to use this, please log an issue in the github repo for Sutil :-)
 let hookContext (hook: BuildContext -> unit) : SutilElement = nodeFactory <| fun ctx ->
     hook ctx
     unitResult(ctx, "hookContext")
 
+/// Provides a hook for the parent DOM Node
 let hookParent (hook: Node -> unit) : SutilElement = nodeFactory <| fun ctx ->
-    hook ctx.Parent.AsDomNode
+    ctx.ParentNode |> hook
     unitResult(ctx, "hookParent")
 
-let addTransform (node:HTMLElement) (a : ClientRect) =
+/// Provides a hook for the parent `HTMLElement`. This can be used, for example, to mount a React component. See https://sutil.dev/#documentation-hosting-react
+/// This will throw an `InvalidCastException` if the parent node is not an `HTMLElement`
+let hookElement (hook : HTMLElement -> unit) = nodeFactory <| fun ctx ->
+    ctx.ParentElement |> hook
+    unitResult(ctx,"host")
+
+/// Backwards compatibility. Obsolete
+let host = hookElement
+
+let setClass (name : string) =
+    hookElement (ClassHelpers.setClass name)
+
+let toggleClass (name : string) =
+    hookElement (ClassHelpers.toggleClass name)
+
+let addClass (name : string) =
+    hookElement (ClassHelpers.addToClasslist name)
+
+let removeClass (name : string) =
+    hookElement (ClassHelpers.removeFromClasslist name)
+
+let internal addTransform (node:HTMLElement) (a : ClientRect) =
     let b = node.getBoundingClientRect()
     if (a.left <> b.left || a.top <> b.top) then
         let s = Window.getComputedStyle(node)
@@ -1366,7 +1396,7 @@ let addTransform (node:HTMLElement) (a : ClientRect) =
         node.style.transform <- sprintf "%s translate(%fpx, %fpx)" transform (a.left - b.left) (a.top - b.top)
         log node.style.transform
 
-let fixPosition (node:HTMLElement) =
+let internal fixPosition (node:HTMLElement) =
     let s = Window.getComputedStyle(node)
     if (s.position <> "absolute" && s.position <> "fixed") then
         log $"fixPosition {nodeStr node}"
@@ -1378,11 +1408,7 @@ let fixPosition (node:HTMLElement) =
         node.style.height <- height
         addTransform node a
 
-//let removeNode (node:#Node) =
-//    log <| sprintf "removing node %A" node.textContent
-//    DomEdit.removeChild node.parentNode node
-
-let buildChildren(xs : seq<SutilElement>) (ctx:BuildContext) : unit =
+let internal buildChildren(xs : seq<SutilElement>) (ctx:BuildContext) : unit =
     let e = ctx.Parent
 
     let mutable prev = EmptyNode
@@ -1407,6 +1433,13 @@ let buildChildren(xs : seq<SutilElement>) (ctx:BuildContext) : unit =
 
     ()
 
+/// A collection of `SutilElement`s as a single `SutilElement`. This is useful when we have a collection of
+/// `SutilElements` that we don't want to wrap in their own containing DOM element.
+///
+/// <example>https://sutil.dev/#documentation-html</example>
+///
+/// <seealso>nothing</seealso>
+///
 let fragment (elements : SutilElement seq) = nodeFactory <| fun ctx ->
     let group = SutilNode.MakeGroup("fragment",ctx.Parent,ctx.Previous)
     let fragmentNode = GroupNode group
@@ -1417,40 +1450,12 @@ let fragment (elements : SutilElement seq) = nodeFactory <| fun ctx ->
 
     sutilResult fragmentNode
 
-(*
-
-   // Nice idea, but cleanup doesn't work intuitively.
-   // Deleting a node containing a parentFragment should undo (dispose) any
-   // event handlers (for example) that were registered, but these have added
-   // dispose handlers to the parent node. May come back to this
-
-// Attempt 1
-let _parentFragment (items : SutilElement seq) = nodeFactory <| fun ctx ->
-    once Event.Mount (ctx.ParentElement) <| fun _ ->
-        ctx |> ContextHelpers.withParentNode (ctx.ParentElement.parentNode) |> buildChildren items
-    unitResult( ctx, "parentFragment" )
-
-// Attempt 2
-let parentFragment (elements : SutilElement seq) = nodeFactory <| fun ctx ->
-    let group = SutilNode.MakeGroup("pfragment",ctx.Parent,ctx.Previous)
-    let fragmentNode = GroupNode group
-    ctx.AddChild fragmentNode
-
-    once Event.Mount (ctx.ParentElement) <| fun _ ->
-        ctx |> ContextHelpers.withParentNode (ctx.ParentElement.parentNode) |> buildChildren elements
-
-    sutilResult fragmentNode
-
-*)
-
 open Fable.Core.JS
 
-// ----------------------------------------------------------------------------
-// Serialize tasks through an element. If the task already has a running task
-// wait for it to complete before starting the new task. Otherwise, run the
-// new task immediately
-//
-let wait (el:HTMLElement) (andThen : unit -> Promise<unit>) =
+/// Serialize tasks through an element. If the task already has a running task
+/// wait for it to complete before starting the new task. Otherwise, run the
+/// new task immediately
+let internal wait (el:HTMLElement) (andThen : unit -> Promise<unit>) =
     let key = NodeKey.Promise
     let run() = andThen() |> Interop.set el key
     if Interop.exists el key then
@@ -1603,44 +1608,31 @@ let elAppend selector (xs : seq<SutilElement>) : SutilElement = nodeFactory <| f
     ctx |> ContextHelpers.withParent snodeEl |> buildChildren xs
 
     unitResult(ctx,"elAppend")
-(*
-let buildSolitaryElement (f : SutilElement) ctx : HTMLElement =
-    log $"buildSolitaryElement: {ctx.Action}"
-    let node = expectSolitary f ctx
-    if isElementNode node then
-        node :?> HTMLElement
-    else
-        let spanWrapper = el "span" [ nodeFactory <| (fun _ -> nodeResult node) ]
-        (expectSolitary spanWrapper ctx) :?> HTMLElement
-*)
+
+
+/// Merge these `SutilElement`s with another `SutilElement`.
 let inject (elements : SutilElement seq) (element : SutilElement) = nodeFactory <| fun ctx ->
     let e = build element ctx
     e.collectDomNodes() |> List.iter (fun n -> ctx |> ContextHelpers.withParent (DomNode n) |> buildChildren elements |> ignore)
     e
 
-let setValue<'T> (key : string) (value : 'T) = nodeFactory <| fun ctx ->
-    Interop.set ctx.ParentNode key value
-    unitResult(ctx, "setValue")
 
-// ----------------------------------------------------------------------------
-// Text node
-
-let textNode (doc : Document) value : Node =
+let internal textNode (doc : Document) value : Node =
     let id = domId()
     log $"create \"{value}\" #{id}"
     let n = doc.createTextNode(value)
     setSvId n id
     upcast n
 
+/// Create a TextNode
 let text value : SutilElement =
     nodeFactory <| fun ctx ->
         let tn = textNode ctx.Document value
         ctx.AddChild (DomNode tn)
         domResult tn
 
-// ----------------------------------------------------------------------------
-// Raw html node
 
+/// Raw html that will be parsed and added as a child of the parent element
 let html text : SutilElement = nodeFactory <| fun ctx ->
     ctx.Parent.AsDomNode |> applyIfElement (fun el ->
         el.innerHTML <- text
@@ -1655,8 +1647,34 @@ let html text : SutilElement = nodeFactory <| fun ctx ->
         Event.notifyUpdated ctx.Document)
     sutilResult <| ctx.Parent
 
-let host (render : HTMLElement -> unit) = nodeFactory <| fun ctx ->
-    ctx.ParentElement |> render
-    unitResult(ctx,"host")
+/// Set a property on the parent DOM Node
+let setProperty<'T> (key : string) (value : 'T) =
+    hookParent (fun n -> Interop.set n key value )
 
+/// Backwards compatibility. Obsolete
+let setValue = setProperty
+
+/// An empty element. This could be considered the `unit` value for a `SutilElement`. It is very similar in effect `fragment []`, since
+/// neither will add any HTMLElements. The main difference is that `nothing` will make no changes at all to the DOM, while `fragment` will
+/// create an internal `SutilGroup` that is registered on the parent element as a property.
 let nothing = nodeFactory <| fun ctx -> unitResult(ctx, "nothing")
+
+/// The width of the browser viewport
+let viewportWidth() =
+    Math.max(
+        ifSetElse( document.documentElement.clientWidth, 0.0 ),
+        ifSetElse( window.innerWidth, 0.0 ) )
+
+/// The height of the browser viewport
+let viewportHeight() =
+    Math.max(
+        ifSetElse( document.documentElement.clientHeight, 0.0 ),
+        ifSetElse( window.innerHeight, 0.0 ) )
+
+type NodeListOf<'T> with
+    /// Produce a seq<'T> from a NodeListOf<'T>. This is useful when working with document.querySelectorAll, for example
+    member nodes.toSeq() =
+        seq {
+            for i in [0..nodes.length-1] do
+                yield nodes.[i]
+        }

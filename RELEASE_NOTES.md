@@ -1,3 +1,13 @@
+### 1.0.0-beta-024
+- Unbreak WebComponents
+- Hide Sutil.Logging from users
+- Added ifSetElse as call to JS "$0 || $1"
+- DIstinguish the various methods named "addClass", using modules
+- Add "addClass", "removeClass", "setClass", "toggleClass" to Attr
+- Ignore .vscode
+- Remove FSharp.Core from PackageReferences
+- Fix comments
+
 ### 1.0.0-beta-023
 - Add global.json to prevent .NET7 for now
 

@@ -4,14 +4,12 @@ open Fable.Core
 open Browser.Types
 open DOM
 
-type WrapUnitUnit = System.Func<unit,unit>
-
 module WebComponent =
     type Callbacks<'T> = {
-        OnDisconnected : WrapUnitUnit
-        GetModel : System.Func<unit,'T> // unit -> 'T
-        SetModel : System.Func<'T, unit>
-        OnConnected : WrapUnitUnit
+        OnDisconnected : (unit -> unit)
+        GetModel : unit -> 'T
+        SetModel : 'T -> unit
+        OnConnected : unit -> unit
     }
 
     [<Import("makeWebComponent", "./webcomponentinterop.js")>]
@@ -21,39 +19,32 @@ open Fable.Core.JsInterop
 
 type WebComponent =
 
-    static member Register<'T>(name:string, ctor : IStore<'T> -> Node -> SutilElement, model : IStore<'T>, dispose ) =
+    static member Register<'T>(name:string, view : IStore<'T> -> Node -> SutilElement, initValue : 'T, initModel: unit -> IStore<'T>, dispose : IStore<'T> -> unit) =
+
+        // If model is instantiated here, then it doesn't get captured correctly within 'wrapper', with multiple calls
+        // to Register() (such as the Counter example)
+        //let model = initModel()
+
         let wrapper (host:Node) : WebComponent.Callbacks<'T> =
-            let result = ctor model host
-            let disposeElement = DOM.mountOnShadowRoot result host
+            let model = initModel()
+
+            let sutilElement = view model host
+            let disposeElement = DOM.mountOnShadowRoot sutilElement host
 
             let disposeWrapper() =
-                dispose()
+                dispose(model)
                 disposeElement()
 
-            {   OnDisconnected = WrapUnitUnit(disposeWrapper)
-                GetModel = System.Func<unit,'T>(fun () -> model |> Store.current)
-                SetModel = System.Func<'T,unit>(Store.set model)
-                OnConnected = WrapUnitUnit( fun _ -> DOM.dispatchSimple (host?shadowRoot?firstChild) Event.Connected )//"sutil-connected"
+            {   OnDisconnected = disposeWrapper
+                GetModel = (fun () -> model |> Store.current)
+                SetModel = Store.set model
+                OnConnected = fun _ -> DOM.dispatchSimple (host?shadowRoot?firstChild) Event.Connected //"sutil-connected"
                 }
 
-        WebComponent.makeWebComponent name wrapper (model |> Store.get)
+        WebComponent.makeWebComponent name wrapper initValue
 
-    static member Register<'T>(name:string, ctor : IStore<'T> -> Node -> SutilElement, model : IStore<'T> ) =
-        WebComponent.Register(name, ctor, model, ignore)
+    static member Register<'T>(name:string, view : IStore<'T> -> Node -> SutilElement, init : 'T ) =
+        WebComponent.Register( name, view, init, (fun () -> Store.make init), (fun s -> s.Dispose()))
 
-    //
-    // Web component manages store internally, you have no access to it
-    // View function takes both the store and the Node of the component
-    //
-    static member Register<'T>(name:string, ctor : IStore<'T> -> Node -> SutilElement, init : 'T ) =
-        let model = Store.make init
-        let dispose = fun() ->
-            Fable.Core.JS.console.log("Register: dispose called")
-            model.Dispose()
-        WebComponent.Register(name, ctor, model, dispose)
-
-    //
-    // Web component manages store internally, you have no access to it
-    //
-    static member Register<'T>(name:string, ctor : IStore<'T> -> SutilElement, init : 'T ) =
-        WebComponent.Register( name, (fun store _ -> ctor store), init)
+    static member Register<'T>(name:string, view : IStore<'T> -> SutilElement, init : 'T ) =
+        WebComponent.Register( name, (fun store _ -> view store), init, (fun () -> Store.make init), (fun s -> s.Dispose()))

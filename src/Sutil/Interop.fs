@@ -40,6 +40,9 @@ let getDefault<'a> (ob:obj) (name:string) (defaultValue : 'a): 'a =
 [<Emit("typeof $0 === 'undefined'")>]
 let isUndefined (x: 'a) : bool = jsNative
 
+[<Emit("$0 || $1")>]
+let ifSetElse(a : 't, b : 't) : 't = jsNative
+
 open Browser.Dom
 open Browser.CssExtensions
 open Browser.MediaQueryListExtensions

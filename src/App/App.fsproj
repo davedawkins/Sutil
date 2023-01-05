@@ -69,7 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Fable.Formatting.Markdown" Version="1.0.1" />
-    <PackageReference Include="FSharp.Core" Version="5.0.2" />
     <PackageReference Include="Feliz.Engine.Bulma" Version="1.*-*" />
     <PackageReference Include="Fable.Fetch" Version="2.2.0" />
     <PackageReference Include="Fable.ShadowStyles" Version="1.0.0-*" />

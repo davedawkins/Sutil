@@ -1,11 +1,10 @@
 module CRUD
 
 open Sutil
-open Feliz
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Bulma
-
+open type Feliz.length
 module DbSchema =
     type Name = {
         Id : int
@@ -146,7 +145,7 @@ let update msg model =
 
 let appStyle = [
     rule "div.select, select, .width100" [
-        Css.width (length.percent 100) // Streatch list and text box to fit column, looks nicer right aligned
+        Css.width (percent 100) // Streatch list and text box to fit column, looks nicer right aligned
     ]
     rule ".field-label" [
         Css.flexGrow 2 // Allow more space for field label

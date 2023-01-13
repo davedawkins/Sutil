@@ -22,3 +22,5 @@
 - [Elmish / MVU - coming soon](coming_soon.md)
 - [DevTools - coming soon](coming_soon.md)
 
+# API
+- [API Documentation](../Sutil.xml)

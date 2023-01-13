@@ -2,7 +2,6 @@ module SortableTimerList
 
 open Sutil
 open Sutil.Bulma
-open Feliz
 open type Feliz.length
 open Sutil.Attr
 open Sutil.DOM

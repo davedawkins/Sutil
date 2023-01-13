@@ -51,7 +51,7 @@ let view() =
                 Css.minWidth (Feliz.length.percent 25)
             ]
             Html.ul [
-                Bind.each(list,Html.li)
+                Bind.each(list, Html.li)
             ]
         ]
 

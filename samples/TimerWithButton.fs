@@ -43,7 +43,8 @@ let create (slot : IObservable<bool * float> -> SutilElement) =
         bulma.columns [
             columns.isVcentered
             columns.isMobile
-            Bindings.bindClass (model |> Store.map (fun m -> m.Started)) "running"
+
+            Bind.toggleClass(model |> Store.map (fun m -> m.Started),"running")
 
             bulma.column [
                 column.isHalf

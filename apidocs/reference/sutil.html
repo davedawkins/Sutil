@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Sutil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="David Dawkins">
+
+    <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.6.0/materia/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+    <link rel="shortcut icon" type="image/x-icon" href="https://sutil.dev/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://sutil.dev/content/navbar-fixed-left.css" />
+    <link type="text/css" rel="stylesheet" href="https://sutil.dev/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="https://sutil.dev/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="https://sutil.dev/content/fsdocs-tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <!-- END SEARCH BOX: this adds support for the search box -->
+    
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-left" id="fsdocs-nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse navbar-nav-scroll" id="navbarsExampleDefault">
+            <a href="https://sutil.dev/"><img id="fsdocs-logo" src="../../images/logo-small.png" /></a>
+            <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+            <div id="header">
+                <div class="searchbox" id="fsdocs-searchbox">
+                    <label for="search-by">
+                        <i class="fas fa-search"></i>
+                    </label>
+                    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                    <span data-search-clear="">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- END SEARCH BOX: this adds support for the search box -->
+            <ul class="navbar-nav">
+                <li class="nav-header">Links</li>
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/davedawkins/Sutil/blob/master/LICENSE.md">License</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/davedawkins/Sutil/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/davedawkins/Sutil/">Source Repository</a></li>
+                
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://sutil.dev/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="masthead">
+            <h3 class="muted"><a href="https://sutil.dev/">Sutil</a></h3>
+        </div>
+        <hr />
+        <div class="container" id="fsdocs-content">
+            <div>
+  <h2 id="sutil">
+    Sutil Namespace
+  </h2>
+  <div class="fsdocs-xmldoc"></div>
+  <table class="table outer-list fsdocs-entity-list">
+    <thead>
+      <tr>
+        <td>
+          Type/Module
+        </td>
+        <td>
+          Description
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Bind">
+              <a href="https://sutil.dev/reference/sutil-bind.html">
+                Bind
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.Bind`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.Bind\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L13-13" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+ Bindings for observables and the DOM. For example, use an <code>IObservable&lt;bool&gt;</code> to toggle an element's <code>class</code> attribute
+ 
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="BindArray">
+              <a href="https://sutil.dev/reference/sutil-bindarray.html">
+                BindArray
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.BindArray`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.BindArray\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L156-156" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+ Bindings for array observables and the DOM. For example, <code>IObservable&lt;int[]&gt;</code>. The <code>Bind</code> class already handles lists. <code>BindArray</code> exists to eliminate compilation errors related to overloading of the <code>each</code> method.
+ 
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="DOM">
+              <a href="https://sutil.dev/reference/sutil-dom.html">
+                DOM
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.DOM`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.DOM\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/DOM.fs#L4-4" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+ Low-level DOM helper functions
+ 
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="EngineHelpers">
+              <a href="https://sutil.dev/reference/sutil-enginehelpers.html">
+                EngineHelpers
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.EngineHelpers`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.EngineHelpers\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Html.fs#L113-113" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+ DOM builders such as <code>Html</code>, <code>Attr</code>, <code>Ev</code> and <code>Css</code>
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="ICollectionWrapper<'T>">
+              <a href="https://sutil.dev/reference/sutil-icollectionwrapper-1.html">
+                ICollectionWrapper<'T>
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('``cref:T:Sutil.ICollectionWrapper`1``')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.ICollectionWrapper`1\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Types.fs#L4-4" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Media">
+              <a href="https://sutil.dev/reference/sutil-media.html">
+                Media
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.Media`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.Media\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Html.fs#L214-214" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+ Helpers for basic media queries
+ 
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Observable">
+              <a href="https://sutil.dev/reference/sutil-observable.html">
+                Observable
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.Observable`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.Observable\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Observable.fs#L6-6" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="ObservablePromise">
+              <a href="https://sutil.dev/reference/sutil-observablepromise.html">
+                ObservablePromise
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.ObservablePromise`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.ObservablePromise\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Promise.fs#L7-7" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="ObservableStore">
+              <a href="https://sutil.dev/reference/sutil-observablestore.html">
+                ObservableStore
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.ObservableStore`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.ObservableStore\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/ObservableStore.fs#L10-10" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Program">
+              <a href="https://sutil.dev/reference/sutil-program.html">
+                Program
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.Program`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.Program\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Program.fs#L1-1" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="PseudoCss">
+              <a href="https://sutil.dev/reference/sutil-pseudocss.html">
+                PseudoCss
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.PseudoCss`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.PseudoCss\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Html.fs#L152-152" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+ Experimental pseudo-CSS styles
+
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Store">
+              <a href="https://sutil.dev/reference/sutil-store.html">
+                Store
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.Store`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.Store\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Store.fs#L15-15" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="StoreExtensions">
+              <a href="https://sutil.dev/reference/sutil-storeextensions.html">
+                StoreExtensions
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.StoreExtensions`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.StoreExtensions\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Store.fs#L435-435" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="StoreOperators">
+              <a href="https://sutil.dev/reference/sutil-storeoperators.html">
+                StoreOperators
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.StoreOperators`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.StoreOperators\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Store.fs#L334-334" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Styling">
+              <a href="https://sutil.dev/reference/sutil-styling.html">
+                Styling
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.Styling`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.Styling\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Styling.fs#L1-1" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Transition">
+              <a href="https://sutil.dev/reference/sutil-transition.html">
+                Transition
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.Transition`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.Transition\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/Transition.fs#L1-1" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="WebComponent">
+              <a href="https://sutil.dev/reference/sutil-webcomponentmodule.html">
+                WebComponent (Module)
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.WebComponentModule`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.WebComponentModule\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/WebComponent.fs#L7-7" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="WebComponent">
+              <a href="https://sutil.dev/reference/sutil-webcomponent.html">
+                WebComponent (Type)
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.WebComponent`')">
+              <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+            </div>
+            <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.WebComponent\'/>')">
+              <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+            </div>
+            <a href="https://github.com/davedawkins/Sutil/src/Sutil/WebComponent.fs#L20-20" class="fsdocs-source-link" title="Source on GitHub">
+              <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+              <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+            </a>
+            <p class="fsdocs-summary">
+              
+            </p>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+            
+        </div>
+
+        <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+        <script type="text/javascript">var fsdocs_search_baseurl = 'https://sutil.dev/';</script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+        <script type="text/javascript" src="https://sutil.dev/content/fsdocs-search.js"></script>
+        <!-- END SEARCH BOX: this adds support for the search box -->
+    </div>
+</body>
+
+</html>

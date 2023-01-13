@@ -8,7 +8,6 @@ open Sutil.Styling
 open Sutil.Attr
 open Sutil.DOM
 open Browser.Types
-open Feliz
 open type Feliz.length
 open Sutil.Transition
 
@@ -177,7 +176,8 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
         class' title
         Html.h2 [ text title ]
 
-        Bind.each(filteredTodos,(fun todo ->
+        let a= filteredTodos |> Store.map (Array.ofList)
+        BindArray.each(a, (fun todo ->
             Html.label [
                 Html.input [
                     type' "checkbox"

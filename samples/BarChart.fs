@@ -7,7 +7,6 @@ open Sutil
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Styling
-open Feliz
 open type Feliz.length
 open Fable.Core
 

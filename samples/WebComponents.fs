@@ -63,7 +63,6 @@ let view() =
     // The JS event handlers are looking up the 'greet1' component and sending the
     // current input value into the appropriate property. You can use setAttribute too.
     Html.div [
-
         // Consider this to be <script src='app.js'></script> for the 3rd party app
         // Can't pass <script> tags to DOM.html
         Html.script [

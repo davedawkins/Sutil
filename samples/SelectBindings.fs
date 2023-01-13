@@ -3,12 +3,13 @@ module SelectBindings
 // Adapted from
 // https://svelte.dev/examples
 
-open Feliz
 open Browser
 open Sutil
 open Sutil.DOM
 open Sutil.Attr
 open Sutil.Styling
+
+open type Feliz.length
 
 type Question = {
     Id : int
@@ -26,7 +27,7 @@ let appStyle = [
         addClass "input"
         Css.displayBlock
         Css.width 620
-        Css.maxWidth (length.percent 100)
+        Css.maxWidth (percent 100)
     ]
     rule "button" [ addClass "button" ]
     rule "form" [ addClass "block" ]

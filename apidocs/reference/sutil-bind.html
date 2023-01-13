@@ -1,0 +1,4057 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Bind (Sutil)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="David Dawkins">
+
+    <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.6.0/materia/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+    <link rel="shortcut icon" type="image/x-icon" href="https://sutil.dev/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://sutil.dev/content/navbar-fixed-left.css" />
+    <link type="text/css" rel="stylesheet" href="https://sutil.dev/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="https://sutil.dev/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="https://sutil.dev/content/fsdocs-tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <!-- END SEARCH BOX: this adds support for the search box -->
+    
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-left" id="fsdocs-nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse navbar-nav-scroll" id="navbarsExampleDefault">
+            <a href="https://sutil.dev/"><img id="fsdocs-logo" src="../../images/logo-small.png" /></a>
+            <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+            <div id="header">
+                <div class="searchbox" id="fsdocs-searchbox">
+                    <label for="search-by">
+                        <i class="fas fa-search"></i>
+                    </label>
+                    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                    <span data-search-clear="">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- END SEARCH BOX: this adds support for the search box -->
+            <ul class="navbar-nav">
+                <li class="nav-header">Links</li>
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/davedawkins/Sutil/blob/master/LICENSE.md">License</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/davedawkins/Sutil/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/davedawkins/Sutil/">Source Repository</a></li>
+                
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://sutil.dev/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="masthead">
+            <h3 class="muted"><a href="https://sutil.dev/">Sutil</a></h3>
+        </div>
+        <hr />
+        <div class="container" id="fsdocs-content">
+            <div>
+  <h2>
+    Bind Type
+  </h2>
+  <dl class="fsdocs-metadata">
+    <dt>
+      Namespace: 
+      <a href="https://sutil.dev/reference/sutil.html">
+        Sutil
+      </a>
+    </dt>
+    <dt>
+      Assembly: Sutil.dll
+    </dt>
+    <dt>
+      Base Type: 
+      <code>obj</code>
+    </dt>
+  </dl>
+  <div class="fsdocs-xmldoc">
+    <div>
+      <p class="fsdocs-summary">
+        
+ Bindings for observables and the DOM. For example, use an <code>IObservable&lt;bool&gt;</code> to toggle an element's <code>class</code> attribute
+ 
+      </p>
+    </div>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div>
+    <h3>
+      Static members
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Static member
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '553', 553)" onmouseover="showTip(event, '553', 553)">
+                <p>
+                  <a id="attr">
+                    <a href="#attr">
+                      <code><span>Bind.attr&#32;<span><span>(<span>name,&#32;value,&#32;dispatch</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="553">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.attr&#32;<span><span>(<span>name,&#32;value,&#32;dispatch</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        name
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        value
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        dispatch
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.attr``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.attr``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L32-32" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Two-way binding from value to attribute and from attribute to dispatch function
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  name
+                </span>
+                :
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  value
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  dispatch
+                </span>
+                :
+                <code><span>'T&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '554', 554)" onmouseover="showTip(event, '554', 554)">
+                <p>
+                  <a id="attr">
+                    <a href="#attr">
+                      <code><span>Bind.attr&#32;<span><span>(<span>name,&#32;dispatch</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="554">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.attr&#32;<span><span>(<span>name,&#32;dispatch</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        name
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        dispatch
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.attr``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.attr``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L29-29" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ One-way binding from attribute to dispatch function
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  name
+                </span>
+                :
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  dispatch
+                </span>
+                :
+                <code><span>'T&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '555', 555)" onmouseover="showTip(event, '555', 555)">
+                <p>
+                  <a id="attr">
+                    <a href="#attr">
+                      <code><span>Bind.attr&#32;<span><span>(<span>name,&#32;value</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="555">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.attr&#32;<span><span>(<span>name,&#32;value</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        name
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        value
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.attr``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.attr``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L26-26" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ One-way binding from value to attribute. Note that passing store to this function will
+ select the more specific `attr<'T>( string, IStore<'T>)` overload.
+ If that looks to be a problem, we'll rename both of them to force a considered choice.
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  name
+                </span>
+                :
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  value
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '556', 556)" onmouseover="showTip(event, '556', 556)">
+                <p>
+                  <a id="attr">
+                    <a href="#attr">
+                      <code><span>Bind.attr&#32;<span><span>(<span>name,&#32;value</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="556">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.attr&#32;<span><span>(<span>name,&#32;value</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        name
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        value
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-istore-1.html">IStore</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.attr``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.attr``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L21-21" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Dual-binding for a given attribute. Changes to value are written to the attribute, while
+ changes to the attribute are written back to the store. Note that an IStore is also
+ an IObservable, for which a separate overload exists.
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  name
+                </span>
+                :
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  value
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-istore-1.html">IStore</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '557', 557)" onmouseover="showTip(event, '557', 557)">
+                <p>
+                  <a id="className">
+                    <a href="#className">
+                      <code><span>Bind.className&#32;<span>name</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="557">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.className&#32;<span>name</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        name
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;string&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.Bind.className`')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.className\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L55-55" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  name
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;string&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '558', 558)" onmouseover="showTip(event, '558', 558)">
+                <p>
+                  <a id="classNames">
+                    <a href="#classNames">
+                      <code><span>Bind.classNames&#32;<span>name</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="558">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.classNames&#32;<span>name</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        name
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'a&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.classNames``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.classNames``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L58-58" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  name
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'a&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '559', 559)" onmouseover="showTip(event, '559', 559)">
+                <p>
+                  <a id="each">
+                    <a href="#each">
+                      <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view,&#32;key</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="559">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view,&#32;key</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        key
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;'K</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.each``2```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.each``2\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L113-113" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Bind keyed lists to a simple template, with transitions
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  key
+                </span>
+                :
+                <code><span>'T&#32;->&#32;'K</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '560', 560)" onmouseover="showTip(event, '560', 560)">
+                <p>
+                  <a id="each">
+                    <a href="#each">
+                      <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view,&#32;key,&#32;trans</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="560">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view,&#32;key,&#32;trans</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        key
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;'K</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        trans
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.each``2```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.each``2\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L109-109" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Bind keyed lists to a simple template, with transitions
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  key
+                </span>
+                :
+                <code><span>'T&#32;->&#32;'K</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  trans
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '561', 561)" onmouseover="showTip(event, '561', 561)">
+                <p>
+                  <a id="each">
+                    <a href="#each">
+                      <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view,&#32;key</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="561">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view,&#32;key</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        key
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;'K</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.each``2```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.each``2\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L105-105" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Bind keyed lists to a simple template
+ Deprecated: Use a view template that takes IObservable<'T>
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  key
+                </span>
+                :
+                <code><span>'T&#32;->&#32;'K</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '562', 562)" onmouseover="showTip(event, '562', 562)">
+                <p>
+                  <a id="each">
+                    <a href="#each">
+                      <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view,&#32;key,&#32;trans</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="562">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view,&#32;key,&#32;trans</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        key
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;'K</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        trans
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.each``2```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.each``2\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L100-100" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Bind keyed lists to a simple template, with transitions
+ Deprecated: Use a view template that takes IObservable<'T>
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  key
+                </span>
+                :
+                <code><span>'T&#32;->&#32;'K</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  trans
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '563', 563)" onmouseover="showTip(event, '563', 563)">
+                <p>
+                  <a id="each">
+                    <a href="#each">
+                      <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="563">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.each``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.each``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L93-93" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Bind lists to a simple template
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '564', 564)" onmouseover="showTip(event, '564', 564)">
+                <p>
+                  <a id="each">
+                    <a href="#each">
+                      <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view,&#32;trans</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="564">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.each&#32;<span><span>(<span>items,&#32;view,&#32;trans</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        trans
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.each``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.each``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L89-89" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Bind lists to a simple template, with transitions
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  trans
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '565', 565)" onmouseover="showTip(event, '565', 565)">
+                <p>
+                  <a id="eachi">
+                    <a href="#eachi">
+                      <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view,&#32;key</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="565">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view,&#32;key</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;int&gt;</span>&#32;*&#32;<span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        key
+                      </b>
+                      :
+                      <code><span><span>int&#32;*&#32;'T</span>&#32;->&#32;'K</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.eachi``2```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.eachi``2\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L134-134" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;int&gt;</span>&#32;*&#32;<span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  key
+                </span>
+                :
+                <code><span><span>int&#32;*&#32;'T</span>&#32;->&#32;'K</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '566', 566)" onmouseover="showTip(event, '566', 566)">
+                <p>
+                  <a id="eachi">
+                    <a href="#eachi">
+                      <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view,&#32;key,&#32;trans</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="566">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view,&#32;key,&#32;trans</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;int&gt;</span>&#32;*&#32;<span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        key
+                      </b>
+                      :
+                      <code><span><span>int&#32;*&#32;'T</span>&#32;->&#32;'K</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        trans
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.eachi``2```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.eachi``2\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L131-131" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;int&gt;</span>&#32;*&#32;<span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  key
+                </span>
+                :
+                <code><span><span>int&#32;*&#32;'T</span>&#32;->&#32;'K</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  trans
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '567', 567)" onmouseover="showTip(event, '567', 567)">
+                <p>
+                  <a id="eachi">
+                    <a href="#eachi">
+                      <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="567">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;int&gt;</span>&#32;*&#32;<span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.eachi``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.eachi``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L128-128" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;int&gt;</span>&#32;*&#32;<span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '568', 568)" onmouseover="showTip(event, '568', 568)">
+                <p>
+                  <a id="eachi">
+                    <a href="#eachi">
+                      <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view,&#32;trans</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="568">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view,&#32;trans</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;int&gt;</span>&#32;*&#32;<span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        trans
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.eachi``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.eachi``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L125-125" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;int&gt;</span>&#32;*&#32;<span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  trans
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '569', 569)" onmouseover="showTip(event, '569', 569)">
+                <p>
+                  <a id="eachi">
+                    <a href="#eachi">
+                      <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="569">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span><span>int&#32;*&#32;'T</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.eachi``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.eachi``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L121-121" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span><span>int&#32;*&#32;'T</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '570', 570)" onmouseover="showTip(event, '570', 570)">
+                <p>
+                  <a id="eachi">
+                    <a href="#eachi">
+                      <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view,&#32;trans</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="570">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.eachi&#32;<span><span>(<span>items,&#32;view,&#32;trans</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span><span>int&#32;*&#32;'T</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        trans
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.eachi``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.eachi``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L118-118" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span><span>int&#32;*&#32;'T</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  trans
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '571', 571)" onmouseover="showTip(event, '571', 571)">
+                <p>
+                  <a id="el">
+                    <a href="#el">
+                      <code><span>Bind.el&#32;<span><span>(<span>value,&#32;key,&#32;element</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="571">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.el&#32;<span><span>(<span>value,&#32;key,&#32;element</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        value
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        key
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;'K</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        element
+                      </b>
+                      :
+                      <code><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.el``2```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.el``2\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L69-69" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  value
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  key
+                </span>
+                :
+                <code><span>'T&#32;->&#32;'K</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  element
+                </span>
+                :
+                <code><span><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '572', 572)" onmouseover="showTip(event, '572', 572)">
+                <p>
+                  <a id="el">
+                    <a href="#el">
+                      <code><span>Bind.el&#32;<span><span>(<span>value,&#32;key,&#32;element</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="572">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.el&#32;<span><span>(<span>value,&#32;key,&#32;element</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        value
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        key
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;'K</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        element
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.el``2```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.el``2\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L66-66" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  value
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  key
+                </span>
+                :
+                <code><span>'T&#32;->&#32;'K</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  element
+                </span>
+                :
+                <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '573', 573)" onmouseover="showTip(event, '573', 573)">
+                <p>
+                  <a id="el">
+                    <a href="#el">
+                      <code><span>Bind.el&#32;<span><span>(<span>value,&#32;element</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="573">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.el&#32;<span><span>(<span>value,&#32;element</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        value
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        element
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.el``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.el``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L63-63" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Binding from value to a DOM fragment. Each change in value replaces the current DOM fragment
+ with a new one.
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  value
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  element
+                </span>
+                :
+                <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '574', 574)" onmouseover="showTip(event, '574', 574)">
+                <p>
+                  <a id="el2">
+                    <a href="#el2">
+                      <code><span>Bind.el2&#32;<span>valueA&#32;valueB&#32;element</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="574">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.el2&#32;<span>valueA&#32;valueB&#32;element</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        valueA
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'A&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        valueB
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'B&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        element
+                      </b>
+                      :
+                      <code><span><span>'A&#32;*&#32;'B</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.el2``2```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.el2``2\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L76-76" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Binding from two values to a DOM fragment. See fragment<'T>
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  valueA
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'A&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  valueB
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'B&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  element
+                </span>
+                :
+                <code><span><span>'A&#32;*&#32;'B</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '575', 575)" onmouseover="showTip(event, '575', 575)">
+                <p>
+                  <a id="fragment">
+                    <a href="#fragment">
+                      <code><span>Bind.fragment&#32;<span>value&#32;element</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="575">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.fragment&#32;<span>value&#32;element</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        value
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        element
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.fragment``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.fragment``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L73-73" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Deprecated naming, use Bind.el
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  value
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  element
+                </span>
+                :
+                <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '576', 576)" onmouseover="showTip(event, '576', 576)">
+                <p>
+                  <a id="fragment2">
+                    <a href="#fragment2">
+                      <code><span>Bind.fragment2&#32;<span>valueA&#32;valueB&#32;element</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="576">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.fragment2&#32;<span>valueA&#32;valueB&#32;element</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        valueA
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'A&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        valueB
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'B&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        element
+                      </b>
+                      :
+                      <code><span><span>'A&#32;*&#32;'B</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.fragment2``2```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.fragment2``2\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L79-79" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Deprecated naming, use Bind.el
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  valueA
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'A&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  valueB
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'B&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  element
+                </span>
+                :
+                <code><span><span>'A&#32;*&#32;'B</span>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '577', 577)" onmouseover="showTip(event, '577', 577)">
+                <p>
+                  <a id="leftTop">
+                    <a href="#leftTop">
+                      <code><span>Bind.leftTop&#32;<span>xy</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="577">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.leftTop&#32;<span>xy</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        xy
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>float&#32;*&#32;float</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.Bind.leftTop`')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.leftTop\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L43-43" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  xy
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>float&#32;*&#32;float</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '578', 578)" onmouseover="showTip(event, '578', 578)">
+                <p>
+                  <a id="promise">
+                    <a href="#promise">
+                      <code><span>Bind.promise&#32;<span><span>(<span>p,&#32;view</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="578">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.promise&#32;<span><span>(<span>p,&#32;view</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        p
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/fable.core.js.promise-1">Promise</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.promise``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.promise``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L148-148" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  p
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/fable.core.js.promise-1">Promise</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '579', 579)" onmouseover="showTip(event, '579', 579)">
+                <p>
+                  <a id="promise">
+                    <a href="#promise">
+                      <code><span>Bind.promise&#32;<span><span>(<span>p,&#32;view,&#32;waiting,&#32;error</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="579">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.promise&#32;<span><span>(<span>p,&#32;view,&#32;waiting,&#32;error</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        p
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/fable.core.js.promise-1">Promise</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        waiting
+                      </b>
+                      :
+                      <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        error
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.exception">Exception</a>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.promise``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.promise``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L140-140" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  p
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/fable.core.js.promise-1">Promise</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  waiting
+                </span>
+                :
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  error
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.exception">Exception</a>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '580', 580)" onmouseover="showTip(event, '580', 580)">
+                <p>
+                  <a id="promises">
+                    <a href="#promises">
+                      <code><span>Bind.promises&#32;<span><span>(<span>items,&#32;view,&#32;waiting,&#32;error</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="580">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.promises&#32;<span><span>(<span>items,&#32;view,&#32;waiting,&#32;error</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        items
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span><a href="https://docs.microsoft.com/dotnet/api/fable.core.js.promise-1">Promise</a>&lt;'T&gt;</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        view
+                      </b>
+                      :
+                      <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        waiting
+                      </b>
+                      :
+                      <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        error
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.exception">Exception</a>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.promises``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.promises``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L137-137" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  items
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span><a href="https://docs.microsoft.com/dotnet/api/fable.core.js.promise-1">Promise</a>&lt;'T&gt;</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  view
+                </span>
+                :
+                <code><span>'T&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  waiting
+                </span>
+                :
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  error
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.exception">Exception</a>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '581', 581)" onmouseover="showTip(event, '581', 581)">
+                <p>
+                  <a id="selected">
+                    <a href="#selected">
+                      <code><span>Bind.selected&#32;<span>store</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="581">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.selected&#32;<span>store</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        store
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-istore-1.html">IStore</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.selected``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.selected``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L84-84" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  store
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-istore-1.html">IStore</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '582', 582)" onmouseover="showTip(event, '582', 582)">
+                <p>
+                  <a id="selected">
+                    <a href="#selected">
+                      <code><span>Bind.selected&#32;<span>store</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="582">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.selected&#32;<span>store</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        store
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-istore-1.html">IStore</a>&lt;<span>'T&#32;option</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.selected``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.selected``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L83-83" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  store
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-istore-1.html">IStore</a>&lt;<span>'T&#32;option</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '583', 583)" onmouseover="showTip(event, '583', 583)">
+                <p>
+                  <a id="selected">
+                    <a href="#selected">
+                      <code><span>Bind.selected&#32;<span>store</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="583">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.selected&#32;<span>store</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        store
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-istore-1.html">IStore</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.selected``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.selected``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L82-82" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  store
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-istore-1.html">IStore</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '584', 584)" onmouseover="showTip(event, '584', 584)">
+                <p>
+                  <a id="selected">
+                    <a href="#selected">
+                      <code><span>Bind.selected&#32;<span><span>(<span>value,&#32;dispatch</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="584">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.selected&#32;<span><span>(<span>value,&#32;dispatch</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        value
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        dispatch
+                      </b>
+                      :
+                      <code><span><span>'T&#32;list</span>&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.selected``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.selected``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L81-81" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  value
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>'T&#32;list</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  dispatch
+                </span>
+                :
+                <code><span><span>'T&#32;list</span>&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '585', 585)" onmouseover="showTip(event, '585', 585)">
+                <p>
+                  <a id="style">
+                    <a href="#style">
+                      <code><span>Bind.style&#32;<span><span>(<span>values,&#32;updater</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="585">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.style&#32;<span><span>(<span>values,&#32;updater</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        values
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        updater
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.cssstyledeclaration">CSSStyleDeclaration</a>&#32;->&#32;'T&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.style``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.style``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L40-40" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ One way binding from custom values to style updater function. This allows updating of the element's <c>style</c> property rather than the style attribute string.
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  values
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'T&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  updater
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.cssstyledeclaration">CSSStyleDeclaration</a>&#32;->&#32;'T&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '586', 586)" onmouseover="showTip(event, '586', 586)">
+                <p>
+                  <a id="style">
+                    <a href="#style">
+                      <code><span>Bind.style&#32;<span>attrs</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="586">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.style&#32;<span>attrs</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        attrs
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'b&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.Bind.style``1```')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.style``1\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L36-36" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ One way binding from style values into style attribute
+
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  attrs
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;'b&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '587', 587)" onmouseover="showTip(event, '587', 587)">
+                <p>
+                  <a id="toggleClass">
+                    <a href="#toggleClass">
+                      <code><span>Bind.toggleClass&#32;<span><span>(<span>toggle,&#32;activeClass</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="587">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.toggleClass&#32;<span><span>(<span>toggle,&#32;activeClass</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        toggle
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;bool&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        activeClass
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.Bind.toggleClass`')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.toggleClass\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L52-52" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  toggle
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;bool&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  activeClass
+                </span>
+                :
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '588', 588)" onmouseover="showTip(event, '588', 588)">
+                <p>
+                  <a id="toggleClass">
+                    <a href="#toggleClass">
+                      <code><span>Bind.toggleClass&#32;<span><span>(<span>toggle,&#32;activeClass,&#32;inactiveClass</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="588">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.toggleClass&#32;<span><span>(<span>toggle,&#32;activeClass,&#32;inactiveClass</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        toggle
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;bool&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        activeClass
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        inactiveClass
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.Bind.toggleClass`')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.toggleClass\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L49-49" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  toggle
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;bool&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  activeClass
+                </span>
+                :
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  inactiveClass
+                </span>
+                :
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '589', 589)" onmouseover="showTip(event, '589', 589)">
+                <p>
+                  <a id="visibility">
+                    <a href="#visibility">
+                      <code><span>Bind.visibility&#32;<span><span>(<span>isVisible,&#32;trans</span>)</span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="589">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.visibility&#32;<span><span>(<span>isVisible,&#32;trans</span>)</span></span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        isVisible
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;bool&gt;</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        trans
+                      </b>
+                      :
+                      <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.Bind.visibility`')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.visibility\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L16-16" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  isVisible
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;bool&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  trans
+                </span>
+                :
+                <code><span><a href="https://sutil.dev/reference/sutil-transition-transitionattribute.html">TransitionAttribute</a>&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><span><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '590', 590)" onmouseover="showTip(event, '590', 590)">
+                <p>
+                  <a id="visibility">
+                    <a href="#visibility">
+                      <code><span>Bind.visibility&#32;<span>isVisible</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="590">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.visibility&#32;<span>isVisible</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        isVisible
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;bool&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.Bind.visibility`')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.visibility\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L15-15" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  isVisible
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;bool&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><span><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a>&#32;->&#32;<a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '591', 591)" onmouseover="showTip(event, '591', 591)">
+                <p>
+                  <a id="widthHeight">
+                    <a href="#widthHeight">
+                      <code><span>Bind.widthHeight&#32;<span>xy</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="591">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>Bind.widthHeight&#32;<span>xy</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        xy
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>float&#32;*&#32;float</span>&gt;</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.Bind.widthHeight`')">
+                <img src="https://sutil.dev/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.Bind.widthHeight\'/>')">
+                <img src="https://sutil.dev/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/src/Sutil/Bind.fs#L46-46" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  xy
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/system.iobservable-1">IObservable</a>&lt;<span>float&#32;*&#32;float</span>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><a href="https://sutil.dev/reference/sutil-dom-sutilelement.html">SutilElement</a></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+            
+        </div>
+
+        <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+        <script type="text/javascript">var fsdocs_search_baseurl = 'https://sutil.dev/';</script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+        <script type="text/javascript" src="https://sutil.dev/content/fsdocs-search.js"></script>
+        <!-- END SEARCH BOX: this adds support for the search box -->
+    </div>
+</body>
+
+</html>

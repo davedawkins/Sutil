@@ -80,8 +80,12 @@ let private defaultView model dispatch =
                                 bulma.control.div [
                                     control.hasIconsLeft
                                     bulma.input.email [
+                                        let isInvalid = Store.make false
+                                        disposeOnUnmount [ isInvalid ]
 
-                                        bindEvent "input" (fun e -> EventHelpers.validity(e).valid |> not) (fun s -> bindClass s "is-danger")
+                                        Bind.toggleClass(isInvalid, "is-danger")
+
+                                        on "input" (fun e -> EventHelpers.validity(e).valid |> not |> Store.set isInvalid) []
 
                                         Attr.placeholder "Hint: sutil@gmail.com"
                                         Attr.value (model .> username , SetUsername >> dispatch)

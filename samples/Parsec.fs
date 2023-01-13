@@ -491,7 +491,7 @@ module Primitives =
   let inline createParserForwardedToRef () : Parser<'a, 'u> * Parser<'a, 'u> ref =
     let dummy (_, _) = failwith "invalid definition with createParserForwardedToRef"
     let r = ref dummy
-    (fun (state, s) -> !r (state, s)), r
+    (fun (state, s) -> (r.Value) (state, s)), r
 
   let inline getUserState (state, s) = Ok (state, s, state)
   let inline setUserState state : Parser<unit, 'State> = fun (_, s) -> Ok ((), s, state)
@@ -1077,7 +1077,7 @@ module Extensions =
   /// Defines a recursive rule.
   let inline recursive (definition: (Parser<'a, _> -> Parser<'a, _>)) =
     let p, pr = createParserForwardedToRef()
-    pr := definition p
+    pr.Value <- definition p
     p
 
 #if DEBUG

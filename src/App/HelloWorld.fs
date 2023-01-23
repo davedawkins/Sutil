@@ -1,7 +1,8 @@
 module HelloWorld
 
 open Sutil
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 
 let view() = Html.div [
     text "Hello World!"

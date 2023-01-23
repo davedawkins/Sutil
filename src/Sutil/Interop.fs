@@ -1,3 +1,4 @@
+///  <exclude />
 module Sutil.Interop
 
 open Fable.Core

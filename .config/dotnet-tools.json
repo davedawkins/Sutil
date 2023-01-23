@@ -13,6 +13,12 @@
       "commands": [
         "paket"
       ]
+    },
+    "fsdocs-tool": {
+      "version": "17.2.2",
+      "commands": [
+        "fsdocs"
+      ]
     }
   }
 }

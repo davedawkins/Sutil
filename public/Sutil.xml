@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+<assembly><name>Sutil</name></assembly>
+<members>
+<member name="M:Sutil.Cmd.OfPromise.result``2(Fable.Core.JS.Promise{``0})">
+<summary>
+ Command to dispatch the `promise` result
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfPromise.attempt``3(Microsoft.FSharp.Core.FSharpFunc{``0,Fable.Core.JS.Promise{Microsoft.FSharp.Core.Unit}},``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2})">
+<summary>
+ Command to call `promise` block and map the error
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfPromise.perform``4(Microsoft.FSharp.Core.FSharpFunc{``0,Fable.Core.JS.Promise{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2})">
+<summary>
+ Command to call `promise` block and map the success
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfPromise.either``4(Microsoft.FSharp.Core.FSharpFunc{``0,Fable.Core.JS.Promise{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2},Microsoft.FSharp.Core.FSharpFunc{``3,``2})">
+<summary>
+ Command to call `promise` block and map the results
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsyncImmediate.result``1(Microsoft.FSharp.Control.FSharpAsync{``0})">
+<summary>
+ Command that will evaluate an async block to the message
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsyncImmediate.attempt``3(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Control.FSharpAsync{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{System.Exception,``2})">
+<summary>
+ Command that will evaluate an async block and map the error (of exception)
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsyncImmediate.perform``3(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Control.FSharpAsync{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2})">
+<summary>
+ Command that will evaluate an async block and map the success
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsyncImmediate.either``3(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Control.FSharpAsync{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2},Microsoft.FSharp.Core.FSharpFunc{System.Exception,``2})">
+<summary>
+ Command that will evaluate an async block and map the result
+ into success or error (of exception)
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsync.result``1(Microsoft.FSharp.Control.FSharpAsync{``0})">
+<summary>
+ Command that will evaluate an async block to the message
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsync.attempt``3(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Control.FSharpAsync{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{System.Exception,``2})">
+<summary>
+ Command that will evaluate an async block and map the error (of exception)
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsync.perform``3(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Control.FSharpAsync{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2})">
+<summary>
+ Command that will evaluate an async block and map the success
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsync.either``3(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Control.FSharpAsync{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2},Microsoft.FSharp.Core.FSharpFunc{System.Exception,``2})">
+<summary>
+ Command that will evaluate an async block and map the result
+ into success or error (of exception)
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsyncWith.result``1(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Control.FSharpAsync{Microsoft.FSharp.Core.Unit},Microsoft.FSharp.Core.Unit},Microsoft.FSharp.Control.FSharpAsync{``0})">
+<summary>
+ Command that will evaluate an async block to the message
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsyncWith.attempt``3(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Control.FSharpAsync{Microsoft.FSharp.Core.Unit},Microsoft.FSharp.Core.Unit},Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Control.FSharpAsync{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{System.Exception,``2})">
+<summary>
+ Command that will evaluate an async block and map the error (of exception)
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsyncWith.perform``3(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Control.FSharpAsync{Microsoft.FSharp.Core.Unit},Microsoft.FSharp.Core.Unit},Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Control.FSharpAsync{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2})">
+<summary>
+ Command that will evaluate an async block and map the success
+</summary>
+</member>
+<member name="M:Sutil.Cmd.OfAsyncWith.either``3(Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Control.FSharpAsync{Microsoft.FSharp.Core.Unit},Microsoft.FSharp.Core.Unit},Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Control.FSharpAsync{``1}},``0,Microsoft.FSharp.Core.FSharpFunc{``1,``2},Microsoft.FSharp.Core.FSharpFunc{System.Exception,``2})">
+<summary>
+ Command that will evaluate an async block and map the result
+ into success or error (of exception)
+</summary>
+</member>
+<member name="T:Sutil.DOM.DomAction">
+<summary>
+ Specific operation for BuildContext.AddChild.
+</summary>
+</member>
+<member name="T:Sutil.DOM.SutilNode">
+<summary>
+ SutilNode is a DOM node, the result of evaluating a SutilElement. Fragment and binding elements will return a GroupNode,
+ which is a grouping of DOM nodes, so a SutilNode can also be a GroupNode. Finally, SutilNode can be an EmptyNode to represent
+ the concept of None (or null)
+</summary>
+</member>
+<member name="M:Sutil.DOM.NodeListOf`1.toSeq``1(Browser.Types.NodeListOf{``0})">
+<summary>
+ Produce a seq&lt;&apos;T&gt; from a NodeListOf&lt;&apos;T&gt;. This is useful when working with document.querySelectorAll, for example
+</summary>
+</member>
+<member name="M:Sutil.DOM.viewportHeight">
+<summary>
+ The height of the browser viewport
+</summary>
+</member>
+<member name="M:Sutil.DOM.viewportWidth">
+<summary>
+ The width of the browser viewport
+</summary>
+</member>
+<member name="P:Sutil.DOM.nothing">
+<summary>
+ An empty element. This could be considered the `unit` value for a `SutilElement`. It is very similar in effect `fragment []`, since
+ neither will add any HTMLElements. The main difference is that `nothing` will make no changes at all to the DOM, while `fragment` will
+ create an internal `SutilGroup` that is registered on the parent element as a property.
+</summary>
+</member>
+<member name="M:Sutil.DOM.setValue``1">
+<summary>
+ Backwards compatibility. Obsolete
+</summary>
+</member>
+<member name="M:Sutil.DOM.setProperty``1(System.String,``0)">
+<summary>
+ Set a property on the parent DOM Node
+</summary>
+</member>
+<member name="M:Sutil.DOM.html(System.String)">
+<summary>
+ Raw html that will be parsed and added as a child of the parent element
+</summary>
+</member>
+<member name="M:Sutil.DOM.text(System.String)">
+<summary>
+ Create a TextNode
+</summary>
+</member>
+<member name="M:Sutil.DOM.inject(System.Collections.Generic.IEnumerable{Sutil.DOM.SutilElement},Sutil.DOM.SutilElement)">
+<summary>
+ Merge these `SutilElement`s with another `SutilElement`.
+</summary>
+</member>
+<member name="M:Sutil.DOM.wait(Browser.Types.HTMLElement,Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,Fable.Core.JS.Promise{Microsoft.FSharp.Core.Unit}})">
+<summary>
+ Serialize tasks through an element. If the task already has a running task
+ wait for it to complete before starting the new task. Otherwise, run the
+ new task immediately
+</summary>
+</member>
+<member name="M:Sutil.DOM.fragment(System.Collections.Generic.IEnumerable{Sutil.DOM.SutilElement})">
+<summary>
+ A collection of `SutilElement`s as a single `SutilElement`. This is useful when we have a collection of
+ `SutilElements` that we don&apos;t want to wrap in their own containing DOM element.
+
+ &lt;example&gt;https://sutil.dev/#documentation-html&lt;/example&gt;
+
+ &lt;seealso&gt;nothing&lt;/seealso&gt;
+
+</summary>
+</member>
+<member name="P:Sutil.DOM.host">
+<summary>
+ Backwards compatibility. Obsolete
+</summary>
+</member>
+<member name="M:Sutil.DOM.hookElement(Microsoft.FSharp.Core.FSharpFunc{Browser.Types.HTMLElement,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Provides a hook for the parent `HTMLElement`. This can be used, for example, to mount a React component. See https://sutil.dev/#documentation-hosting-react
+ This will throw an `InvalidCastException` if the parent node is not an `HTMLElement`
+</summary>
+</member>
+<member name="M:Sutil.DOM.hookParent(Microsoft.FSharp.Core.FSharpFunc{Browser.Types.Node,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Provides a hook for the parent DOM Node
+</summary>
+</member>
+<member name="M:Sutil.DOM.hookContext(Microsoft.FSharp.Core.FSharpFunc{Sutil.DOM.BuildContext,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Provides a hook for the build context. If you need to use this, please log an issue in the github repo for Sutil :-)
+</summary>
+</member>
+<member name="M:Sutil.DOM.exclusive(Sutil.DOM.SutilElement)">
+<summary>
+ Remove all existing DOM children before constructing the given `SutilElement`
+</summary>
+</member>
+<member name="M:Sutil.DOM.unsubscribeOnUnmount(Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Core.Unit}})">
+<summary>
+ Call each function of type `(unit -&gt; unit)` when the element is unmounted
+</summary>
+</member>
+<member name="M:Sutil.DOM.disposeOnUnmount(Microsoft.FSharp.Collections.FSharpList{System.IDisposable})">
+<summary>
+ Invoke Dispose() for each item when the element is unmounted
+</summary>
+</member>
+<member name="M:Sutil.Observable.filter``1(Microsoft.FSharp.Core.FSharpFunc{``0,System.Boolean},System.IObservable{``0})">
+<summary>
+ Filters the observable elements of a sequence based on a predicate
+</summary>
+</member>
+<member name="M:Sutil.Observable.exists``1(Microsoft.FSharp.Core.FSharpFunc{``0,``0},System.IObservable{``0})">
+<summary>
+ Determines whether an observable sequence contains a specified value
+ which satisfies the given predicate
+</summary>
+</member>
+<member name="M:Sutil.StoreOperators.op_EqualsTwiddleGreater``1(Microsoft.FSharp.Core.FSharpFunc{``0,``0},Sutil.IStore{``0})">
+ <summary>
+ /// Alias for `Store.modify` Modify the store by mapping its current value with a callback
+ /// </summary>
+ <example>
+     let store: IStore&lt;int> = Store.make 2
+
+     let squareMe() =
+         (fun model -> model * model) =~> store
+
+     Html.div [
+         bindFragment store &lt;| fun model -> text $"The value is {model}"
+         Html.button [
+             onClick (fun _ -> squareMe()) []
+             text "Square me"
+         ]
+     ]
+ </example>
+</member>
+<member name="M:Sutil.StoreOperators.op_LessTwiddleEquals``1(Sutil.IStore{``0},Microsoft.FSharp.Core.FSharpFunc{``0,``0})">
+ <summary>
+ Alias for `Store.modify`. Modify the store by mapping its current value with a callback
+ </summary>
+ <example>
+     let store: IStore&lt;int> = Store.make 2
+
+     let squareMe() =
+         store &lt;~= (fun model -> model * model)
+
+     Html.div [
+         bindFragment store &lt;| fun model -> text $"The value is {model}"
+         Html.button [
+             onClick (fun _ -> squareMe()) []
+             text "Square me"
+         ]
+     ]
+ </example>
+</member>
+<member name="M:Sutil.StoreOperators.op_MinusTwiddleGreater``1(``0,Sutil.IStore{``0})">
+ <summary>
+ Alias for `Store.set`,  replaces the current value of the store
+ </summary>
+ <example>
+     2 -~> intStore
+     let value = Store.get intStore
+     value = 1 // false
+ </example>
+</member>
+<member name="M:Sutil.StoreOperators.op_LessTwiddleMinus``1(Sutil.IStore{``0},``0)">
+ <summary>
+ Alias for `Store.set`, replaces the current value of the store
+ </summary>
+ <example>
+     intStore &lt;~- 2
+     let value = Store.get intStore
+     value = 1 // false
+ </example>
+</member>
+<member name="M:Sutil.StoreOperators.op_LessTwiddle``1(Sutil.IStore{``0},``0)">
+ <summary>
+ Alias for `Store.set`,  replaces the current value of the store
+ </summary>
+ <example>
+     intStore &lt;~ 2
+     let value = Store.get intStore
+     value = 1 // false
+ </example>
+</member>
+<member name="M:Sutil.StoreOperators.op_DotGreater``2(System.IObservable{``0},Microsoft.FSharp.Core.FSharpFunc{``0,``1})">
+ <summary>
+ Alias for `Store.map`, returns an observable that will resolve to the result of said callback
+ </summary>
+ <example>
+     let subscription: IObservable&lt;string&gt; =
+         intStore .> (fun value -> $"{value}")
+
+     (* after you are done with the subscription *)
+
+     subscription.Dispose()
+ </example>
+</member>
+<member name="M:Sutil.StoreOperators.op_BarMinusGreater``2(Sutil.IStore{``0},Microsoft.FSharp.Core.FSharpFunc{``0,``1})">
+ <summary>
+ Alias for `Store.getMap`, takes a store and applies a mapping function then returns the value from the evaluated function
+ </summary>
+ <remarks>
+ This might be called foldMap
+ </remarks>
+ <example>
+     let store: IStore&lt;{| name: string; budget: decimal |}> =
+     Store.make {| name = "Frank"; budget = 547863.26M |}
+
+     let formattedBudget: string =
+         store |-> (fun model -> sprintf $"$ %0.00M{model.budget}")
+     printf %"Budget available: {formattedBudget}
+  </example>
+</member>
+<member name="M:Sutil.Store.makeElmish``3(Microsoft.FSharp.Core.FSharpFunc{``0,System.Tuple{``1,Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.FSharpFunc{``2,Microsoft.FSharp.Core.Unit},Microsoft.FSharp.Core.Unit}}}},Microsoft.FSharp.Core.FSharpFunc{``2,Microsoft.FSharp.Core.FSharpFunc{``1,System.Tuple{``1,Microsoft.FSharp.Collections.FSharpList{Microsoft.FSharp.Core.FSharpFunc{Microsoft.FSharp.Core.FSharpFunc{``2,Microsoft.FSharp.Core.Unit},Microsoft.FSharp.Core.Unit}}}}},Microsoft.FSharp.Core.FSharpFunc{``1,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Creates a store and a dispatch function as `Store.makeElmishSimple`
+ the difference being that this version handles [Elmish commands](https://elmish.github.io/elmish/index.html#Commands)
+ as well, generally used in more complex UIs given that with commands you can also handle
+ asynchronous code like fetching resources from a server or calling any
+ function that returns a promise or async
+ </summary>
+ <example>
+     type State = { count: int }
+     type Msg =
+         | Increment
+         | Decrement
+         | Reset
+         | AsyncIncrement
+         | AsyncDecrement
+     let init _ = { count = 0 }, Cmd.ofMsg AsyncIncrement
+
+     let wait1S () =
+         async {
+             do! Async.Sleep 1000
+         }
+
+     let upddate msg state =
+         match msg with
+         | Increment -> { state = state.count + 1 }, Cmd.none
+         | Decrement -> { state = state.count - 1 }, Cmd.none
+         | AsyncIncrement ->
+             state, Cmd.ofAsync.perform () wait1S Increment
+         | AsyncDecrement->
+             state, Cmd.ofAsync.perform () wait1S Decrement
+         | Reset -> { state = 0 } Cmd.none
+
+     let view() =
+         let state, dispatch = Store.makeElmish init update ignore ()
+
+         Html.article [
+             disposeOnUnmount [ state ]
+             bindFragment state &lt;| fun state -> text $"Count: {state.count}"
+
+             Html.button [ text "Increment"; onClick (fun _ -> dispatch Increment) [] ]
+             Html.button [ text "Async Increment"; onClick (fun _ -> dispatch AsyncIncrement) [] ]
+             Html.button [ text "Decrement"; onClick (fun _ -> dispatch Decrement) [] ]
+             Html.button [ text "Async Decrement"; onClick (fun _ -> dispatch AsyncDecrement) [] ]
+             Html.button [ text "Reset"; onClick (fun _ -> dispatch Reset) [] ]
+         ]
+ </example>
+</member>
+<member name="M:Sutil.Store.makeElmishSimple``3(Microsoft.FSharp.Core.FSharpFunc{``0,``1},Microsoft.FSharp.Core.FSharpFunc{``2,Microsoft.FSharp.Core.FSharpFunc{``1,``1}},Microsoft.FSharp.Core.FSharpFunc{``1,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Creates a store and a dispatch method commonly used
+ in elmish programs, this can be used to model more complex views that require better
+ control flow and a predictable state.
+ </summary>
+ <example>
+     type State = { count: int }
+     type Msg =
+         | Increment
+         | Decrement
+         | Reset
+     let init _ = { count = 0 }
+
+     let upddate msg state =
+         match msg with
+         | Increment -> { state = state.count + 1 }
+         | Decrement -> { state = state.count - 1 }
+         | Reset -> { state = 0 }
+
+     let view() =
+         let state, dispatch = Store.makeElmishSimple init update ignore ()
+
+         Html.article [
+             disposeOnUnmount [ state ]
+             bindFragment state &lt;| fun state -> text $"Count: {state.count}"
+
+             Html.button [ text "Increment"; onClick (fun _ -> dispatch) [] ]
+             Html.button [ text "Decrement"; onClick (fun _ -> dispatch) [] ]
+             Html.button [ text "Reset"; onClick (fun _ -> dispatch Reset) [] ]
+         ]
+ </example>
+</member>
+<member name="M:Sutil.Store.subscribe2``2(System.IObservable{``0},System.IObservable{``1},Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,``1},Microsoft.FSharp.Core.Unit})">
+ <summary>
+ Takes two observables and subscribes to both with a single callback,
+ both values will be cached individually and
+ on every notify they will be updated and emitted,
+ every notification can come from any of the observables
+ </summary>
+ <example>
+     let player1Score = Store.make 0
+     let player2Score = Store.make 0
+
+     let printPlayerScores (score1: int * score2: int) =
+         printfn $"Player 1: {score1}\nPlayer2: {score2}"
+
+     let scores =
+         Store.subscribe2
+             player1Score
+             player2Score
+             printPlayerScore
+     (* Game Finished, dispose the observables *)
+     scores.Dispose()
+ </example>
+</member>
+<member name="M:Sutil.Store.modify``1(Microsoft.FSharp.Core.FSharpFunc{``0,``0},Sutil.IStore{``0})">
+ <summary>Modify the store by mapping its current value with a callback</summary>
+ <example>
+     let store: IStore&lt;int> = Store.make 2
+
+     let squareMe() =
+         Store.modify (fun model -> model * model) store
+
+     Html.div [
+         bindFragment store &lt;| fun model -> text $"The value is {model}"
+         Html.button [
+             onClick (fun _ -> squareMe()) []
+             text "Square me"
+         ]
+     ]
+ </example>
+</member>
+<member name="M:Sutil.Store.write``1(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.Unit},System.IObservable{``0})">
+ <summary>
+ Calls the callback upon initialization and whenever the store is updated. This is the same as subscribe
+ and ignoring the unsubscription callback
+ </summary>
+ <example>
+     Store.subscribe (fun value -> printfn $"{value}") intStore
+ </example>
+</member>
+<member name="M:Sutil.Store.getMap``2(Microsoft.FSharp.Core.FSharpFunc{``0,``1},Sutil.IStore{``0})">
+ <summary>
+ Takes a store and applies a mapping function then returns the value from the evaluated function
+ </summary>
+ <remarks>
+ This might be called foldMap
+ </remarks>
+ <example>
+ ```
+     let store: IStore&lt;{| name: string; budget: decimal |}> =
+     Store.make {| name = "Frank"; budget = 547863.26M |}
+
+     let formattedBudget: string =
+         Store.getMap
+             (fun model -> sprintf $"$ %0.00M{model.budget}")
+             store
+     printf %"Budget available: {formattedBudget}
+  ```
+  </example>
+</member>
+<member name="M:Sutil.Store.zip``2(System.IObservable{``0},System.IObservable{``1})">
+ <summary>
+ Merges two stores into a single tupled observable
+ </summary>
+ <example>
+     let tableInfo =
+     Observable.zip
+         (Strore.map(fun model -> model.rows) model)
+         (Strore.map(fun model -> model.columns) model)
+
+     (* once done with tableInfo *)
+
+     tableInfo.Dispose()
+ </example>
+</member>
+<member name="M:Sutil.Store.distinct``1(System.IObservable{``0})">
+ <summary>
+ Provides an observable that will emit a value only when the updated store value is different from the previous one
+ </summary>
+ <example>
+     let store = Store.make 0
+     let whenDistinct = Store.distinct store
+     let sub1 = store.subscribe(printfn "number: %i")
+     let sub2 = whenDistinct.subscribe(printfn "number: %i")
+     Store.set 0 store // store emits
+     Store.set 0 store // when distinct doesn't emit
+     Store.set 1 store // both store and distinct emit
+     Store.set 1 store // when distinct doesn't emit
+ </example>
+</member>
+<member name="M:Sutil.Store.filter``1(Microsoft.FSharp.Core.FSharpFunc{``0,System.Boolean},System.IObservable{``0})">
+ <summary>
+ Applies a predicate function to obtain an observable of the elements that evaluated to true
+ </summary>
+ <example>
+     let usersOver18: IObservable&lt;string&gt; =
+         Store.filter (fun user -> user.age > 18) usersStore
+
+     (* after you are done with the subscription *)
+
+     over18.Dispose()
+ </example>
+</member>
+<member name="M:Sutil.Store.map``2(Microsoft.FSharp.Core.FSharpFunc{``0,``1},System.IObservable{``0})">
+ <summary>
+ Returns an observable that will resolve to the result of said callback
+ </summary>
+ <example>
+     let subscription: IObservable&lt;string&gt; =
+         Store.map (fun value -> $"{value}") intStore
+
+     (* after you are done with the subscription *)
+
+     subscription.Dispose()
+ </example>
+</member>
+<member name="M:Sutil.Store.subscribe``1(Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.Unit},System.IObservable{``0})">
+ <summary>
+ Provides a subscription that invokes a callback
+ every time the store value is updated
+ </summary>
+ <example>
+     let subscription =
+         Store.subscribe (fun value -> printfn $"{value}") intStore
+
+     (* after you are done with the subscription *)
+
+     subscription.Dispose()
+ </example>
+</member>
+<member name="M:Sutil.Store.set``1(Sutil.IStore{``0},``0)">
+ <summary>
+ Replaces the current value of the store
+ </summary>
+ <example><code>
+     Store.set 2 intStore
+     let value = Store.get intStore
+     value = 1 // false
+ </code></example>
+</member>
+<member name="M:Sutil.Store.get``1(Sutil.IStore{``0})">
+ <summary>
+ Obtains the current value of the store
+ </summary>
+ <example><code>
+     let value = Store.get initStore
+     value = 1 // true
+     let value2 = Store.get anonymousStore
+     Option.isNone value2.prop2 // true
+ </code></example>
+</member>
+<member name="M:Sutil.Store.make``1(``0)">
+ <summary>
+ Create a new store
+ </summary>
+ <example>
+ <code lang="fsharp">
+     let intStore: IStore&lt;int&gt; = Store.make 1
+
+     let anonymousStore:
+         IStore&lt;{| prop1: int;
+                   prop2: string option |}&gt;
+         = Store.make {| prop1 = 10; prop2 = None |}
+     (* After using the store *)
+     intStore.Dispose()
+     anonymousStore.Dispose()
+ </code>
+ </example>
+</member>
+<member name="M:Sutil.Styling.Node.set_adoptedStyleSheets(Browser.Types.Node,Browser.Types.CSSStyleSheet[])">
+<summary>
+ returns this DocumentOrShadow adopted stylesheets or sets them.
+ https://wicg.github.io/construct-stylesheets/#using-constructed-stylesheets
+</summary>
+</member>
+<member name="M:Sutil.Styling.Node.get_adoptedStyleSheets(Browser.Types.Node)">
+<summary>
+ returns this DocumentOrShadow adopted stylesheets or sets them.
+ https://wicg.github.io/construct-stylesheets/#using-constructed-stylesheets
+</summary>
+</member>
+<member name="M:Sutil.Bindings.bindAttrIn``1(System.String,System.IObservable{``0})">
+<summary>
+ Bind a store value to an element attribute. Updates to the element are unhandled
+</summary>
+</member>
+<member name="M:Sutil.Bindings.bindFragment``1">
+<summary>
+ Backwards compatibility
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.BindArray.each``2(System.IObservable{``0[]},Microsoft.FSharp.Core.FSharpFunc{System.IObservable{``0},Sutil.DOM.SutilElement},Microsoft.FSharp.Core.FSharpFunc{``0,``1})">
+<summary>
+ Bind keyed arrays to a simple template, with transitions
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.BindArray.each``2(System.IObservable{``0[]},Microsoft.FSharp.Core.FSharpFunc{System.IObservable{``0},Sutil.DOM.SutilElement},Microsoft.FSharp.Core.FSharpFunc{``0,``1},Microsoft.FSharp.Collections.FSharpList{Sutil.Transition.TransitionAttribute})">
+<summary>
+ Bind keyed arrays to a simple template, with transitions
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.BindArray.each``2(System.IObservable{``0[]},Microsoft.FSharp.Core.FSharpFunc{``0,Sutil.DOM.SutilElement},Microsoft.FSharp.Core.FSharpFunc{``0,``1})">
+<summary>
+ Bind keyed arrays to a simple template
+ Deprecated: Use a view template that takes IObservable&lt;&apos;T&gt;
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.BindArray.each``2(System.IObservable{``0[]},Microsoft.FSharp.Core.FSharpFunc{``0,Sutil.DOM.SutilElement},Microsoft.FSharp.Core.FSharpFunc{``0,``1},Microsoft.FSharp.Collections.FSharpList{Sutil.Transition.TransitionAttribute})">
+<summary>
+ Bind keyed arrays to a simple template, with transitions
+ Deprecated: Use a view template that takes IObservable&lt;&apos;T&gt;
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.BindArray.each``1(System.IObservable{``0[]},Microsoft.FSharp.Core.FSharpFunc{``0,Sutil.DOM.SutilElement})">
+<summary>
+ Bind arrays to a simple template
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.BindArray.each``1(System.IObservable{``0[]},Microsoft.FSharp.Core.FSharpFunc{``0,Sutil.DOM.SutilElement},Microsoft.FSharp.Collections.FSharpList{Sutil.Transition.TransitionAttribute})">
+<summary>
+ Bind arrays to a simple template, with transitions
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.style``1(System.IObservable{``0},Microsoft.FSharp.Core.FSharpFunc{Browser.Types.CSSStyleDeclaration,Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.Unit}})">
+<summary>
+ One way binding from custom values to style updater function. This allows updating of style object rather than the style attribute string.
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.style``1(System.IObservable{``0})">
+<summary>
+ One way binding from style values into style attribute
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.fragment2``2(System.IObservable{``0},System.IObservable{``1},Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,``1},Sutil.DOM.SutilElement})">
+<summary>
+ Deprecated naming, use Bind.el
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.fragment``1(System.IObservable{``0},Microsoft.FSharp.Core.FSharpFunc{``0,Sutil.DOM.SutilElement})">
+<summary>
+ Deprecated naming, use Bind.el
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.el2``2(System.IObservable{``0},System.IObservable{``1},Microsoft.FSharp.Core.FSharpFunc{System.Tuple{``0,``1},Sutil.DOM.SutilElement})">
+<summary>
+ Binding from two values to a DOM fragment. See fragment&lt;&apos;T&gt;
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.el``1(System.IObservable{``0},Microsoft.FSharp.Core.FSharpFunc{``0,Sutil.DOM.SutilElement})">
+<summary>
+ Binding from value to a DOM fragment. Each change in value replaces the current DOM fragment
+ with a new one.
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.each``2(System.IObservable{Microsoft.FSharp.Collections.FSharpList{``0}},Microsoft.FSharp.Core.FSharpFunc{System.IObservable{``0},Sutil.DOM.SutilElement},Microsoft.FSharp.Core.FSharpFunc{``0,``1})">
+<summary>
+ Bind keyed lists to a simple template, with transitions
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.each``2(System.IObservable{Microsoft.FSharp.Collections.FSharpList{``0}},Microsoft.FSharp.Core.FSharpFunc{System.IObservable{``0},Sutil.DOM.SutilElement},Microsoft.FSharp.Core.FSharpFunc{``0,``1},Microsoft.FSharp.Collections.FSharpList{Sutil.Transition.TransitionAttribute})">
+<summary>
+ Bind keyed lists to a simple template, with transitions
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.each``2(System.IObservable{Microsoft.FSharp.Collections.FSharpList{``0}},Microsoft.FSharp.Core.FSharpFunc{``0,Sutil.DOM.SutilElement},Microsoft.FSharp.Core.FSharpFunc{``0,``1})">
+<summary>
+ Bind keyed lists to a simple template
+ Deprecated: Use a view template that takes IObservable&lt;&apos;T&gt;
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.each``2(System.IObservable{Microsoft.FSharp.Collections.FSharpList{``0}},Microsoft.FSharp.Core.FSharpFunc{``0,Sutil.DOM.SutilElement},Microsoft.FSharp.Core.FSharpFunc{``0,``1},Microsoft.FSharp.Collections.FSharpList{Sutil.Transition.TransitionAttribute})">
+<summary>
+ Bind keyed lists to a simple template, with transitions
+ Deprecated: Use a view template that takes IObservable&lt;&apos;T&gt;
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.each``1(System.IObservable{Microsoft.FSharp.Collections.FSharpList{``0}},Microsoft.FSharp.Core.FSharpFunc{``0,Sutil.DOM.SutilElement})">
+<summary>
+ Bind lists to a simple template
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.each``1(System.IObservable{Microsoft.FSharp.Collections.FSharpList{``0}},Microsoft.FSharp.Core.FSharpFunc{``0,Sutil.DOM.SutilElement},Microsoft.FSharp.Collections.FSharpList{Sutil.Transition.TransitionAttribute})">
+<summary>
+ Bind lists to a simple template, with transitions
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.attr``1(System.String,System.IObservable{``0},Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Two-way binding from value to attribute and from attribute to dispatch function
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.attr``1(System.String,Microsoft.FSharp.Core.FSharpFunc{``0,Microsoft.FSharp.Core.Unit})">
+<summary>
+ One-way binding from attribute to dispatch function
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.attr``1(System.String,System.IObservable{``0})">
+<summary>
+ One-way binding from value to attribute. Note that passing store to this function will
+ select the more specific `attr&lt;&apos;T&gt;( string, IStore&lt;&apos;T&gt;)` overload.
+ If that looks to be a problem, we&apos;ll rename both of them to force a considered choice.
+</summary>
+</member>
+<member name="M:Sutil.Bindings.BindApi.Bind.attr``1(System.String,Sutil.IStore{``0})">
+<summary>
+ Dual-binding for a given attribute. Changes to value are written to the attribute, while
+ changes to the attribute are written back to the store. Note that an IStore is also
+ an IObservable, for which a separate overload exists.
+</summary>
+</member>
+</members>
+</doc>

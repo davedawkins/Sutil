@@ -6,7 +6,9 @@ module TimerLogic
 
 open Sutil
 open type Feliz.length
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
+open Sutil.DomHelpers
 open System
 
 type Model = {
@@ -71,6 +73,6 @@ let create (run : IObservable<bool>) (view : IObservable<bool * float> -> SutilE
     model
     |> Store.map (fun m ->  isRunning m, m.Elapsed)
     |> view // User's view component
-    |> inject [ // Attach our cleanup to the view component
+    |> CoreElements.inject [ // Attach our cleanup to the view component
         unsubscribeOnUnmount [ cleanup ] // Clean up the timer subscription
     ]

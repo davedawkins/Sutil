@@ -4,8 +4,11 @@ module KeyedEachBlocks
 // https://svelte.dev/examples
 
 open Sutil
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
+open Sutil.Core
+
 open Sutil.Styling
 open System
 open type Feliz.length

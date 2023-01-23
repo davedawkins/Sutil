@@ -1,3 +1,4 @@
+///  <exclude />
 module Sutil.Easing
 // Adapted from svelte/easing/index.js, which in turn are..
     (*

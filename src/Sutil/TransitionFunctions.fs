@@ -1,3 +1,4 @@
+///  <exclude />
 [<AutoOpenAttribute>]
 module Sutil.TransitionFunctions
 // Adapted from svelte/transitions/index.js
@@ -6,7 +7,7 @@ open Browser.Dom
 open Browser.CssExtensions
 open Browser.Types
 open Sutil.Transition
-open Sutil.DOM
+open Sutil.DomHelpers
 open System.Collections.Generic
 open Interop
 

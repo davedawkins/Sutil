@@ -4,8 +4,11 @@ module EachBlocks
 // https://svelte.dev/examples
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
+open Sutil.Core
+
 
 type Cat = { Id : string; Name : string }
 
@@ -40,9 +43,9 @@ let view() =
                 ]))
         ]
         Html.button [
-            attr("style",  [ Css.marginTop 12 ])
+            Attr.style  [ Css.marginTop 12 ]
             text "More Cats"
-            bindAttrIn "disabled" (cats |> Store.map (fun cats' -> cats'.Length = 4))
+            Bind.attr( "disabled", (cats |> Store.map (fun cats' -> cats'.Length = 4)) )
             onClick (fun _ -> addCat extraCat) []
         ]
     ]

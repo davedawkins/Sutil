@@ -1,8 +1,9 @@
 module WebComponents
 
 open Sutil
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
 open Browser.Types
 open Sutil.Styling
 
@@ -64,7 +65,7 @@ let view() =
     // current input value into the appropriate property. You can use setAttribute too.
     Html.div [
         // Consider this to be <script src='app.js'></script> for the 3rd party app
-        // Can't pass <script> tags to DOM.html
+        // Can't pass <script> tags to Core.html
         Html.script [
             text """
                 function greetingUpdated(e) {
@@ -84,7 +85,7 @@ let view() =
 
         // Consider this to be <body> for the 3rd party app
         Html.div [
-            DOM.html """
+            Html.parse """
                 <my-counter value='10' label='Counter: '></my-counter>
                 <br>
                 <my-counter value='100' label='Counter #2: '></my-counter>

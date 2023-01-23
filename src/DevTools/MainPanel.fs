@@ -10,8 +10,9 @@ open System
 open Browser.Types
 open Feliz
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Styling
 open Sutil.Bindings
 open Sutil.Transition

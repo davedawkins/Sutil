@@ -1,3 +1,4 @@
+///  <exclude />
 module Sutil.ResizeObserver
 
 // Ported from Svelte
@@ -7,6 +8,7 @@ open Browser.Dom
 open Browser.CssExtensions
 open System
 open Interop
+open DomHelpers
 
 let isCrossOrigin = false // TODO
 
@@ -31,7 +33,7 @@ type ResizeObserver( el : HTMLElement ) =
         if computedStyle.position = "static" || computedStyle.position = "" then
             el.style.position <- "relative"
 
-        iframe <- downcast (DOM.documentOf el).createElement("iframe")
+        iframe <- downcast (documentOf el).createElement("iframe")
         let style = sprintf "%sz-index: %i;" "display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; border: 0; opacity: 0; pointer-events: none;" zIndex
         iframe.setAttribute("style", style)
         iframe.setAttribute("aria-hidden", "true")
@@ -40,12 +42,12 @@ type ResizeObserver( el : HTMLElement ) =
         if isCrossOrigin then
             iframe.setAttribute("src", "data:text/html,<script>onresize=function(){parent.postMessage(0,'*')}</script>")
 
-            unsubscribe <- DOM.listen "message" window
+            unsubscribe <- DomHelpers.listen "message" window
                 (fun e -> if Helpers.fastEquals (Interop.get e "source") iframe.contentWindow then notify(e))
         else
             iframe.setAttribute("src", "about:blank")
             iframe.onload <- (fun e ->
-                unsubscribe <- DOM.listen "resize" iframe.contentWindow notify)
+                unsubscribe <- DomHelpers.listen "resize" iframe.contentWindow notify)
 
         el.appendChild(iframe) |> ignore
 
@@ -64,4 +66,4 @@ type ResizeObserver( el : HTMLElement ) =
         member this.Dispose() = this.Dispose()
 
 let getResizer (el:HTMLElement) : ResizeObserver =
-    DOM.NodeKey.getCreate el DOM.NodeKey.ResizeObserver (fun () -> new ResizeObserver(el))
+    NodeKey.getCreate el NodeKey.ResizeObserver (fun () -> new ResizeObserver(el))

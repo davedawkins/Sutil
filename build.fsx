@@ -17,10 +17,12 @@
 #r "nuget: Fake.Core.Target"
 #load "node_modules/fable-publish-utils/PublishUtils.fs"
 
-open PublishUtils
+//open PublishUtils
 open System
 open System.IO
 open Fake.Core
+open PublishUtils
+open Fake.Core.TargetOperators
 
 // Boilerplate for adapter
 System.Environment.GetCommandLineArgs()
@@ -33,9 +35,61 @@ System.Environment.GetCommandLineArgs()
 // ---------------------------------------------------
 // -- Your targets and regular FAKE code goes below --
 
-Target.create "publish" (fun _ ->
+let deleteFileIfExists file =
+    if (File.Exists(file)) then
+        File.Delete(file)
+
+let copyFileOverwrite source target =
+    deleteFileIfExists target
+    File.Copy( source, target )
+
+let setDotNet (v : int) =
+    let globalJson = "global.json"
+    copyFileOverwrite (sprintf "%s-dotnet%d" globalJson v) globalJson
+
+let fsdocs (local : bool) =
+    let fsDocsCache = Path.Combine(".fsdocs", "cache")
+    let docsInputFolder = Path.Combine("temp", "docs")
+    let root = if local then "http://127.0.0.1:5500/public/apidocs/" else "https://sutil.dev/apidocs/"
+
+    deleteFileIfExists fsDocsCache
+
+    //let fscOptions = " -r:/Users/david/.nuget/packages/fable.core/3.7.1/lib/netstandard2.0/Fable.Core.dll"
+
+    run("dotnet build src/Sutil/Sutil.fsproj")
+    //run($"dotnet fsdocs build --output public/docs --fscoptions \"{fscOptions}\" --parameters root ../")
+
+    setDotNet(7)
+    if not (Directory.Exists(docsInputFolder)) then
+        Directory.CreateDirectory(docsInputFolder) |> ignore
+
+    sprintf "dotnet fsdocs build --input %s --output public/apidocs --parameters fsdocs-logo-src ../../images/logo-small.png root %s" docsInputFolder root
+    |> run
+
+    Directory.Delete(docsInputFolder)
+    setDotNet(6)
+
+Target.create "fsdocs" (fun _ -> fsdocs false)
+
+Target.create "fsdocs:local" (fun _ -> fsdocs true)
+
+Target.create "publish:package" (fun _ ->
     let pkg = "Sutil"
     pushNuget ("src" </> pkg </> pkg + ".fsproj") [] doNothing
+)
+
+Target.create "deploy:linode" (fun _ ->
+    //   "deploy:linode": "bash deployToLinode.sh ./public sutil '' deploy@213.52.129.104 /home/deploy/apps",
+    PublishUtils.run "bash deployToLinode.sh ./public sutil '' deploy@213.52.129.104 /home/deploy/apps"
+)
+
+Target.create "sutilxml" (fun _ ->
+    PublishUtils.run("dotnet build -c Release src/Sutil/Sutil.fsproj")
+    copyFileOverwrite "src/Sutil/bin/Release/netstandard2.0/Sutil.xml" "public/Sutil.xml"
+)
+
+Target.create "publish:website" (fun _ ->
+    PublishUtils.run("node publish.js")
 )
 
 Target.create "usage" (fun _ ->
@@ -66,5 +120,19 @@ Target.create "samples" (fun _ ->
                 File.AppendAllText( targetFs, "\nview() |> Program.mountElement \"sutil-app\"\n")
         )
 )
+
+Target.create "build:app" (fun _ ->
+    run "dotnet fable src/App --run webpack --mode production"
+)
+
+"fsdocs"
+    ==> "publish:website"
+    |> ignore
+
+"fsdocs"
+    ==> "build:app"
+    ==> "deploy:linode"
+    |> ignore
+
 
 Target.runOrDefault "usage"

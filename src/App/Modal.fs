@@ -1,9 +1,9 @@
 module Modal
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
-open Sutil.Bindings
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Styling
 
 let view() =

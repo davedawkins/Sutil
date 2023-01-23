@@ -7,7 +7,8 @@ open WebTestRunner
 #endif
 
 open Sutil
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 
 describe "Sutil.Observable" <| fun () ->
 

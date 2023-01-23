@@ -4,8 +4,9 @@ module Sutil.Transition
 open Browser.Dom
 open Browser.CssExtensions
 open Browser.Types
-open Sutil.Styling
-open Sutil.DOM
+open Styling
+open Core
+open DomHelpers
 open System.Collections.Generic
 open System
 open Fable.Core
@@ -418,7 +419,7 @@ let transitionNode  (el : HTMLElement)
                 ruleName <- createRule el a b tr 0
             if tr.Tick.IsSome then
                 // Wait for the cancelled runTick to finish
-                DOM.wait el (fun () ->
+                DomHelpers.wait el (fun () ->
                     let t = runTick tr b d
                     t.Promise)
 
@@ -444,7 +445,7 @@ type Hideable = {
 
 type HideableRuntime = {
     hideable : Hideable
-    mutable target : SutilNode
+    mutable target : SutilEffect
     mutable cache : bool
     mutable unsubscribe : System.IDisposable
 }
@@ -452,15 +453,15 @@ type HideableRuntime = {
 let createHideableRuntime h =
     {
         hideable = h
-        target = EmptyNode
+        target = SideEffect
         cache = false
         unsubscribe = null
     }
 
 
-let collectNodes (sn : SutilNode option) = sn |> Option.map (fun n -> n.collectDomNodes()) |> Option.defaultValue []
+let collectNodes (sn : SutilEffect option) = sn |> Option.map (fun n -> n.collectDomNodes()) |> Option.defaultValue []
 
-let transitionList (list : Hideable list) : SutilElement = nodeFactory <| fun ctx ->
+let transitionList (list : Hideable list) : SutilElement = defineSutilElement <| fun ctx ->
     let runtimes = list |> List.map createHideableRuntime
     for rt in runtimes do
         rt.unsubscribe <- rt.hideable.predicate |> Store.subscribe ( fun show ->
@@ -473,7 +474,7 @@ let transitionList (list : Hideable list) : SutilElement = nodeFactory <| fun ct
                 rt.target.collectDomNodes() |> List.iter (fun node ->
                         transitionNode (node :?> HTMLElement) rt.hideable.transOpt [] show ignore ignore )
         )
-    unitResult(ctx, "transitionList")
+    sideEffect(ctx, "transitionList")
 
 type MatchOption<'T> = ('T -> bool) *  SutilElement * TransitionAttribute list
 
@@ -489,14 +490,14 @@ let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> lis
 let transitionOpt   (trans : TransitionAttribute list)
                     (store : IObservable<bool>)
                     (element: SutilElement)
-                    (elseElement : SutilElement option) : SutilElement = nodeFactory <| fun ctx ->
-    let transResult = SutilNode.MakeGroup( "transition", ctx.Parent, ctx.Previous ) |> GroupNode
+                    (elseElement : SutilElement option) : SutilElement = defineSutilElement <| fun ctx ->
+    let transResult = SutilEffect.MakeGroup( "transition", ctx.Parent, ctx.Previous ) |> Group
     ctx.AddChild transResult
     let transCtx = ctx |> ContextHelpers.withParent transResult
 
-    let mutable target : SutilNode = EmptyNode
+    let mutable target : SutilEffect = SideEffect
     let mutable cache = false
-    let mutable targetElse : SutilNode = EmptyNode
+    let mutable targetElse : SutilEffect = SideEffect
 
     let unsub = store |> Store.subscribe (fun isVisible ->
         let wantTransition = not target.IsEmpty
@@ -522,7 +523,7 @@ let transitionOpt   (trans : TransitionAttribute list)
     )
 
     sutilResult(transResult)
-//    unitResult(ctx, "transitionOpt")
+//    sideEffect(ctx, "transitionOpt")
 
 // Show or hide according to a Store<bool> using a transition
 let transition<'T> (trans : TransitionAttribute list) store element =

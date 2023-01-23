@@ -1,8 +1,9 @@
+///  <exclude />
 module Sutil.Navigable
 
 open Browser.Types
-open Sutil.DOM
-open Browser.Dom
+open Core
+open CoreElements
 open System
 open Interop
 

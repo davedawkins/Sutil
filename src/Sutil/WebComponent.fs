@@ -2,7 +2,8 @@ namespace Sutil
 
 open Fable.Core
 open Browser.Types
-open DOM
+open DomHelpers
+open Core
 
 module WebComponent =
     type Callbacks<'T> = {
@@ -29,7 +30,7 @@ type WebComponent =
             let model = initModel()
 
             let sutilElement = view model host
-            let disposeElement = DOM.mountOnShadowRoot sutilElement host
+            let disposeElement = Core.mountOnShadowRoot sutilElement host
 
             let disposeWrapper() =
                 dispose(model)
@@ -38,7 +39,7 @@ type WebComponent =
             {   OnDisconnected = disposeWrapper
                 GetModel = (fun () -> model |> Store.current)
                 SetModel = Store.set model
-                OnConnected = fun _ -> DOM.dispatchSimple (host?shadowRoot?firstChild) Event.Connected //"sutil-connected"
+                OnConnected = fun _ -> DomHelpers.dispatchSimple (host?shadowRoot?firstChild) Event.Connected //"sutil-connected"
                 }
 
         WebComponent.makeWebComponent name wrapper initValue

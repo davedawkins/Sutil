@@ -1,0 +1,6 @@
+#!/bin/sh
+TOOLNAME=$1
+cache_dirs=`dotnet nuget locals All -l | cut -d':' -f 2 | tr -d ' '`
+while IFS= read -r path; do
+    rm -rfv "$path/$TOOLNAME"
+done <<< "$cache_dirs"

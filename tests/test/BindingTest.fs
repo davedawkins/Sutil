@@ -8,7 +8,8 @@ open WebTestRunner
 #endif
 
 open Sutil
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 
 type Record = {
     Id : int
@@ -92,7 +93,7 @@ describe "Sutil.Binding" <| fun () ->
                     (sort |> Store.map sortedList),
                     (fun (n : int) ->
                         Html.div [
-                            DOM.unsubscribeOnUnmount [fun _ -> unmountCount <- unmountCount + 1]
+                            unsubscribeOnUnmount [fun _ -> unmountCount <- unmountCount + 1]
                             text (string n)
                         ]),
                     (fun n -> n)

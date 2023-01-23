@@ -2,16 +2,15 @@ module Doc
 
 open Sutil
 open type Feliz.length
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
+
 open Fetch
 open Sutil.Styling
 open Types
 open Fable.Formatting.Markdown
 open Fable.Core.Util
 open Fable.Core
-open Browser.Types
-open Browser.CssExtensions
-open Browser.Dom
 
 [<ImportAll("./highlight.min.js")>]
 let hljs : obj = jsNative;
@@ -50,8 +49,9 @@ let styleCs = """
 
 let openSutil = """open Sutil
 open Sutil.Styling
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Feliz"""
 
 let buildReplQuery (names : string array) (codes : string array) (html:string) (css:string) =
@@ -69,13 +69,143 @@ let buildReplQuery (names : string array) (codes : string array) (html:string) (
 
 //JS.console.dir(hljs)
 
-let parsed md =
+
+let parseMd md =
     try
         let doc  = Markdown.Parse(md)
         let html = Markdown.ToHtml(doc)
         html
     with
         | x -> $"<pre>{x}</pre>"
+
+open Fable.SimpleXml
+
+module ApiDoc =
+
+    type Parameter = {
+        Name : string
+        Type : string
+        Summary : string
+    }
+    type Member = {
+        MemberType : string
+        ModuleName : string
+        Name : string
+        MangledParameters : string
+        Parameters : Parameter list
+        Summary : string
+        Example : string
+        Remarks : string
+    }
+
+    type ApiDoc = {
+        AssemblyName : string
+        Members : Member list
+    }
+
+    let getElement (name : string) (el : XmlElement) =
+        el.Children |> List.find (fun e -> e.Name = name)
+
+    let getElements (name : string) (el : XmlElement) =
+        el.Children |> List.filter (fun e -> e.Name = name)
+
+    let getText (el : XmlElement) =
+        el.Content
+
+    let getAttribute (name : string) (el : XmlElement) =
+        el.Attributes.TryFind name |> Option.defaultValue ""
+
+    let el tag (children : (unit -> string) list) = fun () ->
+        let text = children |> (List.map (fun f -> f())) |> String.concat "\n"
+        sprintf "<%s>%s</%s>" tag text tag
+
+    let elc tag (c: string) (children : (unit -> string) list) = fun () ->
+        let text = children |> (List.map (fun f -> f())) |> String.concat "\n"
+        sprintf "<%s class='%s'>%s</%s>" tag c text tag
+
+    let text (s : string) = fun () -> s
+
+    let parseMember (memberEl : XmlElement) =
+        let name = memberEl |> getAttribute "name"
+
+        let mtype, fullNameArgs =
+            let toks = name.Split(':')
+            toks[0], toks[1]
+
+        let fullName, parms =
+            let paren = fullNameArgs.IndexOf('(')
+            if paren < 0 then fullNameArgs, "" else fullNameArgs.Substring(0,paren), fullNameArgs.Substring(paren)
+
+        let moduleName, memberName =
+            let dot = fullName.LastIndexOf('.')
+            fullName.Substring(0,dot), fullName.Substring(dot+1)
+        // <member name="M:Sutil.Core.NodeListOf`1.toSeq``1(Browser.Types.NodeListOf{``0})">
+
+        {
+            MemberType = mtype
+            Name = memberName
+            ModuleName = moduleName
+            Parameters = []
+            MangledParameters = parms
+            Summary = memberEl |> getElement "summary" |> getText
+            Example = ""
+            Remarks = ""
+        }
+
+    let parseMembers (membersEl : XmlElement) =
+        membersEl
+        |> getElements "member"
+        |> List.map parseMember
+
+    let emitMember (m : Member) =
+        elc "div" "member" [
+            elc "h4" "member-name" [ text m.ModuleName; text m.Name; text m.MangledParameters ]
+            elc "p" "summary" [ text m.Summary ]
+        ]
+
+
+    let generateApi (doc : XmlElement) =
+        let api =
+            {
+                AssemblyName =
+                    doc
+                    |> getElement "assembly"
+                    |> getElement "name"
+                    |> getText
+                Members =
+                    doc
+                    |> getElement "members"
+                    |> parseMembers
+            }
+
+        let e =
+            elc "div" "api-docs" [
+                elc "h1" "assembly-name" [ text api.AssemblyName ]
+                elc "h2" "members" (api.Members |> List.map emitMember)
+            ]
+
+        e()
+
+let parseXml content =
+    try
+        let xmldoc = SimpleXml.parseDocumentNonStrict(content)
+        let root = xmldoc.Root
+        if root.Name = "doc" then
+            ApiDoc.generateApi root
+        else
+            "<pre>" + content + "</pre>"
+    with
+    | x ->
+        Fable.Core.JS.console.log(x.Message)
+        "<pre>Error" + "</pre>"
+
+let parse (path : string) (content : string) =
+    if (path.EndsWith(".md")) then
+        parseMd content
+    else if (path.EndsWith(".xml")) then
+        parseXml content
+    else
+        "<pre>" + content + "</pre>"
 
 let urlBase = ""//"https://raw.githubusercontent.com/davedawkins/Sutil/main/src/App"
 
@@ -84,25 +214,17 @@ let fetchSource tab  =
     fetch tab []
     |> Promise.bind (fun res -> res.text())
 
-let view (src : string) () =
-    Html.div [
-        Html.div [
-            html $"{parsed src}"
-        ] |> withStyle Markdown.style
-    ]
+// let view (src : string) () =
+//     Html.div [
+//         Html.div [
+//             html $"{parseMd src}"
+//         ] |> withStyle Markdown.style
+//     ]
 
 type FoldType = {
     Category : string
     Pages : Page list
 }
-
-//
-// Builds the element and passes to post-processing function
-//
-let postProcess (f : Browser.Types.HTMLElement -> unit) (view : SutilElement) : SutilElement = nodeFactory <| fun ctx ->
-    let result = DOM.build view ctx
-    ctx.Parent.AsDomNode |> applyIfElement f
-    result
 
 //
 // Create a seq<'T> from a NodeListOF<'T>
@@ -161,9 +283,9 @@ let replButton (wantExpandButton : bool) (code : Browser.Types.HTMLElement) =
     Html.span [
         disposeOnUnmount [ expanded ]
         Html.a [
-            Sutil.Attr.style [ Css.fontSize (Feliz.length.percent 75)]
+            Attr.style [ Css.fontSize (Feliz.length.percent 75)]
             text "Open in REPL"
-            Sutil.Attr.onClick (fun _ ->
+            Ev.onClick (fun _ ->
                 let q =
                     buildReplQuery
                         [| "Main.fs" |]
@@ -171,25 +293,25 @@ let replButton (wantExpandButton : bool) (code : Browser.Types.HTMLElement) =
                         indexHtml
                         styleCs
                 Browser.Dom.window.location.href <- "https://sutil.dev/repl/#?" + q
-            ) []
+            )
         ]
         if wantExpandButton then
             Bind.el(expanded,fun isExpanded ->
                 Html.a [
-                    Sutil.Attr.style [
+                    Attr.style [
                         Css.fontSize (Feliz.length.percent 75)
                         Css.marginLeft (Feliz.length.rem 0.5)
                         ]
                     text (if isExpanded then "Collapse" else "Expand")
-                    Sutil.Attr.onClick (fun _ ->
+                    Ev.onClick (fun _ ->
                         if isExpanded then
-                            code.classList.add("more")
-                            code.classList.remove("full")
+                            code.classList.add( [| "more" |] )
+                            code.classList.remove( [| "full" |] )
                         else
-                            code.classList.add("full")
-                            code.classList.remove("more")
+                            code.classList.add( [| "full" |] )
+                            code.classList.remove( [| "more" |] )
                         expanded |> Store.modify not
-                    ) []
+                    )
                 ])
     ]
 //
@@ -198,19 +320,22 @@ let replButton (wantExpandButton : bool) (code : Browser.Types.HTMLElement) =
 let addReplButton (preCode : Browser.Types.HTMLElement) =
     let wantExpandButton = preCode.clientHeight > 182.0
     if wantExpandButton then
-        preCode.classList.add( "more" )
-    mountAfter (replButton wantExpandButton preCode) (preCode.parentElement)
+        Fable.Core.JS.console.log("more button")
+        preCode.classList.add( [| "more" |] )
+    Fable.Core.JS.console.log("repll button")
+    Program.mountElementAfter (preCode.parentElement) (replButton wantExpandButton preCode)
 
 let addClasses (node : Browser.Types.HTMLElement) =
     node
         |> querySelectorAll "table"
         |> Seq.iter (fun e ->
-            (toEl e).classList.add("table"))
+            (toEl e).classList.add( [| "table" |] ))
     node
 //
 // Add "Open in REPL" buttons to all <pre><code> example code blocks
 //
 let addReplButtons (markdown : Browser.Types.HTMLElement) =
+    Fable.Core.JS.console.log("addReplButtons")
     markdown
         |> addClasses
         |> findPreCode
@@ -227,14 +352,18 @@ let pageView title source () =
         Html.h2 [ text title ]
         Html.div [
             Html.span [
-                Bind.el(content,fun t ->
-                    html $"{parsed t}"
-                        |> postProcess addReplButtons)
+                Bind.el(
+                    content,
+                    fun t ->
+                        Html.parse $"{parse source t}" |> CoreElements.postProcessElements addReplButtons
+                )
             ] |> withStyle Markdown.style
         ]
     ]
 
 // Not the worst parser you've ever seen, but pretty close
+// Split "(title)[source]" and return tuple (title, source)
+//
 let parseLink (src : string)=
     let items = src.Replace("[","").Replace("(","").Replace(")","").Split(']')
     items.[0].Trim(), items.[1].Trim()
@@ -248,8 +377,12 @@ let parseIndex (src:string) =
             let page = {
                     Category = accum.Category;
                     Title = title;
-                    Create = pageView title pageSrc
-                    Sections = [] }
+                    Link =
+                        if pageSrc.StartsWith("http") then
+                            Url pageSrc
+                        else
+                            AppLink (pageView title pageSrc, [])
+                    }
             { accum with Pages = accum.Pages @ [ page ] }
         | _ -> accum
     let pages =

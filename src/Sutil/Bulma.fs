@@ -1,9 +1,11 @@
+///  <exclude />
 module Sutil.Bulma
 
 open Sutil
 open Sutil.Styling
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+open Sutil.Core
 
 open type Feliz.length
 
@@ -18,16 +20,20 @@ module Helpers =
     //}
     let selectList (props : SutilElement list) =
         Html.div [
-            class' "select is-multiple"
-            Html.select props
-        ] |> withStyleAppend [
-                    rule "option" [
-                        Css.padding(em 0.5, em 1.0)
-                    ]
-                    rule "select" [
-                        Css.height auto
-                        Css.padding 0
-                    ] ]
+            CoreElements.class' "select is-multiple"
+            Html.select [
+                Attr.style [ Css.height auto; Css.padding 0 ]
+                yield! props
+            ]
+        ]
+        // |> withStyleAppend [
+        //             rule "option" [
+        //                 Css.padding(em 0.5, em 1.0)
+        //             ]
+        //             rule "select" [
+        //                 Css.height auto
+        //                 Css.padding 0
+        //             ] ]
 
     let selectMultiple (props : SutilElement list) = Html.div [ class' "select is-multiple"; Html.select ([ Attr.multiple true ] @ props) ]
 
@@ -64,10 +70,13 @@ let styleHelpers = [
         PseudoCss.addClass "is-small"
         Css.maxWidth (percent 50)
     ]
+
+    rule ".is-multiple option" [
+        Css.padding(em 0.5, em 1.0)
+    ]
 ]
 
-let withBulmaHelpers s =
-    s @ styleHelpers
+let withBulmaHelpers = withCustomRules styleHelpers
 
 [<AutoOpen>]
 module FontAwesome =

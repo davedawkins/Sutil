@@ -3,9 +3,10 @@ module App
 open Fetch
 
 open Sutil
-open Sutil.Attr
+
 open Sutil.Styling
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 open Sutil.Transition
 open Browser.Types
 open Types
@@ -48,52 +49,52 @@ open Fable.Core
 
 
 let allExamples = [
-        { Category = "Introduction";Title = "Hello World";  Create = HelloWorld.view ; Sections = ["HelloWorld.fs"]}
-        { Category = "Introduction";Title = "Dynamic attributes";  Create = DynamicAttributes.view ; Sections = ["DynamicAttributes.fs"]}
-        { Category = "Introduction";Title = "Styling";  Create = StylingExample.view ; Sections = ["Styling.fs"]}
-        { Category = "Introduction";Title = "Nested components";  Create = NestedComponents.view ; Sections = ["NestedComponents.fs"; "Nested.fs"]}
-        { Category = "Introduction";Title = "HTML tags";  Create = HtmlTags.view ; Sections = ["HtmlTags.fs"]}
-        { Category = "Reactivity";Title = "Reactive assignments";  Create = Counter.view ; Sections = ["Counter.fs"]}
-        { Category = "Reactivity";Title = "Reactive declarations";  Create = ReactiveDeclarations.view ; Sections = ["ReactiveDeclarations.fs"]}
-        { Category = "Reactivity";Title = "Reactive statements";  Create = ReactiveStatements.view ; Sections = ["ReactiveStatements.fs"]}
-        { Category = "Logic"; Title = "If blocks"; Create = LogicIf.view; Sections = ["LogicIf.fs"] }
-        { Category = "Logic"; Title = "Else blocks"; Create = LogicElse.view; Sections = ["LogicElse.fs"] }
-        { Category = "Logic"; Title = "Else-if blocks"; Create = LogicElseIf.view; Sections = ["LogicElseIf.fs"] }
-        { Category = "Logic"; Title = "Static each blocks"; Create = StaticEachBlocks.view; Sections = ["StaticEach.fs"] }
-        { Category = "Logic"; Title = "Static each with index"; Create = StaticEachWithIndex.view; Sections = ["StaticEachWithIndex.fs"] }
-        { Category = "Logic"; Title = "Each blocks"; Create = EachBlocks.view; Sections = ["EachBlocks.fs"] }
-        { Category = "Logic"; Title = "Keyed-each blocks"; Create = KeyedEachBlocks.view; Sections = ["KeyedEachBlocks.fs"] }
-        { Category = "Logic"; Title = "Await blocks"; Create = AwaitBlocks.view; Sections = ["AwaitBlocks.fs"] }
-        { Category = "Events"; Title = "DOM events"; Create = DomEvents.view; Sections = ["DomEvents.fs"] }
-        { Category = "Events"; Title = "Custom events"; Create = CustomEvents.view; Sections = ["CustomEvents.fs"] }
-        { Category = "Events"; Title = "Event modifiers"; Create = EventModifiers.view; Sections = ["EventModifiers.fs"] }
-        { Category = "Transitions"; Title = "Transition"; Create = Transition.view; Sections = ["Transition.fs"] }
-        { Category = "Transitions"; Title = "Adding parameters"; Create = TransitionParameters.view; Sections = ["TransitionParameters.fs"] }
-        { Category = "Transitions"; Title = "In and out"; Create = TransitionInOut.view; Sections = ["TransitionInOut.fs"] }
-        { Category = "Transitions"; Title = "Custom CSS"; Create = TransitionCustomCss.view; Sections = ["TransitionCustomCss.fs"] }
-        { Category = "Transitions"; Title = "Custom Code"; Create = TransitionCustom.view; Sections = ["TransitionCustom.fs"] }
-        { Category = "Transitions"; Title = "Transition events"; Create = TransitionEvents.view; Sections = ["TransitionEvents.fs"] }
-        { Category = "Transitions"; Title = "Animation"; Create = Todos.view; Sections = ["Todos.fs"] }
-        { Category = "Bindings";   Title = "Text inputs";  Create = TextInputs.view ; Sections = ["TextInputs.fs"]}
-        { Category = "Bindings";   Title = "Numeric inputs";  Create = NumericInputs.view ; Sections = ["NumericInputs.fs"]}
-        { Category = "Bindings";   Title = "Checkbox inputs";  Create = CheckboxInputs.view ; Sections = ["CheckboxInputs.fs"]}
-        { Category = "Bindings";   Title = "Group inputs";  Create = GroupInputs.view ; Sections = ["GroupInputs.fs"]}
-        { Category = "Bindings";   Title = "Textarea inputs";  Create = TextArea.view ; Sections = ["TextArea.fs"]}
-        { Category = "Bindings";   Title = "File inputs";  Create = FileInputs.view ; Sections = ["FileInputs.fs"]}
-        { Category = "Bindings";   Title = "Select bindings";  Create = SelectBindings.view ; Sections = ["SelectBindings.fs"]}
-        { Category = "Bindings";   Title = "Select multiple";  Create = SelectMultiple.view ; Sections = ["SelectMultiple.fs"]}
-        { Category = "Bindings";   Title = "Dimensions";  Create = Dimensions.view ; Sections = ["Dimensions.fs"]}
-        { Category = "Svg";   Title = "Bar chart";  Create = BarChart.view ; Sections = ["BarChart.fs"]}
-        { Category = "Miscellaneous";   Title = "Spreadsheet";  Create = Spreadsheet.view ; Sections = ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]}
-        { Category = "Miscellaneous";   Title = "Modal";  Create = Modal.view ; Sections = ["Modal.fs"]}
-        { Category = "Miscellaneous";   Title = "Login";  Create = LoginExample.view ; Sections = ["LoginExample.fs"; "Login.fs"]}
-        { Category = "Miscellaneous";   Title = "Drag-sortable list";  Create = SortableTimerList.view ; Sections = ["SortableTimerList.fs"; "DragDropListSort.fs"; "TimerWithButton.fs"; "TimerLogic.fs"]}
-        { Category = "Miscellaneous";   Title = "SAFE client";  Create = SAFE.view ; Sections = ["SafeClient.fs"]}
-        { Category = "Miscellaneous";   Title = "Data Simulation";  Create = DataSim.view ; Sections = ["DataSim.fs"]}
-        { Category = "Miscellaneous";   Title = "Web Components";  Create = WebComponents.view ; Sections = ["WebComponents.fs"]}
-        //{ Category = "Miscellaneous";   Title = "Fragment";  Create = Fragment.view ; Sections = ["Fragment.fs"]}
-        { Category = "7Guis";   Title = "Cells";  Create = SevenGuisCells.view ; Sections = ["Cells.fs"]}
-        { Category = "7Guis";   Title = "CRUD";  Create = CRUD.view ; Sections = ["CRUD.fs"]}
+        { Category = "Introduction";Title = "Hello World";  Link = AppLink (HelloWorld.view , ["HelloWorld.fs"])}
+        { Category = "Introduction";Title = "Dynamic attributes";  Link = AppLink (DynamicAttributes.view , ["DynamicAttributes.fs"])}
+        { Category = "Introduction";Title = "Styling";  Link = AppLink (StylingExample.view , ["Styling.fs"])}
+        { Category = "Introduction";Title = "Nested components";  Link = AppLink (NestedComponents.view , ["NestedComponents.fs"; "Nested.fs"])}
+        { Category = "Introduction";Title = "HTML tags";  Link = AppLink (HtmlTags.view , ["HtmlTags.fs"])}
+        { Category = "Reactivity";Title = "Reactive assignments";  Link = AppLink (Counter.view , ["Counter.fs"])}
+        { Category = "Reactivity";Title = "Reactive declarations";  Link = AppLink (ReactiveDeclarations.view , ["ReactiveDeclarations.fs"]) }
+        { Category = "Reactivity";Title = "Reactive statements";  Link = AppLink (ReactiveStatements.view , ["ReactiveStatements.fs"]) }
+        { Category = "Logic"; Title = "If blocks"; Link = AppLink (LogicIf.view, ["LogicIf.fs"])  }
+        { Category = "Logic"; Title = "Else blocks"; Link = AppLink (LogicElse.view, ["LogicElse.fs"])  }
+        { Category = "Logic"; Title = "Else-if blocks"; Link = AppLink (LogicElseIf.view, ["LogicElseIf.fs"])  }
+        { Category = "Logic"; Title = "Static each blocks"; Link = AppLink (StaticEachBlocks.view, ["StaticEach.fs"])  }
+        { Category = "Logic"; Title = "Static each with index"; Link = AppLink (StaticEachWithIndex.view, ["StaticEachWithIndex.fs"])  }
+        { Category = "Logic"; Title = "Each blocks"; Link = AppLink (EachBlocks.view, ["EachBlocks.fs"])  }
+        { Category = "Logic"; Title = "Keyed-each blocks"; Link = AppLink (KeyedEachBlocks.view, ["KeyedEachBlocks.fs"])  }
+        { Category = "Logic"; Title = "Await blocks"; Link = AppLink (AwaitBlocks.view, ["AwaitBlocks.fs"])  }
+        { Category = "Events"; Title = "DOM events"; Link = AppLink (DomEvents.view, ["DomEvents.fs"])  }
+        { Category = "Events"; Title = "Custom events"; Link = AppLink (CustomEvents.view, ["CustomEvents.fs"])  }
+        { Category = "Events"; Title = "Event modifiers"; Link = AppLink (EventModifiers.view, ["EventModifiers.fs"])  }
+        { Category = "Transitions"; Title = "Transition"; Link = AppLink (Transition.view, ["Transition.fs"])  }
+        { Category = "Transitions"; Title = "Adding parameters"; Link = AppLink (TransitionParameters.view, ["TransitionParameters.fs"])  }
+        { Category = "Transitions"; Title = "In and out"; Link = AppLink (TransitionInOut.view, ["TransitionInOut.fs"])  }
+        { Category = "Transitions"; Title = "Custom CSS"; Link = AppLink (TransitionCustomCss.view, ["TransitionCustomCss.fs"])  }
+        { Category = "Transitions"; Title = "Custom Code"; Link = AppLink (TransitionCustom.view, ["TransitionCustom.fs"])  }
+        { Category = "Transitions"; Title = "Transition events"; Link = AppLink (TransitionEvents.view, ["TransitionEvents.fs"])  }
+        { Category = "Transitions"; Title = "Animation"; Link = AppLink (Todos.view, ["Todos.fs"])  }
+        { Category = "Bindings";   Title = "Text inputs";  Link = AppLink (TextInputs.view , ["TextInputs.fs"]) }
+        { Category = "Bindings";   Title = "Numeric inputs";  Link = AppLink (NumericInputs.view , ["NumericInputs.fs"]) }
+        { Category = "Bindings";   Title = "Checkbox inputs";  Link = AppLink (CheckboxInputs.view , ["CheckboxInputs.fs"]) }
+        { Category = "Bindings";   Title = "Group inputs";  Link = AppLink (GroupInputs.view , ["GroupInputs.fs"]) }
+        { Category = "Bindings";   Title = "Textarea inputs";  Link = AppLink (TextArea.view , ["TextArea.fs"]) }
+        { Category = "Bindings";   Title = "File inputs";  Link = AppLink (FileInputs.view , ["FileInputs.fs"]) }
+        { Category = "Bindings";   Title = "Select bindings";  Link = AppLink (SelectBindings.view , ["SelectBindings.fs"]) }
+        { Category = "Bindings";   Title = "Select multiple";  Link = AppLink (SelectMultiple.view , ["SelectMultiple.fs"]) }
+        { Category = "Bindings";   Title = "Dimensions";  Link = AppLink (Dimensions.view , ["Dimensions.fs"]) }
+        { Category = "Svg";   Title = "Bar chart";  Link = AppLink (BarChart.view , ["BarChart.fs"]) }
+        { Category = "Miscellaneous";   Title = "Spreadsheet";  Link = AppLink (Spreadsheet.view , ["Spreadsheet.fs"; "Evaluator.fs"; "Parser.fs"]) }
+        { Category = "Miscellaneous";   Title = "Modal";  Link = AppLink (Modal.view , ["Modal.fs"]) }
+        { Category = "Miscellaneous";   Title = "Login";  Link = AppLink (LoginExample.view , ["LoginExample.fs"; "Login.fs"]) }
+        { Category = "Miscellaneous";   Title = "Drag-sortable list";  Link = AppLink (SortableTimerList.view , ["SortableTimerList.fs"; "DragDropListSort.fs"; "TimerWithButton.fs"; "TimerLogic.fs"]) }
+        { Category = "Miscellaneous";   Title = "SAFE client";  Link = AppLink (SAFE.view , ["SafeClient.fs"]) }
+        { Category = "Miscellaneous";   Title = "Data Simulation";  Link = AppLink (DataSim.view , ["DataSim.fs"]) }
+        { Category = "Miscellaneous";   Title = "Web Components";  Link = AppLink (WebComponents.view , ["WebComponents.fs"]) }
+        //{ Category = "Miscellaneous";   Title = "Fragment";  Link = AppLink (Fragment.view , ["Fragment.fs"]) }
+        { Category = "7Guis";   Title = "Cells";  Link = AppLink (SevenGuisCells.view , ["Cells.fs"]) }
+        { Category = "7Guis";   Title = "CRUD";  Link = AppLink (CRUD.view , ["CRUD.fs"]) }
     ]
 
 let initBooks = [
@@ -227,7 +228,7 @@ let init() =
     }, []
 
 let update msg model : Model * Cmd<Message> =
-    //Browser.Dom.console.log($"update {msg}")
+    Browser.Dom.console.log($"update {msg}")
     match msg with
     | SetIsMobile m ->
         { model with IsMobile = m }, Cmd.none
@@ -242,7 +243,11 @@ let update msg model : Model * Cmd<Message> =
             { model with View = FrontPage; ViewRequest = None }, Cmd.none
         else
             let book, page = request |> findBookPage model.Books
-            let section = if (page.Sections |> List.contains request.SectionName) then request.SectionName else ""
+            let section =
+                match (page.Link) with
+                | AppLink (creator, sections) ->
+                    if (sections |> List.contains request.SectionName) then request.SectionName else ""
+                | Url _ -> ""
 
             // Fetch the source file for section. Non-empty section refers to source file for example
             // This may change!
@@ -272,7 +277,7 @@ let update msg model : Model * Cmd<Message> =
             { model with View = PageView { pageView with Source = content } }, Cmd.none
         | _ -> model,Cmd.none
 
-let mainStyleSheet = Bulma.withBulmaHelpers [
+let mainStyleSheet = [
 
     rule ".app-main" [
         Css.height (percent 100)
@@ -301,7 +306,7 @@ let mainStyleSheet = Bulma.withBulmaHelpers [
     rule ".app-contents" [
         Css.backgroundColor "#164460"//"#676778"
         Css.color "white"
-        Css.overflowScroll
+        Css.overflowAuto
     ]
 
     rule ".app-contents ul" [
@@ -418,14 +423,18 @@ module UrlParser =
             SectionName = query
         }
 
-let Section tab (name:string) = fragment [
+let Section (tab:Book) (name:string) = fragment [
     Html.h5 [ class' "title is-6"; text (name.ToUpper()) ]
     Html.ul [
-        for d in tab.Pages |> List.filter (fun x -> x.Category = name) do
+        for page in tab.Pages |> List.filter (fun x -> x.Category = name) do
             Html.li [
                 Html.a [
-                    Attr.href <| makeHref tab.Title  d.Title ""
-                    text d.Title
+                    match page.Link with
+                    | AppLink (_,_) ->
+                        Attr.href <| makeHref tab.Title  page.Title ""
+                    | Url url ->
+                        Attr.href url
+                    text page.Title
                 ]
             ]
         ]
@@ -462,7 +471,16 @@ let viewPage (view:System.IObservable<BookPageView>) =
             match bpv.Section with
             | "" ->
                 try
-                    page.Create()
+                    match page.Link with
+                    | AppLink (creator, sections) ->
+                        creator()
+
+                    // We shouldn't ever reach here. It means the user somehow clicked on
+                    // a link that didn't take them immediately to the URL, but instead
+                    // managed to update the current page.
+                    // A different and simpler domain model for the books and pages would
+                    // eliminate this.
+                    | Url url -> Html.a [ Attr.href url; text url ]
                 with
                     |x -> Html.div[ text $"Creating example {page.Title}: {x.Message}" ]
             | _ -> viewSource view)
@@ -480,18 +498,23 @@ let viewPageWithHeader (view:System.IObservable<BookPageView>) =
         Html.div [
             class' "column app-page-section"
 
-            if (page.Sections <> []) then
+            match page.Link with
+            | AppLink (_, sections) when sections <> [] ->
                 Html.div [
                     class' "app-toolbar"
                     Html.ul [
                         class' "app-tab"
                         sectionItem book page page.Title
-                        page.Sections |> List.map (sectionItem book page) |> fragment
+                        sections |> List.map (sectionItem book page) |> fragment
                     ]
                 ]
 
+            | _ ->
+                fragment []
+
             viewPage view
-        ])
+        ]
+    )
 
 let viewBook showContents (bookPageView : System.IObservable<BookPageView>) =
     let book = bookPageView |> Store.current |> getBook
@@ -611,7 +634,7 @@ let slideshow interval trans (elements : SutilElement list) =
     let numElements = elements.Length
 
     let ticker =
-        DOM.interval
+        DomHelpers.interval
             (fun _ -> currentTileIndex |> Store.modify (fun x -> (x + 1) % numElements))
             interval
 
@@ -754,7 +777,7 @@ let app () =
         // Page title
         headTitle "sutil"
 
-        appMain() |> withStyle mainStyleSheet
+        appMain() |> withStyle mainStyleSheet |> Bulma.withBulmaHelpers
     ]
 
 let main() =

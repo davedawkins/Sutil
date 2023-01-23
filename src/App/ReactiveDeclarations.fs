@@ -4,10 +4,9 @@ module ReactiveDeclarations
 // https://svelte.dev/examples
 
 open Sutil
-open Sutil.Attr
-open Sutil.DOM
-open Sutil.Bindings
 
+open Sutil.Core
+open Sutil.CoreElements
 
 let view() =
     let count      = Store.make 1

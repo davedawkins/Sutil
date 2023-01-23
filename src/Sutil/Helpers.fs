@@ -1,3 +1,4 @@
+///  <exclude />
 module Sutil.Helpers
 
 open Browser.Types

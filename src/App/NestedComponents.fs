@@ -5,7 +5,8 @@ module NestedComponents
 
 open Sutil
 open Sutil.Styling
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 open Nested
 
 open type Feliz.length

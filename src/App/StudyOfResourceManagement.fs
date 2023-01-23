@@ -2,8 +2,9 @@ module StudyResources
 
 open Sutil
 open Sutil.Bindings
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 
 module GlobalStore =
 

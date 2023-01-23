@@ -16,9 +16,11 @@ module TimerWithButton
 open Sutil
 open Sutil.Bulma
 open type Feliz.length
-open Sutil.Attr
+
 open System
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
+open Sutil.Bindings
 
 type Model = {  Started : bool }
 type Message =  Toggle
@@ -31,7 +33,7 @@ let update msg model =
 
 let icon (name : IObservable<string>) =
     Html.i [
-        Bindings.bindAttrIn "class" (name |> Store.map (sprintf "fa fa-%s"))
+        bindAttrIn "class" (name |> Store.map (sprintf "fa fa-%s"))
     ]
 
 let create (slot : IObservable<bool * float> -> SutilElement) =

@@ -1,10 +1,13 @@
 
+///  <exclude />
 module Sutil.MediaQuery
 
 open System
-open Sutil.DOM
-open Sutil.Bindings
+open Sutil.Core
+open Sutil.CoreElements
+open CoreElements
 open Sutil.Transition
+open Sutil.DomHelpers
 open Browser
 open Fable.Core.JsInterop
 open Interop

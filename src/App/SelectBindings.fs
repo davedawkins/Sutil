@@ -5,8 +5,9 @@ module SelectBindings
 
 open Browser
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Styling
 
 open type Feliz.length
@@ -24,19 +25,19 @@ let questions = [
 
 let appStyle = [
     rule "input" [
-        PseudoCss.addClass "input"
         Css.displayBlock
         Css.width 620
         Css.maxWidth (percent 100)
     ]
-    rule "button" [ PseudoCss.addClass "button" ]
-    rule "form" [ PseudoCss.addClass "block" ]
-    rule "h2" [ PseudoCss.addClass "title"; PseudoCss.addClass "is-2" ]
 ]
 
+let input children = Html.input [ Attr.className "input"; yield! children ]
+let form children = Html.form [ Attr.className "block"; yield! children ]
+let button children = Html.button [ Attr.className "button"; yield! children ]
+let h2 children = Html.h2 [ Attr.className "title is-2"; yield! children ]
+
 // HTML helpers
-let block children =
-    Html.div ((class' "block") :: children )
+let block children = Html.div [ Attr.className "block"; yield! children ]
 
 let view() =
     let answer   = Store.make("")
@@ -51,35 +52,35 @@ let view() =
     Html.div [
         disposeOnUnmount [ answer; selected ]
 
-        Html.h2 [ text "Health Check" ]
+        h2 [ text "Health Check" ]
 
-        Html.form [
+        form [
             on "submit" handleSubmit []
 
             Html.div [
-                class' "select block"
+                Attr.className "select block"
                 Html.select [
                     Bind.selected selected
                     on "change" (fun _ -> Store.set answer "") []
                     for question in questions do
                         Html.option [
-                            attr( "value", question ) // FIXME: Add obj overload for value
+                            Attr.value question // FIXME: Add obj overload for value
                             text question.Text
                         ]
                 ]
             ]
 
             block [
-                Html.input [
-                    type' "text"
+                input [
+                    Attr.typeText
                     Bind.attr ("value",answer)
                 ]
             ]
 
             block [
-                Html.button [
+                button [
                     Bind.attr ("disabled",answer |> Store.map (fun a -> a = ""))
-                    type' "submit"
+                    Attr.typeSubmit
                     text "Submit"
                 ]
             ]

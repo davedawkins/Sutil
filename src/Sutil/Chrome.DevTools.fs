@@ -5,12 +5,15 @@ open Fable.Core
 open Browser.Types
 open Browser.Dom
 
+///  <exclude />
 type Event<'T> = interface
     abstract addListener: ('T -> unit ) -> unit
     end
 
+///  <exclude />
 type MessageSender = interface end
 
+///  <exclude />
 type Port = interface
     abstract disconnect : unit -> unit
     abstract name : string
@@ -19,6 +22,7 @@ type Port = interface
     abstract postMessage: obj -> unit
     end
 
+///  <exclude />
 [<RequireQualifiedAccess>]
 module Storage =
     type Sync() =
@@ -28,6 +32,7 @@ module Storage =
         [<Emit("chrome.storage.sync.set($0)")>]
         static member set( keyValues : obj ) : unit = jsNative
 
+///  <exclude />
 type Runtime() =
     [<Emit("chrome.runtime.connect($0)")>]
     static member connect (connectInfo: obj) : Port = jsNative
@@ -41,6 +46,7 @@ type Runtime() =
     [<Emit("chrome.runtime.onInstalled")>]
     static member onInstalled : Event<obj> = jsNative
 
+///  <exclude />
 [<RequireQualifiedAccess>]
 module Devtools =
 
@@ -95,6 +101,7 @@ module Devtools =
         [<Emit("chrome.devtools.inspectedWindow.tabId")>]
         let tabId : int = jsNative
 
+///  <exclude />
 module Helpers =
     let inject<'T,'A> (fn : 'A -> 'T) (arg:'A) : JS.Promise<'T> =
         //console.log($"({fn})({JS.JSON.stringify arg})")

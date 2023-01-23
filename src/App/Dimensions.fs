@@ -6,11 +6,13 @@ module Dimensions
 open type Feliz.length
 open type Feliz.borderStyle
 open Sutil
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Styling
 
-let style = Bulma.withBulmaHelpers [
+let style = [
     rule "input" [
         Css.displayBlock
         Css.width (percent 50)
@@ -27,9 +29,9 @@ let view() =
         let w = Store.make 0.0
         let h = Store.make 0.0
         let size = Store.make 42.0
-        let text = Store.make "Edit me, slide him ↑"
+        let editText = Store.make "Edit me, slide him ↑"
 
-        DOM.disposeOnUnmount [w; h; size; text ]
+        disposeOnUnmount [w; h; size; editText ]
 
         Html.div [
             class' "block"
@@ -37,20 +39,19 @@ let view() =
         ]
         Html.div [
             class' "block"
-            Html.input [ type' "text"; Bind.attr("value",text) ]
+            Html.input [ type' "text"; Bind.attr("value",editText) ]
         ]
 
         Html.div [
-            Bind.el2 w h <| fun (w',h') -> DOM.text $"Size: {w'}px x {h'}px"
+            Bind.el2 w h <| fun (w',h') -> text $"Size: {w'}px x {h'}px"
         ]
 
         Html.div [
             class' "resizing"
-            bindPropOut "clientWidth" w
-            bindPropOut "clientHeight" h
+            CoreElements.listenToResize (fun e ->  Store.set w (e.clientWidth); Store.set h (e.clientHeight))
             Html.span [
                 Bind.attr( "style", size |> Store.map (fun n -> $"font-size: {n}px") )
-                Bind.el(text,DOM.text)
+                Bind.el(editText,text)
             ]
         ]
-    ] |> withStyle style
+    ] |> withStyle style |> Bulma.withBulmaHelpers

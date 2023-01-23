@@ -2,8 +2,9 @@ module LoginExample
 
 open Sutil
 open Sutil.Bulma
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Login
 open Sutil.Styling
 
@@ -80,19 +81,19 @@ let view() =
                         match m.User with
                         | Some u ->
                             Html.span [
-                                text u.Name
-                                text " "
+                                Html.text u.Name
+                                Html.text " "
                                 Html.a [
-                                    text "sign out"
+                                    Html.text "sign out"
                                     Attr.href "#"
                                     onClick (fun _ -> dispatch SignOut) [PreventDefault]
                                 ]
                             ]
                         | None ->
                             Html.span [
-                                text "guest "
+                                Html.text "guest "
                                 Html.a [
-                                    text "sign in"
+                                    Html.text "sign in"
                                     Attr.href "#"
                                     onClick (fun _ -> dispatch SignIn) [PreventDefault]
                                 ]

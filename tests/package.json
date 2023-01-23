@@ -4,7 +4,7 @@
       "install": "dotnet tool restore",
       "bundle": "cd src/Fable.Expect && esbuild queries.js --bundle --outfile=queries.bundle.js --format=esm",
       "publish": "dotnet fsi build.fsx publish",
-      "test": "dotnet fable test -o build/test --define HEADLESS --run web-test-runner build/test/*Test.js --node-resolve",
+      "test": "dotnet fable test --define HEADLESS --run web-test-runner test/*Test.fs.js --node-resolve",
       "test:watch": "dotnet fable watch test -o build/test --define HEADLESS --run web-test-runner build/test/*Test.js --node-resolve --watch",
       "test-in-browser:build": "dotnet fable test --run webpack --config webpack.config.tests.js",
       "test-in-browser": "dotnet fable watch test --run webpack serve --config webpack.config.tests.js "

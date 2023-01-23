@@ -4,8 +4,9 @@ module EventModifiers
 // https://svelte.dev/examples
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Browser.Dom
 
 let handleClick _ =

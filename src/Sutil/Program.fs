@@ -1,58 +1,81 @@
 module Sutil.Program
 
-    open Sutil.DOM
-    open Browser.Types
-    open Browser.Dom
+open Core
+open CoreElements
+open Browser.Types
+open Browser.Dom
 
-    type MountPoint = {
-            Doc : Document
-            MountId : string
-            App : SutilElement
-        }
-        with
-            member this.Mount() =
-                let host = this.Doc.querySelector($"#{this.MountId}")
-                mountOn (exclusive this.App) host
+let pipeline =
+    Sutil.Core.pipeline()
 
-    // Tried to make these into static members, but get error
-    // "These element declarations are not permitted in an augmentation F# compiler"
-    // MountPoint is passed to DevTools
-    let mutable private _allMountPoints = []
+type MountPoint = {
+        Host : Element
+        App : SutilElement
+    }
+    with
+        member this.Mount() =
+            mountOn (this.App) (this.Host) pipeline
 
-    let allMountPoints() = _allMountPoints
+        member this.MountAfter() =
+            mountAfter (this.App) (this.Host :?> HTMLElement) pipeline
 
-    let private createMountPoint doc id app =
-        let self = { Doc = doc; MountId = id; App = app }
-        _allMountPoints <- self :: _allMountPoints
-        self
+        //member this.Mount() =
+        //    this.MountOn( this.Doc.querySelector($"#{this.MountId}") )
+//                mountOn (exclusive this.App) host pipeline
 
-    //
-    // Mount a top-level application SutilElement into an existing document
-    //
-    let rec mountElementOnDocument (doc : Document) id (app : SutilElement)  =
-        let mp = createMountPoint doc id app
-        ObservableStore.Registry.initialise doc
-        mp.Mount() |> ignore
+// Tried to make these into static members, but get error
+// "These element declarations are not permitted in an augmentation F# compiler"
+// MountPoint is passed to DevTools
+let mutable private _allMountPoints = []
 
-    let rec mountElement id (app : SutilElement)  =
-        mountElementOnDocument document id app
+let allMountPoints() = _allMountPoints
 
-    //let makeComponent name (element : SutilElement) : SutilElement = fun (ctx,parent) ->
-    //    element( { ctx with StyleName = "" }, parent )
+let private createMountPoint host app =
+    let self = { Host = host; App = app }
+    _allMountPoints <- self :: _allMountPoints
+    self
 
-    //
-    // Sutil Elmish
-    // The model mutates in Sutil, so the function signatures are slightly different to Elmish.
-    // This approach isn't necessary, but it could be helpful in that it encourages the view to
-    // dispatch messages that are then processed only in the update function.
-    //
-    let makeProgram host init update view =
-        let doc = Browser.Dom.document
-        let model = init()
+let rec mountElementOnDocumentElement (host : Element) (app : SutilElement)  =
+    let mp = createMountPoint host app
+    ObservableStore.Registry.initialise (host.ownerDocument)
+    mp.Mount() |> ignore
 
-        let makeDispatcher update =
-            (fun msg ->
-                update msg model
-                DOM.Event.notifyUpdated doc)
+//
+// Mount a top-level application SutilElement into an existing document
+//
+let rec mountElementOnDocument (doc : Document) id (app : SutilElement)  =
+    let host = doc.querySelector($"#{id}")
+    let mp = createMountPoint host app
+    ObservableStore.Registry.initialise doc
+    mp.Mount() |> ignore
 
-        mountElementOnDocument doc host <| view model (makeDispatcher update)
+let rec mountDomElement (host : Element) (app : SutilElement)  =
+    mountElementOnDocumentElement host app
+
+let rec mountElement id (app : SutilElement)  =
+    mountElementOnDocument document id (exclusive app)
+
+let rec mountElementAfter (after : HTMLElement) (app : SutilElement) =
+    let mp = createMountPoint after app
+    ObservableStore.Registry.initialise (after.ownerDocument)
+    mp.MountAfter() |> ignore
+
+//let makeComponent name (element : SutilElement) : SutilElement = fun (ctx,parent) ->
+//    element( { ctx with StyleName = "" }, parent )
+
+//
+// Sutil Elmish
+// The model mutates in Sutil, so the function signatures are slightly different to Elmish.
+// This approach isn't necessary, but it could be helpful in that it encourages the view to
+// dispatch messages that are then processed only in the update function.
+//
+let makeProgram host init update view =
+    let doc = Browser.Dom.document
+    let model = init()
+
+    let makeDispatcher update =
+        (fun msg ->
+            update msg model
+            DomHelpers.Event.notifyUpdated doc)
+
+    mountElementOnDocument doc host <| view model (makeDispatcher update)

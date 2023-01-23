@@ -9,8 +9,10 @@ open type Feliz.borderStyle
 open type Feliz.length
 open Sutil
 open Sutil.Styling
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
+open Sutil.Bindings
 open Fable.Core.JsInterop
 open Evaluator
 //open Browser.Dom
@@ -160,8 +162,8 @@ let makeStore = Store.makeElmish init update ignore
 //
 let renderCellAt (renderfn: Position -> SutilElement) (ctx : BuildContext) (cell:Position) =
     log($"renderCellAt {cell}")
-    let nodeFactory = renderfn >> exclusive
-    build (nodeFactory cell) (ctx |> ContextHelpers.withParent (DomNode (nodeOfCell cell))) |> ignore
+    let defineSutilElement = renderfn >> exclusive
+    build (defineSutilElement cell) (ctx |> ContextHelpers.withParent (DomNode (nodeOfCell cell))) |> ignore
 
 let view () : SutilElement =
 
@@ -205,7 +207,7 @@ let view () : SutilElement =
                         Html.td [ row |> string |> text ]
                         cols |> List.map (fun col ->
                             Html.td [
-                                attr("x-id", positionStr (col,row) )
+                                Attr.custom("x-id", positionStr (col,row) )
                                 renderPlainCell (col,row)
                             ]
                         ) |> fragment
@@ -228,7 +230,7 @@ let view () : SutilElement =
             // bindSub at this location in the DOM feeds us the context from this location
             // In this view, this will include the styling applied further up
 
-            bindSub activeS <| fun ctx (value,next) ->
+            CoreElements.subscribe activeS <| fun ctx (value,next) ->
                 value |> Option.iter (renderCellAt renderPlainCell  ctx)
                 next  |> Option.iter (renderCellAt renderActiveCell ctx)
 
@@ -236,6 +238,6 @@ let view () : SutilElement =
             // the observable stream strips out Option.None to leave only a stream of Positions
             let refreshS =  (model |> Observable.map (fun m -> m.NeedsRefresh) |> filterSome)
 
-            bindSub refreshS (renderCellAt renderPlainCell)
+            CoreElements.subscribe refreshS (renderCellAt renderPlainCell)
         ])
     ] |> withStyle styleSheet

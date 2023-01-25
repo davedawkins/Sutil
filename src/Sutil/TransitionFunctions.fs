@@ -97,7 +97,7 @@ let fly (props : TransitionProp list) (node : Element) =
                         (targetOpacity - (od * u)))
     }
 
-let crossfade userProps =
+let crossfade (userProps : TransitionProp list) =
     let fallback = (applyProps userProps Transition.Default).Fallback
 
     let toReceive = Dictionary<string,ClientRect>()

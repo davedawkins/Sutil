@@ -531,23 +531,21 @@ let transitionOpt   (trans : TransitionAttribute list)
 
     transResult )
 
-//    sideEffect(ctx, "transitionOpt")
+/// Show or hide according to an IObservable&lt;bool> using a transition
+let transition (options : TransitionAttribute list) visibility element =
+    transitionOpt options visibility element None
 
-// Show or hide according to a Store<bool> using a transition
-let transition<'T> (trans : TransitionAttribute list) store element =
-    transitionOpt trans store element None
+/// Alternate between a pair of elements according to an IObservable&lt;bool> with no transition
+let transitionElse(options : TransitionAttribute list) visibility element otherElement=
+    transitionOpt options visibility element (Some otherElement)
 
-// Alternate between a pair of elements according to a Store<bool> with no transition
-let transitionElse<'T> (trans : TransitionAttribute list) store element otherElement=
-    transitionOpt trans store element (Some otherElement)
+/// Show or hide according to an IObservable&lt;bool> with no transition
+let showIf visibility element =
+    transitionOpt [] visibility element None
 
-// Show or hide according to a Store<bool> with no transition
-let showIf<'T> store element =
-    transitionOpt [] store element None
-
-// Alternate between a pair of elements according to a Store<bool> with no transition
-let showIfElse<'T> store element otherElement=
-    transitionOpt [] store element (Some otherElement)
+/// Alternate between a pair of elements according to an IObservable&lt;bool> with no transition
+let showIfElse visibility element otherElement=
+    transitionOpt [] visibility element (Some otherElement)
 
 
 

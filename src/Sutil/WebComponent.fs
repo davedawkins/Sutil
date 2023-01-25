@@ -5,7 +5,10 @@ open Browser.Types
 open DomHelpers
 open Core
 
-module WebComponent =
+/// <summary>
+/// Support for defining Web Components in Sutil
+/// </summary>
+module private WebComponent =
     type Callbacks<'T> = {
         OnDisconnected : (unit -> unit)
         GetModel : unit -> 'T

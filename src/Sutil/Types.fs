@@ -27,28 +27,35 @@ open System
 //                 |> List.fold (fun a r -> a || r.Match el) false
 
 
+/// <exclude/>
 type StyleRule =
     { SelectorSpec: string
       //Selector: CssRules.CssSelector
       Style: (string * obj) list }
 
+/// <exclude/>
 type KeyFrame =
     { StartAt: int
       Style: (string * obj) list }
 
+/// <exclude/>
 type KeyFrames = { Name: string; Frames: KeyFrame list }
 
+/// <exclude/>
 type MediaRule =
     { Condition: string
       Rules: StyleSheetDefinition list }
 
+/// <exclude/>
 and StyleSheetDefinition =
     | Rule of StyleRule
     | KeyFrames of KeyFrames
     | MediaRule of MediaRule
 
+/// <exclude/>
 type StyleSheetDefinitions = StyleSheetDefinition list
 
+/// <exclude/>
 type NamedStyleSheet =
     { Name: string
       StyleSheet: StyleSheetDefinitions }
@@ -199,6 +206,7 @@ type Cmd<'Msg> = (Dispatch<'Msg> -> unit) list // List of commands. A command ne
 // TODO: Refactor this into Sutil.Elmish module
 //
 #if FABLE_COMPILER
+/// <exclude/>
 module internal Timer =
     open System.Timers
 
@@ -211,7 +219,9 @@ module internal Timer =
         t.Start()
 #endif
 
-///  <exclude />
+/// <summary>
+/// Sutil's Elmish Cmd
+/// </summary>
 module Cmd =
 
     let none: Cmd<'Msg> = []

@@ -1,4 +1,6 @@
-///  <exclude />
+/// <summary>
+/// Transitions that can be used in the <c>transition</c> function
+/// </summary>
 [<AutoOpenAttribute>]
 module Sutil.TransitionFunctions
 // Adapted from svelte/transitions/index.js

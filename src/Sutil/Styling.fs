@@ -1,3 +1,6 @@
+/// <summary>
+/// Support CSS styling
+/// </summary>
 module Sutil.Styling
 
 open System
@@ -112,32 +115,40 @@ let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheetDefinitions) 
         entryToText styleName entry |> doc.createTextNode |> style.appendChild |> ignore
     (fun () -> style.parentElement.removeChild(style) |> ignore)
 
-let headStylesheet (url : string) : SutilElement = defineSutilElement <| fun ctx ->
+let headStylesheet (url : string) : SutilElement =
+    SutilElement.Define( "headStyleSheet",
+    fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let styleEl = doc.createElement("link")
     head.appendChild( styleEl ) |> ignore
     styleEl.setAttribute( "rel", "stylesheet" )
     styleEl.setAttribute( "href", url ) |> ignore
-    sideEffect(ctx, "headStylesheet")
+    () )
 
-let headScript (url : string) : SutilElement = defineSutilElement <| fun ctx ->
+let headScript (url : string) : SutilElement =
+    SutilElement.Define( "headScript",
+    fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let el = doc.createElement("script")
     head.appendChild( el ) |> ignore
     el.setAttribute( "src", url ) |> ignore
-    sideEffect(ctx, "headScript")
+    () )
 
-let headEmbedScript (source : string) : SutilElement = defineSutilElement <| fun ctx ->
+let headEmbedScript (source : string) : SutilElement =
+    SutilElement.Define( "headEmbedScript",
+    fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let el = doc.createElement("script")
     head.appendChild( el ) |> ignore
     el.appendChild(doc.createTextNode(source)) |> ignore
-    sideEffect(ctx, "headEmbedScript")
+    () )
 
-let headTitle (title : string) : SutilElement = defineSutilElement <| fun ctx ->
+let headTitle (title : string) : SutilElement =
+    SutilElement.Define( "headTitle",
+    fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let existingTitle = findElement doc "head>title"
@@ -148,10 +159,7 @@ let headTitle (title : string) : SutilElement = defineSutilElement <| fun ctx ->
     let titleEl = doc.createElement("title")
     titleEl.appendChild( doc.createTextNode(title) ) |> ignore
     head.appendChild(titleEl) |> ignore
-
-    sideEffect(ctx, "headTitle")
-
-
+    () )
 
 /// <summary>
 /// Define a CSS styling rule
@@ -223,7 +231,9 @@ type internal Node with
     [<Emit("$0.getRootNode()")>]
     member __.getRootNode() : Node = jsNative
 
-let adoptStyleSheet (styleSheet : StyleSheetDefinitions) = defineSutilElement <| fun ctx ->
+let adoptStyleSheet (styleSheet : StyleSheetDefinitions) =
+    SutilElement.Define( "adoptStyleSheet",
+    fun ctx ->
     let run() =
         let sheet = CSSStyleSheet.Create()
         sheet.replaceSync (styleSheetAsText styleSheet)
@@ -236,8 +246,7 @@ let adoptStyleSheet (styleSheet : StyleSheetDefinitions) = defineSutilElement <|
         run()
     else
         rafu run
-
-    sideEffect(ctx,"adoptStyleSheet")
+    () )
 
 let private ruleMatchEl (el: HTMLElement) (rule: StyleRule) =
     el.matches(rule.SelectorSpec)
@@ -276,10 +285,12 @@ let private applyCustomRules (rules : StyleSheetDefinitions) (ctx: BuildContext,
 /// <summary>
 /// Support for the custom rules "sutil-add-class". They're clever but also difficult to understand. See their usage in Sutil.Bulma
 /// </summary>
-let withCustomRules (rules : StyleSheetDefinitions) (element : SutilElement) = defineSutilElement <| fun ctx ->
+let withCustomRules (rules : StyleSheetDefinitions) (element : SutilElement) =
+    SutilElement.Define("withCustomRules",
+    fun ctx ->
     ctx
     |> ContextHelpers.withPostProcess (applyCustomRules rules)
-    |> build element
+    |> build element )
 
 let private applyStyleSheet (namedSheet : NamedStyleSheet) (ctx: BuildContext, result : SutilEffect)=
     match result with
@@ -293,10 +304,12 @@ let private applyStyleSheet (namedSheet : NamedStyleSheet) (ctx: BuildContext, r
     | _ -> ()
     (ctx, result)
 
-let withStyle styleSheet (element : SutilElement) : SutilElement = defineSutilElement <| fun ctx ->
+let withStyle styleSheet (element : SutilElement) : SutilElement =
+    SutilElement.Define("withStyle",
+    fun ctx ->
     let name = ctx.MakeName "sutil"
     let namedSheet = { Name = name; StyleSheet = styleSheet }
     addStyleSheet ctx.Document name styleSheet |> ignore
     ctx
     |> ContextHelpers.withPreProcess (applyStyleSheet namedSheet)
-    |> build element
+    |> build element )

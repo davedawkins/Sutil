@@ -18,6 +18,9 @@ module WebComponent =
 
 open Fable.Core.JsInterop
 
+/// <summary>
+/// Support for defining Web Components in Sutil
+/// </summary>
 type WebComponent =
 
     static member Register<'T>(name:string, view : IStore<'T> -> Node -> SutilElement, initValue : 'T, initModel: unit -> IStore<'T>, dispose : IStore<'T> -> unit) =

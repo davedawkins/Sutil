@@ -1,3 +1,6 @@
+/// <summary>
+/// Main entry points for a Sutil program
+/// </summary>
 module Sutil.Program
 
 open Core

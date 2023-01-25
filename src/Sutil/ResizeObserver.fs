@@ -1,4 +1,6 @@
-///  <exclude />
+/// <summary>
+/// Support for listening and reacting to window resize events
+/// </summary>
 module Sutil.ResizeObserver
 
 // Ported from Svelte

@@ -1,3 +1,6 @@
+/// <summary>
+/// Support for CSS transitions that can react to store values
+/// </summary>
 module Sutil.Transition
 // Adapted from svelte/transitions/index.js
 
@@ -461,7 +464,9 @@ let createHideableRuntime h =
 
 let collectNodes (sn : SutilEffect option) = sn |> Option.map (fun n -> n.collectDomNodes()) |> Option.defaultValue []
 
-let transitionList (list : Hideable list) : SutilElement = defineSutilElement <| fun ctx ->
+let transitionList (list : Hideable list) : SutilElement =
+    SutilElement.Define( "transitionList",
+    fun ctx ->
     let runtimes = list |> List.map createHideableRuntime
     for rt in runtimes do
         rt.unsubscribe <- rt.hideable.predicate |> Store.subscribe ( fun show ->
@@ -474,7 +479,7 @@ let transitionList (list : Hideable list) : SutilElement = defineSutilElement <|
                 rt.target.collectDomNodes() |> List.iter (fun node ->
                         transitionNode (node :?> HTMLElement) rt.hideable.transOpt [] show ignore ignore )
         )
-    sideEffect(ctx, "transitionList")
+    () )
 
 type MatchOption<'T> = ('T -> bool) *  SutilElement * TransitionAttribute list
 
@@ -490,7 +495,9 @@ let transitionMatch<'T> (store : IObservable<'T>) (options : MatchOption<'T> lis
 let transitionOpt   (trans : TransitionAttribute list)
                     (store : IObservable<bool>)
                     (element: SutilElement)
-                    (elseElement : SutilElement option) : SutilElement = defineSutilElement <| fun ctx ->
+                    (elseElement : SutilElement option) : SutilElement =
+    SutilElement.Define("transitionOpt",
+    fun ctx ->
     let transResult = SutilEffect.MakeGroup( "transition", ctx.Parent, ctx.Previous ) |> Group
     ctx.AddChild transResult
     let transCtx = ctx |> ContextHelpers.withParent transResult
@@ -522,7 +529,8 @@ let transitionOpt   (trans : TransitionAttribute list)
             //if not (isNull targetElse) then transitionNode (targetElse :?> HTMLElement) trans' [] (not isVisible) ignore ignore
     )
 
-    sutilResult(transResult)
+    transResult )
+
 //    sideEffect(ctx, "transitionOpt")
 
 // Show or hide according to a Store<bool> using a transition

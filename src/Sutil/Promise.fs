@@ -3,6 +3,9 @@ namespace Sutil
 open System
 open Fable.Core
 
+/// <summary>
+/// Support for <c>IObservable&lt;Promise&lt;T>></c>
+/// </summary>
 [<AutoOpen>]
 module ObservablePromise =
 

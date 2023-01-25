@@ -6,9 +6,8 @@ module Login
 //
 
 open Sutil
-open Sutil.Core
 open Sutil.CoreElements
-
+open Sutil.DomHelpers
 open Sutil.Bulma
 
 type LoginDetails = {

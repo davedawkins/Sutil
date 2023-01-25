@@ -2,6 +2,9 @@ namespace Sutil
 
 open System
 
+/// <summary>
+/// Helper functions for <c>IObservables</c>
+/// </summary>
 [<RequireQualifiedAccess>]
 module Observable =
 

@@ -1,50 +1,72 @@
-///  <exclude />
-module Sutil.Navigable
+namespace Sutil
 
+open Sutil
 open Browser.Types
 open Core
 open CoreElements
 open System
 open Interop
 
-type Parser<'T> = Location -> 'T
+/// <summary>
+/// Window location events
+/// </summary>
+module Navigable =
+    /// <summary>
+    /// Parser that can convert <c>Location</c> to a <c>'T</c>. For example, convert the url <c>https//sutil.dev/#documentation</c> into
+    /// the DU value <c>Pages.Documenation</c>
+    /// </summary>
+    type Parser<'T> = Location -> 'T
 
-let listenLocation<'T> (parser:Parser<'T>) (dispatch: 'T -> unit) =
-    let mutable onChangeRef : obj -> obj =
-        fun _ ->
-            failwith "`onChangeRef` has not been initialized.\nPlease make sure you used Elmish.Navigation.Program.Internal.subscribe"
+open Navigable
 
-    let subscribe () =
-        let mutable lastLocation = None
-        let onChange _ =
-            match lastLocation with
-            | Some href when href = Window.location.href -> ()
-            | _ ->
-                lastLocation <- Some Window.location.href
-                Window.location |> parser |> dispatch
-            |> box
+/// <summary>
+/// Window location events
+/// </summary>
+type Navigable =
 
-        onChangeRef <- onChange
+    /// <summary>
+    /// Call <c>dispatch</c> each time the window's location changes. The location is parsed into a <c>'T</c> with the given <c>parser</c>/
+    /// </summary>
+    static member listenLocation<'T> (parser:Parser<'T>, dispatch: 'T -> unit) =
+        let mutable onChangeRef : obj -> obj =
+            fun _ ->
+                failwith "`onChangeRef` has not been initialized.\nPlease make sure you used Elmish.Navigation.Program.Internal.subscribe"
 
-        Window.addEventListener("popstate", unbox onChangeRef)
-        Window.addEventListener("hashchange", unbox onChangeRef)
+        let subscribe () =
+            let mutable lastLocation = None
+            let onChange _ =
+                match lastLocation with
+                | Some href when href = Window.location.href -> ()
+                | _ ->
+                    lastLocation <- Some Window.location.href
+                    Window.location |> parser |> dispatch
+                |> box
 
-        onChange() |> ignore // Initialize with starting href
+            onChangeRef <- onChange
 
-    let unsubscribe () =
-        Window.removeEventListener("popstate", unbox onChangeRef)
-        Window.removeEventListener("hashchange", unbox onChangeRef)
+            Window.addEventListener("popstate", unbox onChangeRef)
+            Window.addEventListener("hashchange", unbox onChangeRef)
 
-    subscribe()
+            onChange() |> ignore // Initialize with starting href
 
-    unsubscribe
+        let unsubscribe () =
+            Window.removeEventListener("popstate", unbox onChangeRef)
+            Window.removeEventListener("hashchange", unbox onChangeRef)
 
-let navigable<'T> (parser:Parser<'T>) (app : IObservable<'T> -> SutilElement) =
-    let store = Store.make (Window.location |> parser)
-    let u = listenLocation parser (Store.set store)
+        subscribe()
 
-    fragment [
-        disposeOnUnmount [ store; Helpers.disposable u ]
-        store |> app
-    ]
+        unsubscribe
+
+    /// <summary>
+    /// Bind the window location to a view
+    /// </summary>
+    static member bindLocation<'T> ( view : Location -> SutilElement ) =
+        let store = Store.make (Window.location)
+        fragment [
+            disposeOnUnmount [
+                store
+                Navigable.listenLocation(id,Store.set store) |> Helpers.disposable
+            ]
+            Bind.el( store, view )
+        ]
 

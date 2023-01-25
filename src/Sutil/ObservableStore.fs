@@ -7,6 +7,13 @@ open Browser.Types
 open Interop
 open Sutil.DomHelpers
 
+/// <summary>
+/// Stores are values that can
+/// - be updated
+/// - subscribed to
+///
+/// This module defines Sutil's <c>Store</c> type
+/// </summary>
 [<RequireQualifiedAccess>]
 module ObservableStore =
 

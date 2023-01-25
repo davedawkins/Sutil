@@ -687,8 +687,8 @@ let appMain () =
 
     let showContents = model .> (fun m -> not m.IsMobile || m.ShowContents)
 
-    let umedia = MediaQuery.listenMedia "(max-width: 768px)" (dispatch << SetIsMobile)
-    let upage  = Navigable.listenLocation UrlParser.parsePageView (dispatch << SetPageView)
+    let umedia = Media.listenMedia( "(max-width: 768px)", dispatch << SetIsMobile)
+    let upage  = Navigable.listenLocation(UrlParser.parsePageView, dispatch << SetPageView)
 
     let defaultBpv = defaultBookPageView()
     Doc.getBook() |> Promise.map (dispatch << AddBook) |> ignore

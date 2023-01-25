@@ -11,6 +11,9 @@ module internal StoreHelpers =
         { new IDisposable with
             member _.Dispose() = f () }
 
+/// <summary>
+/// Functions for working with stores
+/// </summary>
 [<RequireQualifiedAccess>]
 module Store =
 

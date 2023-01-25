@@ -22,5 +22,8 @@
 - [Elmish / MVU - coming soon](coming_soon.md)
 - [DevTools - coming soon](coming_soon.md)
 
+# Trouble Shooting
+- [Upgrading to Sutil 2.x](upgrading_to_sutil2.md)
+
 # API
 - [Reference](https://sutil.dev/apidocs/reference/sutil.html)

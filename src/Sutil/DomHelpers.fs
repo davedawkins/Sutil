@@ -13,6 +13,8 @@ let log = Logging.log "dom"
 
 let internal SvIdKey = "_svid"
 
+let asElement<'T when 'T :> Node> (target:EventTarget) : 'T = (target :?> 'T)
+
 let internal dispatch (target: EventTarget) name (data: obj) =
     if not (isNull target) then
         target.dispatchEvent (Interop.customEvent name data)
@@ -305,16 +307,16 @@ module internal DomEdit =
 
 // Cleanup all descendants and this node
 // Remove node from parent
-let internal unmount (node: Node) : unit =
+let unmount (node: Node) : unit =
     cleanupDeep node
 
     if not (isNull (node.parentNode)) then
         DomEdit.removeChild node.parentNode node
 
-let internal clear (node: Node) =
+let clear (node: Node) =
     children node |> Array.ofSeq |> Array.iter unmount
 
-let internal listen (event: string) (e: EventTarget) (fn: (Event -> unit)) : (unit -> unit) =
+let listen (event: string) (e: EventTarget) (fn: (Event -> unit)) : (unit -> unit) =
     e.addEventListener (event, fn)
     (fun () -> e.removeEventListener (event, fn) |> ignore)
 
@@ -333,7 +335,7 @@ let rafu (f: unit -> unit) =
         | x -> Logging.error $"rafu: {x.Message}")
     |> ignore
 
-let internal anyof (events: string list) (target: EventTarget) (fn: Event -> Unit) : unit =
+let anyof (events: string list) (target: EventTarget) (fn: Event -> Unit) : unit =
     let rec inner e =
         events
         |> List.iter (fun e -> target.removeEventListener (e, inner))
@@ -363,7 +365,7 @@ let timeout callback (delayMs: int) =
     fun () -> Fable.Core.JS.clearTimeout id
 
 
-let rec internal forEachChild (parent: Node) (f: Node -> unit) =
+let rec forEachChild (parent: Node) (f: Node -> unit) =
     let mutable child = parent.firstChild
 
     while not (isNull child) do

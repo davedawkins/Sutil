@@ -1,14 +1,19 @@
-///  <exclude />
+/// <summary>
+/// Adapter for <a href="">Feliz.Engine.Bulma</a>
+/// </summary>
 module Sutil.Bulma
 
 open Sutil
 open Sutil.Styling
 open Sutil.Core
 open Sutil.CoreElements
-open Sutil.Core
 
 open type Feliz.length
 
+
+/// <summary>
+/// Patches to help with issues with <c>Feliz.Engine.Bulma</c>
+/// </summary>
 module Helpers =
     // Issue #2110
     // .select select[multiple] option {
@@ -76,8 +81,9 @@ let styleHelpers = [
     ]
 ]
 
-let withBulmaHelpers = withCustomRules styleHelpers
+let withBulmaHelpers element = withCustomRules styleHelpers element
 
+/// Helper for creating FontAwesome icons: <c>&lt;i class='fa fa-name'/></c>
 [<AutoOpen>]
 module FontAwesome =
     let fa name = Html.i [ class' ("fa fa-" + name) ]

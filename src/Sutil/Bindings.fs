@@ -13,10 +13,12 @@ let private log s = Logging.log "bind" s
 let private bindId = Helpers.makeIdGenerator()
 
 // Binding helper
-let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit) = defineSutilElement <| fun ctx ->
+let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit) =
+    SutilElement.Define( "bindSub",
+    fun ctx ->
     let unsub = source.Subscribe( handler ctx )
     SutilEffect.RegisterDisposable(ctx.Parent,unsub)
-    sideEffect(ctx,"bindSub")
+    () )
 
 let elementFromException (x : exn) =
     el "div" [
@@ -25,7 +27,9 @@ let elementFromException (x : exn) =
         text ("sutil: exception in bind: " + x.Message)
     ]
 
-let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (compare : 'T -> 'T -> bool)= defineSutilElement <| fun ctx ->
+let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (compare : 'T -> 'T -> bool)=
+    SutilElement.Define( "bindElementC",
+    fun ctx ->
     let mutable node = SideEffect
     let group = SutilEffect.MakeGroup("bind",ctx.Parent,ctx.Previous)
     let bindNode = Group group
@@ -52,10 +56,11 @@ let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (c
 
     run()
 
-    sutilResult bindNode
+    bindNode )
 
-
-let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> SutilElement) (compare : 'T -> 'T -> bool)= defineSutilElement <| fun ctx ->
+let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> SutilElement) (compare : 'T -> 'T -> bool)=
+    SutilElement.Define( "bindElementCO",
+    fun ctx ->
     let mutable node = SideEffect
     let group = SutilEffect.MakeGroup("bind",ctx.Parent,ctx.Previous)
     let bindNode = Group group
@@ -81,7 +86,7 @@ let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> Su
 
     run()
 
-    sutilResult bindNode
+    bindNode )
 
 let bindElement<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) : SutilElement=
     bindElementCO store (Store.current >> element) (fun _ _-> false)
@@ -89,7 +94,9 @@ let bindElement<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) : 
 /// Backwards compatibility
 let bindFragment = bindElement
 
-let bindElement2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> SutilElement) = defineSutilElement <| fun ctx ->
+let bindElement2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> SutilElement) =
+    SutilElement.Define("bindElement2",
+    fun ctx ->
     let mutable node : SutilEffect = SideEffect
     let group = SutilEffect.MakeGroup("bind2",ctx.Parent,ctx.Previous)
     let bindNode = Group group
@@ -106,7 +113,8 @@ let bindElement2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: (
 
     group.RegisterUnsubscribe (Helpers.unsubify d)
 
-    sutilResult bindNode
+    bindNode
+    )
 
 let bindElementKO<'T,'K when 'K : equality> (store : IObservable<'T>) (element: IObservable<'T> -> SutilElement) (key : 'T -> 'K) : SutilElement =
     let compare a b = key a = key b
@@ -141,7 +149,9 @@ let private setInputChecked (el : Node) (v:obj) = Interop.set el "checked" v
 let private getInputValue el : string = Interop.get el "value"
 let private setInputValue el (v:string) = Interop.set el "value" v
 
-let bindSelected<'T when 'T : equality> (selection:IObservable<List<'T>>) (dispatch : List<'T> -> unit) : SutilElement = defineSutilElement <| fun ctx ->
+let bindSelected<'T when 'T : equality> (selection:IObservable<List<'T>>) (dispatch : List<'T> -> unit) : SutilElement =
+    SutilElement.Define("bindSelected",
+    fun ctx ->
 
     let selectElement = ctx.ParentElement :?> HTMLSelectElement
     let selOps = selectElement.selectedOptions
@@ -167,8 +177,8 @@ let bindSelected<'T when 'T : equality> (selection:IObservable<List<'T>>) (dispa
         SutilEffect.RegisterDisposable(ctx.Parent, unsub)
 
     SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
-
-    sideEffect(ctx,"bindSelected")
+    ()
+    )
 
 let bindSelectMultiple<'T when 'T : equality> (store:IStore<List<'T>>) : SutilElement =
     bindSelected store (fun sln -> store <~ sln)
@@ -186,7 +196,9 @@ let private isNullString (obj:obj) =
 
 let private getId (s : IStore<'T>) = s.GetHashCode()
 
-let bindGroup<'T> (store:Store<List<string>>) : SutilElement = defineSutilElement <| fun ctx ->
+let bindGroup<'T> (store:Store<List<string>>) : SutilElement =
+    SutilElement.Define( "bindGroup",
+    fun ctx ->
     let parent = ctx.ParentNode
     let name = match Interop.get parent "name" with
                 | s when isNullString s -> $"store-{getId store}"
@@ -216,13 +228,14 @@ let bindGroup<'T> (store:Store<List<string>>) : SutilElement = defineSutilElemen
 
     SutilEffect.RegisterDisposable(ctx.Parent,unsub)
     SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
-
-    sideEffect(ctx,"bindGroup")
+    () )
 
 // T can realistically only be numeric or a string. We're relying (I think!) on JS's ability
 // to turn a string into an int automatically in the Store.set call (maybe it's Fable doing that)
 //
-let bindRadioGroup<'T> (store:Store<'T>) : SutilElement = defineSutilElement <| fun ctx ->
+let bindRadioGroup<'T> (store:Store<'T>) : SutilElement =
+    SutilElement.Define( "bindRadioGroup",
+    fun ctx ->
     let parent = ctx.ParentNode
     let name = match Interop.get parent "name" with
                 | s when isNullString s -> $"store-{getId store}"
@@ -248,7 +261,7 @@ let bindRadioGroup<'T> (store:Store<'T>) : SutilElement = defineSutilElement <| 
     SutilEffect.RegisterDisposable(ctx.Parent,unsub)
     SutilEffect.RegisterUnsubscribe(ctx.Parent,inputUnsub)
 
-    sideEffect(ctx,"bindRadioGroup")
+    () )
 
 let bindClassToggle (toggle:IObservable<bool>) (classesWhenTrue:string) (classesWhenFalse:string) =
     bindSub toggle <| fun ctx active ->
@@ -272,32 +285,38 @@ let bindClassName (classNames:IObservable<string>)  =
         ctx.ParentElement.className <- current
 
 /// Bind a store value to an element attribute. Updates to the element are unhandled
-let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : SutilElement = defineSutilElement <| fun ctx ->
+let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : SutilElement =
+    SutilElement.Define("bindAttrIn",
+    fun ctx ->
     let unsub =
         if attrName = "class" then
             store |> Store.subscribe (fun cls -> ctx.ParentElement.className <- (string cls))
         else
             store |> Store.subscribe (DomHelpers.setAttribute ctx.ParentElement attrName)
     SutilEffect.RegisterDisposable(ctx.Parent,unsub)
-    sideEffect(ctx,"bindAttrIn")
+    () )
 
-let bindAttrOut<'T> (attrName:string) (onchange : 'T -> unit) : SutilElement = defineSutilElement <| fun ctx ->
+let bindAttrOut<'T> (attrName:string) (onchange : 'T -> unit) : SutilElement =
+    SutilElement.Define( "bindAttrOut",
+    fun ctx ->
     let parent = ctx.ParentNode
     let unsubInput = listen "input" parent <| fun _ ->
         Interop.get parent attrName |> onchange
     SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
-    sideEffect(ctx,"bindAttrOut")
+    () )
 
 // Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function. This form is useful for view templates
 // where v is invariant (for example, an each that already filters on the value of v, like Todo.Done)
-let attrNotify<'T> (attrName:string) (value :'T) (onchange : 'T -> unit) : SutilElement = defineSutilElement <| fun ctx ->
+let attrNotify<'T> (attrName:string) (value :'T) (onchange : 'T -> unit) : SutilElement =
+    SutilElement.Define( "attrNotify",
+    fun ctx ->
     let parent = ctx.ParentNode
     let unsubInput = listen "input" parent  <| fun _ ->
         Interop.get parent attrName |> onchange
     Interop.set parent attrName value
     SutilEffect.RegisterUnsubscribe(ctx.Parent, unsubInput)
-    sideEffect(ctx,"attrNotify")
+    () )
 
 // Bind an observable value to an element attribute. Listen for onchange events and dispatch the
 // attribute's current value to the given function
@@ -307,17 +326,21 @@ let bindAttrBoth<'T> (attrName:string) (value : IObservable<'T>) (onchange : 'T 
         bindAttrOut attrName onchange
     ]
 
-let bindListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : SutilElement = defineSutilElement <| fun ctx ->
+let bindListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (handler : Event -> unit) : SutilElement =
+    SutilElement.Define( "bindListen",
+    fun ctx ->
     let parent = ctx.ParentNode
     let unsubA = DomHelpers.listen event parent handler
     let unsubB = store |> Store.subscribe ( Interop.set parent attrName )
     SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubA)
     SutilEffect.RegisterDisposable(ctx.Parent,unsubB)
-    sideEffect(ctx,"bindListen")
+    () )
 
 // Bind a store value to an element attribute. Listen for onchange events write the converted
 // value back to the store
-let private bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T) : SutilElement = defineSutilElement <| fun ctx ->
+let private bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert : obj -> 'T) : SutilElement =
+    SutilElement.Define( "bindAttrConvert",
+    fun ctx ->
     let parent = ctx.ParentNode
     //let attrName' = if attrName = "value" then "__value" else attrName
     let unsubInput = DomHelpers.listen "input" parent <| fun _ ->
@@ -325,7 +348,7 @@ let private bindAttrConvert<'T> (attrName:string) (store : Store<'T>) (convert :
     let unsub = store |> Store.subscribe ( Interop.set parent attrName )
     SutilEffect.RegisterUnsubscribe(parent,unsubInput)
     SutilEffect.RegisterDisposable(parent,unsub)
-    sideEffect(ctx,"bindAttrConvert")
+    () )
 
 // Unsure how to safely convert Element.getAttribute():string to 'T
 let private convertObj<'T> (v:obj) : 'T  =
@@ -335,19 +358,24 @@ let private convertObj<'T> (v:obj) : 'T  =
 let bindAttrStoreBoth<'T> (attrName:string) (store : Store<'T>) =
     bindAttrConvert attrName store convertObj<'T>
 
-let bindAttrStoreOut<'T> (attrName:string) (store : Store<'T>) : SutilElement = defineSutilElement <| fun ctx ->
+let bindAttrStoreOut<'T> (attrName:string) (store : Store<'T>) : SutilElement =
+    SutilElement.Define( "bindAttrStoreOut",
+    fun ctx ->
     let parent = ctx.ParentNode
     let unsubInput = DomHelpers.listen "input" parent <| fun _ ->
         Interop.get parent attrName |> convertObj<'T> |> Store.set store
     //(asEl parent).addEventListener("input", (fun _ -> Interop.get parent attrName |> convertObj<'T> |> Store.set store ))
     SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
-    sideEffect(ctx,"bindAttrStoreOut")
+    ()
+    )
 
 let private attrIsSizeRelated  (attrName:string) =
     let upr = attrName.ToUpper()
     upr.IndexOf("WIDTH") >= 0 || upr.IndexOf("HEIGHT") >= 0
 
-let listenToProp<'T> (attrName:string) (dispatch: 'T -> unit) : SutilElement = defineSutilElement <| fun ctx ->
+let listenToProp<'T> (attrName:string) (dispatch: 'T -> unit) : SutilElement =
+    SutilElement.Define( sprintf "listenToProp %s" attrName,
+    fun ctx ->
     let parent = ctx.ParentNode
     let notify() = Interop.get parent attrName |> convertObj<'T> |> dispatch
 
@@ -358,12 +386,10 @@ let listenToProp<'T> (attrName:string) (dispatch: 'T -> unit) : SutilElement = d
             SutilEffect.RegisterUnsubscribe(parent, DomHelpers.listen "input" parent (fun _ -> notify()))
 
         rafu notify
-
-    sideEffect(ctx,"listenToProp")
+    () )
 
 let bindPropOut<'T> (attrName:string) (store : Store<'T>) : SutilElement =
     listenToProp attrName (Store.set store)
-
 
 type KeyedStoreItem<'T,'K> = {
     Key : 'K
@@ -434,7 +460,8 @@ let private asDomElement (element: SutilEffect) (ctx: BuildContext) : HTMLElemen
 
 let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObservable<int> * IObservable<'T> -> SutilElement) (key:int*'T->'K) (trans : TransitionAttribute list) : SutilElement =
     let log s = Logging.log "each" s
-    defineSutilElement <| fun ctx ->
+    SutilElement.Define("eachiko_wrapper",
+    fun ctx ->
         log($"eachiko: Previous = {ctx.Previous}")
         let eachGroup = SutilEffect.MakeGroup("each",ctx.Parent,ctx.Previous)
         let eachNode = Group eachGroup
@@ -554,8 +581,8 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
         )
 
         eachGroup.RegisterUnsubscribe (Helpers.unsubify unsub)
-        sutilResult eachNode
-
+        eachNode
+    )
 
 let private duc = Observable.distinctUntilChanged
 
@@ -595,22 +622,26 @@ let eachk_seq (items:IObservable<seq<'T>>) (view : 'T -> SutilElement)  (key:'T 
         trans
 #endif
 
-let bindStore<'T> (init:'T) (app:Store<'T> -> Core.SutilElement) : Core.SutilElement = defineSutilElement <| fun ctx ->
+let bindStore<'T> (init:'T) (app:Store<'T> -> Core.SutilElement) : Core.SutilElement =
+    SutilElement.Define( "bindStore",
+    fun ctx ->
     let s = Store.make init
     SutilEffect.RegisterDisposable(ctx.Parent,s)
     ctx |> (s |> app |> build)
+    )
 
 let declareStore<'T> (init : 'T) (f : Store<'T> -> unit) =
     declareResource (fun () -> Store.make init) f
 
 open Browser.CssExtensions
 
-let bindStyle<'T> (value : IObservable<'T>) (f : CSSStyleDeclaration -> 'T -> unit) = defineSutilElement <| fun ctx ->
+let bindStyle<'T> (value : IObservable<'T>) (f : CSSStyleDeclaration -> 'T -> unit) =
+    SutilElement.Define( "bindStyle",
+    fun ctx ->
     let style = ctx.ParentElement.style
     let unsub = value.Subscribe(f style)
     SutilEffect.RegisterDisposable( ctx.Parent, unsub )
-
-    sideEffect(ctx,"bindStyle")
+    () )
 
 let bindWidthHeight (wh: IObservable<float*float>) =
     bindStyle wh (fun style (w,h) ->

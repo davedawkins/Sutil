@@ -18,7 +18,16 @@ open CoreElements
 ///<exclude/>
 type [<Fable.Core.Erase>] NodeAttr = NodeAttr of SutilElement
 
-///<exclude/>
+/// <summary>
+/// DOM attributes for listening to events
+/// </summary>
+/// <example>
+/// <code>
+/// Html.button [
+///     Ev.onClick (fun _ -> Fable.Core.JS.console.log("Clicked"))
+/// ]
+/// </code>
+/// </example>
 type SutilEventEngine() =
     inherit EventEngine<SutilElement>( fun (event:string) handler -> on (event.ToLower()) handler [] )
     member __.onMount( handler ) = onMount handler []
@@ -63,15 +72,19 @@ type SutilEventEngine() =
 type SutilHtmlEngine() as this =
     inherit HtmlEngine<SutilElement>( el, text, (fun () -> fragment []) )
     member _.app (xs : seq<SutilElement>) : SutilElement = fragment xs
-    member _.body (xs: seq<SutilElement>) = defineSutilElement <| fun ctx ->
-        ctx |> ContextHelpers.withParent (DomNode ctx.Document.body) |> buildChildren xs
-        sideEffect(ctx,"body")
+    member _.body (xs: seq<SutilElement>) =
+        SutilElement.Define( "Html.body",
+        fun ctx ->
+            ctx |> ContextHelpers.withParent (DomNode ctx.Document.body) |> buildChildren xs
+            () )
 
     member _.parse (html : string) = CoreElements.html html
 
-    member _.parent (selector:string) (xs: seq<SutilElement>) = defineSutilElement <| fun ctx ->
+    member _.parent (selector:string) (xs: seq<SutilElement>) =
+        SutilElement.Define( "Html.parent",
+        fun ctx ->
         ctx |> ContextHelpers.withParent (DomNode (ctx.Document.querySelector selector)) |> buildChildren xs
-        sideEffect(ctx,"parent")
+        () )
 
     member _.text (v : IObservable<string>) = Bind.el (v |> Store.distinct, CoreElements.text)
     member _.text (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, CoreElements.text)
@@ -115,7 +128,16 @@ type SutilHtmlEngine() as this =
 
     member _.fragment (v : IObservable<SutilElement>) = Bind.el(v,id)
 
-///<exclude/>
+/// <summary>
+/// DOM element attributes
+/// </summary>
+/// <example>
+/// <code>
+/// Html.button [
+///     Attr.className "is-primary"
+/// ]
+/// </code>
+/// </example>
 type SutilAttrEngine() =
     inherit AttrEngine<SutilElement>((fun key value -> attr(key, value)),
                                     (fun key value -> attr(key, value)))
@@ -140,7 +162,7 @@ type SutilAttrEngine() =
     member _.addClass(className : string) = CoreElements.addClass className
     member _.removeClass(className : string) = CoreElements.removeClass className
 
-    member _.none = defineSutilElement <| fun ctx -> sideEffect(ctx,"none")
+    member _.none = CoreElements.nothing
 
     // Compatibility with code produced from https://thisfunctionaltom.github.io/Html2Feliz/
     // Eg prop.text "Hello World"
@@ -247,22 +269,3 @@ module PseudoCss =
     /// </summary>
     [<Obsolete("Use named stylesheets instead", true)>]
     let useGlobal = cssAttr("sutil-use-global","" :> obj)
-
-
-/// <summary>
-/// Helpers for basic media queries
-/// </summary>
-type Media() =
-    /// <summary>
-    /// Create a <c>@media</c> CSS rule for a custom condition and stylesheet
-    /// </summary>
-    static member Custom (condition : string) rules = Styling.makeMediaRule condition rules
-    /// <summary>
-    /// Create a <c>@media (min-width: &lt;nnn>)</c> CSS rule
-    /// </summary>
-    static member MinWidth (minWidth : Styles.ICssUnit, rules : StyleSheetDefinition list) = Styling.makeMediaRule (sprintf "(min-width: %s)" (string minWidth)) rules
-    /// <summary>
-    /// Create a <c>@media (max-width: &lt;nnn>)</c> CSS rule
-    /// </summary>
-    static member MaxWidth (maxWidth : Styles.ICssUnit, rules : StyleSheetDefinition list) = Styling.makeMediaRule (sprintf "(max-width: %s)" (string maxWidth)) rules
-

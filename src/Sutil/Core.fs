@@ -770,6 +770,22 @@ and  BuildContext =
 
         ()
 
+
+let internal domResult (node: Node) = DomNode node
+let internal sutilResult (node: SutilEffect) = node
+
+let sideEffect (ctx, name) =
+    let text () =
+        let tn = ctx.Document.createTextNode name
+        let d = ctx.Document.createElement ("div")
+        DomEdit.appendChild d tn
+        ctx.AddChild(DomNode d)
+        d
+
+    if ctx.Debug then
+        DomNode(text ())
+    else
+        SideEffect
 /// <summary>
 /// Sutil's element type. This is an abstraction of DOM elements, attributes, events, etc.
 /// The type itself is a function that maps <c>BuildContext</c> to a <c>SutilEffect</c>,
@@ -789,63 +805,21 @@ and  BuildContext =
 /// </ul>
 ///
 /// </summary>
-type SutilElement =
-    private
-        { Builder: BuildContext -> SutilEffect }
+type SutilElement private (name : string, children : seq<SutilElement>, builder : BuildContext -> SutilEffect) =
+    do ()
+    static member Define( builder : BuildContext -> SutilEffect ) =
+        SutilElement( "", [], builder )
 
-/// <summary>
-/// Define a new SutilElement
-/// </summary>
-/// <example>
-///
-/// This shows the definition of <c>hookElement</c>.
-///
-/// <code>
-/// let hookElement (hook : HTMLElement -> unit) = defineSutilElement &lt;| fun ctx ->
-///     ctx.ParentElement |> hook
-///     sideEffect(ctx,"hookElement")
-/// </code>
-/// </example>
-let internal defineSutilElement f = { Builder = f }
+    static member Define( name : string, builder : BuildContext -> SutilEffect ) =
+        SutilElement( name, [], builder )
 
-let internal domResult (node: Node) = DomNode node
-let internal sutilResult (node: SutilEffect) = node
+    static member Define( name : string, builder : BuildContext -> unit ) =
+        SutilElement( name, [], (fun ctx -> ctx |> builder;  sideEffect(ctx, name)) )
 
-let sideEffect (ctx, name) =
-    let text () =
-        let tn = ctx.Document.createTextNode name
-        let d = ctx.Document.createElement ("div")
-        DomEdit.appendChild d tn
-        ctx.AddChild(DomNode d)
-        d
+    static member Define( name : string, children : seq<SutilElement>, builder : BuildContext -> Node ) =
+        SutilElement( name, children, fun ctx -> ctx |> builder |> DomNode )
 
-    if ctx.Debug then
-        DomNode(text ())
-    else
-        SideEffect
-
-let defineSideEffectElement (name: string) (f: BuildContext -> unit) =
-    defineSutilElement (fun ctx ->
-        f (ctx)
-        sideEffect (ctx, name))
-
-let defineDomElement (f: BuildContext -> Node) =
-    defineSutilElement (fun ctx -> ctx |> f |> domResult)
-
-let defineGroupElement (f: BuildContext -> SutilEffect) =
-    defineSutilElement (fun ctx -> ctx |> f |> sutilResult)
-
-// let withResultHookFirst (ctx : BuildContext, f : PipelineFn) =
-//     {
-//         ctx with
-//             Pipeline = f>>ctx.Pipeline
-//     }
-
-// let withResultHookLast (ctx : BuildContext) (f : PipelineFn) =
-//     {
-//         ctx with
-//             Pipeline =ctx.Pipeline>>f
-//     }
+    member internal __.Builder = builder
 
 let private defaultContext (parent : Node) =
     let gen = Helpers.makeIdGenerator ()
@@ -1034,39 +1008,6 @@ let internal mountAfter app (node: HTMLElement) pipeline =
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-
-/// <summary>
-/// A collection of <c>SutilElement</c>s as a single <c>SutilElement</c>. This is useful when we have a collection of
-/// <c>SutilElements</c> that we don't want to wrap in their own containing DOM element.
-///
-/// Compare with <seealso cref="P:Sutil.Core.nothing"/>.
-/// </summary>
-/// <example>https://sutil.dev/#documentation-html</example>
-let fragment (elements: SutilElement seq) =
-    defineSutilElement
-    <| fun ctx ->
-        let group =
-            SutilEffect.MakeGroup("fragment", ctx.Parent, ctx.Previous)
-
-        let fragmentNode = Group group
-        ctx.AddChild fragmentNode
-
-        let childCtx =
-            { ctx with
-                Parent = fragmentNode
-                Action = Append }
-
-        childCtx |> buildChildren elements
-
-        sutilResult fragmentNode
-
-let internal declareResource<'T when 'T :> IDisposable> (init: unit -> 'T) (f: 'T -> unit) =
-    defineSutilElement
-    <| fun ctx ->
-        let r = init ()
-        SutilEffect.RegisterDisposable(ctx.Parent, r)
-        f (r)
-        sideEffect (ctx, "declareResource")
 
 
 let internal pipeline() =

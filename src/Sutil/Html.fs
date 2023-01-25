@@ -86,6 +86,8 @@ type SutilHtmlEngine() as this =
         ctx |> ContextHelpers.withParent (DomNode (ctx.Document.querySelector selector)) |> buildChildren xs
         () )
 
+    member __.divc (cls : string) (children : seq<SutilElement>) = __.div [ attr("class",cls); yield! children ]
+
     member _.text (v : IObservable<string>) = Bind.el (v |> Store.distinct, CoreElements.text)
     member _.text (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, CoreElements.text)
     member _.text (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, CoreElements.text)

@@ -1,6 +1,3 @@
-## Upgrading to Sutil 2.x
-
-
 ### Modules
 
 Sutil 2.0 refactors the Sutil.DOM module into

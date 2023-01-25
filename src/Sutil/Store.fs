@@ -123,6 +123,15 @@ module Store =
     let distinct<'T when 'T: equality> (source: IObservable<'T>) = Observable.distinctUntilChanged source
 
     /// <summary>
+    /// Helper function for commonly used form
+    /// <code>
+    ///     store |> Store.map (fun s -> s.Thing) |> Observable.distinctUntilChanged
+    /// </code>
+    /// </summary>
+    let mapDistinct (callback: 'A -> 'B) (store: IObservable<'A>) =
+        store |> map callback |> distinct
+
+    /// <summary>
     /// Merges two stores into a single tupled observable
     /// </summary>
     /// <example>

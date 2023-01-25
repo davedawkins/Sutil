@@ -11,7 +11,7 @@ open Browser.Types
 open Browser.Dom
 
 let private makeElementWithSutilId (doc : Browser.Types.Document) (tag : string) (ns : string) =
-    let e: Element = (if ns <> "" then doc.createElementNS (ns, tag) else  document.createElement (tag))
+    let e: Element = (if ns <> "" then doc.createElementNS (ns, tag) else (upcast document.createElement (tag)))
     let id = domId ()
     log ("create <" + tag + "> #" + string id)
     setSvId e id
@@ -114,7 +114,7 @@ let elns ns tag (xs: seq<SutilElement>) : SutilElement =
             dispatchSimple e Event.ElementReady
 
     //        Fable.Core.JS.console.log(buildLevelStr(), "-- returning ", nodeStrShort e)
-            e
+            upcast e
     )
 // ----------------------------------------------------------------------------
 // Element builder for DOM
@@ -128,7 +128,7 @@ let keyedEl (tag: string) (key: string) (init: seq<SutilElement>) (update: seq<S
                 let existing = ctx.Document.getElementById key
 
                 if existing <> null then
-                    existing
+                    upcast existing
                 else
                     let svid = domId ()
                     log ("create <" + tag + "> #" + string id)
@@ -140,7 +140,7 @@ let keyedEl (tag: string) (key: string) (init: seq<SutilElement>) (update: seq<S
 
                     setSvId e' svid
                     e'.setAttribute ("id", key)
-                    e'
+                    upcast e'
 
             // Considering packing these effects into pipeline that lives on ctx.
             // User can then extend the pipeline, or even re-arrange. No immediate
@@ -157,7 +157,7 @@ let keyedEl (tag: string) (key: string) (init: seq<SutilElement>) (update: seq<S
                 // Effect 5
                 dispatchSimple e Event.ElementReady
 
-            e
+            upcast e
     )
 
 let internal elAppend selector (xs: seq<SutilElement>) : SutilElement =

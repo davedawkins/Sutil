@@ -50,7 +50,6 @@ let view() =
     let model, dispatch = () |> Store.makeElmishSimple init update ignore
 
     Html.div [
-        // Get used to doing this for components, even though this is a top-level app.
         disposeOnUnmount [ model ]
 
         // See Sutil.Styling for more advanced styling options
@@ -61,14 +60,13 @@ let view() =
 
         // Think of this line as
         // text $"Counter = {model.counter}"
-        Bind.el (model |> Store.map getCounter) <| fun n ->
-            text $"Counter = {n}"
+        Bind.el (model |> Store.map getCounter, fun n ->
+            text $"Counter = {n}" )
 
         Html.div [
             Html.button [
                 class' "button" // Bulma styling, included in index.html
 
-                // Dispatching is as for normal ELmish. Sutil event handlers take an extra options array though
                 onClick (fun _ -> dispatch Decrement) []
                 text "-"
             ]

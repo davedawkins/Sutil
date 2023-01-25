@@ -5,7 +5,8 @@ module StylingExample
 
 open Sutil
 open Sutil.Styling
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 open type Feliz.length
 
 let css = [

@@ -6,8 +6,8 @@ module Login
 //
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.CoreElements
+open Sutil.DomHelpers
 open Sutil.Bulma
 
 type LoginDetails = {
@@ -129,13 +129,13 @@ let private defaultView model dispatch =
                                 bulma.control.div [
                                     bulma.button.button [
                                         color.isSuccess
-                                        DOM.text "Login"
+                                        Html.text "Login"
                                         onClick (fun _ -> dispatch AttemptLogin) [PreventDefault]
                                     ]
                                 ]
                                 bulma.control.div [
                                     bulma.button.button [
-                                        DOM.text "Cancel"
+                                        Html.text "Cancel"
                                         onClick (fun _ -> dispatch CancelLogin) [PreventDefault]
                                     ]
                                 ]

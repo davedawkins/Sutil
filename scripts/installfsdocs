@@ -1,0 +1,6 @@
+#!/bin/sh -x
+scripts/setdotnet 7
+dotnet tool uninstall fsdocs-tool
+rm -rf $HOME/.nuget/packages/fsdocs-tool/17.*
+dotnet tool install fsdocs-tool --version 17.2.1 --no-cache --add-source ../davedawkins/FSharp.Formatting/artifacts
+dotnet fsdocs version

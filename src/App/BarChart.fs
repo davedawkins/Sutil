@@ -4,9 +4,11 @@ module BarChart
 // https://svelte.dev/examples#bar-chart
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Styling
+open Sutil.Bindings
 open type Feliz.length
 open Fable.Core
 
@@ -41,8 +43,7 @@ let formatMobile (tick:int) =
 open D3Scale
 
 type Message =
-    | UpdateWidth of float
-    | UpdateHeight of float
+    | UpdateSize of (float * float)
 
 type Model =
     {
@@ -77,10 +78,8 @@ let init() =
 
 let update (msg:Message) (model:Model) =
     match msg with
-    | UpdateWidth w ->
-        { model with Width = w; XScale = makeXScale w }
-    | UpdateHeight h ->
-        { model with Height = h; YScale = makeYScale h }
+    | UpdateSize (w,h) ->
+        { model with Width = w; XScale = makeXScale w; Height = h; YScale = makeYScale h }
 
 let styleSheet = [
     rule "h4" [
@@ -156,7 +155,7 @@ let view() =
                                     Svg.y "-4"
 
                                     let label = if tick = 20 then " per 1,000 population" else ""
-                                    DOM.text $"{tick} {label}"
+                                    text $"{tick} {label}"
                                 ]
                             ]
                     ]
@@ -171,7 +170,7 @@ let view() =
                                 Svg.text [
                                     Svg.x $"{m.BarWidth/2.0}"
                                     Svg.y "-6"
-                                    DOM.text <| if m.Width > 380. then string point.Year else formatMobile(point.Year)
+                                    text <| if m.Width > 380. then string point.Year else formatMobile(point.Year)
                                 ]
                             ]
                             i <- i + 1
@@ -191,7 +190,6 @@ let view() =
                     ]
                 ]
             )
-            listenToProp "clientWidth"  (dispatch << UpdateWidth)
-            listenToProp "clientHeight" (dispatch << UpdateHeight)
+            CoreElements.listenToResize( fun e -> (e.clientWidth, e.clientHeight) |> UpdateSize |> dispatch)
             ]
     ] |> withStyle styleSheet

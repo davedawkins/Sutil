@@ -2,10 +2,12 @@ module CounterWithTransition
 
 open Sutil
 open type Feliz.length
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Styling
 open Sutil.Transition
+open Sutil.Bindings
 
 //
 // Private styling for the counter

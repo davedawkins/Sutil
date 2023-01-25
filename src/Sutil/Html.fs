@@ -1,30 +1,96 @@
-[<AutoOpen>]
-module Sutil.Html
+namespace Sutil
 
-open Sutil.DOM
-open Feliz
 open System
 
+/// <exclude/>
+[<Obsolete("Use \"open Sutil\" instead", true)>]
+module Html =
+    do ()
+
+open Sutil.Core
+open Sutil.CoreElements
+open Feliz
+open System
+open Bindings
+open CoreElements
+
 // Dummy type to avoid problems with overload resolution in HtmlEngine
+///<exclude/>
 type [<Fable.Core.Erase>] NodeAttr = NodeAttr of SutilElement
 
+/// <summary>
+/// DOM attributes for listening to events
+/// </summary>
+/// <example>
+/// <code>
+/// Html.button [
+///     Ev.onClick (fun _ -> Fable.Core.JS.console.log("Clicked"))
+/// ]
+/// </code>
+/// </example>
 type SutilEventEngine() =
-    inherit EventEngine<SutilElement>( fun (event:string) handler -> Sutil.Attr.on (event.ToLower()) handler [] )
+    inherit EventEngine<SutilElement>( fun (event:string) handler -> on (event.ToLower()) handler [] )
+    member __.onMount( handler ) = onMount handler []
+    member __.onUnmount( handler ) = onUnmount handler []
 
+/// <summary>
+/// Functions for building DOM elements.
+///
+/// Note that not all members are documented here, only a few specialized augmentations over the class <c><a href="https://github.com/alfonsogarciacaro/Feliz.Engine/blob/main/src/Feliz.Engine/HtmlEngine.fs">Feliz.HtmlEngine</a></c>
+///
+/// In theory, every <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element">HTML element</a> should be an inherited member of <c>SutilHtmlEngine</c>, in the form
+///
+/// <code>
+///     // Create div with float value as a child text node
+///     member _.div (value: float)
+///
+///     // Create div with float value as a child text node
+///     member _.div (value: int)
+///
+///     // Create div with SutilElement value as a child element
+///     member _.div (value: SutilElement)
+///
+///     // Create div with string value as child text node
+///     member _.div (value: string)
+///
+///     // Create div with multiple child SutilElements.
+///     // Not all SutilElements are DOM elements; they may be attribute-setters, or event-listeners
+///     member _.div (children: seq&lt;SutilElement>)
+/// </code>
+/// </summary>
+/// <example>
+/// <code>
+/// open Sutil
+///
+/// let view() =
+///     Html.div [
+///         Html.h1 "Hello"
+///         Html.p "world"
+///     ]
+/// </code>
+/// </example>
 type SutilHtmlEngine() as this =
     inherit HtmlEngine<SutilElement>( el, text, (fun () -> fragment []) )
     member _.app (xs : seq<SutilElement>) : SutilElement = fragment xs
-    member _.body (xs: seq<SutilElement>) = nodeFactory <| fun ctx ->
-        ctx |> ContextHelpers.withParent (DomNode ctx.Document.body) |> buildChildren xs
-        unitResult(ctx,"body")
+    member _.body (xs: seq<SutilElement>) =
+        SutilElement.Define( "Html.body",
+        fun ctx ->
+            ctx |> ContextHelpers.withParent (DomNode ctx.Document.body) |> buildChildren xs
+            () )
 
-    member _.parent (selector:string) (xs: seq<SutilElement>) = nodeFactory <| fun ctx ->
+    member _.parse (html : string) = CoreElements.html html
+
+    member _.parent (selector:string) (xs: seq<SutilElement>) =
+        SutilElement.Define( "Html.parent",
+        fun ctx ->
         ctx |> ContextHelpers.withParent (DomNode (ctx.Document.querySelector selector)) |> buildChildren xs
-        unitResult(ctx,"parent")
+        () )
 
-    member _.text (v : IObservable<string>) = Bind.el (v |> Store.distinct, DOM.text)
-    member _.text (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, DOM.text)
-    member _.text (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, DOM.text)
+    member __.divc (cls : string) (children : seq<SutilElement>) = __.div [ attr("class",cls); yield! children ]
+
+    member _.text (v : IObservable<string>) = Bind.el (v |> Store.distinct, CoreElements.text)
+    member _.text (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, CoreElements.text)
+    member _.text (v : IObservable<float>) = Bind.el (v  .> string |> Store.distinct, CoreElements.text)
 
     member _.td (v : IObservable<string>) = Bind.el (v |> Store.distinct, this.td)
     member _.td (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, this.td)
@@ -64,6 +130,16 @@ type SutilHtmlEngine() as this =
 
     member _.fragment (v : IObservable<SutilElement>) = Bind.el(v,id)
 
+/// <summary>
+/// DOM element attributes
+/// </summary>
+/// <example>
+/// <code>
+/// Html.button [
+///     Attr.className "is-primary"
+/// ]
+/// </code>
+/// </example>
 type SutilAttrEngine() =
     inherit AttrEngine<SutilElement>((fun key value -> attr(key, value)),
                                     (fun key value -> attr(key, value)))
@@ -79,44 +155,119 @@ type SutilAttrEngine() =
     member _.value<'T> (value: IObservable<'T>, dispatch: 'T -> unit) =
             bindAttrBoth "value" value dispatch
 
-    member _.style (cssAttrs : (string*obj) seq) = cssAttrs |> Sutil.Attr.style
-    member _.styleAppend (cssAttrs : (string*obj) seq) = cssAttrs |> Sutil.Attr.styleAppend
+    member _.style (cssAttrs : (string*obj) seq) = cssAttrs |> style
+    member _.styleAppend (cssAttrs : (string*obj) seq) = cssAttrs |> styleAppend
     member _.style (cssAttrs : IObservable< #seq<string*obj> >) = Bind.style cssAttrs
 
-    member _.setClass(className : string) = DOM.setClass className
-    member _.toggleClass(className : string) = DOM.toggleClass className
-    member _.addClass(className : string) = DOM.addClass className
-    member _.removeClass(className : string) = DOM.removeClass className
+    member _.setClass(className : string) = CoreElements.setClass className
+    member _.toggleClass(className : string) = CoreElements.toggleClass className
+    member _.addClass(className : string) = CoreElements.addClass className
+    member _.removeClass(className : string) = CoreElements.removeClass className
 
-    member _.none = nodeFactory <| fun ctx -> unitResult(ctx,"none")
+    member _.none = CoreElements.nothing
 
     // Compatibility with code produced from https://thisfunctionaltom.github.io/Html2Feliz/
     // Eg prop.text "Hello World"
-    member _.text s = DOM.text s
+    member _.text s = CoreElements.text s
 
 
-let Html = SutilHtmlEngine()
+/// <summary>
+/// DOM builders such as <c>Html</c>, <c>Attr</c>, <c>Ev</c> and <c>Css</c>
+/// </summary>
+[<AutoOpen>]
+module EngineHelpers =
+    /// <summary>
+    /// DOM builder. For example, <code>Html.div [ (* children *) ]</code>
+    /// </summary>
+    let Html = SutilHtmlEngine()
 
-let Attr = SutilAttrEngine()
+    /// <summary>
+    /// DOM attributes, which are key/value pairs for elements. For example, <code>Html.div [ Attr.tabIndex 0 ]</code>
+    /// </summary>
+    let Attr = SutilAttrEngine()
 
-let Ev = SutilEventEngine()
+    /// <summary>
+    /// DOM event handlers. Strictly speaking, these are attributes, but it's useful for them to have their
+    /// own namespace. For example
+    /// <code>
+    /// Html.button [
+    ///     Ev.onClick (fun _ -> console("click"))
+    /// ]
+    /// </code>
+    /// </summary>
+    let Ev = SutilEventEngine()
 
-let Css =  CssEngine(fun k v -> k, box v)
+    /// <summary>
+    /// CSS styles. For example, <code>Html.div [ Attr.style [ Css.backgroundColor "red" ] ]</code>
+    /// </summary>
+    let Css =  CssEngine(fun k v -> k, box v)
 
-let cssAttr = id
+    // Convenience
+    /// <exclude/>
+    let text s = CoreElements.text s
 
+    /// An alias for <c>Attr</c>
+    /// Compatibility with code produced by https://thisfunctionaltom.github.io/Html2Feliz/
+    // Thanks to @dejanmilicic for the suggestion
+    let prop = Attr
+
+///<summary>
+/// Experimental pseudo-CSS styles
+///</summary>
 module PseudoCss =
-    let addClass       (n:obj) = cssAttr("sutil-add-class",n)
+    /// <exclude/>
+    let private  cssAttr = id
+
+    /// <summary>
+    /// A pseudo-style that will add the given class if the rule matches. This example would
+    /// add the class <c>framework-button</c> to any <c>button</c> element.
+    /// <code>
+    /// let css = [
+    ///     rule "button" [
+    ///         PseudoCss.addClass "framework-button"
+    ///     ]
+    /// ]
+    ///
+    /// let view() =
+    ///     Html.button [
+    ///         text "Styled as a framework button"
+    ///     ] |> withStyle css
+    /// </code>
+    /// This was an experiment that would let me build DOM and then use a Sutil scoped style sheet to lift
+    /// various elements into an 3rd-party framework (such as Bulma).
+    /// In hindsight, it's too magical, not comprehensively implemented with respect to rule matching, and better
+    /// achieved in other ways (for example, create wrapper buttons for the framework).
+    /// </summary>
+    let addClass (n:obj) = cssAttr("sutil-add-class",n)
+
+    /// <exclude/>
+    /// <summary>
+    /// A pseudo-style that when the containing rule matches, uses the top-level Sutil scoped stylesheet.
+    /// For example, this example shows use applying a style that's defined further up the DOM hierarchy
+    /// <code>
+    /// let rootStyle = [ rule "div" [ Css.color "red"] ]
+    /// let middleStyle = [ rule "div" [ Css.color "green"]  ]
+    /// let bottomStyle = [ rule "div" [ useGlobal ] ]
+    ///
+    /// let view () =
+    ///     Html.div [
+    ///         text "I'm red"
+    ///         Html.div [
+    ///             text "I'm green"
+    ///
+    ///             Html.div [
+    ///                 text "I'm red"
+    ///             ] |> withStyle bottomStyle
+    ///
+    ///             Html.div [
+    ///                 text "I'm green"
+    ///             ]
+    ///         ] |> withStyle middleStyle
+    ///     ] |> withStyle rootStyle
+    /// </code>
+    ///
+    /// In hindsight, it's too magical, confusing and better achieved in other ways (for example have named
+    /// stylesheets: <c>withStyle rootStyle</c>)
+    /// </summary>
+    [<Obsolete("Use named stylesheets instead", true)>]
     let useGlobal = cssAttr("sutil-use-global","" :> obj)
-
-type Media() =
-    static member Custom (condition : string) rules = makeMediaRule condition rules
-    static member MinWidth (minWidth : Styles.ICssUnit, rules : StyleSheetDefinition list) = makeMediaRule (sprintf "(min-width: %s)" (string minWidth)) rules
-    static member MaxWidth (maxWidth : Styles.ICssUnit, rules : StyleSheetDefinition list) = makeMediaRule (sprintf "(max-width: %s)" (string maxWidth)) rules
-
-// Convenience
-let text s = DOM.text s
-
-// Compatibility with code produced by https://thisfunctionaltom.github.io/Html2Feliz/
-// Thanks to @dejanmilicic for the suggestion
-let prop = Attr

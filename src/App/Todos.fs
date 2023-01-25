@@ -5,8 +5,11 @@ module Todos
 
 open Sutil
 open Sutil.Styling
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
+open Sutil.DomHelpers
+open Sutil.Bindings
 open Browser.Types
 open type Feliz.length
 open Sutil.Transition

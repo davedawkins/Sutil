@@ -1,9 +1,11 @@
 module CRUD
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Bulma
+
 open type Feliz.length
 module DbSchema =
     type Name = {
@@ -158,10 +160,10 @@ let appStyle = [
 let view() =
     let model, dispatch = () |> Store.makeElmish init update ignore
 
-    let labeledField label model dispatch =
+    let labeledField (label : string) model dispatch =
         bulma.field.div [
             field.isHorizontal
-            bulma.fieldLabel [ bulma.label [ DOM.text label ] ]
+            bulma.fieldLabel [ bulma.label [ Html.text label ] ]
             bulma.fieldBody [
                 bulma.control.div [
                     class' "width100"
@@ -169,11 +171,11 @@ let view() =
                         Attr.value (model,dispatch)
                     ]]]]
 
-    let button label enabled message =
+    let button (label : string) enabled message =
         bulma.control.p [
             bulma.button.button [
                 Attr.disabled (model .> (enabled >> not))
-                DOM.text label
+                Html.text label
                 onClick (fun _ -> dispatch message) []
                 ] ]
 
@@ -198,7 +200,7 @@ let view() =
                     Bind.each(viewNames,(fun n ->
                         Html.option [
                             Attr.value n.Id
-                            (sprintf "%s, %s" n.Surname n.Name) |> DOM.text
+                            (sprintf "%s, %s" n.Surname n.Name) |> Html.text
                             ]))
 
                     Bind.selected (model .> selection, List.exactlyOne >> Select >> dispatch)
@@ -220,7 +222,7 @@ let view() =
 
         bulma.field.div [
             color.hasTextDanger
-            Bind.el (model .> error, DOM.text)
+            Bind.el (model .> error, Html.text)
         ]
 
     ] |> withStyle appStyle

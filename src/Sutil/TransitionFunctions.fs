@@ -1,3 +1,6 @@
+/// <summary>
+/// Transitions that can be used in the <c>transition</c> function
+/// </summary>
 [<AutoOpenAttribute>]
 module Sutil.TransitionFunctions
 // Adapted from svelte/transitions/index.js
@@ -6,7 +9,7 @@ open Browser.Dom
 open Browser.CssExtensions
 open Browser.Types
 open Sutil.Transition
-open Sutil.DOM
+open Sutil.DomHelpers
 open System.Collections.Generic
 open Interop
 
@@ -94,7 +97,7 @@ let fly (props : TransitionProp list) (node : Element) =
                         (targetOpacity - (od * u)))
     }
 
-let crossfade userProps =
+let crossfade (userProps : TransitionProp list) =
     let fallback = (applyProps userProps Transition.Default).Fallback
 
     let toReceive = Dictionary<string,ClientRect>()

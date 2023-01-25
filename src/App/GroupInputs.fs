@@ -4,8 +4,10 @@ module GroupInputs
 // https://svelte.dev/examples
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
+open Sutil.Bindings
 
 let menu = [
     "Cookies and cream"
@@ -59,7 +61,7 @@ let view() =
                     class' "radio"
                     Html.input [
                         type' "radio"
-                        Bindings.bindRadioGroup scoops
+                        bindRadioGroup scoops
                         i+1 |> string |> Attr.value
                     ]
                     text $" {scoopChoice}"
@@ -74,7 +76,7 @@ let view() =
                         class' "checkbox"
                         Html.input [
                             type' "checkbox"
-                            Bindings.bindGroup flavours
+                            bindGroup flavours
                             Attr.value flavour
                         ]
                         text $" {flavour}"

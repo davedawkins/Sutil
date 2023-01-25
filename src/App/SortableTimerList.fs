@@ -3,8 +3,9 @@ module SortableTimerList
 open Sutil
 open Sutil.Bulma
 open type Feliz.length
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
 open System
 open Sutil.Styling
 open DragDropListSort
@@ -123,9 +124,9 @@ let view() =
             |> Html.text
 
         Html.li [
-            DOM.setValue "_key" label.Id // DragDropSortList looks for this. eachk could do this automatically
+            CoreElements.setValue "_key" label.Id // DragDropSortList looks for this. eachk could do this automatically
             TimerWithButton.create (displayTime label.Text)
-                |> inject [ class' "timer-button" ] // Add this class to the TimerWithButton element
+                |> CoreElements.inject [ class' "timer-button" ] // Add this class to the TimerWithButton element
         ]
 
     bulma.columns [

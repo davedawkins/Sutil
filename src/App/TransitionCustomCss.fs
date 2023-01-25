@@ -7,8 +7,9 @@ open type Feliz.length
 open type Feliz.transform
 open System
 open Sutil
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
 open Sutil.Transition
 open Sutil.Styling
 

@@ -1,8 +1,12 @@
+/// <summary>
+/// Support CSS styling
+/// </summary>
 module Sutil.Styling
 
 open System
 open Browser.Types
-open Sutil.DOM
+open Sutil.Core
+open Sutil.DomHelpers
 open Browser.Dom
 
 let private log s = Logging.log "style" s
@@ -102,41 +106,49 @@ and entryToText (styleName : string) = function
     | MediaRule rule ->
         mediaRuleToText styleName rule
 
-let styleSheetAsText (styleSheet : StyleSheet) =
-    String.Join("\n", styleSheet |> List.map (entryToText ""))
+let styleSheetAsText (styleSheet : StyleSheetDefinitions) =
+    System.String.Join("\n", styleSheet |> List.map (entryToText ""))
 
-let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheet) =
+let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheetDefinitions) =
     let style = newStyleElement doc
     for entry in styleSheet do
         entryToText styleName entry |> doc.createTextNode |> style.appendChild |> ignore
     (fun () -> style.parentElement.removeChild(style) |> ignore)
 
-let headStylesheet (url : string) : SutilElement = nodeFactory <| fun ctx ->
+let headStylesheet (url : string) : SutilElement =
+    SutilElement.Define( "headStyleSheet",
+    fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let styleEl = doc.createElement("link")
     head.appendChild( styleEl ) |> ignore
     styleEl.setAttribute( "rel", "stylesheet" )
     styleEl.setAttribute( "href", url ) |> ignore
-    unitResult(ctx, "headStylesheet")
+    () )
 
-let headScript (url : string) : SutilElement = nodeFactory <| fun ctx ->
+let headScript (url : string) : SutilElement =
+    SutilElement.Define( "headScript",
+    fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let el = doc.createElement("script")
     head.appendChild( el ) |> ignore
     el.setAttribute( "src", url ) |> ignore
-    unitResult(ctx, "headScript")
+    () )
 
-let headEmbedScript (source : string) : SutilElement = nodeFactory <| fun ctx ->
+let headEmbedScript (source : string) : SutilElement =
+    SutilElement.Define( "headEmbedScript",
+    fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let el = doc.createElement("script")
     head.appendChild( el ) |> ignore
     el.appendChild(doc.createTextNode(source)) |> ignore
-    unitResult(ctx, "headEmbedScript")
+    () )
 
-let headTitle (title : string) : SutilElement = nodeFactory <| fun ctx ->
+let headTitle (title : string) : SutilElement =
+    SutilElement.Define( "headTitle",
+    fun ctx ->
     let doc = ctx.Document
     let head = findElement doc "head"
     let existingTitle = findElement doc "head>title"
@@ -147,41 +159,49 @@ let headTitle (title : string) : SutilElement = nodeFactory <| fun ctx ->
     let titleEl = doc.createElement("title")
     titleEl.appendChild( doc.createTextNode(title) ) |> ignore
     head.appendChild(titleEl) |> ignore
+    () )
 
-    unitResult(ctx, "headTitle")
-
-let withStyle styleSheet (element : SutilElement) : SutilElement = nodeFactory <| fun ctx ->
-    let name = ctx.MakeName "sutil"
-    addStyleSheet ctx.Document name styleSheet |> ignore
-    ctx |> ContextHelpers.withStyleSheet { Name = name; StyleSheet = styleSheet; Parent = ctx.StyleSheet} |> build element
-
-let withStyleAppend styleSheet (element : SutilElement) : SutilElement = nodeFactory <| fun ctx ->
-    let name = match ctx.StyleSheet with | None -> "" | Some s -> s.Name
-    addStyleSheet ctx.Document name styleSheet |> ignore
-    ctx |> build element
-
+/// <summary>
+/// Define a CSS styling rule
+/// </summary>
 let rule selector style =
     let result = Rule {
         SelectorSpec = selector
-        Selector = parseSelector selector
+        //Selector = parseSelector selector
         Style = style
     }
     //log($"%s{selector} -> %A{result.Selector}")
     result
 
+/// <summary>
+/// Define a CSS keyframe as part of a keyframes sequence
+/// See also: <seealso cref="M:Sutil.Styling.keyframes"/>
+/// </summary>
 let keyframe startAt style =
     {
         StartAt = startAt
         Style = style
     }
 
+/// <summary>
+/// Define a CSS keyframes sequence
+/// </summary>
+/// <example>
+/// <code>
+///    keyframes "dashdraw" [
+///         keyframe 0 [
+///             Css.custom("stroke-dashoffset", "10")
+///         ]
+///     ]
+/// </code>
+/// </example>
 let keyframes name frames =
     KeyFrames {
         Name = name
         Frames = frames
     }
 
-let showEl (el : HTMLElement) isVisible =
+let internal showEl (el : HTMLElement) isVisible =
     if isVisible then
         if Interop.exists el "_display" then
             addStyleAttr el "display" (Interop.get el "_display")
@@ -193,16 +213,17 @@ let showEl (el : HTMLElement) isVisible =
     el.dispatchEvent(ev) |> ignore
     ()
 
+let internal makeMediaRule condition rules =
+    MediaRule { Condition = condition; Rules = rules }
 
 open Browser.Css
-open Fable.Core.JsInterop
-//open Browser.CssExtensions
 
 ConstructStyleSheetsPolyfill.register()
 
 open Fable.Core
 
-type Node with
+
+type internal Node with
     /// returns this DocumentOrShadow adopted stylesheets or sets them.
     /// https://wicg.github.io/construct-stylesheets/#using-constructed-stylesheets
     [<Emit("$0.adoptedStyleSheets{{=$1}}")>]
@@ -210,7 +231,9 @@ type Node with
     [<Emit("$0.getRootNode()")>]
     member __.getRootNode() : Node = jsNative
 
-let adoptStyleSheet (styleSheet : StyleSheet) = nodeFactory <| fun ctx ->
+let adoptStyleSheet (styleSheet : StyleSheetDefinitions) =
+    SutilElement.Define( "adoptStyleSheet",
+    fun ctx ->
     let run() =
         let sheet = CSSStyleSheet.Create()
         sheet.replaceSync (styleSheetAsText styleSheet)
@@ -223,5 +246,70 @@ let adoptStyleSheet (styleSheet : StyleSheet) = nodeFactory <| fun ctx ->
         run()
     else
         rafu run
+    () )
 
-    unitResult(ctx,"adoptStyleSheet")
+let private ruleMatchEl (el: HTMLElement) (rule: StyleRule) =
+    el.matches(rule.SelectorSpec)
+
+let private rulesOf (styleSheet: StyleSheetDefinitions) =
+    styleSheet
+    |> List.map (function
+        | Rule r -> Some r
+        | _ -> None)
+    |> List.choose id
+
+open Browser.Types
+open Browser.Css
+open Browser.CssExtensions
+
+let private applyCustomRulesToElement (rules : StyleRule list) (e: HTMLElement) =
+    for rule in rules |> List.filter (ruleMatchEl e) do
+        for custom in rule.Style do
+            match custom with
+            | (nm, v) when nm = "sutil-use-global" ->
+                failwith "sutil-use-global not supported"
+            | (nm, v) when nm = "sutil-use-parent" -> ()
+            | (nm, v) when nm = "sutil-add-class" ->
+                ClassHelpers.addToClasslist (string v) e
+            | (nm,v) ->
+                e.style.setProperty( nm, string v )
+
+
+let private applyCustomRules (rules : StyleSheetDefinitions) (ctx: BuildContext, result : SutilEffect) =
+    match result with
+    | DomNode n ->
+        n |> applyIfElement (rulesOf rules |> applyCustomRulesToElement)
+    | _ -> ()
+    (ctx, result)
+
+/// <summary>
+/// Support for the custom rules "sutil-add-class". They're clever but also difficult to understand. See their usage in Sutil.Bulma
+/// </summary>
+let withCustomRules (rules : StyleSheetDefinitions) (element : SutilElement) =
+    SutilElement.Define("withCustomRules",
+    fun ctx ->
+    ctx
+    |> ContextHelpers.withPostProcess (applyCustomRules rules)
+    |> build element )
+
+let private applyStyleSheet (namedSheet : NamedStyleSheet) (ctx: BuildContext, result : SutilEffect)=
+    match result with
+    | DomNode _ ->
+        result.AsDomNode
+        |> applyIfElement
+            (fun el ->
+                if not (Interop.exists el NodeKey.StyleClass) then
+                    Interop.set el (NodeKey.StyleClass) namedSheet.Name
+                    ClassHelpers.addToClasslist namedSheet.Name el)
+    | _ -> ()
+    (ctx, result)
+
+let withStyle styleSheet (element : SutilElement) : SutilElement =
+    SutilElement.Define("withStyle",
+    fun ctx ->
+    let name = ctx.MakeName "sutil"
+    let namedSheet = { Name = name; StyleSheet = styleSheet }
+    addStyleSheet ctx.Document name styleSheet |> ignore
+    ctx
+    |> ContextHelpers.withPreProcess (applyStyleSheet namedSheet)
+    |> build element )

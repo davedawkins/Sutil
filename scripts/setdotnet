@@ -1,0 +1,4 @@
+#!/bin/sh
+rm global.json
+cp global.json-dotnet$1 global.json
+dotnet --version

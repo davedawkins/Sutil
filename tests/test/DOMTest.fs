@@ -7,7 +7,13 @@ open WebTestRunner
 #endif
 
 open Sutil
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
+open Sutil.DomHelpers
+
+let log s = Fable.Core.JS.console.log s
+
+open Fable.Core.JsInterop
 
 describe "DOM" <| fun () ->
 
@@ -20,6 +26,46 @@ describe "DOM" <| fun () ->
 
         Expect.queryText "div" "Hello World"
     }
+
+    // Mount
+    it "Mount is called once" <| fun () -> promise {
+        let counters = Array.zeroCreate 6
+
+        let countMount i opts =
+            onMount (fun e -> counters.[i] <- counters.[i] + 1; log(sprintf "mount %d: %s" i (DomHelpers.nodeStrShort (!!e.target)))) opts
+
+        let app =
+            Html.div [
+                countMount 0 []
+                Html.h1 [
+                    countMount 1 []
+                    fragment [ text "Hello" ]
+                ]
+                fragment [
+                    countMount 2 [ ] //  target will be <div> (parent)
+                    Html.p [
+                        countMount 3 []
+                    ]
+                    Html.span [
+                        countMount 4 []
+                    ]
+                ]
+                fragment [
+                    countMount 5 [] // target will be <div> (parent)
+                ]
+            ]
+
+        mountTestApp app
+
+        Expect.areEqual(counters.[0],1)
+        Expect.areEqual(counters.[1],1)
+        Expect.areEqual(counters.[2],1)
+        Expect.areEqual(counters.[3],1)
+        Expect.areEqual(counters.[4],1)
+        Expect.areEqual(counters.[5],1)
+    }
+
+
 
     // Basic fragment
     it "Fragment" <| fun () -> promise {

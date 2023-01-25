@@ -1,3 +1,6 @@
+/// <summary>
+/// General purpose helpers
+/// </summary>
 module Sutil.Helpers
 
 open Browser.Types

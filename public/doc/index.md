@@ -16,9 +16,15 @@
 - [Web Components](webcomponents.md)
 - [Chrome Extensions](chrome_extension.md)
 - [Hosting React](hosting_react.md)
-- [Forms - coming soon](coming_soon.md)
-- [Transitions - coming soon](coming_soon.md)
-- [Media Queries - coming soon](coming_soon.md)
-- [Elmish / MVU - coming soon](coming_soon.md)
+- [Forms](forms.md)
+- [Transitions](transitions.md)
+- [Media Queries](media_queries.md)
+- [Elmish (MVU)](elmish.md)
 - [DevTools - coming soon](coming_soon.md)
 
+# Trouble Shooting
+- [Release Notes](https://github.com/davedawkins/Sutil/blob/main/RELEASE_NOTES.md)
+- [Upgrading to Sutil 2.x](upgrading_to_sutil2.md)
+
+# API
+- [Reference](https://sutil.dev/apidocs/reference/sutil.html)

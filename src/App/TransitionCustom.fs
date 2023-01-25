@@ -4,14 +4,15 @@ module TransitionCustom
 // https://svelte.dev/examples
 
 open Sutil
-open Sutil.Attr
-open Sutil.DOM
-open Sutil.Bindings
+
+open Sutil.Core
+open Sutil.CoreElements
 open Sutil.Transition
 open Browser.Types
+open Sutil.DomHelpers
 
 let typewriter (userProps : TransitionProp list) (node: HTMLElement) = fun _ ->
-    let valid = node.childNodes.length = 1 && DOM.isTextNode(node.childNodes.[0])
+    let valid = node.childNodes.length = 1 && isTextNode(node.childNodes.[0])
 
     if not valid then
         failwith "This transition only works on elements with a single text node child"

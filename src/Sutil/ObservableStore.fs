@@ -5,7 +5,15 @@ open Browser.Dom
 open System.Collections.Generic
 open Browser.Types
 open Interop
+open Sutil.DomHelpers
 
+/// <summary>
+/// Stores are values that can
+/// - be updated
+/// - subscribed to
+///
+/// This module defines Sutil's <c>Store</c> type
+/// </summary>
 [<RequireQualifiedAccess>]
 module ObservableStore =
 
@@ -53,7 +61,7 @@ module ObservableStore =
         //let disposed = new Dictionary<obj,int>()
 
         let notifyUpdateStore s v =
-            DOM.dispatch Window.document DOM.Event.UpdateStore {| Value = v |}
+            DomHelpers.dispatch Window.document DomHelpers.Event.UpdateStore {| Value = v |}
 
         let notifyMakeStore s =
             if storeToId.ContainsKey(s) then failwith "Store is already registered!"
@@ -62,7 +70,7 @@ module ObservableStore =
             nextId <- nextId + 1
             idToStore.[id] <- s
             storeToId.[s] <- id
-            DOM.dispatchSimple Window.document DOM.Event.NewStore
+            DomHelpers.dispatchSimple Window.document DomHelpers.Event.NewStore
 
         let notifyDisposeStore (s:obj) =
             //if not (storeToId.ContainsKey(s)) then
@@ -95,9 +103,9 @@ module ObservableStore =
                 member _.SetLogCategories(states) =
                     Logging.initWith states
                 member _.PrettyPrint(id) =
-                    (DOM.findNodeWithSvId Window.document id) |> Option.iter (fun n -> (DOM.DomNode n).PrettyPrint("Node #" + string id))
+                    (DomHelpers.findNodeWithSvId Window.document id) |> Option.iter (fun n -> (Core.DomNode n).PrettyPrint("Node #" + string id))
                 member _.GetMountPoints() = [| |]
-                    //DOM.allMountPoints()
+                    //Core.allMountPoints()
                     //    |> List.map (fun mp -> { new DevToolsControl.IMountPoint with
                     //                        member _.Id = mp.MountId
                     //                        member _.Remount() = mp.Mount() |> ignore })
@@ -227,7 +235,7 @@ module ObservableStore =
         let s = new Store<'Model>(init,dispose)
         Registry.notifyMakeStore s
         // We have to delay this, because it will provoke a call through the subscribers, and _cmdHandler isn't set yet
-        DOM.rafu <| fun () -> s.Subscribe(Registry.notifyUpdateStore s) |> ignore
+        DomHelpers.rafu <| fun () -> s.Subscribe(Registry.notifyUpdateStore s) |> ignore
         s
 
     let makeElmishWithDocument (doc:Document) (init: 'Props -> 'Model * Cmd<'Msg>)
@@ -239,7 +247,7 @@ module ObservableStore =
 
         makeElmishWithCons init update dispose (fun i d ->
             let s = makeStore i  d
-            let u = (fun f -> s.Update(f); DOM.Event.notifyUpdated doc)
+            let u = (fun f -> s.Update(f); DomHelpers.Event.notifyUpdated doc)
             upcast s, u)
 
     let makeElmishSimpleWithDocument (doc:Document) (init: 'Props -> 'Model)
@@ -253,7 +261,7 @@ module ObservableStore =
         let update msg model = update msg model, []
         makeElmishWithCons init update dispose (fun i d ->
             let s = makeStore i  d
-            let u = (fun f -> s.Update(f); DOM.Event.notifyUpdated doc)
+            let u = (fun f -> s.Update(f); DomHelpers.Event.notifyUpdated doc)
             upcast s, u)
 
     let makeElmishSimple i u d = makeElmishSimpleWithDocument document i u d
@@ -294,5 +302,5 @@ module Program =
 
     let run element arg p =
         let model, dispatch = arg |> ObservableStore.makeElmish p.Init p.Update p.Dispose
-        p.View model dispatch |> DOM.mountElement element
+        p.View model dispatch |> Core.mountElement element
 #endif

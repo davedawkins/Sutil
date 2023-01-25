@@ -1,4 +1,5 @@
-module Sutil.Interop
+/// <exclude/>
+module internal Sutil.Interop
 
 open Fable.Core
 open Fable.Core.JsInterop

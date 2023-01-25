@@ -1,5 +1,6 @@
 module SAFE
 
+open Sutil.CoreElements
 module Shared =
 
     open System
@@ -88,7 +89,7 @@ let update (msg: Msg) (model: Model): Model * Cmd<Msg> =
         { model with Todos = model.Todos @ [ todo ] }, Cmd.none
 
 open Sutil.Bulma
-open Sutil.Attr
+
 open System
 
 [<AutoOpen>]

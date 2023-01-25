@@ -1,3 +1,4 @@
+///  <exclude />
 module internal Sutil.Logging
 
 open System.Collections.Generic

@@ -50,6 +50,7 @@ let waitAnimationFrame () : JS.Promise<unit> =
         fun accept _ -> rafu accept
 
 let mountTestApp app =
+    Fable.Core.JS.console.log("mountTestApp")
     let el = document.querySelector("#" + testAppId)
     el.innerHTML <- ""
     Sutil.Program.mountElement testAppId app

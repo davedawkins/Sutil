@@ -2,9 +2,13 @@ namespace Sutil
 
 open Fable.Core
 open Browser.Types
-open DOM
+open DomHelpers
+open Core
 
-module WebComponent =
+/// <summary>
+/// Support for defining Web Components in Sutil
+/// </summary>
+module private WebComponent =
     type Callbacks<'T> = {
         OnDisconnected : (unit -> unit)
         GetModel : unit -> 'T
@@ -17,6 +21,9 @@ module WebComponent =
 
 open Fable.Core.JsInterop
 
+/// <summary>
+/// Support for defining Web Components in Sutil
+/// </summary>
 type WebComponent =
 
     static member Register<'T>(name:string, view : IStore<'T> -> Node -> SutilElement, initValue : 'T, initModel: unit -> IStore<'T>, dispose : IStore<'T> -> unit) =
@@ -29,7 +36,7 @@ type WebComponent =
             let model = initModel()
 
             let sutilElement = view model host
-            let disposeElement = DOM.mountOnShadowRoot sutilElement host
+            let disposeElement = Core.mountOnShadowRoot sutilElement host
 
             let disposeWrapper() =
                 dispose(model)
@@ -38,7 +45,7 @@ type WebComponent =
             {   OnDisconnected = disposeWrapper
                 GetModel = (fun () -> model |> Store.current)
                 SetModel = Store.set model
-                OnConnected = fun _ -> DOM.dispatchSimple (host?shadowRoot?firstChild) Event.Connected //"sutil-connected"
+                OnConnected = fun _ -> DomHelpers.dispatchSimple (host?shadowRoot?firstChild) Event.Connected //"sutil-connected"
                 }
 
         WebComponent.makeWebComponent name wrapper initValue

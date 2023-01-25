@@ -1,5 +1,6 @@
 namespace Sutil
 
+///  <exclude />
 module Random =
     let shuffleR xs = xs |> Seq.sortBy (fun _ -> int(Interop.random() * 100.0))
 
@@ -18,12 +19,13 @@ type private Edit =
     | Create
     | Update
     | Delete
+///  <exclude />
 type DataSimulation =
     static member Stream (init : unit -> 'T) (f : int -> 'T -> 'T) (delay : int) =
         let mutable dispose : unit -> unit = Unchecked.defaultof<_>
         let mutable tick : int  = 0
         let store = ObservableStore.makeStore init (fun _ -> dispose())
-        dispose <- Sutil.DOM.interval (fun _ -> tick <- tick + 1; Store.modify (fun v -> f tick v) store) delay
+        dispose <- DomHelpers.interval (fun _ -> tick <- tick + 1; Store.modify (fun v -> f tick v) store) delay
         store
 
     static member CountList (min : int, max : int, delay : int) =
@@ -96,6 +98,7 @@ type DataSimulation =
     static member Random () =
         DataSimulation.Stream Interop.random (fun _ _ -> Interop.random()) 1000
 
+///  <exclude />
 module SampleData =
     type Todo = {
         Description : string

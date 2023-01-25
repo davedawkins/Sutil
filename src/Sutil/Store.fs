@@ -11,6 +11,9 @@ module internal StoreHelpers =
         { new IDisposable with
             member _.Dispose() = f () }
 
+/// <summary>
+/// Functions for working with stores
+/// </summary>
 [<RequireQualifiedAccess>]
 module Store =
 
@@ -61,12 +64,14 @@ module Store =
     /// every time the store value is updated
     /// </summary>
     /// <example>
+    /// <code>
     ///     let subscription =
     ///         Store.subscribe (fun value -> printfn $"{value}") intStore
     ///
     ///     (* after you are done with the subscription *)
     ///
     ///     subscription.Dispose()
+    /// </code>
     /// </example>
     let subscribe (callback: 'T -> unit) (store: IObservable<'T>) = store.Subscribe(callback)
 
@@ -74,12 +79,14 @@ module Store =
     /// Returns an observable that will resolve to the result of said callback
     /// </summary>
     /// <example>
+    /// <code>
     ///     let subscription: IObservable&lt;string&gt; =
     ///         Store.map (fun value -> $"{value}") intStore
     ///
     ///     (* after you are done with the subscription *)
     ///
     ///     subscription.Dispose()
+    /// </code>
     /// </example>
     let map<'A, 'B> (callback: 'A -> 'B) (store: IObservable<'A>) = store |> Observable.map callback
 
@@ -87,12 +94,14 @@ module Store =
     /// Applies a predicate function to obtain an observable of the elements that evaluated to true
     /// </summary>
     /// <example>
+    /// <code>
     ///     let usersOver18: IObservable&lt;string&gt; =
     ///         Store.filter (fun user -> user.age > 18) usersStore
     ///
     ///     (* after you are done with the subscription *)
     ///
     ///     over18.Dispose()
+    /// </code>
     /// </example>
     let filter<'A> (predicate: 'A -> bool) (store: IObservable<'A>) = store |> Observable.filter predicate
 
@@ -100,6 +109,7 @@ module Store =
     /// Provides an observable that will emit a value only when the updated store value is different from the previous one
     /// </summary>
     /// <example>
+    /// <code>
     ///     let store = Store.make 0
     ///     let whenDistinct = Store.distinct store
     ///     let sub1 = store.subscribe(printfn "number: %i")
@@ -108,13 +118,24 @@ module Store =
     ///     Store.set 0 store // when distinct doesn't emit
     ///     Store.set 1 store // both store and distinct emit
     ///     Store.set 1 store // when distinct doesn't emit
+    /// </code>
     /// </example>
     let distinct<'T when 'T: equality> (source: IObservable<'T>) = Observable.distinctUntilChanged source
+
+    /// <summary>
+    /// Helper function for commonly used form
+    /// <code>
+    ///     store |> Store.map (fun s -> s.Thing) |> Observable.distinctUntilChanged
+    /// </code>
+    /// </summary>
+    let mapDistinct (callback: 'A -> 'B) (store: IObservable<'A>) =
+        store |> map callback |> distinct
 
     /// <summary>
     /// Merges two stores into a single tupled observable
     /// </summary>
     /// <example>
+    /// <code>
     ///     let tableInfo =
     ///     Observable.zip
     ///         (Strore.map(fun model -> model.rows) model)
@@ -123,6 +144,7 @@ module Store =
     ///     (* once done with tableInfo *)
     ///
     ///     tableInfo.Dispose()
+    /// </code>
     /// </example>
     let zip source1 source2 = Observable.zip source1 source2
 
@@ -138,7 +160,7 @@ module Store =
     /// This might be called foldMap
     /// </remarks>
     /// <example>
-    /// ```
+    /// <code>
     ///     let store: IStore&lt;{| name: string; budget: decimal |}> =
     ///     Store.make {| name = "Frank"; budget = 547863.26M |}
     ///
@@ -147,8 +169,8 @@ module Store =
     ///             (fun model -> sprintf $"$ %0.00M{model.budget}")
     ///             store
     ///     printf %"Budget available: {formattedBudget}
-    ///  ```
-    ///  </example>
+    /// </code>
+    /// </example>
     let getMap callback store = store |> get |> callback
 
     /// <summary>
@@ -156,12 +178,15 @@ module Store =
     /// and ignoring the unsubscription callback
     /// </summary>
     /// <example>
+    /// <code>
     ///     Store.subscribe (fun value -> printfn $"{value}") intStore
+    /// </code>
     /// </example>
     let write<'A> (callback: 'A -> unit) (store: IObservable<'A>) = subscribe callback store |> ignore
 
     /// <summary>Modify the store by mapping its current value with a callback</summary>
     /// <example>
+    /// <code>
     ///     let store: IStore&lt;int> = Store.make 2
     ///
     ///     let squareMe() =
@@ -174,6 +199,7 @@ module Store =
     ///             text "Square me"
     ///         ]
     ///     ]
+    /// </code>
     /// </example>
     let modify (callback: ('T -> 'T)) (store: Store<'T>) = store |> getMap callback |> set store
 
@@ -184,6 +210,7 @@ module Store =
     /// every notification can come from any of the observables
     /// </summary>
     /// <example>
+    /// <code>
     ///     let player1Score = Store.make 0
     ///     let player2Score = Store.make 0
     ///
@@ -197,6 +224,7 @@ module Store =
     ///             printPlayerScore
     ///     (* Game Finished, dispose the observables *)
     ///     scores.Dispose()
+    /// </code>
     /// </example>
     let subscribe2<'A, 'B>
         (source1: IObservable<'A>)
@@ -245,6 +273,7 @@ module Store =
     /// control flow and a predictable state.
     /// </summary>
     /// <example>
+    /// <code>
     ///     type State = { count: int }
     ///     type Msg =
     ///         | Increment
@@ -269,6 +298,7 @@ module Store =
     ///             Html.button [ text "Decrement"; onClick (fun _ -> dispatch) [] ]
     ///             Html.button [ text "Reset"; onClick (fun _ -> dispatch Reset) [] ]
     ///         ]
+    /// </code>
     /// </example>
     let makeElmishSimple<'Props, 'Model, 'Msg>
         (init: 'Props -> 'Model)
@@ -278,13 +308,14 @@ module Store =
         ObservableStore.makeElmishSimple init update dispose
 
     ///<summary>
-    /// Creates a store and a dispatch function as `Store.makeElmishSimple`
+    /// Creates a store and a dispatch function as <c>Store.makeElmishSimple</c>
     /// the difference being that this version handles [Elmish commands](https://elmish.github.io/elmish/index.html#Commands)
     /// as well, generally used in more complex UIs given that with commands you can also handle
     /// asynchronous code like fetching resources from a server or calling any
     /// function that returns a promise or async
     /// </summary>
     /// <example>
+    /// <code>
     ///     type State = { count: int }
     ///     type Msg =
     ///         | Increment
@@ -322,6 +353,7 @@ module Store =
     ///             Html.button [ text "Async Decrement"; onClick (fun _ -> dispatch AsyncDecrement) [] ]
     ///             Html.button [ text "Reset"; onClick (fun _ -> dispatch Reset) [] ]
     ///         ]
+    /// </code>
     /// </example>
     let makeElmish<'Props, 'Model, 'Msg>
         (init: 'Props -> 'Model * Cmd<'Msg>)
@@ -330,73 +362,87 @@ module Store =
         =
         ObservableStore.makeElmish init update dispose
 
+/// <summary>
+/// Operators for store functions
+/// </summary>
 [<AutoOpen>]
 module StoreOperators =
 
     /// <summary>
-    /// Alias for `Store.getMap`, takes a store and applies a mapping function then returns the value from the evaluated function
+    /// Alias for <c>Store.getMap</c>, takes a store and applies a mapping function then returns the value from the evaluated function
     /// </summary>
     /// <remarks>
     /// This might be called foldMap
     /// </remarks>
     /// <example>
+    /// <code>
     ///     let store: IStore&lt;{| name: string; budget: decimal |}> =
     ///     Store.make {| name = "Frank"; budget = 547863.26M |}
     ///
     ///     let formattedBudget: string =
     ///         store |-> (fun model -> sprintf $"$ %0.00M{model.budget}")
     ///     printf %"Budget available: {formattedBudget}
+    ///  </code>
     ///  </example>
     //let (|%>) s f = Store.map f s
     let (|->) s f = Store.getMap f s
 
     /// <summary>
-    /// Alias for `Store.map`, returns an observable that will resolve to the result of said callback
+    /// Alias for <c>Store.map</c>, returns an observable that will resolve to the result of said callback
     /// </summary>
     /// <example>
+    /// <code>
     ///     let subscription: IObservable&lt;string&gt; =
     ///         intStore .> (fun value -> $"{value}")
     ///
     ///     (* after you are done with the subscription *)
     ///
     ///     subscription.Dispose()
+    /// </code>
     /// </example>
     let (.>) s f = Store.map f s
 
     /// <summary>
-    /// Alias for `Store.set`,  replaces the current value of the store
+    /// Alias for <c>Store.set</c>,  replaces the current value of the store
     /// </summary>
     /// <example>
+    /// <code>
     ///     intStore &lt;~ 2
     ///     let value = Store.get intStore
     ///     value = 1 // false
+    /// </code>
     /// </example>
     let (<~) s v = Store.set s v
 
     /// <summary>
-    /// Alias for `Store.set`, replaces the current value of the store
+    /// Alias for <c>Store.set</c>, replaces the current value of the store
     /// </summary>
     /// <example>
+    /// <code>
     ///     intStore &lt;~- 2
     ///     let value = Store.get intStore
     ///     value = 1 // false
+    /// </code>
     /// </example>
     let (<~-) s v = Store.set s v
 
     /// <summary>
-    /// Alias for `Store.set`,  replaces the current value of the store
+    /// Alias for <c>Store.set</c>,  replaces the current value of the store
     /// </summary>
     /// <example>
+    /// <code>
     ///     2 -~> intStore
     ///     let value = Store.get intStore
     ///     value = 1 // false
+    /// </code>
     /// </example>
     let (-~>) v s = Store.set s v
 
     /// <summary>
-    /// Alias for `Store.modify`. Modify the store by mapping its current value with a callback
+    /// Alias for <c>Store.modify</c>. Modify the store by mapping its current value with a callback
     /// </summary>
     /// <example>
+    /// <code>
     ///     let store: IStore&lt;int> = Store.make 2
     ///
     ///     let squareMe() =
@@ -409,13 +455,15 @@ module StoreOperators =
     ///             text "Square me"
     ///         ]
     ///     ]
+    /// </code>
     /// </example>
     let (<~=) store map = Store.modify map store
 
     /// <summary>
-    /// /// Alias for `Store.modify` Modify the store by mapping its current value with a callback
-    /// /// </summary>
+    /// Alias for <c>Store.modify</c> Modify the store by mapping its current value with a callback
+    /// </summary>
     /// <example>
+    /// <code>
     ///     let store: IStore&lt;int> = Store.make 2
     ///
     ///     let squareMe() =
@@ -428,12 +476,23 @@ module StoreOperators =
     ///             text "Square me"
     ///         ]
     ///     ]
+    /// </code>
     /// </example>
     let (=~>) map store = Store.modify map store
 
+
+
+/// <exclude/>
 [<AutoOpen>]
 module StoreExtensions =
 
+    // No uses of this in the Sutil code base.
+    //
+    // One issue is that 'u' should be cleaned up somewhere, so perhaps turning this into
+    // a SutilElement would improve it?
+    // Appears to return a store of indexes, whose value will always be the first observable
+    // that is currently <c>true</c>
+    //
     let firstOf (selectors: IObservable<bool> list) =
         let matches = new HashSet<int>()
         let mutable current = -1

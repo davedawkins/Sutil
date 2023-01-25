@@ -1,7 +1,8 @@
 module Sutil.Markdown
 
 open Sutil.Styling
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 
 open type Feliz.length
 let style = [

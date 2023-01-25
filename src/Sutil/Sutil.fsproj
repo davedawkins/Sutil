@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Front-end framework for Fable</Description>
-    <PackageProjectUrl>https://github.com/davedawkins/Sutil</PackageProjectUrl>
+    <!-- <PackageProjectUrl>..</PackageProjectUrl> -->
+    <PackageProjectUrl>https://sutil.dev</PackageProjectUrl>
     <RepositoryUrl>https://github.com/davedawkins/Sutil</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/davedawkins/Sutil/blob/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl></PackageIconUrl>
@@ -11,6 +12,8 @@
     <PackageVersion>1.0.0-beta-023</PackageVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RepositoryType>git</RepositoryType>
+    <UsesMarkdownComments>false</UsesMarkdownComments>
     <DefineConstants>$(DefineConstants);FABLE_COMPILER;</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
@@ -19,37 +22,39 @@
     <Compile Include="Types.fs" />
     <Compile Include="Logging.fs" />
     <Compile Include="Helpers.fs" />
-    <Compile Include="DOM.fs" />
+    <Compile Include="DomHelpers.fs" />
+    <Compile Include="Core.fs" />
     <Compile Include="ResizeObserver.fs" />
+    <Compile Include="Styling.fs" />
+    <Compile Include="CoreElements.fs" />
     <Compile Include="ObservableStore.fs" />
     <Compile Include="Observable.fs" />
     <Compile Include="Store.fs" />
     <Compile Include="Promise.fs" />
-    <Compile Include="Styling.fs" />
     <Compile Include="Transition.fs" />
     <Compile Include="TransitionFunctions.fs" />
-    <Compile Include="Attr.fs" />
     <Compile Include="Svg.fs" />
     <Compile Include="Bindings.fs" />
+    <Compile Include="Bind.fs" />
     <Compile Include="Html.fs" />
-    <Compile Include="MediaQuery.fs" />
+    <Compile Include="Media.fs" />
     <Compile Include="Navigable.fs" />
     <Compile Include="Program.fs" />
-    <Compile Include="Bulma.fs" />
     <Compile Include="WebComponent.fs" />
     <Compile Include="DataSimulation.fs" />
     <Compile Include="Chrome.DevTools.fs" />
+    <Compile Include="Bulma.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ConstructStyleSheetsPolyfill" Version="1.0.0-beta-001" />
-    <PackageReference Include="Feliz.Engine.Bulma" Version="1.0.0-beta-005" />
+    <PackageReference Include="Feliz.Engine.Bulma" Version="1.0.0-*" />
     <PackageReference Include="Feliz.Engine" Version="1.0.0-beta-004" />
     <PackageReference Include="Feliz.Engine.Event" Version="1.0.0-beta-004" />
     <PackageReference Include="Fable.Browser.Css" Version="2.*" />
     <PackageReference Include="Fable.Browser.Dom" Version="2.*" />
     <PackageReference Include="Fable.Browser.Event" Version="1.*" />
     <PackageReference Include="Fable.Core" Version="3.*" />
-    <PackageReference Include="Fable.Promise" Version="2.*" />
+    <PackageReference Include="Fable.Promise" Version="3.*" />
     <PackageReference Include="Fable.Browser.MediaQueryList" Version="1.*" />
   </ItemGroup>
   <!-- Add source files to "fable" folder in Nuget package -->

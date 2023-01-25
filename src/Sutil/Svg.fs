@@ -1,9 +1,12 @@
+///  <exclude />
 module Sutil.Svg
 
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
+open CoreElements
 
 let svgel (tag:string) (xs:seq<SutilElement>) =
-    elns "http://www.w3.org/2000/svg" tag xs
+    CoreElements.elns "http://www.w3.org/2000/svg" tag xs
 
 let svg xs : SutilElement = svgel "svg" xs
 let g xs : SutilElement = svgel "g" xs

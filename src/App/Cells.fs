@@ -12,7 +12,6 @@ open Sutil.Styling
 
 open Sutil.Core
 open Sutil.CoreElements
-open Sutil.Bindings
 open Fable.Core.JsInterop
 open Evaluator
 //open Browser.Dom
@@ -158,12 +157,14 @@ let update (message : Message) (model : Model) : Model * Cmd<Message> =
 let makeStore = Store.makeElmish init update ignore
 
 //
-// Render a NodeFctory at a given cell
+// Render a NodeFactory at a given cell
 //
 let renderCellAt (renderfn: Position -> SutilElement) (ctx : BuildContext) (cell:Position) =
     log($"renderCellAt {cell}")
-    let defineSutilElement = renderfn >> exclusive
-    build (defineSutilElement cell) (ctx |> ContextHelpers.withParent (DomNode (nodeOfCell cell))) |> ignore
+
+    // Broken until I understand and then fix the following. API has changed
+    //let defineSutilElement = renderfn >> exclusive
+    //build (defineSutilElement cell) (ctx |> ContextHelpers.withParent (DomNode (nodeOfCell cell))) |> ignore
 
 let view () : SutilElement =
 

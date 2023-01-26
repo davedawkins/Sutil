@@ -4,10 +4,8 @@ module ReactiveStatements
 // https://svelte.dev/examples
 
 open Sutil
-open Sutil.Core
 open Sutil.CoreElements
 
-open Sutil.Bindings
 open Browser.Dom
 
 let inc n = n + 1
@@ -30,5 +28,6 @@ let view() =
         disposeOnUnmount [count]
 
         onClick handleClick []
-        count |=> (fun n -> text $"Clicked {n} time{plural n}")
+
+        Bind.el( count,  (fun n -> text $"Clicked {n} time{plural n}"))
     ]

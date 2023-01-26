@@ -7,8 +7,6 @@ open Sutil
 open Sutil.Core
 open Sutil.CoreElements
 
-open Sutil.Bindings
-
 let menu = [
     "Cookies and cream"
     "Mint choc chip"
@@ -60,7 +58,7 @@ let view() =
                     class' "radio"
                     Html.input [
                         type' "radio"
-                        bindRadioGroup scoops
+                        Bind.radioValue scoops
                         i+1 |> string |> Attr.value
                     ]
                     text $" {scoopChoice}"
@@ -73,7 +71,7 @@ let view() =
                 class' "select is-multiple"
                 Html.select [
                     Attr.multiple true
-                    bindSelectMultiple flavours
+                    Bind.selectMultiple flavours
                     fragment [
                         for flavour in menu do
                             Html.option [

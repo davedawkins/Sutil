@@ -9,7 +9,6 @@ open Sutil.Styling
 open Sutil.Core
 open Sutil.CoreElements
 open Sutil.DomHelpers
-open Sutil.Bindings
 open Browser.Types
 open type Feliz.length
 open Sutil.Transition
@@ -183,7 +182,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
             Html.label [
                 Html.input [
                     type' "checkbox"
-                    attrNotify "checked" todo.Done (fun _ -> todo.Id |> ToggleTodo |> dispatch)
+                    Bind.attr( "checked", todo.Done, (fun _ -> todo.Id |> ToggleTodo |> dispatch) )
                     ]
                 text $" {todo.Description}"
                 Html.button [

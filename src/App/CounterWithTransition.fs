@@ -7,7 +7,6 @@ open Sutil.CoreElements
 
 open Sutil.Styling
 open Sutil.Transition
-open Sutil.Bindings
 
 //
 // Private styling for the counter
@@ -66,8 +65,9 @@ let Counter() =
         Html.button [
             onClick (fun _ -> count <~= (+) 1) []
 
-            count |=> fun n ->
-                text <| if n = 0 then "Click Me" else n |> sprintf "You clicked: %i time(s)"
+            Bind.el(
+                count,
+                fun n ->text <| if n = 0 then "Click Me" else n |> sprintf "You clicked: %i time(s)")
         ]
 
         Html.button [

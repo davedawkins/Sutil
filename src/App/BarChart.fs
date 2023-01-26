@@ -8,7 +8,6 @@ open Sutil.Core
 open Sutil.CoreElements
 
 open Sutil.Styling
-open Sutil.Bindings
 open type Feliz.length
 open Fable.Core
 

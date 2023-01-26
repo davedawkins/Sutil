@@ -20,7 +20,6 @@ open type Feliz.length
 open System
 open Sutil.Core
 open Sutil.CoreElements
-open Sutil.Bindings
 
 type Model = {  Started : bool }
 type Message =  Toggle
@@ -33,7 +32,7 @@ let update msg model =
 
 let icon (name : IObservable<string>) =
     Html.i [
-        bindAttrIn "class" (name |> Store.map (sprintf "fa fa-%s"))
+        Bind.attr( "class",(name |> Store.map (sprintf "fa fa-%s")) )
     ]
 
 let create (slot : IObservable<bool * float> -> SutilElement) =

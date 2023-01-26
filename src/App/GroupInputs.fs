@@ -7,8 +7,6 @@ open Sutil
 open Sutil.Core
 open Sutil.CoreElements
 
-open Sutil.Bindings
-
 let menu = [
     "Cookies and cream"
     "Mint choc chip"
@@ -61,7 +59,7 @@ let view() =
                     class' "radio"
                     Html.input [
                         type' "radio"
-                        bindRadioGroup scoops
+                        Bind.radioValue scoops
                         i+1 |> string |> Attr.value
                     ]
                     text $" {scoopChoice}"
@@ -76,7 +74,7 @@ let view() =
                         class' "checkbox"
                         Html.input [
                             type' "checkbox"
-                            bindGroup flavours
+                            Bind.checkboxGroup flavours
                             Attr.value flavour
                         ]
                         text $" {flavour}"

@@ -16,6 +16,25 @@ type Bind =
     static member visibility( isVisible : IObservable<bool>) = Transition.transition [] isVisible
     static member visibility( isVisible : IObservable<bool>,trans : TransitionAttribute list) = Transition.transition trans isVisible
 
+    /// <summary>
+    /// For <c>input[type='radio']</c>
+    /// Only the checkbox with store's current value will be checked at any one time.
+    /// </summary>
+    static member radioValue<'T>( store : Store<'T> ) = Sutil.Bindings.bindRadioGroup store
+
+    /// <summary>
+    /// For multiple input elements. The input elements are grouped explicitly by name, or will be implicitly grouped by
+    /// the (internal) name of the binding store.
+    /// Each checkbox in the group is checked if its value is contained in the current <c>string list</c>
+    /// </summary>
+    static member checkboxGroup( store : Store<string list> ) = Sutil.Bindings.bindGroup store
+
+    static member selectMultiple<'T  when 'T : equality>( store : IStore<'T list> ) = Sutil.Bindings.bindSelectMultiple store
+    static member selectOptional<'T when 'T : equality>( store : Store<'T option> ) = Sutil.Bindings.bindSelectOptional store
+    static member selectSingle<'T when 'T : equality>( store : Store<'T> ) = Sutil.Bindings.bindSelectSingle store
+
+    static member attr<'T>( attrName : string, initValue : 'T, dispatch : 'T -> unit) = attrNotify attrName initValue dispatch
+
     /// Dual-binding for a given attribute. Changes to value are written to the attribute, while
     /// changes to the attribute are written back to the store. Note that an IStore is also
     /// an IObservable, for which a separate overload exists.

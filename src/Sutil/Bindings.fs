@@ -1,5 +1,5 @@
 ///<exclude/>
-module Sutil.Bindings
+module internal Sutil.Bindings
 
 open Transition
 open Core

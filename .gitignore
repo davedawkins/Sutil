@@ -305,3 +305,4 @@ tests/public/test-bundle.js
 tests/build
 .vscode/settings.json
 public/apidocs
+.fsdocs/cache

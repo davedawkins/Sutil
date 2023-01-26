@@ -1,4 +1,17 @@
-### 1.0.0-beta-024
+### 2.0.0
+- Major version bump because of refactorings which will break existing code
+- Added "Upgrading to Sutil 2.x" doc
+- Removed beta classification
+- Refactor Sutil.DOM into Sutil.Core, Sutil.CoreHelpers, Sutill.DomHelpers
+- Other refactoring around Sutil.Media, Sutil.Bindings
+- Generate API documentation with fsdocs (linked from Sutil documentation tab)
+- Document (minimally) every top-level module/type
+- Add documentation for each topic previously marked "Coming soon"
+- Added Html.divc to allow class to be specified (common usage, for me at least)
+- Added Store.mapDistinct
+- Renamed SutilResult to SutilEffect
+- Added Name and Children to SutilElement
+- Added SutilElement.Define() static members
 - Unbreak WebComponents
 - Hide Sutil.Logging from users
 - Added ifSetElse as call to JS "$0 || $1"

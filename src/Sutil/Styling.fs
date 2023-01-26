@@ -218,7 +218,9 @@ let internal makeMediaRule condition rules =
 
 open Browser.Css
 
+#if !FABLE_REPL_LIB
 ConstructStyleSheetsPolyfill.register()
+#endif
 
 open Fable.Core
 

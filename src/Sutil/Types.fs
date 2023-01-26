@@ -61,7 +61,7 @@ type NamedStyleSheet =
       StyleSheet: StyleSheetDefinitions }
 
 /// <exclude/>
-type internal ICollectionWrapper<'T> =
+type ICollectionWrapper<'T> =
     abstract member ToList : unit -> List<'T>
     abstract member ToArray : unit -> 'T array
     abstract member Length : int

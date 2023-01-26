@@ -82,7 +82,10 @@ module internal Event =
         notifyEvent doc Updated {|  |}
 
 
-type internal CustomDispatch<'T> =
+/// <summary>
+/// Custom events
+/// </summary>
+type CustomDispatch<'T> =
     | Detail of 'T option
     | Bubbles of bool
     | Composed of bool
@@ -542,7 +545,7 @@ let internal computedStyleOpacity e =
         log (sprintf "parse error: '%A'" (Window.getComputedStyle(e).opacity))
         1.0
 
-let internal computedStyleTransform node =
+let computedStyleTransform node =
     let style = Window.getComputedStyle (node)
 
     if style.transform = "none" then

@@ -41,6 +41,7 @@ type DragOperation =
     | InsertAfter of (int * int)
     | Nothing
 
+open Fable.Core.JsInterop
 module private Private =
     let fromTarget (e : Browser.Types.EventTarget) = e :?> Browser.Types.Node
     let toElement (e : Node) = e :?> HTMLElement
@@ -50,7 +51,7 @@ module private Private =
     let addClasses node classes = node |> iterElem (DomHelpers.ClassHelpers.addToClasslist classes)
     let removeClasses node classes = node |> iterElem (DomHelpers.ClassHelpers.removeFromClasslist classes)
 
-    let getKey (n : Node) : int = Interop.get n "_key"
+    let getKey (n : Node) : int = n?_key
 
     type DragState() =
         let mutable draggingNode : Browser.Types.Node option = None

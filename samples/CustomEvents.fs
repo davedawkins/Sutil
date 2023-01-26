@@ -2,8 +2,9 @@ module CustomEvents
 
 open Sutil
 open type Feliz.length
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Browser.Types
 open System
 

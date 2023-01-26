@@ -1,6 +1,7 @@
 module Types
 
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 
 type Page = {
     Title : string

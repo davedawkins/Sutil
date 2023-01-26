@@ -2,8 +2,9 @@ module LoginExample
 
 open Sutil
 open Sutil.Bulma
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Login
 open Sutil.Styling
 

@@ -9,8 +9,9 @@ open type Feliz.borderStyle
 open type Feliz.length
 open Sutil
 open Sutil.Styling
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
 open Fable.Core.JsInterop
 open Evaluator
 //open Browser.Dom
@@ -160,8 +161,8 @@ let makeStore = Store.makeElmish init update ignore
 //
 let renderCellAt (renderfn: Position -> SutilElement) (ctx : BuildContext) (cell:Position) =
     log($"renderCellAt {cell}")
-    let nodeFactory = renderfn >> exclusive
-    build (nodeFactory cell) (ctx |> ContextHelpers.withParent (DomNode (nodeOfCell cell))) |> ignore
+    let defineSutilElement = renderfn >> exclusive
+    build (defineSutilElement cell) (ctx |> ContextHelpers.withParent (DomNode (nodeOfCell cell))) |> ignore
 
 let view () : SutilElement =
 

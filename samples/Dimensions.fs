@@ -6,8 +6,9 @@ module Dimensions
 open type Feliz.length
 open type Feliz.borderStyle
 open Sutil
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
 open Sutil.Styling
 
 let style = Bulma.withBulmaHelpers [
@@ -29,7 +30,7 @@ let view() =
         let size = Store.make 42.0
         let text = Store.make "Edit me, slide him ↑"
 
-        DOM.disposeOnUnmount [w; h; size; text ]
+        Core.disposeOnUnmount [w; h; size; text ]
 
         Html.div [
             class' "block"
@@ -41,7 +42,7 @@ let view() =
         ]
 
         Html.div [
-            Bind.el2 w h <| fun (w',h') -> DOM.text $"Size: {w'}px x {h'}px"
+            Bind.el2 w h <| fun (w',h') -> Core.text $"Size: {w'}px x {h'}px"
         ]
 
         Html.div [
@@ -50,7 +51,7 @@ let view() =
             bindPropOut "clientHeight" h
             Html.span [
                 Bind.attr( "style", size |> Store.map (fun n -> $"font-size: {n}px") )
-                Bind.el(text,DOM.text)
+                Bind.el(text,Core.text)
             ]
         ]
     ] |> withStyle style

@@ -4,8 +4,9 @@ module BarChart
 // https://svelte.dev/examples#bar-chart
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Styling
 open type Feliz.length
 open Fable.Core
@@ -156,7 +157,7 @@ let view() =
                                     Svg.y "-4"
 
                                     let label = if tick = 20 then " per 1,000 population" else ""
-                                    DOM.text $"{tick} {label}"
+                                    Core.text $"{tick} {label}"
                                 ]
                             ]
                     ]
@@ -171,7 +172,7 @@ let view() =
                                 Svg.text [
                                     Svg.x $"{m.BarWidth/2.0}"
                                     Svg.y "-6"
-                                    DOM.text <| if m.Width > 380. then string point.Year else formatMobile(point.Year)
+                                    Core.text <| if m.Width > 380. then string point.Year else formatMobile(point.Year)
                                 ]
                             ]
                             i <- i + 1

@@ -5,8 +5,9 @@ module SelectBindings
 
 open Browser
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Styling
 
 open type Feliz.length

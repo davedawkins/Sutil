@@ -2,7 +2,8 @@ module Doc
 
 open Sutil
 open type Feliz.length
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 open Fetch
 open Sutil.Styling
 open Types
@@ -50,8 +51,9 @@ let styleCs = """
 
 let openSutil = """open Sutil
 open Sutil.Styling
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Feliz"""
 
 let buildReplQuery (names : string array) (codes : string array) (html:string) (css:string) =
@@ -99,8 +101,8 @@ type FoldType = {
 //
 // Builds the element and passes to post-processing function
 //
-let postProcess (f : Browser.Types.HTMLElement -> unit) (view : SutilElement) : SutilElement = nodeFactory <| fun ctx ->
-    let result = DOM.build view ctx
+let postProcess (f : Browser.Types.HTMLElement -> unit) (view : SutilElement) : SutilElement = defineSutilElement <| fun ctx ->
+    let result = Core.build view ctx
     ctx.Parent.AsDomNode |> applyIfElement f
     result
 

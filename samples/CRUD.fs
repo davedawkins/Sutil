@@ -1,8 +1,9 @@
 module CRUD
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Bulma
 open type Feliz.length
 module DbSchema =
@@ -161,7 +162,7 @@ let view() =
     let labeledField label model dispatch =
         bulma.field.div [
             field.isHorizontal
-            bulma.fieldLabel [ bulma.label [ DOM.text label ] ]
+            bulma.fieldLabel [ bulma.label [ Core.text label ] ]
             bulma.fieldBody [
                 bulma.control.div [
                     class' "width100"
@@ -173,7 +174,7 @@ let view() =
         bulma.control.p [
             bulma.button.button [
                 Attr.disabled (model .> (enabled >> not))
-                DOM.text label
+                Core.text label
                 onClick (fun _ -> dispatch message) []
                 ] ]
 
@@ -198,7 +199,7 @@ let view() =
                     Bind.each(viewNames,(fun n ->
                         Html.option [
                             Attr.value n.Id
-                            (sprintf "%s, %s" n.Surname n.Name) |> DOM.text
+                            (sprintf "%s, %s" n.Surname n.Name) |> Core.text
                             ]))
 
                     Bind.selected (model .> selection, List.exactlyOne >> Select >> dispatch)
@@ -220,7 +221,7 @@ let view() =
 
         bulma.field.div [
             color.hasTextDanger
-            Bind.el (model .> error, DOM.text)
+            Bind.el (model .> error, Core.text)
         ]
 
     ] |> withStyle appStyle

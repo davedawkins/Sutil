@@ -1,8 +1,9 @@
 module Fragment
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Transition
 
 type Model = {
@@ -36,7 +37,7 @@ let viewFragments() =
 
     let model, dispatch = () |> Store.makeElmishSimple init update ignore
 
-    let start() = DOM.interval (fun _ -> dispatch Tick) 1000
+    let start() = Core.interval (fun _ -> dispatch Tick) 1000
 
     Html.div [
         subscribeOnMount start
@@ -83,7 +84,7 @@ let viewFragments_2() =
 
     let model, dispatch = () |> Store.makeElmishSimple init update ignore
 
-    //let start() = DOM.interval (fun _ -> dispatch Tick) 1000
+    //let start() = Core.interval (fun _ -> dispatch Tick) 1000
 
     Html.div [
         //subscribeOnMount start

@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>DomHelpers (Sutil)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="author" content="David Dawkins">
+
+    <link rel="stylesheet" id="theme_link" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.6.0/materia/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+    <link rel="shortcut icon" type="image/x-icon" href="https://sutil.dev/apidocs/img/favicon.ico">
+    <link type="text/css" rel="stylesheet" href="https://sutil.dev/apidocs/content/navbar-fixed-left.css" />
+    <link type="text/css" rel="stylesheet" href="https://sutil.dev/apidocs/content/fsdocs-default.css" />
+    <link type="text/css" rel="stylesheet" href="https://sutil.dev/apidocs/content/fsdocs-custom.css" />
+    <script type="text/javascript" src="https://sutil.dev/apidocs/content/fsdocs-tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+    <!-- END SEARCH BOX: this adds support for the search box -->
+    
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-md navbar-light bg-secondary fixed-left" id="fsdocs-nav">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse navbar-nav-scroll" id="navbarsExampleDefault">
+            <a href="https://sutil.dev/"><img id="fsdocs-logo" src="../../images/logo-small.png" /></a>
+            <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+            <div id="header">
+                <div class="searchbox" id="fsdocs-searchbox">
+                    <label for="search-by">
+                        <i class="fas fa-search"></i>
+                    </label>
+                    <input data-search-input="" id="search-by" type="search" placeholder="Search..." />
+                    <span data-search-clear="">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- END SEARCH BOX: this adds support for the search box -->
+            <ul class="navbar-nav">
+                <li class="nav-header">Links</li>
+                <li class="nav-item" id="fsdocs-license-link"><a class="nav-link" href="https://github.com/davedawkins/Sutil/blob/master/LICENSE.md">License</a></li>
+                <li class="nav-item" id="fsdocs-release-notes-link"><a class="nav-link" href="https://github.com/davedawkins/Sutil/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+                <li class="nav-item" id="fsdocs-repository-link"><a class="nav-link" href="https://github.com/davedawkins/Sutil/">Source Repository</a></li>
+                
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="https://sutil.dev/apidocs/reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="masthead">
+            <h3 class="muted"><a href="https://sutil.dev/">Sutil</a></h3>
+        </div>
+        <hr />
+        <div class="container" id="fsdocs-content">
+            <div>
+  <h2>
+    DomHelpers Module
+  </h2>
+  <dl class="fsdocs-metadata">
+    <dt>
+      Namespace: 
+      <a href="https://sutil.dev/apidocs/reference/sutil.html">
+        Sutil
+      </a>
+    </dt>
+    <dt>
+      Assembly: Sutil.dll
+    </dt>
+  </dl>
+  <div class="fsdocs-xmldoc">
+    <div>
+      <p class="fsdocs-summary">
+        
+ Utilities to help with browser DOM API
+ 
+      </p>
+    </div>
+  </div>
+  <div>
+    <h3>
+      Nested modules
+    </h3>
+    <table class="table outer-list fsdocs-entity-list">
+      <thead>
+        <tr>
+          <td>
+            Modules
+          </td>
+          <td>
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-entity-name">
+            <p>
+              <a name="ClassHelpers">
+                <a href="https://sutil.dev/apidocs/reference/sutil-domhelpers-classhelpers.html">
+                  ClassHelpers
+                </a>
+              </a>
+            </p>
+          </td>
+          <td class="fsdocs-entity-xmldoc">
+            <div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:Sutil.DomHelpers.ClassHelpers`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:Sutil.DomHelpers.ClassHelpers\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L378-378" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>
+      Functions and values
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Function or value
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '129', 129)" onmouseover="showTip(event, '129', 129)">
+                <p>
+                  <a id="anyof">
+                    <a href="#anyof">
+                      <code><span>anyof&#32;<span>events&#32;target&#32;fn</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="129">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>anyof&#32;<span>events&#32;target&#32;fn</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        events
+                      </b>
+                      :
+                      <code><span>string&#32;list</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        target
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.eventtarget">EventTarget</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        fn
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.event">Event</a>&#32;->&#32;<a href="https://fsharp.github.io/fsharp-core-docs/reference/fsharp-core-unit">Unit</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.anyof`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.anyof\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L338-338" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  events
+                </span>
+                :
+                <code><span>string&#32;list</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  target
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.eventtarget">EventTarget</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  fn
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.event">Event</a>&#32;->&#32;<a href="https://fsharp.github.io/fsharp-core-docs/reference/fsharp-core-unit">Unit</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '130', 130)" onmouseover="showTip(event, '130', 130)">
+                <p>
+                  <a id="asElement">
+                    <a href="#asElement">
+                      <code><span>asElement&#32;<span>target</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="130">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>asElement&#32;<span>target</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        target
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.eventtarget">EventTarget</a></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>'T</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.DomHelpers.asElement``1```')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.asElement``1\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L16-16" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  target
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.eventtarget">EventTarget</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code>'T</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
+                <p>
+                  <a id="asTryElement">
+                    <a href="#asTryElement">
+                      <code><span>asTryElement&#32;<span>n</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="131">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>asTryElement&#32;<span>n</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        n
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.htmlelement">HTMLElement</a>&#32;option</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.asTryElement`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.asTryElement\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L123-123" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  n
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.htmlelement">HTMLElement</a>&#32;option</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
+                <p>
+                  <a id="clear">
+                    <a href="#clear">
+                      <code><span>clear&#32;<span>node</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="132">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>clear&#32;<span>node</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        node
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.clear`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.clear\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L316-316" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  node
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '133', 133)" onmouseover="showTip(event, '133', 133)">
+                <p>
+                  <a id="domId">
+                    <a href="#domId">
+                      <code><span>domId&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="133">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>domId&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span>unit&#32;->&#32;int</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:Sutil.DomHelpers.domId`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:Sutil.DomHelpers.domId\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L112-112" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><span>unit&#32;->&#32;int</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '134', 134)" onmouseover="showTip(event, '134', 134)">
+                <p>
+                  <a id="forEachChild">
+                    <a href="#forEachChild">
+                      <code><span>forEachChild&#32;<span>parent&#32;f</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="134">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>forEachChild&#32;<span>parent&#32;f</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        parent
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        f
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a>&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.forEachChild`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.forEachChild\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L368-368" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  parent
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  f
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a>&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '135', 135)" onmouseover="showTip(event, '135', 135)">
+                <p>
+                  <a id="interval">
+                    <a href="#interval">
+                      <code><span>interval&#32;<span>callback&#32;delayMs</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="135">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>interval&#32;<span>callback&#32;delayMs</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        callback
+                      </b>
+                      :
+                      <code><span>unit&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        delayMs
+                      </b>
+                      :
+                      <code>int</code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span>unit&#32;->&#32;unit</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.interval`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.interval\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L355-355" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  callback
+                </span>
+                :
+                <code><span>unit&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  delayMs
+                </span>
+                :
+                <code>int</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><span>unit&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '136', 136)" onmouseover="showTip(event, '136', 136)">
+                <p>
+                  <a id="isElementNode">
+                    <a href="#isElementNode">
+                      <code><span>isElementNode&#32;<span>n</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="136">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>isElementNode&#32;<span>n</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        n
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.isElementNode`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.isElementNode\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L121-121" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  n
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '137', 137)" onmouseover="showTip(event, '137', 137)">
+                <p>
+                  <a id="isTextNode">
+                    <a href="#isTextNode">
+                      <code><span>isTextNode&#32;<span>n</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="137">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>isTextNode&#32;<span>n</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        n
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>bool</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.isTextNode`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.isTextNode\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L120-120" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  n
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code>bool</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '138', 138)" onmouseover="showTip(event, '138', 138)">
+                <p>
+                  <a id="listen">
+                    <a href="#listen">
+                      <code><span>listen&#32;<span>event&#32;e&#32;fn</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="138">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>listen&#32;<span>event&#32;e&#32;fn</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        event
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        e
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.eventtarget">EventTarget</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        fn
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.event">Event</a>&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span>unit&#32;->&#32;unit</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.listen`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.listen\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L319-319" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  event
+                </span>
+                :
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  e
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.eventtarget">EventTarget</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  fn
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.event">Event</a>&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><span>unit&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '139', 139)" onmouseover="showTip(event, '139', 139)">
+                <p>
+                  <a id="log">
+                    <a href="#log">
+                      <code><span>log&#32;<span></span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="139">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>log&#32;<span></span></span></code>
+                  <br/>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span>string&#32;->&#32;unit</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:P:Sutil.DomHelpers.log`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'P:Sutil.DomHelpers.log\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L12-12" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><span>string&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '140', 140)" onmouseover="showTip(event, '140', 140)">
+                <p>
+                  <a id="nodeStrShort">
+                    <a href="#nodeStrShort">
+                      <code><span>nodeStrShort&#32;<span>node</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="140">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>nodeStrShort&#32;<span>node</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        node
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>string</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.nodeStrShort`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.nodeStrShort\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L184-184" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  node
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
+                <p>
+                  <a id="once">
+                    <a href="#once">
+                      <code><span>once&#32;<span>event&#32;target&#32;fn</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="141">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>once&#32;<span>event&#32;target&#32;fn</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        event
+                      </b>
+                      :
+                      <code>string</code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        target
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.eventtarget">EventTarget</a></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        fn
+                      </b>
+                      :
+                      <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.event">Event</a>&#32;->&#32;<a href="https://fsharp.github.io/fsharp-core-docs/reference/fsharp-core-unit">Unit</a></span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.once`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.once\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L348-348" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  event
+                </span>
+                :
+                <code>string</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  target
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.eventtarget">EventTarget</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  fn
+                </span>
+                :
+                <code><span><a href="https://docs.microsoft.com/dotnet/api/browser.types.event">Event</a>&#32;->&#32;<a href="https://fsharp.github.io/fsharp-core-docs/reference/fsharp-core-unit">Unit</a></span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '142', 142)" onmouseover="showTip(event, '142', 142)">
+                <p>
+                  <a id="raf">
+                    <a href="#raf">
+                      <code><span>raf&#32;<span>f</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="142">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>raf&#32;<span>f</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        f
+                      </b>
+                      :
+                      <code><span>float&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>float</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.raf`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.raf\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L323-323" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  f
+                </span>
+                :
+                <code><span>float&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code>float</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '143', 143)" onmouseover="showTip(event, '143', 143)">
+                <p>
+                  <a id="rafu">
+                    <a href="#rafu">
+                      <code><span>rafu&#32;<span>f</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="143">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>rafu&#32;<span>f</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        f
+                      </b>
+                      :
+                      <code><span>unit&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.rafu`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.rafu\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L330-330" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  f
+                </span>
+                :
+                <code><span>unit&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '144', 144)" onmouseover="showTip(event, '144', 144)">
+                <p>
+                  <a id="timeout">
+                    <a href="#timeout">
+                      <code><span>timeout&#32;<span>callback&#32;delayMs</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="144">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>timeout&#32;<span>callback&#32;delayMs</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        callback
+                      </b>
+                      :
+                      <code><span>unit&#32;->&#32;unit</span></code>
+                    </span>
+                    <br/>
+                    <span>
+                      <b>
+                        delayMs
+                      </b>
+                      :
+                      <code>int</code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span>unit&#32;->&#32;unit</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.timeout`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.timeout\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L361-361" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  callback
+                </span>
+                :
+                <code><span>unit&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  delayMs
+                </span>
+                :
+                <code>int</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><span>unit&#32;->&#32;unit</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '145', 145)" onmouseover="showTip(event, '145', 145)">
+                <p>
+                  <a id="unmount">
+                    <a href="#unmount">
+                      <code><span>unmount&#32;<span>node</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="145">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>unmount&#32;<span>node</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        node
+                      </b>
+                      :
+                      <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.unmount`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.unmount\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L310-310" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  node
+                </span>
+                :
+                <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a></code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '146', 146)" onmouseover="showTip(event, '146', 146)">
+                <p>
+                  <a id="viewportHeight">
+                    <a href="#viewportHeight">
+                      <code><span>viewportHeight&#32;<span>()</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="146">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>viewportHeight&#32;<span>()</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        ()
+                      </b>
+                      :
+                      <code>unit</code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>float</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.viewportHeight`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.viewportHeight\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L588-588" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ The height of the browser viewport
+ 
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  ()
+                </span>
+                :
+                <code>unit</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code>float</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
+                <p>
+                  <a id="viewportWidth">
+                    <a href="#viewportWidth">
+                      <code><span>viewportWidth&#32;<span>()</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="147">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>viewportWidth&#32;<span>()</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        ()
+                      </b>
+                      :
+                      <code>unit</code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code>float</code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.viewportWidth`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.viewportWidth\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L582-582" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ The width of the browser viewport
+ 
+              </p>
+            </div>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  ()
+                </span>
+                :
+                <code>unit</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code>float</code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>
+      Type extensions
+    </h3>
+    <table class="table outer-list fsdocs-member-list">
+      <thead>
+        <tr>
+          <td class="fsdocs-member-list-header">
+            Type extension
+          </td>
+          <td class="fsdocs-member-list-header">
+            Description
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
+                <p>
+                  <a id="toSeq">
+                    <a href="#toSeq">
+                      <code><span>this.toSeq&#32;<span>()</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="148">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.toSeq&#32;<span>()</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        ()
+                      </b>
+                      :
+                      <code>unit</code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span>seq&lt;'TNode&gt;</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('```cref:M:Sutil.DomHelpers.NodeListOf`1.toSeq``1```')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.NodeListOf`1.toSeq``1\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L594-594" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Produce a seq<'T> from a NodeListOf<'T>. This is useful when working with document.querySelectorAll, for example
+
+              </p>
+            </div>
+            <p>
+              Extended Type: 
+              <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.nodelistof-1">NodeListOf</a></code>
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  ()
+                </span>
+                :
+                <code>unit</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><span>seq&lt;'TNode&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+        <tr>
+          <td class="fsdocs-member-usage">
+            <div>
+              <code onmouseout="hideTip(event, '149', 149)" onmouseover="showTip(event, '149', 149)">
+                <p>
+                  <a id="toSeq">
+                    <a href="#toSeq">
+                      <code><span>this.toSeq&#32;<span>()</span></span></code>
+                    </a>
+                  </a>
+                </p>
+              </code>
+              <div class="fsdocs-tip" id="149">
+                <div class="member-tooltip">
+                  Full Usage: 
+                  <code><span>this.toSeq&#32;<span>()</span></span></code>
+                  <br/>
+                  <br/>
+                  Parameters: 
+                  <ul>
+                    <span>
+                      <b>
+                        ()
+                      </b>
+                      :
+                      <code>unit</code>
+                    </span>
+                    <br/>
+                  </ul>
+                  <br/>
+                  <span>
+                    Returns: 
+                    <code><span>seq&lt;<a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a>&gt;</span></code>
+                  </span>
+                  <br/>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="fsdocs-member-xmldoc">
+            <div class="fsdocs-summary">
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:M:Sutil.DomHelpers.NodeList.toSeq`')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-md.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-md-hover.png" class="hover"/>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'M:Sutil.DomHelpers.NodeList.toSeq\'/>')">
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/copy-xml-hover.png" class="hover"/>
+              </div>
+              <a href="https://github.com/davedawkins/Sutil/tree/master/src/Sutil/DomHelpers.fs#L604-604" class="fsdocs-source-link" title="Source on GitHub">
+                <img src="https://sutil.dev/apidocs/content/img/github.png" class="normal"/>
+                <img src="https://sutil.dev/apidocs/content/img/github-hover.png" class="hover"/>
+              </a>
+              <p class="fsdocs-summary">
+                
+ Produce a seq from a NodeList. This is useful when working with document.querySelectorAll, for example
+
+              </p>
+            </div>
+            <p>
+              Extended Type: 
+              <code><a href="https://docs.microsoft.com/dotnet/api/browser.types.nodelist">NodeList</a></code>
+            </p>
+            <dl class="fsdocs-params">
+              <dt class="fsdocs-param">
+                <span class="fsdocs-param-name">
+                  ()
+                </span>
+                :
+                <code>unit</code>
+              </dt>
+              <dd class="fsdocs-param-docs"></dd>
+            </dl>
+            <dl class="fsdocs-returns">
+              <dt>
+                <span class="fsdocs-return-name">
+                  Returns: 
+                </span>
+                <code><span>seq&lt;<a href="https://docs.microsoft.com/dotnet/api/browser.types.node">Node</a>&gt;</span></code>
+              </dt>
+              <dd class="fsdocs-return-docs"></dd>
+            </dl>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+  <div></div>
+</div>
+            
+        </div>
+
+        <!-- BEGIN SEARCH BOX: this adds support for the search box -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.css" />
+        <script type="text/javascript">var fsdocs_search_baseurl = 'https://sutil.dev/apidocs/';</script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.8/lunr.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js"></script>
+        <script type="text/javascript" src="https://sutil.dev/apidocs/content/fsdocs-search.js"></script>
+        <!-- END SEARCH BOX: this adds support for the search box -->
+    </div>
+</body>
+
+</html>

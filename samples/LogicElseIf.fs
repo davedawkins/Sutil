@@ -4,7 +4,8 @@ module LogicElseIf
 // https://svelte.dev/examples
 
 open Sutil
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 
 let x = 7;
 

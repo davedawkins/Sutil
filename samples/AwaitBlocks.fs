@@ -4,8 +4,9 @@ module AwaitBlocks
 // https://svelte.dev/examples#await-blocks
 
 open Sutil
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
 open Sutil.Bindings
 
 module RandomUser =

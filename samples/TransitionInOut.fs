@@ -4,8 +4,9 @@ module TransitionInOut
 // https://svelte.dev/examples
 
 open Sutil
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
 open Sutil.Transition
 
 let view() =

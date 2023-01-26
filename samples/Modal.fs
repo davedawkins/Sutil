@@ -1,8 +1,9 @@
 module Modal
 
 open Sutil
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 open Sutil.Bindings
 open Sutil.Styling
 

@@ -5,8 +5,9 @@ module LogicIf
 
 open Sutil
 open Sutil.Bindings
-open Sutil.DOM
-open Sutil.Attr
+open Sutil.Core
+open Sutil.CoreElements
+
 
 let view() =
     let user = Store.make {| loggedIn = false |}

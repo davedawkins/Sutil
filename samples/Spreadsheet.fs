@@ -6,8 +6,9 @@ open type Feliz.length
 open type Feliz.borderStyle
 open Sutil
 open Sutil.Styling
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
 open Fable.Core.JsInterop
 open Evaluator
 

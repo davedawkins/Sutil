@@ -28,8 +28,9 @@ module DragDropListSort
 
 open Sutil
 open type Feliz.length
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
 open Browser.Types
 open Fable.Core.JsInterop
 
@@ -46,8 +47,8 @@ module private Private =
 
     let iterElem (f: HTMLElement -> unit)(node : Node option)  = node |> Option.iter (toElement >> f)
 
-    let addClasses node classes = node |> iterElem (DOM.addToClasslist classes)
-    let removeClasses node classes = node |> iterElem (DOM.removeFromClasslist classes)
+    let addClasses node classes = node |> iterElem (Core.addToClasslist classes)
+    let removeClasses node classes = node |> iterElem (Core.removeFromClasslist classes)
 
     let getKey (n : Node) : int = Interop.get n "_key"
 
@@ -120,7 +121,7 @@ module private Private =
             // NO effect on: Chrome MacOS
             addClasses draggingNode "dragging-init"
 
-            DOM.rafu addDragInProcessClasses // class .dragging
+            Core.rafu addDragInProcessClasses // class .dragging
 
     let slotWrapper (state : DragState) slot dispatch item=
         slot item |> inject [

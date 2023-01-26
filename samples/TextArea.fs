@@ -5,8 +5,9 @@ module TextArea
 
 open Sutil
 open type Feliz.length
-open Sutil.Attr
-open Sutil.DOM
+
+open Sutil.Core
+open Sutil.CoreElements
 open Sutil.Styling
 open Fable.Core
 

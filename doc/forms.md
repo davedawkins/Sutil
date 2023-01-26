@@ -1,11 +1,5 @@
 # WIP: Forms
 
-[Stores]: https://
-[MDN web docs]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form
-
-> This chapter has a heavy use of [Stores] feel free to have a read if things feel too confusing.
-
-Forms are very likely be the bread and butter of websites they allow you to capture data from the user in a group of inputs.
 
 A simple form can be defined in the following way
 
@@ -21,8 +15,6 @@ Html.form [
     ]
 ]
 ```
-
-> Please note that since we're using standard HTML you can also find information about forms in places like the [MDN web docs].
 
 Our form is a standard HTML form  so you need to take care of the following events
 
@@ -73,7 +65,8 @@ let formSection (email: string option) =
     ]
 ```
 
-this would be near equivalent to the following form in html/js
+This would be near equivalent to the following form in html/js:
+
 ```html
 <form>
     <section>
@@ -115,7 +108,3 @@ this would be near equivalent to the following form in html/js
     passwordInput.addEventListener("keyup", onKeyUpPassword)
 </script>
 ```
-
-Sutil provides helpers to bind a particular attribute to a store, so it's simpler to react to inpit changes, which in contrast to plain javascript becomes a litle more annoying because there's no built-in binding behavior so you need to react to events in any case, also we only registered the events here, we still need to be aware of when this form and their inputs are going to dissapear from the DOM to also remove their listeners, otherwise we could have memory leaks for not removing them.
-
-Also it's worth noting that in HTML there's no type safety so you could easily put a typo on a tag or attribute, as well as missing a `"` to close an attribute and even if the browser will compensate for it, it is very likely to produce a behavior bug.

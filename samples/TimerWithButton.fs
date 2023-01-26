@@ -16,9 +16,10 @@ module TimerWithButton
 open Sutil
 open Sutil.Bulma
 open type Feliz.length
-open Sutil.Attr
+
 open System
-open Sutil.DOM
+open Sutil.Core
+open Sutil.CoreElements
 
 type Model = {  Started : bool }
 type Message =  Toggle

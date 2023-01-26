@@ -1,7 +1,3 @@
-### 2.0.1
-- Minor fixes to samples
-- Remove "internal" for computedStyleTransform and Sutil.Bindings
-
 ### 2.0.0
 - Major version bump because of refactorings which will break existing code
 - Added "Upgrading to Sutil 2.x" doc

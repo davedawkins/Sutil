@@ -115,9 +115,6 @@ let private addStyleSheet (doc:Document) styleName (styleSheet : StyleSheetDefin
         entryToText styleName entry |> doc.createTextNode |> style.appendChild |> ignore
     (fun () -> style.parentElement.removeChild(style) |> ignore)
 
-let addScopedStyleSheet (doc:Document) styleName (styleSheet : StyleSheetDefinitions) =
-    addStyleSheet doc styleName styleSheet
-
 let addGlobalStyleSheet (doc:Document) (styleSheet : StyleSheetDefinitions) =
     addStyleSheet doc "" styleSheet
 

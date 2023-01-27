@@ -87,6 +87,8 @@ type SutilHtmlEngine() as this =
         () )
 
     member __.divc (cls : string) (children : seq<SutilElement>) = __.div [ attr("class",cls); yield! children ]
+    member __.buttonc (cls : string) (children : seq<SutilElement>) = __.button [ attr("class",cls); yield! children ]
+    member __.spanc (cls : string) (children : seq<SutilElement>) = __.span [ attr("class",cls); yield! children ]
 
     member _.text (v : IObservable<string>) = Bind.el (v |> Store.distinct, CoreElements.text)
     member _.text (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, CoreElements.text)

@@ -16,7 +16,7 @@ The REPL contains a pre-defined set of samples that you can load, run and modify
 
 ## Elmish Counter
 
-Here's a counter example, using ELmish
+Here's a counter example, using Elmish
 
 ```fsharp
 module App

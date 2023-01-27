@@ -1,8 +1,121 @@
 Sutil's reactivity model is based on observables. You declare bindings between sections of your view and observable values, and Sutil rebuilds that view section *only*  when those values change.
 
-This contrasts with React, where the *whole* view is rebuilt when *any* values change. React uses a virtual DOM and some clever diffing algorithms to make this as efficient as possible.
+(This contrasts with React, where the *whole* view is rebuilt when *any* values change. React uses a virtual DOM and some clever diffing algorithms to make this as efficient as possible.)
 
-Observables are read-only. Sutil's `Store` makes an observable to which you can write values.
+Consider this example:
+
+```fs
+let count = 0
+
+Html.div [
+    text $"Count = {count}"
+]
+```
+
+Even though we have used a variable to create our view, this is a static web page; it will never change. (Even if we made `count` mutable and updated it somewhere else, nothing would happen).
+
+Let's introduce a store, and a binding:
+
+```fs
+let count = Store.make 0
+
+Html.div [
+    Bind.el( count, fun n -> text $"Count = {n}" )
+]
+```
+
+Instead of being a plain `int`, `count` is now a `Store<int>`.
+
+Additionally, we've made a binding between `count` and `text`.  The binding listens to the store, and re-evaluates the `text` node each time it changes.
+
+At this point, we still have a static page, because nothing is changing `count`. Let's use a button for that:
+
+```fs
+let count = Store.make 0
+
+Html.div [
+    Bind.el( count, fun n -> text $"Count = {n}" )
+
+    Html.button [
+        text "+"
+        Ev.onClick (fun _ -> count |> Store.modify (fun n -> n + 1))
+    ]
+]
+```
+
+The `onClick` handler uses an update function to calculate a new value for the store; in this instance, it will add 1 each time the buton is clicked.
+
+We now have a reactive application; our view (`Html.div`) is being updated in reaction to changes in state (`count`). Only the text node is being changed. Here's the sequence of events when the user clicks on the button:
+
+```text
+click!
+ => onClick handler updates count
+  => store sends notification event
+   => bind receives event
+    => bind evaluates view with new value of count
+     => bind replaces old text node with new one
+```
+
+
+It might be reactive, but it's pretty ugly. This can be fixed with a little styling, and let's make the `onClick` handler a little more readable too:
+
+```fs
+let count = Store.make 0
+
+let incrementCount (by : int) = count |> Store.modify (fun n -> n + by)
+
+Html.div [
+    Bind.el( count, fun n -> text $"Count = {n}" )
+
+    Html.button [
+        Attr.style [ Css.marginLeft (20) ]
+        text "+"
+        Ev.onClick (fun _ -> incrementCount 1)
+    ]
+]
+```
+
+How would you add a button to decrement the counter? Try modifying the example above in the REPL, and then compare with my version below.
+
+
+```fs
+let count = Store.make 0
+
+let incrementCount (by : int) = count |> Store.modify (fun n -> n + by)
+
+let incButton (label : string) (by : int) =
+    Html.button [
+        Attr.style [ Css.marginLeft (20) ]
+        text label
+        Ev.onClick (fun _ -> incrementCount by)
+    ]
+
+Html.div [
+    Bind.el( count, fun n -> text $"Count = {n}" )
+
+    incButton "-" -1
+    incButton "+" 1
+]
+```
+
+Finally, we should make sure that we dispose of our store when the containing div is unmounted (removed permanenly from the DOM). We can use `disposeOnUmount` for this:
+
+```fs
+Html.div [
+    Bind.el( count, fun n -> text $"Count = {n}" )
+
+    incButton "-" -1
+    incButton "+" 1
+
+    disposeOnUnmount [ count ]
+] //norepl
+```
+
+
+
+## Store API
+
+Observables are read-only. Sutil's `Store` is an observable that can be updated.
 
 A Store is defined as follows
 ```fs

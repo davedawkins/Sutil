@@ -43,16 +43,16 @@ This would produce the following HTML:
 Use `Html.text` to create a text node:
 
 ```fsharp
-    Html.p [
-        Html.text "This is paragraph text"
-    ]
+Html.p [
+    Html.text "This is paragraph text"
+]
 ```
 
 Most elements have an overload that allows them to take a single string value as an argument. So, the following is
 an shortcut for the above example:
 
 ```fsharp
-    Html.p "This is paragraph text"
+Html.p "This is paragraph text"
 ```
 
 ### Attributes

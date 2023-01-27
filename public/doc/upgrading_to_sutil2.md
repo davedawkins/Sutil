@@ -32,7 +32,7 @@ With the given `open` block shown above, you can remove the `DOM` prefixes
 
 ### Navigable
 
-Navigable is now a class, so `Navigable.listenLocation a b` should now be `Navigable(a,b)`
+`Navigable` is now a class, so `Navigable.listenLocation a b` should now be `Navigable.listenLocation(a,b)`
 
 ### Media
 

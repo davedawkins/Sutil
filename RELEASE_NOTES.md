@@ -1,3 +1,7 @@
+### 2.0.1
+- Move <head> helpers into DomHelpers and CoreElements
+- Added Html.buttonc, Html.spanc
+
 ### 2.0.0
 - Major version bump because of refactorings which will break existing code
 - Added "Upgrading to Sutil 2.x" doc

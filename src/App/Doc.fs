@@ -51,8 +51,10 @@ let openSutil = """open Sutil
 open Sutil.Styling
 open Sutil.Core
 open Sutil.CoreElements
+open Sutil.DomHelpers
 
-open Feliz"""
+open Feliz
+open type Feliz.length"""
 
 let buildReplQuery (names : string array) (codes : string array) (html:string) (css:string) =
     let queryData : Map<string,string> =
@@ -246,19 +248,32 @@ let querySelectorAll selector (node : Browser.Types.HTMLElement) =
 //
 let processReplDirectives (preCode : Browser.Types.Element) : bool =
     let cmd (e : Browser.Types.HTMLElement) =
+
         match e.innerText with
         | "//norepl" ->
+            let newlineNode = e.nextSibling
+
             e.parentNode.removeChild(e) |> ignore
+
+            newlineNode |> DomHelpers.applyIfText (fun textN ->
+                if (System.String.IsNullOrWhiteSpace (textN.textContent)) then
+                    newlineNode.parentNode.removeChild(newlineNode) |> ignore
+                else
+                    textN.textContent <- textN.textContent.TrimStart()
+            )
+
             false
         |_ ->
             true
 
     preCode.querySelectorAll("span.hljs-comment")
     |> seqOfNodeList
-    |> Seq.filter (fun e -> (toEl e).innerText.Contains "repl")
+    //|> Seq.filter (fun e -> (toEl e).innerText.Contains "repl")
     |> Seq.map (cmd << toEl)
     |> Seq.contains false
     |> not
+
+
 //
 // Find all "<pre><code>...</code></pre>" blocks
 //
@@ -322,7 +337,6 @@ let addReplButton (preCode : Browser.Types.HTMLElement) =
     if wantExpandButton then
         Fable.Core.JS.console.log("more button")
         preCode.classList.add( [| "more" |] )
-    Fable.Core.JS.console.log("repll button")
     Program.mountElementAfter (preCode.parentElement) (replButton wantExpandButton preCode)
 
 let addClasses (node : Browser.Types.HTMLElement) =
@@ -335,7 +349,6 @@ let addClasses (node : Browser.Types.HTMLElement) =
 // Add "Open in REPL" buttons to all <pre><code> example code blocks
 //
 let addReplButtons (markdown : Browser.Types.HTMLElement) =
-    Fable.Core.JS.console.log("addReplButtons")
     markdown
         |> addClasses
         |> findPreCode

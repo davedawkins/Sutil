@@ -431,3 +431,19 @@ let internal declareResource<'T when 'T :> IDisposable> (init: unit -> 'T) (f: '
             SutilEffect.RegisterDisposable(ctx.Parent, r)
             f (r)
     )
+
+let headStylesheet (url : string) : SutilElement =
+    SutilElement.Define( "headStyleSheet",
+        fun ctx -> DomHelpers.setHeadStylesheet ctx.Document url )
+
+let headScript (url : string) : SutilElement =
+    SutilElement.Define( "headScript",
+        fun ctx -> DomHelpers.setHeadScript ctx.Document url )
+
+let headEmbedScript (source : string) : SutilElement =
+    SutilElement.Define( "headEmbedScript",
+        fun ctx -> DomHelpers.setHeadEmbedScript ctx.Document source )
+
+let headTitle (title : string) : SutilElement =
+    SutilElement.Define( "headTitle",
+        fun ctx -> DomHelpers.setHeadTitle ctx.Document title )

@@ -12,5 +12,3 @@ Its features are:
 In addition, Sutil inherits all the benefits of both Fable (F# with excellent JS interop) and F# itself.
 
 Sutil was heavily inspired by Svelte, and imports several of its design features, such as stores and component styling. Some parts of Sutil are direct ports from Svelte.
-
-Sutil is currently in beta, which means it's safe enough for you to play around with, but expect breaking changes.

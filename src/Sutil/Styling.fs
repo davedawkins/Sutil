@@ -72,13 +72,13 @@ let specifySelector (styleName : string) (selectors : string) =
         let trans s = if isPseudo s || isGlobal s then s else sprintf "%s.%s" s styleName  // button -> button.styleA
         splitMapJoin ',' (splitMapJoin ' ' (mapPseudo trans)) selectors
 
-let styleListToText (css : list<string * obj>) =
+let private styleListToText (css : list<string * obj>) =
     " {\n" +  String.Join ("\n", css |> Seq.map (fun (nm,v) -> $"    {nm}: {v};")) + " }\n"
 
-let frameToText (f : KeyFrame) =
+let private frameToText (f : KeyFrame) =
     sprintf "%d%% %s" f.StartAt (styleListToText f.Style)
 
-let framesToText (frames : KeyFrames) =
+let private framesToText (frames : KeyFrames) =
     sprintf "@keyframes %s {\n%s\n}\n"
         frames.Name
         (String.Join("\n", frames.Frames |> List.map frameToText))
@@ -106,60 +106,20 @@ and entryToText (styleName : string) = function
     | MediaRule rule ->
         mediaRuleToText styleName rule
 
-let styleSheetAsText (styleSheet : StyleSheetDefinitions) =
+let private styleSheetAsText (styleSheet : StyleSheetDefinitions) =
     System.String.Join("\n", styleSheet |> List.map (entryToText ""))
 
-let addStyleSheet (doc:Document) styleName (styleSheet : StyleSheetDefinitions) =
+let private addStyleSheet (doc:Document) styleName (styleSheet : StyleSheetDefinitions) =
     let style = newStyleElement doc
     for entry in styleSheet do
         entryToText styleName entry |> doc.createTextNode |> style.appendChild |> ignore
     (fun () -> style.parentElement.removeChild(style) |> ignore)
 
-let headStylesheet (url : string) : SutilElement =
-    SutilElement.Define( "headStyleSheet",
-    fun ctx ->
-    let doc = ctx.Document
-    let head = findElement doc "head"
-    let styleEl = doc.createElement("link")
-    head.appendChild( styleEl ) |> ignore
-    styleEl.setAttribute( "rel", "stylesheet" )
-    styleEl.setAttribute( "href", url ) |> ignore
-    () )
+let addScopedStyleSheet (doc:Document) styleName (styleSheet : StyleSheetDefinitions) =
+    addStyleSheet doc styleName styleSheet
 
-let headScript (url : string) : SutilElement =
-    SutilElement.Define( "headScript",
-    fun ctx ->
-    let doc = ctx.Document
-    let head = findElement doc "head"
-    let el = doc.createElement("script")
-    head.appendChild( el ) |> ignore
-    el.setAttribute( "src", url ) |> ignore
-    () )
-
-let headEmbedScript (source : string) : SutilElement =
-    SutilElement.Define( "headEmbedScript",
-    fun ctx ->
-    let doc = ctx.Document
-    let head = findElement doc "head"
-    let el = doc.createElement("script")
-    head.appendChild( el ) |> ignore
-    el.appendChild(doc.createTextNode(source)) |> ignore
-    () )
-
-let headTitle (title : string) : SutilElement =
-    SutilElement.Define( "headTitle",
-    fun ctx ->
-    let doc = ctx.Document
-    let head = findElement doc "head"
-    let existingTitle = findElement doc "head>title"
-
-    if not (isNull existingTitle) then
-        head.removeChild(existingTitle) |> ignore
-
-    let titleEl = doc.createElement("title")
-    titleEl.appendChild( doc.createTextNode(title) ) |> ignore
-    head.appendChild(titleEl) |> ignore
-    () )
+let addGlobalStyleSheet (doc:Document) (styleSheet : StyleSheetDefinitions) =
+    addStyleSheet doc "" styleSheet
 
 /// <summary>
 /// Define a CSS styling rule

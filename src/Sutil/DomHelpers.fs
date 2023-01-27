@@ -120,8 +120,8 @@ let internal ElementNodeType = 1.0
 [<Literal>]
 let internal TextNodeType = 3.0
 
-let isTextNode (n: Node) = n.nodeType = TextNodeType
-let isElementNode (n: Node) = n.nodeType = ElementNodeType
+let isTextNode (n: Node) = n <> null && n.nodeType = TextNodeType
+let isElementNode (n: Node) = n <> null && n.nodeType = ElementNodeType
 
 let asTryElement (n: Node) =
     if isElementNode n then
@@ -131,10 +131,13 @@ let asTryElement (n: Node) =
 
 let internal documentOf (n: Node) = n.ownerDocument
 
-let internal applyIfElement (f: HTMLElement -> unit) (n: Node) =
+let applyIfElement (f: HTMLElement -> unit) (n: Node) =
     if isElementNode n then
         f (n :?> HTMLElement)
 
+let applyIfText (f: Text -> unit) (n: Node) =
+    if isTextNode n then
+        f (n :?> Text)
 
 let internal getNodeMap (doc: Document) : obj =
     NodeKey.getCreate doc.body NodeKey.NodeMap (fun () -> upcast {|  |})
@@ -609,3 +612,33 @@ type NodeList with
             for i in [ 0 .. nodes.length - 1 ] do
                 yield nodes.[i]
         }
+
+let setHeadStylesheet (doc : Document) (url : string) =
+    let head = findElement doc "head"
+    let styleEl = doc.createElement("link")
+    head.appendChild( styleEl ) |> ignore
+    styleEl.setAttribute( "rel", "stylesheet" )
+    styleEl.setAttribute( "href", url ) |> ignore
+
+let setHeadScript (doc : Document) (url : string)  =
+    let head = findElement doc "head"
+    let el = doc.createElement("script")
+    head.appendChild( el ) |> ignore
+    el.setAttribute( "src", url ) |> ignore
+
+let setHeadEmbedScript (doc : Document) (source : string) =
+    let head = findElement doc "head"
+    let el = doc.createElement("script")
+    head.appendChild( el ) |> ignore
+    el.appendChild(doc.createTextNode(source)) |> ignore
+
+let setHeadTitle (doc : Document) (title : string)  =
+    let head = findElement doc "head"
+    let existingTitle = findElement doc "head>title"
+
+    if not (isNull existingTitle) then
+        head.removeChild(existingTitle) |> ignore
+
+    let titleEl = doc.createElement("title")
+    titleEl.appendChild( doc.createTextNode(title) ) |> ignore
+    head.appendChild(titleEl) |> ignore

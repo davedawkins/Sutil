@@ -12,6 +12,8 @@
 - [HTML](html.md)
 - [Styling](styling.md)
 - [Stores](stores.md)
+- [Timers](timers.md)
+- [Elmish (MVU)](elmish.md)
 - [Collections](collections.md)
 - [Web Components](webcomponents.md)
 - [Chrome Extensions](chrome_extension.md)
@@ -19,7 +21,6 @@
 - [Forms](forms.md)
 - [Transitions](transitions.md)
 - [Media Queries](media_queries.md)
-- [Elmish (MVU)](elmish.md)
 - [DevTools - coming soon](coming_soon.md)
 
 # Trouble Shooting

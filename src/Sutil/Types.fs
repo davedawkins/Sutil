@@ -195,11 +195,14 @@ type Store<'T> = IStore<'T>
 ///  <exclude />
 type Update<'Model> = ('Model -> 'Model) -> unit // A store updater. Store updates by being passed a model updater
 
-///  <exclude />
+/// Dispatch - feed new message into the processing loop
 type Dispatch<'Msg> = 'Msg -> unit // Message dispatcher
 
-///  <exclude />
-type Cmd<'Msg> = (Dispatch<'Msg> -> unit) list // List of commands. A command needs a dispatcher to execute
+/// Effect - return immediately, but may schedule dispatch of a message at any time
+type Effect<'msg> = Dispatch<'msg> -> unit
+
+/// Cmd - container for effects that may produce messages
+type Cmd<'Msg> = Effect<'Msg> list // List of commands. A command needs a dispatcher to execute
 
 //
 // All Cmd code take from Fable.Elmish/src/cmd.fs, by Maxel Mangime
@@ -225,6 +228,10 @@ module internal Timer =
 module Cmd =
 
     let none: Cmd<'Msg> = []
+
+    /// Command to call the effect
+    let ofEffect (effect: Effect<'msg>) : Cmd<'msg> =
+        [effect]
 
     let map (f: 'MsgA -> 'MsgB) (cmd: Cmd<'MsgA>) : Cmd<'MsgB> =
         cmd

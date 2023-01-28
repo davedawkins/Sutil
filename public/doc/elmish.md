@@ -88,7 +88,9 @@ Bind.el(
     fun n -> Html.div $"Counter = {n}" )
 ```
 
-A full-Elmish example includes support for commands. Our example with commands would look like this:
+A full-Elmish example includes support for commands. Commands are an additional return value from the ELmish `init()` and `update()` functions, and are executed within the Elmish processing loop.
+
+Our example with commands would look like the example below.
 
 ```
 open Sutil
@@ -128,6 +130,91 @@ view() |> Program.mountElement "sutil-app"
 Note the differences:
 
 - `init` and `update` return a tuple of `(Model * Cmd<Message>)`
+
 - initialization is performed with `Store.makeElmish` (not `Store.makeElmishSimple`)
 
-We now have the ability to execute commands synchronously and asynchronously in response to the `init` and `update` functions.
+The `init()` and `update()` functions are not just returning the new model state now, they also return a command.
+However, in this example the command is always `Cmd.none`, which means "do nothing".
+
+In the section on `Timers` we introduced a stopwatch example. Here is that same example as an Elmish program
+
+```fs
+
+type Stopwatch = {
+    Elapsed : float
+    StartedAt : System.DateTime
+    IsRunning : bool
+}
+
+type Message =
+    | Start
+    | Stop
+    | Reset
+    | Tick
+
+let now() = System.DateTime.Now
+
+let init() =
+    {
+        Elapsed = 0.0; StartedAt = now(); IsRunning = false
+    }, Cmd.none
+
+let nextTick dispatch =
+    rafu (fun _ -> dispatch Tick)
+
+let update (msg : Message) (model : Stopwatch) =
+    match msg with
+
+    | Start ->
+        { model with StartedAt = now(); IsRunning = true }, Cmd.ofEffect (nextTick)
+
+    | Stop ->
+        { model with IsRunning = false }, Cmd.none
+
+    | Reset ->
+        init()
+
+    | Tick ->
+        if model.IsRunning then
+            let t = now()
+            let sinceStartMs = (t - model.StartedAt).TotalMilliseconds
+            { model with Elapsed = model.Elapsed + sinceStartMs; StartedAt = t },
+                Cmd.ofEffect (nextTick)
+        else
+            model, Cmd.none
+
+// stopwatch is an IStore<Stopwatch> and holds all of our application state
+let stopwatch, dispatch = () |> Store.makeElmish init update ignore
+
+Html.div [
+    // Update the elapsed time
+    Bind.el( stopwatch, fun sw -> sprintf ("Elapsed: %0.3f" ) (sw.Elapsed/1000.0) |> Html.div)
+
+    // Change the buttons depending on whether we're running or not
+    // Use mapDistinct to prevent rebuilding the buttons upon each tick (which updates Elapsed)
+    Bind.el( stopwatch |> Store.mapDistinct (fun sw -> sw.IsRunning), fun isRunning ->
+        if isRunning then
+            Html.button [
+                Attr.className "button" // Bulma styling
+                Attr.style [ Css.marginTop (rem 1) ]
+                text "Stop"
+                Ev.onClick (fun _ -> dispatch Stop)
+            ]
+        else
+            Html.button [
+                Attr.className "button" // Bulma styling
+                Attr.style [ Css.marginTop (rem 1) ]
+                text "Start"
+                Ev.onClick (fun _ -> dispatch Start)
+            ]
+    )
+
+    // Note that this button is only ever rendered once, as is the enclosing div
+    Html.button [
+        text "Reset"
+        Ev.onClick (fun _ -> dispatch Reset)
+        Attr.className "button"
+        Attr.style [ Css.marginLeft (rem 1); Css.marginTop (rem 1) ]
+    ]
+]
+```

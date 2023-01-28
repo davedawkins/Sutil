@@ -1,6 +1,7 @@
 ### 2.0.1
 - Move <head> helpers into DomHelpers and CoreElements
 - Added Html.buttonc, Html.spanc
+- Added Cmd.ofEffect
 
 ### 2.0.0
 - Major version bump because of refactorings which will break existing code

@@ -88,7 +88,7 @@ Bind.el(
     fun n -> Html.div $"Counter = {n}" )
 ```
 
-A full-Elmish example includes support for commands. Commands are an additional return value from the ELmish `init()` and `update()` functions, and are executed within the Elmish processing loop.
+A full-Elmish example includes support for commands. Commands are an additional return value from the Elmish `init()` and `update()` functions, and are executed within the Elmish processing loop.
 
 Our example with commands would look like the example below.
 

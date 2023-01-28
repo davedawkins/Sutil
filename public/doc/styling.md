@@ -80,7 +80,7 @@ You can then use the `class` attribute to style your elements:
 ```fsharp
 Html.div [
     Attr.className "has-text-danger is-capitalized"
-    Html.text "hello world"
+    text "hello world"
 ]
 ```
 
@@ -88,7 +88,7 @@ We can also use the `Html.divc` helper to specify the `class` attribute:
 
 ```fsharp
 Html.divc "has-text-danger is-capitalized" [
-    Html.text "hello world"
+    text "hello world"
 ]
 ```
 
@@ -202,7 +202,7 @@ installSheet false
 
 Html.section [
     Html.divc "green" [ text "As in grass" ]
-    Html.divc "blue" [ text "As in sky" ]
+    Html.divc "blue"  [ text "As in sky"   ]
     Html.button [
         Attr.className "button"
         text "Dark"

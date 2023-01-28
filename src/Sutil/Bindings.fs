@@ -139,8 +139,8 @@ let bindPromise<'T>  (p : JS.Promise<'T>)
         (result: 'T -> SutilElement)
         (fail : Exception -> SutilElement)
         : SutilElement =
-    let x = ObservablePromise<'T>()
-    x.Run p
+    let x = ObservablePromise<'T>(p)
+    //x.Run p
     bindPromiseStore x waiting result fail
 
 type BindFn<'T> = IObservable<'T> -> ('T -> SutilElement) -> SutilElement

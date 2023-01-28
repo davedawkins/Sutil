@@ -209,3 +209,7 @@ type BindArray =
     static member eachi (items:IObservable<array<'T>>, view : (int*'T) -> SutilElement ) : SutilElement =
         eachi (arrayWrapO items) view []
 
+
+[<AutoOpen>]
+module BindOperators =
+    let (>/) a b = Bind.el( a , b)

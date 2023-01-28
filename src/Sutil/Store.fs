@@ -403,6 +403,11 @@ module StoreOperators =
     let (.>) s f = Store.map f s
 
     /// <summary>
+    /// Alias for <c>Store.mapDistinct</c>
+    /// </summary>
+    let (.>>) s f = Store.mapDistinct f s
+
+    /// <summary>
     /// Alias for <c>Store.set</c>,  replaces the current value of the store
     /// </summary>
     /// <example>

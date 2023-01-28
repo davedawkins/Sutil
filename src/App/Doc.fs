@@ -282,7 +282,8 @@ let findPreCode (node : Browser.Types.HTMLElement) =
 
 let makeExample (code:string) =
     let codeWithOpens (c:string) =
-        if c.Contains("open Sutil") then c else openSutil + "\n\n" + c
+        openSutil + "\n\n" + c
+        //if c.Contains("open Sutil") then c else openSutil + "\n\n" + c
 
     let codeWithMount (c:string) =
         if c.Contains("mountElement") then c

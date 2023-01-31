@@ -16,9 +16,9 @@ Follow these steps to create a new Sutil project starting from scratch:
 
 ```shell
 % cd src
-% dotnet add package Sutil --version 1.0.0-beta-002
+% dotnet add package Sutil --version 2.0.0
 ```
-Note: Sutil is still in beta, so a specific version must be specified. Check https://www.nuget.org/packages/Sutil/ for latest version.
+Note: Check https://www.nuget.org/packages/Sutil/ for latest version.
 
 - Edit `public/index.html` and change `body` element to read as follows:
 

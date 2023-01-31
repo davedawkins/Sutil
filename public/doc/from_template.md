@@ -1,11 +1,16 @@
-Coming soon - you will be able to do:
-
 - Install Sutil templates
 ```shell
-% dotnet new --install Sutil.Templates::1.0.0
+% dotnet new install Sutil.Templates
 ```
 
 - Create a new Sutil project:
 ```shell
-% dotnet new sutil
+% mkdir myapp
+% cd myapp
+% dotnet new sutil-app
+% npm install
+% npm run start
 ```
+
+View your new app at http://localhost:8080
+

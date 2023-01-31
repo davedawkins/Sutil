@@ -210,6 +210,27 @@ type BindArray =
         eachi (arrayWrapO items) view []
 
 
+///<summary>
+/// Operators to help with bindings
+/// </summary>
 [<AutoOpen>]
 module BindOperators =
+
+    /// <summary>
+    /// An alias for <c>Bind.el</c>
+    /// </summary>
+    /// <example>
+    /// Consider this binding:
+    /// <code>
+    ///     Bind.el( model .> errorMessage, fun msg -> Html.div [ text msg ] )
+    /// </code>
+    /// This operator would allow this to be rewritten as
+    /// <code>
+    ///     model .> errorMessage >/ fun msg -> Html.div [ text msg ]
+    /// </code>
+    /// In fact, for this particular message, you can code golf this into
+    /// <code>
+    ///     model .> errorMessage >/ Html.div
+    /// </code>
+    /// </example>
     let (>/) a b = Bind.el( a , b)

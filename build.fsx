@@ -63,8 +63,10 @@ let fsdocs (local : bool) =
     if not (Directory.Exists(docsInputFolder)) then
         Directory.CreateDirectory(docsInputFolder) |> ignore
 
+    sprintf "dotnet tool install fsdocs-tool" |> run
     sprintf "dotnet fsdocs build --input %s --output public/apidocs --parameters fsdocs-logo-src ../../images/logo-small.png root %s" docsInputFolder root
     |> run
+    sprintf "dotnet tool uninstall fsdocs-tool" |> run
 
     Directory.Delete(docsInputFolder)
     setDotNet(6)
@@ -117,7 +119,7 @@ Target.create "samples" (fun _ ->
             let content = File.ReadAllText(targetFs)
             if (re.Match(content).Success) then
                 Console.WriteLine("   Found view() function")
-                File.AppendAllText( targetFs, "\nview() |> Program.mountElement \"sutil-app\"\n")
+                File.AppendAllText( targetFs, "\nview() |> Program.mount\n")
         )
 )
 
@@ -131,6 +133,7 @@ Target.create "build:app" (fun _ ->
 
 "fsdocs"
     ==> "build:app"
+    ==> "samples"
     ==> "deploy:linode"
     |> ignore
 

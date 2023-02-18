@@ -1,84 +1,77 @@
-/// <summary>
-/// Main entry points for a Sutil program
-/// </summary>
-module Sutil.Program
+namespace Sutil
 
 open Core
 open CoreElements
 open Browser.Types
 open Browser.Dom
 
-let pipeline =
-    Sutil.Core.pipeline()
+/// <summary>
+/// Main entry points for a Sutil program
+/// </summary>
+module Program =
+    open System
 
-type MountPoint = {
-        Host : Element
-        App : SutilElement
-    }
-    with
-        member this.Mount() =
-            mountOn (this.App) (this.Host) pipeline
+    let internal _mount ((_,eref) as mp : MountPoint) (view : SutilElement) =
+        ObservableStore.Registry.initialise eref.AsElement.ownerDocument
+        Core.mount view mp |> ignore
 
-        member this.MountAfter() =
-            mountAfter (this.App) (this.Host :?> HTMLElement) pipeline
+    // -----------------------------------------------------------------------------------------------------------------------------
 
-        //member this.Mount() =
-        //    this.MountOn( this.Doc.querySelector($"#{this.MountId}") )
-//                mountOn (exclusive this.App) host pipeline
+    [<Obsolete("Use Program.mount( host, app )")>]
+    let mountElementOnDocumentElement (host : HTMLElement) (app : SutilElement)  =
+        app |> _mount (MountOp.AppendTo,ElementRef.Element host)
 
-// Tried to make these into static members, but get error
-// "These element declarations are not permitted in an augmentation F# compiler"
-// MountPoint is passed to DevTools
-let mutable private _allMountPoints = []
+    [<Obsolete("Use Program.mount( doc, id, app )")>]
+    let mountElementOnDocument (doc : Document) id (app : SutilElement)  =
+        let host = doc.querySelector($"#{id}") :?> HTMLElement
+        //mountElementOnDocumentElement host app
+        app |> _mount (MountOp.AppendTo,ElementRef.Element host)
 
-let allMountPoints() = _allMountPoints
+    [<Obsolete("Use Program.mount( host, app )")>]
+    let mountDomElement (host : HTMLElement) (app : SutilElement)  =
+        //mountElementOnDocumentElement host app
+        app |> _mount (MountOp.AppendTo,ElementRef.Element host)
 
-let private createMountPoint host app =
-    let self = { Host = host; App = app }
-    _allMountPoints <- self :: _allMountPoints
-    self
+    [<Obsolete("Use Program.mount( id, app )")>]
+    let mountElement id (app : SutilElement)  =
+        //mountElementOnDocument document id (exclusive app)
+        app |> _mount (MountOp.AppendTo,ElementRef.Id id)
 
-let rec mountElementOnDocumentElement (host : Element) (app : SutilElement)  =
-    let mp = createMountPoint host app
-    ObservableStore.Registry.initialise (host.ownerDocument)
-    mp.Mount() |> ignore
+    [<Obsolete("Use Program.mountAfter( host, app )")>]
+    let mountElementAfter (prev : HTMLElement) (app : SutilElement) =
+        app |> _mount (MountOp.InsertAfter,ElementRef.Element prev)
 
-//
-// Mount a top-level application SutilElement into an existing document
-//
-let rec mountElementOnDocument (doc : Document) id (app : SutilElement)  =
-    let host = doc.querySelector($"#{id}")
-    let mp = createMountPoint host app
-    ObservableStore.Registry.initialise doc
-    mp.Mount() |> ignore
 
-let rec mountDomElement (host : Element) (app : SutilElement)  =
-    mountElementOnDocumentElement host app
+type Program() =
+    ///<summary>
+    /// Mount application on element with given id.
+    ///</summary>
+    static member mount (id : string, app : SutilElement) =
+        app |> Program._mount (MountOp.AppendTo, Id id)
 
-let rec mountElement id (app : SutilElement)  =
-    mountElementOnDocument document id (exclusive app)
+    ///<summary>
+    /// Mount application on given HTMLElement
+    ///</summary>
+    static member mount (host : HTMLElement, app : SutilElement) =
+        app |> Program._mount (MountOp.AppendTo, ElementRef.Element host)
 
-let rec mountElementAfter (after : HTMLElement) (app : SutilElement) =
-    let mp = createMountPoint after app
-    ObservableStore.Registry.initialise (after.ownerDocument)
-    mp.MountAfter() |> ignore
+    ///<summary>
+    /// Mount application on element with id "sutil-app"
+    ///</summary>
+    static member mount (app : SutilElement) =
+        Program.mount( "sutil-app", app )
 
-//let makeComponent name (element : SutilElement) : SutilElement = fun (ctx,parent) ->
-//    element( { ctx with StyleName = "" }, parent )
+    ///<summary>
+    /// Mount application on element with given id from specific document
+    ///</summary>
+    static member mount (doc : Document, id : string, app : SutilElement) =
+        let host = doc.querySelector($"#{id}") :?> HTMLElement
+        Program.mount( host, app )
 
-//
-// Sutil Elmish
-// The model mutates in Sutil, so the function signatures are slightly different to Elmish.
-// This approach isn't necessary, but it could be helpful in that it encourages the view to
-// dispatch messages that are then processed only in the update function.
-//
-let makeProgram host init update view =
-    let doc = Browser.Dom.document
-    let model = init()
+    ///<summary>
+    /// Mount application after given HTMLElement
+    ///</summary>
+    static member mountAfter (prev : HTMLElement, app : SutilElement) =
+        app |> Program._mount (MountOp.InsertAfter, ElementRef.Element prev)
 
-    let makeDispatcher update =
-        (fun msg ->
-            update msg model
-            DomHelpers.Event.notifyUpdated doc)
 
-    mountElementOnDocument doc host <| view model (makeDispatcher update)

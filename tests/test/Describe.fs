@@ -15,7 +15,7 @@ open WebTestRunner
 let mountTestApp app =
     use container = Container.New()
     currentEl <- container.El
-    Sutil.Program.mountDomElement currentEl app |> ignore
+    (currentEl,app) |> Sutil.Program.mount
 
 #else
 

@@ -111,7 +111,8 @@ let elns ns tag (xs: seq<SutilElement>) : SutilElement =
             ctx.AddChild(DomNode e)
 
             // Effect 5
-            dispatchSimple e Event.ElementReady
+            //dispatchSimple e Event.ElementReady
+            CustomDispatch<unit>.dispatch( e, Event.ElementReady )
 
     //        Fable.Core.JS.console.log(buildLevelStr(), "-- returning ", nodeStrShort e)
             upcast e
@@ -155,7 +156,7 @@ let keyedEl (tag: string) (key: string) (init: seq<SutilElement>) (update: seq<S
                 // Effect 40
                 ctx.AddChild(DomNode e)
                 // Effect 5
-                dispatchSimple e Event.ElementReady
+                CustomDispatch<_>.dispatch(e,Event.ElementReady)
 
             upcast e
     )

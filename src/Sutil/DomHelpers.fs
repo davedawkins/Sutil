@@ -13,19 +13,10 @@ let log = Logging.log "dom"
 
 let internal SvIdKey = "_svid"
 
+///<summary>
+/// Downcast EventTarget to Node or subtype of Node
+/// </summary>
 let asElement<'T when 'T :> Node> (target:EventTarget) : 'T = (target :?> 'T)
-
-let internal dispatch (target: EventTarget) name (data: obj) =
-    if not (isNull target) then
-        target.dispatchEvent (Interop.customEvent name data)
-        |> ignore
-
-let internal dispatchSimple (target: EventTarget) name = dispatch target name {|  |}
-
-let internal dispatchCustom<'T> (target: EventTarget) (name: string) (init: CustomEventInit<'T>) =
-    if not (isNull target) then
-        target.dispatchEvent (customEvent name init)
-        |> ignore
 
 [<RequireQualifiedAccessAttribute>]
 module internal NodeKey =
@@ -59,7 +50,6 @@ module internal NodeKey =
             Interop.set node key newVal
             newVal
 
-
 module internal Event =
     let NewStore = "sutil-new-store"
     let UpdateStore = "sutil-update-store"
@@ -81,12 +71,24 @@ module internal Event =
         log ("notify document")
         notifyEvent doc Updated {|  |}
 
+let private dispatch (target: EventTarget) name (data: obj) =
+    if not (isNull target) then
+        target.dispatchEvent (Interop.customEvent name data)
+        |> ignore
+
+let private dispatchSimple (target: EventTarget) name =
+    dispatch target name {|  |}
+
+let private dispatchCustom<'T> (target: EventTarget) (name: string) (init: CustomEventInit<'T>) =
+    if not (isNull target) then
+        target.dispatchEvent (customEvent name init)
+        |> ignore
 
 /// <summary>
 /// Custom events
 /// </summary>
 type CustomDispatch<'T> =
-    | Detail of 'T option
+    | Detail of 'T
     | Bubbles of bool
     | Composed of bool
     static member toCustomEvent<'T>(props: CustomDispatch<'T> list) =
@@ -112,7 +114,10 @@ type CustomDispatch<'T> =
     static member dispatch<'T>(e: Event, name: string, props: CustomDispatch<'T> list) =
         dispatchCustom<'T> (e.target) name (CustomDispatch.toCustomEvent<'T> props)
 
-let domId = Helpers.makeIdGenerator ()
+    static member dispatch (target: EventTarget, name, data: 'T) =
+        dispatchCustom<'T> (target) name (CustomDispatch.toCustomEvent<unit> ([ Detail data ]))
+
+let internal domId = Helpers.makeIdGenerator ()
 
 [<Literal>]
 let internal ElementNodeType = 1.0
@@ -120,22 +125,25 @@ let internal ElementNodeType = 1.0
 [<Literal>]
 let internal TextNodeType = 3.0
 
+/// Return true if n is a Text node (nodeType = 3)
 let isTextNode (n: Node) = n <> null && n.nodeType = TextNodeType
+
+/// Return true if n is an Element node (nodeType = 1)
 let isElementNode (n: Node) = n <> null && n.nodeType = ElementNodeType
 
-let asTryElement (n: Node) =
-    if isElementNode n then
-        Some(n :?> HTMLElement)
-    else
-        None
+// let asTryElement (n: Node) =
+//     if isElementNode n then
+//         Some(n :?> HTMLElement)
+//     else
+//         None
 
 let internal documentOf (n: Node) = n.ownerDocument
 
-let applyIfElement (f: HTMLElement -> unit) (n: Node) =
+let internal applyIfElement (f: HTMLElement -> unit) (n: Node) =
     if isElementNode n then
         f (n :?> HTMLElement)
 
-let applyIfText (f: Text -> unit) (n: Node) =
+let internal applyIfText (f: Text -> unit) (n: Node) =
     if isTextNode n then
         f (n :?> Text)
 
@@ -187,7 +195,7 @@ let internal nodeStr (node: Node) =
         | TextNodeType -> $"\"{tc}\"#{svId node}"
         | _ -> $"?'{tc}'#{svId node}"
 
-let nodeStrShort (node: Node) =
+let internal nodeStrShort (node: Node) =
     if isNull node then
         "null"
     else
@@ -204,11 +212,9 @@ let nodeStrShort (node: Node) =
         | _ -> $"?'{tc}'#{svId node}"
 
 open Fable.Core.JsInterop
-open Fable.Core
 
-
-
-let internal children (node: Node) =
+/// Child nodes of node
+let children (node: Node) =
     let rec visit (child: Node) =
         seq {
             if not (isNull child) then
@@ -218,7 +224,8 @@ let internal children (node: Node) =
 
     visit node.firstChild
 
-let rec internal descendants (node: Node) =
+/// Descendants of node in breadth-first order
+let rec descendants (node: Node) =
     seq {
         for child in children node do
             yield child
@@ -274,7 +281,6 @@ let internal cleanupDeep (node: Node) : unit =
 
     cleanup node
 
-
 module internal DomEdit =
 
     let log s =
@@ -310,22 +316,22 @@ module internal DomEdit =
 
         insertBefore parent newChild beforeChild
 
-
-// Cleanup all descendants and this node
-// Remove node from parent
-let unmount (node: Node) : unit =
+let internal unmount (node: Node) : unit =
     cleanupDeep node
 
     if not (isNull (node.parentNode)) then
         DomEdit.removeChild node.parentNode node
 
+/// Remove all children of this node, cleaning up Sutil resources and dispatching "unmount" events
 let clear (node: Node) =
     children node |> Array.ofSeq |> Array.iter unmount
 
+/// Add event listener using e.addEventListener. Return value is a (unit -> unit) function that will remove the event listener
 let listen (event: string) (e: EventTarget) (fn: (Event -> unit)) : (unit -> unit) =
     e.addEventListener (event, fn)
     (fun () -> e.removeEventListener (event, fn) |> ignore)
 
+/// Wrapper for Window.requestAnimationFrame
 let raf (f: float -> unit) =
     Window.requestAnimationFrame (fun t ->
         try
@@ -333,6 +339,7 @@ let raf (f: float -> unit) =
         with
         | x -> Logging.error $"raf: {x.Message}")
 
+/// Wrapper for Window.requestAnimationFrame, ignoring the timestamp.
 let rafu (f: unit -> unit) =
     Window.requestAnimationFrame (fun _ ->
         try
@@ -341,6 +348,8 @@ let rafu (f: unit -> unit) =
         | x -> Logging.error $"rafu: {x.Message}")
     |> ignore
 
+
+/// Listen for the first occurrence of a list of events. fn will be called for the winning event
 let anyof (events: string list) (target: EventTarget) (fn: Event -> Unit) : unit =
     let rec inner e =
         events
@@ -351,6 +360,7 @@ let anyof (events: string list) (target: EventTarget) (fn: Event -> Unit) : unit
     events
     |> List.iter (fun e -> listen e target inner |> ignore)
 
+/// Listen for the given event, and remove the listener after the first occurrence of the evening firing.
 let once (event: string) (target: EventTarget) (fn: Event -> Unit) : unit =
     let rec inner e =
         target.removeEventListener (event, inner)
@@ -358,28 +368,21 @@ let once (event: string) (target: EventTarget) (fn: Event -> Unit) : unit =
 
     listen event target inner |> ignore
 
-let interval callback (delayMs: int) =
+/// Call handler every delayMs. Return value is a function that will cancel the timer.
+let interval handler (delayMs: int) =
     let id =
-        Fable.Core.JS.setInterval callback delayMs
+        Fable.Core.JS.setInterval handler delayMs
 
     fun () -> Fable.Core.JS.clearInterval id
 
-let timeout callback (delayMs: int) =
+/// Call handler after delayMs. Return value is a function that will cancel the timeout (if it hasn't occurred yet)
+let timeout handler (delayMs: int) =
     let id =
-        Fable.Core.JS.setTimeout callback delayMs
+        Fable.Core.JS.setTimeout handler delayMs
 
     fun () -> Fable.Core.JS.clearTimeout id
 
-
-let rec forEachChild (parent: Node) (f: Node -> unit) =
-    let mutable child = parent.firstChild
-
-    while not (isNull child) do
-        f child
-        child <- child.nextSibling
-
 let internal nodeIsConnected (node: Node) : bool = node?isConnected
-
 
 module ClassHelpers =
     let splitBySpace (s: string) =
@@ -504,7 +507,7 @@ let private lastChildWhere (node: Node) (condition: Node -> bool) =
 
 let rec internal visitElementChildren (parent: Node) (f: HTMLElement -> unit) =
     visitChildren parent (fun child ->
-        if (child.nodeType = 1.0) then
+        if (isElementNode child) then
             f (downcast child)
 
         true)
@@ -537,8 +540,6 @@ let internal fixPosition (node: HTMLElement) =
         node.style.width <- width
         node.style.height <- height
         addTransform node a
-
-
 
 let internal computedStyleOpacity e =
     try
@@ -574,7 +575,6 @@ let internal wait (el: HTMLElement) (andThen: unit -> Promise<unit>) =
     else
         run ()
 
-
 let internal textNode (doc: Document) value : Node =
     let id = domId ()
     log $"create \"{value}\" #{id}"
@@ -602,7 +602,6 @@ type NodeListOf<'T> with
             for i in [ 0 .. nodes.length - 1 ] do
                 yield nodes.[i]
         }
-
 
 /// <exclude/>
 type NodeList with

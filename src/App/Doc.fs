@@ -338,7 +338,7 @@ let addReplButton (preCode : Browser.Types.HTMLElement) =
     if wantExpandButton then
         Fable.Core.JS.console.log("more button")
         preCode.classList.add( [| "more" |] )
-    Program.mountElementAfter (preCode.parentElement) (replButton wantExpandButton preCode)
+    Program.mountAfter (preCode.parentElement, replButton wantExpandButton preCode)
 
 let addClasses (node : Browser.Types.HTMLElement) =
     node

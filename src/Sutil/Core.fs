@@ -39,7 +39,6 @@ type SutilEffect =
         | _ -> defaultValue
 
     member private this.iter f = this.mapDefault f ()
-    member private this.iterElement(f: HTMLElement -> unit) = this.mapDefault (applyIfElement f) ()
 
     member internal this.IsConnected() =
         match this with
@@ -57,26 +56,12 @@ type SutilEffect =
 
         groups
 
-    member private this.AssertIsConnected() =
-        match this with
-        | SideEffect -> failwith "Not connected: empty node"
-        | DomNode n ->
-            if (not (nodeIsConnected n)) then
-                failwith $"Not connected: {n}"
-        | Group g -> g.AssertIsConnected()
-
     static member private CleanupGroups(n: Node) =
-        //Fable.Core.JS.console.log("Cleanup groups")
         let groups = SutilEffect.GetGroups(n)
 
         groups
         |> Option.iter (
-            List.iter (fun g ->
-                //Fable.Core.JS.console.log("++ Cleanup group: " )
-                let sn = Group g
-                //sn.PrettyPrint("cleanup group: ")
-                //Fable.Core.JS.console.log("-- Cleanup group: " )
-                g.Dispose())
+            List.iter (fun g -> g.Dispose())
         )
 
         NodeKey.clear n NodeKey.Groups
@@ -110,14 +95,10 @@ type SutilEffect =
                 | t when isTextNode (t) -> log l $"'{t.textContent}'"
                 | _ ->
                     let e = dn :?> HTMLElement
-                    //let g =
-                    //    SutilGroup.GroupOf e
-                    //    |> Option.map (fun g -> " : " + g.Name + "#" + g.Id)
-                    //    |> Option.defaultValue ""
                     log l' ("<" + e.tagName + "> #" + (string (svId e)))
 
                     if deep then
-                        forEachChild e (prDomNode (l' + 1))
+                        children e |> Seq.iter (prDomNode (l' + 1))
 
                         if Interop.exists e NodeKey.Groups then
                             let groups: SutilGroup list = (Interop.get e NodeKey.Groups)
@@ -142,8 +123,6 @@ type SutilEffect =
                      + " children=["
                      + ch
                      + "]")
-            //for c in v.Children do
-            //    pr (level + 1) false c
 
             match node with
             | SideEffect -> log level "-"
@@ -181,29 +160,11 @@ type SutilEffect =
 
     member internal this.IsEmpty = this = SideEffect
 
-    member private this.LastDomNode: Node =
-        match this with
-        | SideEffect -> null
-        | DomNode n -> n
-        | Group _ ->
-            match this.collectDomNodes () with
-            | [] -> null
-            | xs -> xs |> List.last
-
     member internal this.PrevNode =
         match this with
         | SideEffect -> SideEffect
         | DomNode n -> DomNode(n.previousSibling)
         | Group v -> v.PrevNode
-
-    member private this.PrevDomNode =
-        match this with
-        | SideEffect -> null
-        | DomNode n -> n.previousSibling
-        | Group v ->
-            match v.PrevNode.collectDomNodes () with
-            | [] -> null
-            | xs -> xs |> List.last
 
     member private this.NextDomNode =
         match this with
@@ -227,30 +188,17 @@ type SutilEffect =
 
     member public this.AsDomNode = this.mapDefault id null
 
-    member private node.Disposables =
-        match node with
-        | SideEffect -> []
-        | DomNode n -> NodeKey.getCreate n NodeKey.Disposables (fun () -> [])
-        | Group v -> []
-
     member node.Dispose() =
         match node with
         | Group v -> v.Dispose()
         | DomNode n -> cleanupDeep n
         | _ -> ()
 
-    static member private GetDisposables(node: Node) =
-        NodeKey.getCreate node NodeKey.Disposables (fun () -> [])
-
     static member RegisterDisposable(node: Node, d: IDisposable) : unit =
         Interop.set node NodeKey.Disposables (d :: getDisposables (node))
 
     static member RegisterDisposable(node: SutilEffect, d: IDisposable) : unit =
         log $"register disposable on {node}"
-        //if registeredDisposables.ContainsKey(d) then failwith $"Disposable {d} has already been registered on {nodeStr registeredDisposables.[d]}, attempt to register on {nodeStr node}"
-        //registeredDisposables.[d] <- node
-        //let disposables : List<IDisposable> = node.Disposables
-        //Interop.set node NodeKey.Disposables (d :: disposables)
         match node with
         | SideEffect -> ()
         | DomNode n -> SutilEffect.RegisterDisposable(n, d)
@@ -284,31 +232,31 @@ type SutilEffect =
 
         let insert n =
             DomEdit.insertBefore parent n insertBefore
-        //setSvId n id
-
-        //let ids = existing |> List.map svId
 
         existing |> List.iter remove
         nodes |> List.iter insert //ids
 
+    member internal this.InsertBefore(node: Node, refNode: Node) : unit =
+        this.iter (fun parent -> DomEdit.insertBefore parent node refNode)
+
     member internal this.InsertAfter(node: SutilEffect, refNode: SutilEffect) =
         match this with
+
         | SideEffect ->
             JS.console.warn ("InsertAfter called for empty node - disposing child")
             node.Dispose()
+
         | DomNode parent ->
             log ($"InsertAfter (parent = {this}: refNode={refNode} refNode.NextDomNode={nodeStr refNode.NextDomNode}")
             let refDomNode = refNode.NextDomNode
 
             node.collectDomNodes ()
             |> List.iter (fun child -> DomEdit.insertBefore parent child refDomNode)
+
         | Group g -> g.InsertAfter(node, refNode)
 
     member internal this.InsertAfter(node: Node, refNode: Node) =
         this.iter (fun parent -> DomEdit.insertAfter parent node refNode)
-
-    member private this.RemoveChild(node: Node) =
-        this.iter (fun parent -> DomEdit.removeChild parent node)
 
     member internal this.ReplaceGroup(node: SutilEffect, existing: SutilEffect, insertBefore: Node) =
         log ($"ReplaceGroup({node}, {existing})")
@@ -326,28 +274,11 @@ type SutilEffect =
         | DomNode parent -> DomEdit.appendChild parent child
         | Group parent -> parent.AppendChild(DomNode child)
 
-    // member this.AppendChild (child : SutilEffect) =
-    //     match this with
-    //     | SideEffect -> ()
-    //     | DomNode parent ->
-    //         child.collectDomNodes() |> List.iter (fun child -> DomEdit.appendChild parent child)
-    //     | Group parent ->
-    //         parent.AppendChild(child)
-
     member internal this.FirstDomNodeInOrAfter =
         match this with
         | SideEffect -> null
         | DomNode n -> n
         | Group g -> g.FirstDomNodeInOrAfter
-
-    member internal this.InsertBefore(node: Node, refNode: Node) : unit =
-        this.iter (fun parent -> DomEdit.insertBefore parent node refNode)
-
-    member internal this.AddClass(cls: string) =
-        this.iterElement (fun parent -> ClassHelpers.addToClasslist cls parent )
-
-    member internal this.RemoveClass(cls: string) =
-        this.iterElement (fun parent -> ClassHelpers.removeFromClasslist cls parent)
 
     override this.ToString() =
         match this with
@@ -356,12 +287,6 @@ type SutilEffect =
         | Group v -> v.ToString()
 
     member internal this.Clear() = this.iter clear
-
-    member private this.Children: list<SutilEffect> =
-        match this with
-        | SideEffect -> []
-        | DomNode n -> [] // Careful! With n = div [ div[] fragment[] div[] ] -> Children of n are: DomNode, Group, DomNode
-        | Group v -> v.Children
 
     static member internal MakeGroup(name: string, parent: SutilEffect, prevInit: SutilEffect) =
         SutilGroup.Create(name, parent, prevInit)
@@ -372,23 +297,6 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
     let mutable _children = []
     let mutable _prev = _prevInit
     let mutable _childGroups = []
-
-    let childDomNodes () =
-        _children
-        |> List.map (function
-            | DomNode n -> [ n ]
-            | _ -> [])
-
-    //let childStrs() = _children |> List.map string
-
-    let assertIsChild (child: SutilEffect) =
-        let isChild =
-            _children
-            |> List.exists (fun c -> c.IsSameNode(child))
-
-        if not isChild then
-            log ($"Not a child: {child}")
-            failwith $"Not a child: {child}"
 
     let updateChildrenPrev () =
         //log($"updating children {childStrs()}")
@@ -461,36 +369,27 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
             result
 
         member internal this.NextDomNode =
-            //log($"NextDomNode this={this}")
             let result =
                 match this.DomNodes() with
                 // We don't have any nodes.
                 | [] ->
-                    //log("-- We have no nodes")
                     match this.PrevDomNode with
                     | null -> // No DOM node before us, so our next node must be parent DOM node's first child
-                        //log("-- PrevDomNode is null")
                         match parentDomNode () with
                         | null ->
-                            //log("-- parent DOM node is null")
                             null
                         | p ->
-                            //log("-- parent's first child, since no nodes before us, and we don't have any nodes ourself")
                             p.firstChild
                     | prev ->
-                        //log($"-- our next node is our PrevDomNode's next sibling (prev is {nodeStr prev})")
                         prev.nextSibling
 
                 // We do have nodes, so next node is last node's next sibling
                 | ns ->
                     match ns |> List.last with
                     | null ->
-                        //log("-- Last node was null")
                         null
                     | last ->
-                        //log("-- NextDomNode is nextSibling of our last node")
                         last.nextSibling
-            //log($"NextDomNode of {this} -> '{nodeStr result}'")
             result
 
         member internal this.FirstDomNode =
@@ -508,7 +407,6 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
             | null -> this.NextDomNode
             | first -> first
 
-        //member this.ParentDomNode = parentDomNode()
         member internal this.MapParent<'T>(f: (Node -> 'T)) = f (parentDomNode ())
 
         member private this.OwnX(n: Node) = Interop.set n "__sutil_snode" this
@@ -546,7 +444,6 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
             updateChildrenPrev ()
 
         member internal this.AppendChild(child: SutilEffect) =
-            //log($"SutilGroup.AppendChild: this='{this.Name} #{this.Id}' child='{child}' parent='{this.Parent}' prevDom='{nodeStrShort this.PrevDomNode}'")
             match this.Parent with
             | SideEffect -> ()
             | _ ->
@@ -560,9 +457,7 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
 
                 child.collectDomNodes ()
                 |> List.iter (fun ch ->
-                    //log($"AppendChild: insertBefore: {nodeStrShort ch} before {nodeStrShort before} prev={this.PrevNode}")
                     DomEdit.insertBefore parent ch before)
-            //this.AddChild(child)
             this.OwnX(child)
             _children <- _children @ [ child ]
             updateChildrenPrev ()
@@ -572,29 +467,19 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
             | [] -> SideEffect
             | x :: xs -> x
 
-        member private this.LastChild =
-            match _children with
-            | [] -> SideEffect
-            | xs -> xs |> List.last
-
         member private this.ChildAfter(prev: SutilEffect) =
-            //log($"ChildAfter: prev='{prev}' children={childStrs()} this='{this}'")
             match prev with
             | SideEffect -> this.FirstChild
             | _ ->
                 let rec find (list: SutilEffect list) =
                     match list with
                     | [] ->
-                        log ($"Did not find {prev}")
                         SideEffect
                     | x :: [] when x.IsSameNode(prev) ->
-                        log ($"Found {x} at end of list -> SideEffect")
                         SideEffect
                     | x :: y :: _ when x.IsSameNode(prev) ->
-                        log ($"Found {y} after {x}")
                         y
                     | x :: xs ->
-                        log ($"Found {x} but not equal to {prev}")
                         find xs
 
                 find _children
@@ -633,7 +518,6 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
                 this.OwnX(child)
 
             updateChildrenPrev ()
-            log ($"InsertBefore: child='{child}' refNode='{nodeStrShort refDomNode}' child.PrevNode='{child.PrevNode}'")
 
             if _children.Length = len then
                 log ($"Error: Child was not added")
@@ -651,7 +535,6 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
 
             let newChildren =
                 _children |> List.filter (fun n -> n <> child)
-            //child.collectDomNodes() |> List.iter (fun c -> DomEdit.removeChild c.parentNode c)
             rc this child
             _children <- newChildren
             updateChildrenPrev ()
@@ -667,7 +550,6 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
                     else
                         DomEdit.removeChild c.parentNode c)
 
-            //log($"ReplaceChild: {oldChild} with {child} before {nodeStrShort insertBefore}")
             let nodes = child.collectDomNodes ()
 
             assertTrue (child <> SideEffect) "Empty child for replace child"
@@ -680,12 +562,10 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
 
                 child.Id <- oldChild.Id
 
-            //let insertBefore = match oldNodes with |[] -> null |_ -> (oldNodes |> List.last).nextSibling
             let parent = parentDomNode ()
 
             nodes
             |> List.iter (fun n ->
-                //log($"insertBefore {nodeStrShort n} before {nodeStrShort insertBefore} on parent {nodeStrShort parent}")
                 DomEdit.insertBefore parent n insertBefore)
 
             deleteOldNodes ()
@@ -714,13 +594,26 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
         member internal _.Children = _children
 
         member internal _.RegisterUnsubscribe d =
-            //SutilEffect.RegisterUnsubscribe(parentDomNode(),d)
             _dispose <- _dispose @ [ d ]
 
         member _.Dispose() =
             _childGroups |> List.iter (fun c -> c.Dispose())
             _dispose |> List.iter (fun d -> d ())
             _dispose <- []
+
+let private notifySutilEvents (parent : SutilEffect) (node : SutilEffect) =
+    if (parent.IsConnected()) then
+        node.collectDomNodes ()
+        |> List.iter (fun n ->
+                CustomDispatch<_>.dispatch(n,Event.Connected)
+                CustomDispatch<_>.dispatch(n,Event.Mount)
+
+                n
+                |> DomHelpers.descendants
+                |> Seq.filter DomHelpers.isElementNode
+                |> Seq.iter (fun n ->  CustomDispatch<_>.dispatch(n,Event.Mount))
+
+            )
 
 /// <exclude/>
 type DomAction =
@@ -735,16 +628,13 @@ and  BuildContext =
     { Document: Browser.Types.Document
       Parent: SutilEffect
       Previous: SutilEffect
-      Action: DomAction // Consider making this "SvId option" and then finding node to replace
-      // Naming service
+      Action: DomAction
       MakeName: (string -> string)
       Class: string option
       Debug: bool
-      // Style context
-//      StyleSheet: NamedStyleSheet option
       Pipeline : PipelineFn
       }
-    //member this.Document = this.Parent.Document
+
     member this.ParentElement: HTMLElement = this.Parent.AsDomNode :?> HTMLElement
     member this.ParentNode: Node = this.Parent.AsDomNode
 
@@ -756,25 +646,20 @@ and  BuildContext =
             log $"ctx.Append '{node}' to '{ctx.Parent}' after {ctx.Previous}"
             ctx.Parent.InsertAfter(node, ctx.Previous)
 
-            if (ctx.Parent.IsConnected()) then
-                node.collectDomNodes ()
-                |> List.iter (fun n -> dispatchSimple n Event.Connected)
+            notifySutilEvents ctx.Parent node
 
         | Replace (existing, insertBefore) ->
             log $"ctx.Replace '{existing}' with '{node}' before '{nodeStrShort insertBefore}'"
             ctx.Parent.ReplaceGroup(node, existing, insertBefore)
 
-            if (ctx.Parent.IsConnected()) then
-                node.collectDomNodes ()
-                |> List.iter (fun n -> dispatchSimple n Event.Connected)
-
+            notifySutilEvents ctx.Parent node
         ()
 
 
 let internal domResult (node: Node) = DomNode node
 let internal sutilResult (node: SutilEffect) = node
 
-let sideEffect (ctx, name) =
+let internal sideEffect (ctx, name) =
     let text () =
         let tn = ctx.Document.createTextNode name
         let d = ctx.Document.createElement ("div")
@@ -835,7 +720,7 @@ let private defaultContext (parent : Node) =
       Pipeline = id
       }
 
-let private makeContext (pipeline) (parent: Node) =
+let private makeContext (parent: Node) =
 
     let getSutilClasses (e: HTMLElement) =
         let classes =
@@ -845,7 +730,7 @@ let private makeContext (pipeline) (parent: Node) =
         classes
 
     { defaultContext parent with
-          Pipeline = pipeline
+          //Pipeline = pipeline
 
           // Ensures that if we create and mount DOM nodes onto a styled element, then
           // we inherit the stylesheet class on the mounted nodes
@@ -881,8 +766,6 @@ module internal ContextHelpers =
     let withReplace (toReplace: SutilEffect, before: Node) ctx =
         { ctx with Action = Replace(toReplace, before) }
 
-//type internal Fragment = Node list
-
 let internal errorNode (parent: SutilEffect) message : Node =
     let doc = parent.Document
     let d = doc.createElement ("div")
@@ -891,63 +774,24 @@ let internal errorNode (parent: SutilEffect) message : Node =
     d.setAttribute ("style", "color: red; padding: 4px; font-size: 10px;")
     upcast d
 
-// let internal collectFragment (result: SutilEffect) = result
-
-// let internal appendAttribute (e: Element) attrName attrValue =
-//     if (attrValue <> "") then
-//         let currentValue = e.getAttribute (attrName)
-
-//         e.setAttribute (
-//             attrName,
-//             if ((isNull currentValue) || currentValue = "") then
-//                 attrValue
-//             else
-//                 (sprintf "%s %s" currentValue attrValue)
-//         )
-
-
-
-// let mutable buildLevel = 0
-
-// let buildLevelStr() = System.String('.', buildLevel * 4)
-
 /// <summary>
 /// Instantiate a <c>SutilElement</c>.
 /// </summary>
 let internal build (f: SutilElement) (ctx: BuildContext) =
-//    buildLevel <- buildLevel + 1
-//    Fable.Core.JS.console.log(buildLevelStr(), "build: ")
     (ctx, f.Builder ctx)
-//    |> (fun (c,r) -> Fable.Core.JS.console.log(buildLevelStr(), "pipeline: ", r.ToString()); (c,r))
     |> ctx.Pipeline
-//    |> (fun __ -> buildLevel <- buildLevel - 1 ; __)
     |> snd
 
 let internal buildOnly (f: SutilElement) (ctx: BuildContext) =
     f.Builder ctx
 
-// let private findSvIdElement (doc: Document) id : HTMLElement =
-//     downcast doc.querySelector ($"[_svid='{id}']")
-
-//if (name = "value") then
-//    Interop.set el "__value" value // Un-stringified version of value
-
-
-
-let private updateCustom (el: HTMLElement) (name: string) (property: string) (value: obj) =
-    let r =
-        NodeKey.getCreate el name (fun () -> {|  |})
-
-    Interop.set r property value
-    Interop.set el name r
-
 let private pipelineDispatchMount (ctx : BuildContext, result : SutilEffect) =
     match result with
-    | DomNode n -> dispatchSimple n Event.Mount
+    | DomNode n -> CustomDispatch<_>.dispatch(n,Event.Mount)
     | _ -> ()
     (ctx,result)
 
-let internal pipelineAddClass (ctx: BuildContext, result : SutilEffect) =
+let private pipelineAddClass (ctx: BuildContext, result : SutilEffect) =
     match ctx.Class, result with
     | Some cls, DomNode _ ->
         result.AsDomNode
@@ -968,7 +812,6 @@ let internal buildChildren (xs: seq<SutilElement>) (ctx: BuildContext) : unit =
 
     ()
 
-open Fable.Core.JS
 /// <exclude/>
 [<Global>]
 type ShadowRoot() =
@@ -989,29 +832,17 @@ let internal mountOnShadowRoot app (host: Node) : (unit -> unit) =
     | SideEffect -> failwith "Custom components must return at least one node"
 
     let dispose () =
-        //JS.console.log($"mountOnShadowRoot: disposing {el}")
         el.Dispose()
 
     dispose
 
-let internal mountOn app host pipeline =
-    build app (makeContext pipeline host)
+let internal mount app ((op,eref) : MountPoint) =
+    let node = eref.AsElement
 
-let internal mountAfter app (node: HTMLElement) pipeline =
-    build app { (makeContext pipeline node.parentElement) with Previous = DomNode node }
+    match op with
+    | AppendTo ->
+        DomHelpers.clear node
+        build app (makeContext node)
 
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-
-
-
-let internal pipeline() =
-    //pipelineApplyStyleSheet >>
-    //pipelineAddClass >>
-    pipelineDispatchMount
-
+    | InsertAfter ->
+        build app { (makeContext node.parentElement) with Previous = DomNode node }

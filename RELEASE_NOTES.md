@@ -3,6 +3,9 @@
 - Added Html.buttonc, Html.spanc
 - Added Cmd.ofEffect
 - Bind operator >/
+- Navigable.listenLocation refactored
+- Program.mountElement deprecated. use Program.mount overloads
+- CustomDispatch.dispatch overloads. Use `CustomDispatch<_>.dispatch(el,"your-event")` instead of `dispatchSimple`
 
 ### 2.0.0
 - Major version bump because of refactorings which will break existing code

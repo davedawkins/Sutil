@@ -61,7 +61,7 @@ module ObservableStore =
         //let disposed = new Dictionary<obj,int>()
 
         let notifyUpdateStore s v =
-            DomHelpers.dispatch Window.document DomHelpers.Event.UpdateStore {| Value = v |}
+            CustomDispatch<_>.dispatch(Window.document,DomHelpers.Event.UpdateStore,{| Value = v |})
 
         let notifyMakeStore s =
             if storeToId.ContainsKey(s) then failwith "Store is already registered!"
@@ -70,7 +70,7 @@ module ObservableStore =
             nextId <- nextId + 1
             idToStore.[id] <- s
             storeToId.[s] <- id
-            DomHelpers.dispatchSimple Window.document DomHelpers.Event.NewStore
+            CustomDispatch<_>.dispatch(Window.document,DomHelpers.Event.NewStore)
 
         let notifyDisposeStore (s:obj) =
             //if not (storeToId.ContainsKey(s)) then

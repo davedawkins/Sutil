@@ -45,7 +45,7 @@ type WebComponent =
             {   OnDisconnected = disposeWrapper
                 GetModel = (fun () -> model |> Store.current)
                 SetModel = Store.set model
-                OnConnected = fun _ -> DomHelpers.dispatchSimple (host?shadowRoot?firstChild) Event.Connected //"sutil-connected"
+                OnConnected = fun _ -> CustomDispatch<_>.dispatch( (host?shadowRoot?firstChild) :> EventTarget, Event.Connected ) //"sutil-connected"
                 }
 
         WebComponent.makeWebComponent name wrapper initValue

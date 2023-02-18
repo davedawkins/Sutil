@@ -391,14 +391,14 @@ let transitionNode  (el : HTMLElement)
         showEl el false
         complete el
         if ruleName <> "" then deleteRule el ruleName
-        dispatchSimple el "outroend"
+        CustomDispatch<_>.dispatch(el,"outroend")
 
     let show() =
         log $"show {nodeStr el}"
         showEl el true
         complete el
         if ruleName <> "" then deleteRule el ruleName
-        dispatchSimple el "introend"
+        CustomDispatch<_>.dispatch(el, "introend")
 
     let tr = findTransition isVisible trans
 
@@ -410,7 +410,7 @@ let transitionNode  (el : HTMLElement)
         cancelTick()
 
         waitAnimationFrame <| fun () ->
-            dispatchSimple el event
+            CustomDispatch<_>.dispatch(el,event)
             start el
             waitAnimationEnd el onEnd
             if (isVisible) then

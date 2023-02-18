@@ -781,7 +781,7 @@ let app () =
     ]
 
 let main() =
-    app() |> Program.mountElement "sutil-app"
+    app() |> Program.mount
 
 main()
 //open Fable.Core.JsInterop

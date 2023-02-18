@@ -53,7 +53,7 @@ let mountTestApp app =
     Fable.Core.JS.console.log("mountTestApp")
     let el = document.querySelector("#" + testAppId)
     el.innerHTML <- ""
-    Sutil.Program.mountElement testAppId app
+    (testAppId, app) |> Sutil.Program.mount
 
 let testCase (name:string) (f:unit -> unit) =
     {

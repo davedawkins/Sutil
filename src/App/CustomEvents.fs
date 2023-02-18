@@ -13,7 +13,7 @@ let customDispatchButton() =
     let r = Random()
 
     let clickHandler (e: Event) =
-        let props: CustomDispatch<string> list = [Bubbles true; Detail(Some $"Hello there! %i{r.Next(1000)}")]
+        let props: CustomDispatch<string> list = [Bubbles true; Detail($"Hello there! %i{r.Next(1000)}")]
         CustomDispatch.dispatch<string>(e,"on-custom-click", props)
 
     Html.button [

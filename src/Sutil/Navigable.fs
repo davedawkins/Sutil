@@ -27,7 +27,7 @@ type Navigable =
     /// <summary>
     /// Call <c>dispatch</c> each time the window's location changes. The location is parsed into a <c>'T</c> with the given <c>parser</c>/
     /// </summary>
-    static member listenLocation<'T> (parser:Parser<'T>, dispatch: 'T -> unit) =
+    static member listenLocation (onChangeLocation: Location -> unit) =
         let mutable onChangeRef : obj -> obj =
             fun _ ->
                 failwith "`onChangeRef` has not been initialized.\nPlease make sure you used Elmish.Navigation.Program.Internal.subscribe"
@@ -39,7 +39,7 @@ type Navigable =
                 | Some href when href = Window.location.href -> ()
                 | _ ->
                     lastLocation <- Some Window.location.href
-                    Window.location |> parser |> dispatch
+                    Window.location |> onChangeLocation
                 |> box
 
             onChangeRef <- onChange
@@ -56,6 +56,12 @@ type Navigable =
         subscribe()
 
         unsubscribe
+
+    /// <summary>
+    /// Call <c>dispatch</c> each time the window's location changes. The location is parsed into a <c>'T</c> with the given <c>parser</c>/
+    /// </summary>
+    static member listenLocation<'T> (parser:Parser<'T>, dispatch: 'T -> unit) =
+        Navigable.listenLocation (dispatch<<parser)
 
     /// <summary>
     /// Bind the window location to a view

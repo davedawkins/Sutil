@@ -1,3 +1,7 @@
+### 2.0.2
+- Extend Node with `asTextNode` and `asHtmlElement` (`DomHelpers`)
+- Improvement to obsolescence message for `Program.mountElement`
+
 ### 2.0.1
 - Move <head> helpers into DomHelpers and CoreElements
 - Added Html.buttonc, Html.spanc

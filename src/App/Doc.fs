@@ -243,6 +243,8 @@ let seqOfNodeList<'T> (nodes: Browser.Types.NodeListOf<'T>) =
 let querySelectorAll selector (node : Browser.Types.HTMLElement) =
     node.querySelectorAll(selector) |> seqOfNodeList
 
+open DomHelpers
+
 //
 // Handle //[no]repl directives
 //
@@ -255,7 +257,7 @@ let processReplDirectives (preCode : Browser.Types.Element) : bool =
 
             e.parentNode.removeChild(e) |> ignore
 
-            newlineNode |> DomHelpers.applyIfText (fun textN ->
+            newlineNode.asTextNode |> Option.iter (fun textN ->
                 if (System.String.IsNullOrWhiteSpace (textN.textContent)) then
                     newlineNode.parentNode.removeChild(newlineNode) |> ignore
                 else

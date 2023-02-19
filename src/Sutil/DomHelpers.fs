@@ -139,6 +139,10 @@ let isElementNode (n: Node) = n <> null && n.nodeType = ElementNodeType
 
 let internal documentOf (n: Node) = n.ownerDocument
 
+type Node with
+    member __.asTextNode = if isTextNode __ then (Some (__ :?> Text)) else None
+    member __.asHtmlElement = if isElementNode __ then (Some (__ :?> HTMLElement)) else None
+
 let internal applyIfElement (f: HTMLElement -> unit) (n: Node) =
     if isElementNode n then
         f (n :?> HTMLElement)
@@ -146,7 +150,6 @@ let internal applyIfElement (f: HTMLElement -> unit) (n: Node) =
 let internal applyIfText (f: Text -> unit) (n: Node) =
     if isTextNode n then
         f (n :?> Text)
-
 let internal getNodeMap (doc: Document) : obj =
     NodeKey.getCreate doc.body NodeKey.NodeMap (fun () -> upcast {|  |})
 

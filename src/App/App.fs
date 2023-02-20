@@ -92,6 +92,7 @@ let allExamples = [
         { Category = "Miscellaneous";   Title = "SAFE client";  Link = AppLink (SAFE.view , ["SafeClient.fs"]) }
         { Category = "Miscellaneous";   Title = "Data Simulation";  Link = AppLink (DataSim.view , ["DataSim.fs"]) }
         { Category = "Miscellaneous";   Title = "Web Components";  Link = AppLink (WebComponents.view , ["WebComponents.fs"]) }
+        { Category = "Miscellaneous";   Title = "Draw";  Link = AppLink (Draw.view , ["Draw.fs"]) }
         //{ Category = "Miscellaneous";   Title = "Fragment";  Link = AppLink (Fragment.view , ["Fragment.fs"]) }
 //        { Category = "7Guis";   Title = "Cells";  Link = AppLink (SevenGuisCells.view , ["Cells.fs"]) }
         { Category = "7Guis";   Title = "CRUD";  Link = AppLink (CRUD.view , ["CRUD.fs"]) }

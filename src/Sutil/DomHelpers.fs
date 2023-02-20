@@ -414,6 +414,9 @@ let internal setAttribute (el: HTMLElement) (name: string) (value: obj) =
 
     let svalue = string value
 
+    if name = "sutil-toggle-class" then
+        el |> ClassHelpers.toggleClass svalue
+
     if name = "class" then
         el |> ClassHelpers.addToClasslist svalue
     else if name = "class-" then

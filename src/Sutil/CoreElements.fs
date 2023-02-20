@@ -221,7 +221,7 @@ let setValue = setProperty
 let nothing =
     SutilElement.Define( "nothing", ignore )
 
-let internal attr (name, value: obj) : SutilElement =
+let attr (name, value: obj) : SutilElement =
     SutilElement.Define( sprintf "attr %s=%A" name value,
         fun ctx ->
         let parent = ctx.Parent.AsDomNode
@@ -230,11 +230,6 @@ let internal attr (name, value: obj) : SutilElement =
             let e = parent :?> HTMLElement
 
             setAttribute e name value
-
-            // match ctx.StyleSheet with
-            // | Some namedSheet -> applyCustomRules namedSheet e
-            // | None -> ()
-
         with
         | _ ->
             invalidOp (

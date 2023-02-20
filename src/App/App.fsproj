@@ -74,4 +74,10 @@
     <PackageReference Include="Feliz.ReactFlow" Version="0.2.2" />
     <PackageReference Include="Fable.SimpleXml" Version="3.*" />
   </ItemGroup>
+  <Target Name="ReallyClean" AfterTargets="Clean">
+    <!-- Remove obj folder -->
+    <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+    <!-- Remove bin folder -->
+    <RemoveDir Directories="$(BaseOutputPath)" />
+  </Target>
 </Project>

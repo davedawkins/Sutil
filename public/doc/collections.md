@@ -24,7 +24,7 @@ Html.ul
     (contributors
         |> List.mapi (fun i v ->
             sprintf "%i : %s" i v |> Html.div))
- |> Program.mountElement "sutil-app"
+ |> Program.mount
  ```
 
 ### Dynamic Collections

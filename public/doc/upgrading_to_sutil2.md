@@ -86,4 +86,4 @@ use:
 app() |> Program.mount
 ```
 
-There are overloads in `Program` that can accommodate more unusual mount scenarios.
+There are overloads in [Program](https://sutil.dev/apidocs/reference/sutil-program.html) that can accommodate more unusual mount scenarios.

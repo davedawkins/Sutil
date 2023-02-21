@@ -40,7 +40,7 @@ let view() =
 
     ]
 
-view() |> Program.mountElement "sutil-app"
+view() |> Program.mount
 ```
 
 Note that the type of model as returned by `Store.makeElmish` is `IStore<Model>`. Sutil updates this store upon each call to dispatch. Here is pseudo-code for the dispatch function:
@@ -124,7 +124,7 @@ let view() =
 
     ]
 
-view() |> Program.mountElement "sutil-app"
+view() |> Program.mount
 ```
 
 Note the differences:

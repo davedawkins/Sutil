@@ -60,7 +60,7 @@ let main() =
 
     let model, dispatch = () |> Store.makeElmish init (update app) ignore
 
-    view  model dispatch |> Program.mountElement "sutil-app"
+    view  model dispatch |> Program.mount
 
 main()
 ```

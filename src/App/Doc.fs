@@ -290,7 +290,7 @@ let makeExample (code:string) =
     let codeWithMount (c:string) =
         if c.Contains("mountElement") then c
         else
-            c + " |> Program.mountElement \"sutil-app\""
+            c + " |> Program.mount"
 
     code.TrimEnd() |> codeWithOpens |> codeWithMount
 //

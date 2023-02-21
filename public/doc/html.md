@@ -27,7 +27,7 @@ let app() =
         ]
     ]
 
-app() |> Program.mountElement "sutil-app"
+app() |> Program.mount
 ```
 
 This would produce the following HTML:

@@ -9,7 +9,8 @@ open Browser.Types
 open Browser.CssExtensions
 open Interop
 
-let log = Logging.log "dom"
+let private logEnabled() = Logging.isEnabled "dom"
+let private log s = Logging.log "dom" s
 
 let internal SvIdKey = "_svid"
 
@@ -68,7 +69,7 @@ module internal Event =
         |> ignore
 
     let notifyUpdated doc =
-        log ("notify document")
+        if logEnabled() then log ("notify document")
         notifyEvent doc Updated {|  |}
 
 let private dispatch (target: EventTarget) name (data: obj) =
@@ -267,7 +268,7 @@ let private cleanup (node: Node) : unit =
         | x -> Logging.error $"Disposing {d}: {x} from {nodeStr node}"
 
     let d = getDisposables node
-    log $"cleanup {nodeStr node} - {d.Length} disposable(s)"
+    if logEnabled() then log $"cleanup {nodeStr node} - {d.Length} disposable(s)"
 
     d |> List.iter safeDispose
 
@@ -529,13 +530,13 @@ let internal addTransform (node: HTMLElement) (a: ClientRect) =
                 s.transform
 
         node.style.transform <- sprintf "%s translate(%fpx, %fpx)" transform (a.left - b.left) (a.top - b.top)
-        log node.style.transform
+        if logEnabled() then log node.style.transform
 
 let internal fixPosition (node: HTMLElement) =
     let s = Window.getComputedStyle (node)
 
     if (s.position <> "absolute" && s.position <> "fixed") then
-        log $"fixPosition {nodeStr node}"
+        if logEnabled() then log $"fixPosition {nodeStr node}"
         let width = s.width
         let height = s.height
         let a = node.getBoundingClientRect ()
@@ -549,7 +550,7 @@ let internal computedStyleOpacity e =
         float (Window.getComputedStyle(e).opacity)
     with
     | _ ->
-        log (sprintf "parse error: '%A'" (Window.getComputedStyle(e).opacity))
+        if logEnabled() then log (sprintf "parse error: '%A'" (Window.getComputedStyle(e).opacity))
         1.0
 
 let computedStyleTransform node =
@@ -580,7 +581,7 @@ let internal wait (el: HTMLElement) (andThen: unit -> Promise<unit>) =
 
 let internal textNode (doc: Document) value : Node =
     let id = domId ()
-    log $"create \"{value}\" #{id}"
+    if logEnabled() then log $"create \"{value}\" #{id}"
     let n = doc.createTextNode (value)
     setSvId n id
     upcast n

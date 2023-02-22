@@ -5,15 +5,14 @@
 module Sutil.TransitionFunctions
 // Adapted from svelte/transitions/index.js
 
-open Browser.Dom
-open Browser.CssExtensions
 open Browser.Types
 open Sutil.Transition
 open Sutil.DomHelpers
 open System.Collections.Generic
 open Interop
 
-let log = Sutil.Logging.log "trfn"
+let private logEnabled() = Logging.isEnabled "trfn"
+let private log = Logging.log "trfn"
 
 let parseFloat (s:string, name) =
     if isNull s
@@ -105,8 +104,8 @@ let crossfade (userProps : TransitionProp list) =
 
     let dump() =
         let ks (d:Dictionary<string,ClientRect>) = System.String.Join(", ", d.Keys)
-        log($"toReceive = {ks toReceive}")
-        log($"toSend    = {ks toSend}")
+        if logEnabled() then log($"toReceive = {ks toReceive}")
+        if logEnabled() then log($"toSend    = {ks toSend}")
 
     let crossfadeInner ( from : ClientRect, node : Element, props, intro) =
         let tr =
@@ -120,7 +119,7 @@ let crossfade (userProps : TransitionProp list) =
         let dw = from.width / tgt.width
         let dh = from.height / tgt.height
         //if (intro) then
-        log(sprintf "crossfade from %f,%f -> %f,%f" from.left from.top tgt.left tgt.top)
+        if logEnabled() then log(sprintf "crossfade from %f,%f -> %f,%f" from.left from.top tgt.left tgt.top)
         let d = System.Math.Sqrt(dx * dx + dy * dy)
         let style = Window.getComputedStyle(node)
         let transform = if style.transform = "none" then "" else style.transform
@@ -157,7 +156,7 @@ let crossfade (userProps : TransitionProp list) =
 
             let r = node.getBoundingClientRect()
             let action = if intro then "receiving" else "sending"
-            log($"{action} {key} (adding)")
+            if logEnabled() then log($"{action} {key} (adding)")
             items.[ key ] <- r
 
             // Called when animation ready to run (on RAF)
@@ -166,7 +165,7 @@ let crossfade (userProps : TransitionProp list) =
 
                 if (counterparts.ContainsKey(key)) then
                     let rect = counterparts.[key]
-                    log($"{action} {key} (removing from counterparts)")
+                    if logEnabled() then log($"{action} {key} (removing from counterparts)")
 
                     counterparts.Remove(key) |> ignore
                     crossfadeInner(rect, node, finalProps, intro)
@@ -175,7 +174,7 @@ let crossfade (userProps : TransitionProp list) =
                     // (i.e. wasn't claimed by the other list)
                     // then we need to supply an outro
                     items.Remove(key) |> ignore
-                    log($"{action} falling back for {key}")
+                    if logEnabled() then log($"{action} falling back for {key}")
                     match fallback with
                     | Some f -> (f finalProps node)()
                     | None -> (fade finalProps node)()

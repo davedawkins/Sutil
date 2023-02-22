@@ -9,6 +9,7 @@ open Sutil.Core
 open Sutil.DomHelpers
 open Browser.Dom
 
+let private logEnabled() = Logging.isEnabled "style"
 let private log s = Logging.log "style" s
 let private findElement (doc : Document) selector = doc.querySelector(selector)
 
@@ -39,7 +40,7 @@ let addStyleAttr (el : HTMLElement) name value =
     el.setAttribute( "style", sprintf "%s%s:%s;" style name value )
 
 let removeStyleAttr (el : HTMLElement) name =
-    log( sprintf "filter by %s: %A -> %A" name (getStyleAttr el) (getStyleAttr el |> filterStyleAttr name) )
+    if logEnabled() then log( sprintf "filter by %s: %A -> %A" name (getStyleAttr el) (getStyleAttr el |> filterStyleAttr name) )
     el.setAttribute( "style", getStyleAttr el |> filterStyleAttr name )
 
 let newStyleElement (doc : Document)=

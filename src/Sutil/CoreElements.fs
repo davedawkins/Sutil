@@ -10,10 +10,13 @@ open Sutil.Core
 open Browser.Types
 open Browser.Dom
 
+let private logEnabled() = Logging.isEnabled "core-elements"
+let private log s = Logging.log "core-elements" s
+
 let private makeElementWithSutilId (doc : Browser.Types.Document) (tag : string) (ns : string) =
     let e: Element = (if ns <> "" then doc.createElementNS (ns, tag) else (upcast document.createElement (tag)))
     let id = domId ()
-    log ("create <" + tag + "> #" + string id)
+    if logEnabled() then log ("create <" + tag + "> #" + string id)
     setSvId e id
     e
 
@@ -47,7 +50,7 @@ let exclusive (f: SutilElement) =
     SutilElement.Define(
         "exclusive",
         fun ctx ->
-            log $"exclusive {ctx.Parent}"
+            if logEnabled() then log $"exclusive {ctx.Parent}"
             ctx.Parent.Clear()
             ctx |> build f
     )
@@ -132,7 +135,7 @@ let keyedEl (tag: string) (key: string) (init: seq<SutilElement>) (update: seq<S
                     upcast existing
                 else
                     let svid = domId ()
-                    log ("create <" + tag + "> #" + string id)
+                    if logEnabled()  then log ("create <" + tag + "> #" + string id)
                     let e' = ctx.Document.createElement (tag)
 
                     ctx
@@ -172,7 +175,7 @@ let internal elAppend selector (xs: seq<SutilElement>) : SutilElement =
         let snodeEl = DomNode e
 
         let id = domId ()
-        log ("append <" + selector + "> #" + string id)
+        if logEnabled() then log ("append <" + selector + "> #" + string id)
         setSvId e id
 
         ctx

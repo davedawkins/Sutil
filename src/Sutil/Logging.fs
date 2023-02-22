@@ -4,7 +4,7 @@ module internal Sutil.Logging
 open System.Collections.Generic
 open Browser.Dom
 
-let enabled = Dictionary<string,bool>()
+let internal enabled = Dictionary<string,bool>()
 
 let le() = DevToolsControl.Options.LoggingEnabled
 
@@ -17,6 +17,8 @@ let init =
         enabled.["store"] <- false
         enabled.["trans"] <- false
         enabled.["dom"  ] <- true
+        enabled.["core"  ] <- true
+        enabled.["core-elements"  ] <- true
         enabled.["style"] <- false
         enabled.["bind" ] <- true
         enabled.["each" ] <- true
@@ -32,8 +34,11 @@ let initWith states =
 let timestamp() =
     sprintf "%0.3f" (((float)System.DateTime.Now.Ticks / 10000000.0) % 60.0)
 
+let isEnabled source =
+    le() && (not (enabled.ContainsKey(source)) || enabled.[source])
+
 let log source (message : string) =
-    if le() && (not (enabled.ContainsKey(source)) || enabled.[source]) then
+    if isEnabled source then
         console.log(sprintf "%s: %s: %s" (timestamp()) source message)
 
 let warning (message : string) =

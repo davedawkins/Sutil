@@ -17,7 +17,8 @@ open Sutil.DomHelpers
 [<RequireQualifiedAccess>]
 module ObservableStore =
 
-    let log s = Logging.log "store" s
+    let private logEnabled() = Logging.isEnabled "store"
+    let private log s = Logging.log "store" s
 
     type StoreCons<'Model, 'Store> = (unit -> 'Model) -> ('Model -> unit) -> 'Store * Update<'Model>
 
@@ -66,7 +67,7 @@ module ObservableStore =
         let notifyMakeStore s =
             if storeToId.ContainsKey(s) then failwith "Store is already registered!"
             let id = nextId
-            log $"make store #{id}"
+            if logEnabled() then log $"make store #{id}"
             nextId <- nextId + 1
             idToStore.[id] <- s
             storeToId.[s] <- id
@@ -80,7 +81,7 @@ module ObservableStore =
             //        failwith "Store is unknown to registry"
 
             let id = storeToId.[s]
-            log($"dispose store #{id}")
+            if logEnabled() then log($"dispose store #{id}")
             try
                 idToStore.Remove(id) |> ignore
                 storeToId.Remove(s) |> ignore
@@ -157,7 +158,7 @@ module ObservableStore =
             let id = uid
             uid <- uid + 1
 
-            Logging.log "store" $"subscribe {id}"
+            if logEnabled() then log $"subscribe {id}"
 
             subscribers.Add(id, observer)
 
@@ -168,7 +169,7 @@ module ObservableStore =
             observer.OnNext(model())
 
             Helpers.disposable <| fun () ->
-                Logging.log "store" $"unsubscribe {id}"
+                if logEnabled() then log $"unsubscribe {id}"
                 subscribers.Remove(id) |> ignore
 
         member this.Name with get() = name and set (v) = name <- v

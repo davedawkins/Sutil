@@ -4,7 +4,6 @@
 module Sutil.Transition
 // Adapted from svelte/transitions/index.js
 
-open Browser.Dom
 open Browser.CssExtensions
 open Browser.Types
 open Styling
@@ -15,7 +14,8 @@ open System
 open Fable.Core
 open Interop
 
-let log = Sutil.Logging.log "trans"
+let private logEnabled() = Logging.isEnabled "trans"
+let private log s = Logging.log "trans" s
 
 module private LoopTasks =
 
@@ -154,13 +154,13 @@ let mutable private activeDocs : Map<int,Document> = Map.empty
 
 let private registerDoc (doc:Document) =
     activeDocs <- activeDocs.Add( doc.GetHashCode(), doc )
-    log($"Active docs: {activeDocs.Count}")
+    if logEnabled() then log($"Active docs: {activeDocs.Count}")
 
 let private runTasks() =
     let copy = tasks
     tasks <- []
     if (copy.Length > 0) then
-        log($"- - - Tasks: running {copy.Length} tasks - - - - - - - - - - - - - -")
+        if logEnabled() then log($"- - - Tasks: running {copy.Length} tasks - - - - - - - - - - - - - -")
     for f in copy do f()
 
 let private waitAnimationFrame f =
@@ -210,8 +210,8 @@ let createRule (node : HTMLElement) (a:float) (b:float) tr (uid:int) =
 
     let name = sprintf "__sutil_%d" (if uid = 0 then nextRuleId() else uid)
     let keyframeText = sprintf "@keyframes %s %s" name rule
-    log <| sprintf "keyframe: %s" (keyframes |> List.skip (keyframes.Length / 2) |> List.head)
-    log($"createRule {name} {durn}ms for {nodeStr node}")
+    if logEnabled() then log <| sprintf "keyframe: %s" (keyframes |> List.skip (keyframes.Length / 2) |> List.head)
+    if logEnabled() then log($"createRule {name} {durn}ms for {nodeStr node}")
 
     let stylesheet = getSutilStylesheet (documentOf node)
     stylesheet.insertRule( keyframeText, stylesheet.cssRules.length) |> ignore
@@ -232,7 +232,7 @@ let private clearRules() =
             for kv in activeDocs do
                 let doc = kv.Value
                 let stylesheet = getSutilStylesheet doc
-                log <| sprintf "clearing %d rules" (int stylesheet.cssRules.length)
+                if logEnabled() then log <| sprintf "clearing %d rules" (int stylesheet.cssRules.length)
                 for i in [(int stylesheet.cssRules.length-1) .. -1 .. 0] do
                     stylesheet.deleteRule( float i )
             //doc.__svelte_rules = {};
@@ -267,7 +267,7 @@ let flip (node:Element) (animation:Animation) props =
     let dx = (animation.From.left - animation.To.left) / scaleX
     let dy = (animation.From.top - animation.To.top) / scaleY
     let d = Math.Sqrt(dx * dx + dy * dy)
-    log $"flip: {dx},{dy} {transform} {animation.From} -> {animation.To}"
+    if logEnabled() then log $"flip: {dx},{dy} {transform} {animation.From} -> {animation.To}"
     {
         tr with
             Duration = match tr.DurationFn with
@@ -340,6 +340,7 @@ let transitionNode  (el : HTMLElement)
         | None -> ()
 
     let runTick tr b durn =
+        let logEnabled = Logging.isEnabled "tick"
         let log = Logging.log "tick"
 
         let a = if b = 0.0 then 1.0 else 0.0
@@ -356,11 +357,11 @@ let transitionNode  (el : HTMLElement)
         let mutable finished = false
 
         Interop.set el NodeKey.TickTask (fun () ->
-            log $"#{tickId}: cancel"
+            if logEnabled then log $"#{tickId}: cancel"
             finished <- true
         )
 
-        log $"#{tickId}: run b={b} durn={durn}"
+        if logEnabled then log $"#{tickId}: run b={b} durn={durn}"
         if (b > 0.0) then
             tick 0.0 1.0
 
@@ -368,11 +369,11 @@ let transitionNode  (el : HTMLElement)
             if not started then
                 start <- now + delay
                 finish <- start + durn
-                log $"#{tickId}: start: start={start} finish={finish}"
+                if logEnabled then log $"#{tickId}: start: start={start} finish={finish}"
                 started <- true
 
             if finished || now >= finish then
-                log $"#{tickId}: finish: t={t}"
+                if logEnabled then log $"#{tickId}: finish: t={t}"
                 t <- b
                 tick t (1.0 - t)
                 finished <- true
@@ -381,20 +382,20 @@ let transitionNode  (el : HTMLElement)
                 let e = now - start
                 let t0 = e / durn
                 t <- a + d * (ease t0)
-                log $"#{tickId}: tick: t={t} t0={t0} e={e}"
+                if logEnabled then log $"#{tickId}: tick: t={t} t0={t0} e={e}"
                 tick t (1.0 - t)
 
             not finished
 
     let hide() =
-        log $"hide {nodeStr el}"
+        if logEnabled() then log $"hide {nodeStr el}"
         showEl el false
         complete el
         if ruleName <> "" then deleteRule el ruleName
         CustomDispatch<_>.dispatch(el,"outroend")
 
     let show() =
-        log $"show {nodeStr el}"
+        if logEnabled() then log $"show {nodeStr el}"
         showEl el true
         complete el
         if ruleName <> "" then deleteRule el ruleName

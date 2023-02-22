@@ -10,7 +10,10 @@ open Browser.Types
 open DomHelpers
 open Fable.Core.JsInterop
 open Fable.Core
-let log = Logging.log "dom"
+
+let private logEnabled() = Logging.isEnabled "core"
+let private log s = Logging.log "core" s
+
 //let log s = Fable.Core.JS.console.log(s)
 
 /// <summary>
@@ -198,7 +201,7 @@ type SutilEffect =
         Interop.set node NodeKey.Disposables (d :: getDisposables (node))
 
     static member RegisterDisposable(node: SutilEffect, d: IDisposable) : unit =
-        log $"register disposable on {node}"
+        if logEnabled() then log $"register disposable on {node}"
         match node with
         | SideEffect -> ()
         | DomNode n -> SutilEffect.RegisterDisposable(n, d)
@@ -211,7 +214,7 @@ type SutilEffect =
         SutilEffect.RegisterDisposable(node, Helpers.disposable d)
 
     static member private ReplaceGroup(parent: Node, nodes: Node list, existing: Node list) =
-        log ($"ReplaceGroup: nodes {nodes.Length} existing {existing.Length}")
+        if logEnabled() then log ($"ReplaceGroup: nodes {nodes.Length} existing {existing.Length}")
 
         let insertBefore =
             match existing with
@@ -223,10 +226,10 @@ type SutilEffect =
             cleanupDeep n
 
             if isNull (n.parentNode) then
-                log $"Warning: Node {nodeStr n} was unmounted unexpectedly"
+                if logEnabled() then log $"Warning: Node {nodeStr n} was unmounted unexpectedly"
             else
                 if (not (parent.isSameNode (n.parentNode))) then
-                    log $"Warning: Node {nodeStr n} has unexpected parent"
+                    if logEnabled() then log $"Warning: Node {nodeStr n} has unexpected parent"
 
                 DomEdit.removeChild n.parentNode n
 
@@ -247,7 +250,7 @@ type SutilEffect =
             node.Dispose()
 
         | DomNode parent ->
-            log ($"InsertAfter (parent = {this}: refNode={refNode} refNode.NextDomNode={nodeStr refNode.NextDomNode}")
+            if logEnabled() then log ($"InsertAfter (parent = {this}: refNode={refNode} refNode.NextDomNode={nodeStr refNode.NextDomNode}")
             let refDomNode = refNode.NextDomNode
 
             node.collectDomNodes ()
@@ -259,7 +262,7 @@ type SutilEffect =
         this.iter (fun parent -> DomEdit.insertAfter parent node refNode)
 
     member internal this.ReplaceGroup(node: SutilEffect, existing: SutilEffect, insertBefore: Node) =
-        log ($"ReplaceGroup({node}, {existing})")
+        if logEnabled() then log ($"ReplaceGroup({node}, {existing})")
 
         match this with
         | SideEffect -> ()
@@ -365,7 +368,7 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
                     | Group pv -> pv.PrevDomNode
                     | _ -> null
 
-            log ($"PrevDomNode of {this} -> '{nodeStr result}' PrevNode={this.PrevNode}")
+            if logEnabled() then log ($"PrevDomNode of {this} -> '{nodeStr result}' PrevNode={this.PrevNode}")
             result
 
         member internal this.NextDomNode =
@@ -493,7 +496,7 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
                 | SideEffect -> this.NextDomNode
                 | _ -> refNode.FirstDomNodeInOrAfter
 
-            log (
+            if logEnabled() then log (
                 $"InsertBefore: child='{child}' before '{refNode}' refDomNode='{nodeStrShort refDomNode}' child.PrevNode='{child.PrevNode}'"
             )
 
@@ -520,7 +523,7 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
             updateChildrenPrev ()
 
             if _children.Length = len then
-                log ($"Error: Child was not added")
+                if logEnabled() then log ($"Error: Child was not added")
 
         member internal _.RemoveChild(child: SutilEffect) =
             let rec rc (p: SutilGroup) (c: SutilEffect) =
@@ -546,7 +549,7 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
                 oldNodes
                 |> List.iter (fun c ->
                     if (isNull c.parentNode) then // We were unexpectedly removed from the DOM by something else (perhaps)
-                        log ($"Node has no parent: {nodeStrShort c}")
+                        if logEnabled() then log ($"Node has no parent: {nodeStrShort c}")
                     else
                         DomEdit.removeChild c.parentNode c)
 
@@ -643,13 +646,13 @@ and  BuildContext =
         | Nothing -> ()
 
         | Append ->
-            log $"ctx.Append '{node}' to '{ctx.Parent}' after {ctx.Previous}"
+            if logEnabled() then log $"ctx.Append '{node}' to '{ctx.Parent}' after {ctx.Previous}"
             ctx.Parent.InsertAfter(node, ctx.Previous)
 
             notifySutilEvents ctx.Parent node
 
         | Replace (existing, insertBefore) ->
-            log $"ctx.Replace '{existing}' with '{node}' before '{nodeStrShort insertBefore}'"
+            if logEnabled() then log $"ctx.Replace '{existing}' with '{node}' before '{nodeStrShort insertBefore}'"
             ctx.Parent.ReplaceGroup(node, existing, insertBefore)
 
             notifySutilEvents ctx.Parent node

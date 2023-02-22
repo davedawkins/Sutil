@@ -9,6 +9,7 @@ open System
 open Fable.Core
 open CoreElements
 
+let private logEnabled() = Logging.isEnabled "bind"
 let private log s = Logging.log "bind" s
 let private bindId = Helpers.makeIdGenerator()
 
@@ -34,14 +35,14 @@ let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (c
     let group = SutilEffect.MakeGroup("bind",ctx.Parent,ctx.Previous)
     let bindNode = Group group
 
-    log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
+    if logEnabled() then log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
     ctx.AddChild bindNode
 
     let run() =
         let bindCtx = { ctx with Parent = bindNode }
         let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
             try
-                log($"bind: rebuild {group.Id} with {next}")
+                if logEnabled() then log($"bind: rebuild {group.Id} with {next}")
                 node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
             with
             | x ->
@@ -51,7 +52,7 @@ let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (c
 
         )
         group.RegisterUnsubscribe ( fun () ->
-            log($"dispose: Bind.el: {group}")
+            if logEnabled() then log($"dispose: Bind.el: {group}")
             disposable.Dispose())
 
     run()
@@ -65,14 +66,14 @@ let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> Su
     let group = SutilEffect.MakeGroup("bind",ctx.Parent,ctx.Previous)
     let bindNode = Group group
 
-    log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
+    if logEnabled() then log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
     ctx.AddChild bindNode
 
     let run() =
         let bindCtx = { ctx with Parent = bindNode }
         let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
             try
-                log($"bind: rebuild {group.Id} with {next}")
+                if logEnabled() then log($"bind: rebuild {group.Id} with {next}")
                 node <- build (element(store)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
             with
             | x ->
@@ -80,7 +81,7 @@ let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> Su
                 node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
         )
         group.RegisterUnsubscribe ( fun () ->
-            log($"dispose: Bind.el: {group}")
+            if logEnabled() then log($"dispose: Bind.el: {group}")
             disposable.Dispose())
 
 
@@ -403,13 +404,13 @@ type KeyedStoreItem<'T,'K> = {
 
 let private findCurrentNode doc (current:Node) (id:int) =
     if (isNull current || isNull current.parentNode) then
-        log($"each: Find node with id {id}")
+        if logEnabled() then log($"each: Find node with id {id}")
         match DomHelpers.findNodeWithSvId doc id with
         | None ->
-            log("each: Disaster: cannot find node")
+            if logEnabled() then log("each: Disaster: cannot find node")
             null
         | Some n ->
-            log($"each: Found it: {n}")
+            if logEnabled() then log($"each: Found it: {n}")
             n
     else
         //log($"Cannot find node with id {id}")
@@ -420,7 +421,7 @@ let private findCurrentElement doc (current:Node) (id:int) =
     match node with
     | null -> null
     | n when isElementNode n -> n :?> HTMLElement
-    | x ->  log $"each: Disaster: found node but it's not an HTMLElement"
+    | x ->  if logEnabled() then log $"each: Disaster: found node but it's not an HTMLElement"
             null
 
 let private genEachId = Helpers.makeIdGenerator()
@@ -460,6 +461,7 @@ let private asDomElement (element: SutilEffect) (ctx: BuildContext) : HTMLElemen
 
 let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObservable<int> * IObservable<'T> -> SutilElement) (key:int*'T->'K) (trans : TransitionAttribute list) : SutilElement =
     let log s = Logging.log "each" s
+
     SutilElement.Define("eachiko_wrapper",
     fun ctx ->
         log($"eachiko: Previous = {ctx.Previous}")
@@ -475,6 +477,7 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
         let setEid n = Interop.set n idKey eachId
         let eachCtx = ctx |> ContextHelpers.withParent eachNode
 
+#if LOGGING_ENABLED
         let logState state' =
             Browser.Dom.console.groupCollapsed("each state #" + eachGroup.Id)
             state' |> List.map (fun s -> sprintf "%s %f,%f" (string s.Key) s.Rect.left s.Rect.top) |> List.iter (fun s -> log(s))
@@ -484,12 +487,14 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
             Browser.Dom.console.groupCollapsed("each items #" + eachGroup.Id)
             items |> List.mapi (fun i s -> sprintf "%s" (string (key(i,s)))) |> List.iter (fun s -> log(s))
             Browser.Dom.console.groupEnd()
+#endif
 
         let unsub = items |> Store.subscribe (fun newItems ->
             let wantAnimate = true
 
-            log("-- Each Block Render -------------------------------------")
-            log($"caching rects for render. Previous: {state |> CollectionWrapper.length} items. Current {newItems |> CollectionWrapper.length} items")
+            if Logging.isEnabled "each" then
+                log("-- Each Block Render -------------------------------------")
+                log($"caching rects for render. Previous: {state |> CollectionWrapper.length} items. Current {newItems |> CollectionWrapper.length} items")
 
             state <- state |> CollectionWrapper.map (fun ki ->
                 let el = findCurrentElement ctx.Document (*ki.Element*)null ki.SvId
@@ -499,7 +504,7 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
             //logState state
 
             // Last child that doesn't have our eachId
-            log($"Previous = {ctx.Previous}")
+            if Logging.isEnabled "each" then log($"Previous = {ctx.Previous}")
             //let prevNodeInit : Node = vnode.PrevDomNode
             let mutable prevNode = SideEffect
 
@@ -511,10 +516,10 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
                     let storePos = Store.make itemIndex
                     let storeVal = Store.make item
                     let ctx2 = eachCtx |> ContextHelpers.withPrevious prevNode
-                    DomEdit.log $"++ creating new item '{item}' (key={itemKey}) with prev='{prevNode}' action={ctx2.Action}"
+                    if Logging.isEnabled "each" then log $"++ creating new item '{item}' (key={itemKey}) with prev='{prevNode}' action={ctx2.Action}"
                     let sutilNode = ctx2 |> build (view (storePos,storeVal))
                     let itemNode = ctx2 |> asDomElement sutilNode
-                    DomEdit.log $"-- created #{svId itemNode} with prev='{nodeStrShort (itemNode.previousSibling)}'"
+                    if Logging.isEnabled "each" then log $"-- created #{svId itemNode} with prev='{nodeStrShort (itemNode.previousSibling)}'"
                     setEid itemNode
                     SutilEffect.RegisterDisposable(sutilNode,storePos)
                     SutilEffect.RegisterDisposable(sutilNode,storeVal)
@@ -530,14 +535,14 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
                     }
 
                     let prevEl = itemNode.previousSibling :?> HTMLElement
-                    log $"new item #{newKi.SvId} eid={eachIdOf itemNode} {itemKey} {rectStr newKi.Rect} prevNode={prevNode} prevSibling={nodeStr prevEl}"
+                    if Logging.isEnabled "each" then log $"new item #{newKi.SvId} eid={eachIdOf itemNode} {itemKey} {rectStr newKi.Rect} prevNode={prevNode} prevSibling={nodeStr prevEl}"
                     prevNode <- sutilNode
                     newKi
                 | Some ki ->
                     ki.Position |> Store.modify (fun _ -> itemIndex)
                     ki.Value |> Store.modify (fun _ -> item)
                     let el = findCurrentElement ctx.Document null ki.SvId (*ki.Element*)
-                    log $"existing item {ki.SvId} {ki.Key} {rectStr ki.Rect}"
+                    if Logging.isEnabled "each" then log $"existing item {ki.SvId} {ki.Key} {rectStr ki.Rect}"
                     if wantAnimate then
                         clearAnimations el
                         animateNode el (ki.Rect)
@@ -547,11 +552,11 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
 
             //logState newState
 
-            log("Remove old items")
+            if Logging.isEnabled "each" then log("Remove old items")
             // Remove old items
             for oldItem in state do
                 if not (newState |> CollectionWrapper.exists (fun x -> x.Key = oldItem.Key)) then
-                    log($"removing key {oldItem.Key}")
+                    if Logging.isEnabled "each" then log($"removing key {oldItem.Key}")
                     let el = findCurrentElement ctx.Document null oldItem.SvId (*oldItem.Element*)
                     fixPosition el
                     //ctx.Parent.RemoveChild(el) |> ignore
@@ -565,12 +570,12 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
             // Reorder
             let mutable prevDomNode = eachGroup.PrevDomNode
             for ki in newState do
-                log($"Checking order: #{ki.SvId}")
+                if Logging.isEnabled "each" then log($"Checking order: #{ki.SvId}")
                 let el = findCurrentElement ctx.Document null ki.SvId (*ki.Element*)
                 if not (isNull el) then
                     if not(isSameNode prevDomNode el.previousSibling) then
-                        log($"reordering: ki={nodeStr el} prevNode={nodeStr prevDomNode}")
-                        log($"reordering key {ki.Key} {nodeStrShort el} parent={el.parentNode}")
+                        if Logging.isEnabled "each" then log($"reordering: ki={nodeStr el} prevNode={nodeStr prevDomNode}")
+                        if Logging.isEnabled "each" then log($"reordering key {ki.Key} {nodeStrShort el} parent={el.parentNode}")
                         //ctx.Parent.RemoveChild(el) |> ignore
                         ctx.Parent.InsertAfter(el, prevDomNode)
                     prevDomNode <- el

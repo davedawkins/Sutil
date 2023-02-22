@@ -33,7 +33,16 @@ type Bind =
     static member selectOptional<'T when 'T : equality>( store : Store<'T option> ) = Sutil.Bindings.bindSelectOptional store
     static member selectSingle<'T when 'T : equality>( store : Store<'T> ) = Sutil.Bindings.bindSelectSingle store
 
-    static member attr<'T>( attrName : string, initValue : 'T, dispatch : 'T -> unit) = attrNotify attrName initValue dispatch
+    ///<summary>
+    /// Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
+    /// attribute's current value to the given function. This form is useful for view templates
+    /// where v is invariant (for example, an each that already filters on the value of v, like Todo.Done)
+    ///</summary>
+    static member attrInit<'T>( attrName : string, initValue : 'T, dispatch : 'T -> unit) = attrNotify attrName initValue dispatch
+
+    /// Two-way binding from value to attribute and from attribute to dispatch function
+    static member attr<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) =
+        bindAttrBoth name value dispatch
 
     /// Dual-binding for a given attribute. Changes to value are written to the attribute, while
     /// changes to the attribute are written back to the store. Note that an IStore is also
@@ -47,10 +56,6 @@ type Bind =
 
     /// One-way binding from attribute to dispatch function
     static member attr<'T> (name:string, dispatch: 'T -> unit) = bindAttrOut name dispatch
-
-    /// Two-way binding from value to attribute and from attribute to dispatch function
-    static member attr<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) =
-        bindAttrBoth name value dispatch
 
     /// One way binding from style values into style attribute
     static member style (attrs : IObservable<#seq<string * obj>>) =

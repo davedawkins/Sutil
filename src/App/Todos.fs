@@ -182,7 +182,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
             Html.label [
                 Html.input [
                     type' "checkbox"
-                    Bind.attr( "checked", todo.Done, (fun _ -> todo.Id |> ToggleTodo |> dispatch) )
+                    Bind.attrInit( "checked", todo.Done, (fun _ -> todo.Id |> ToggleTodo |> dispatch) )
                     ]
                 text $" {todo.Description}"
                 Html.button [

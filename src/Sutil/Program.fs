@@ -31,7 +31,7 @@ module Program =
     [<Obsolete("Use Program.mount")>]
     let mountElement id (app : SutilElement)  =
         //mountElementOnDocument document id (exclusive app)
-        app |> _mount (MountOp.AppendTo,ElementRef.Id id)
+        app |> CoreElements.exclusive |> _mount (MountOp.AppendTo,ElementRef.Id id)
 
     [<Obsolete("Use Program.mountAfter")>]
     let mountElementAfter (prev : HTMLElement) (app : SutilElement) =
@@ -76,6 +76,7 @@ type Program() =
     /// Mount application after given HTMLElement
     ///</summary>
     static member mountAfter (prev : HTMLElement, app : SutilElement) =
-        app |> Program._mount (MountOp.InsertAfter, ElementRef.Element prev)
+        app |> CoreElements.exclusive |> Program._mount (MountOp.InsertAfter, ElementRef.Element prev)
 
-
+    static member unmount( el : HTMLElement ) =
+        DomHelpers.unmount el

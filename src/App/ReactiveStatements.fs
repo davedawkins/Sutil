@@ -15,7 +15,7 @@ let plural n = if n = 1 then "" else "s"
 let view() =
     let count = Store.make 0
 
-    count |> Store.write (fun n ->
+    count |> Store.iter (fun n ->
         if n >= 10 then
             window.alert("count is dangerously high!")
             count <~ 9

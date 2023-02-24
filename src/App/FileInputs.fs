@@ -14,7 +14,7 @@ let view() =
     let files = Store.make Unchecked.defaultof<Browser.Types.FileList>
     let fileSeq = files |> Store.map (Helpers.fileListToSeq >> Seq.toList)
 
-    fileSeq |> (Store.write (fun fileSeq ->
+    fileSeq |> (Store.iter (fun fileSeq ->
         // Note that `files` is of type `FileList`, not an Array:
         // https://developer.mozilla.org/en-US/docs/Web/API/FileList
         //console.log(files);

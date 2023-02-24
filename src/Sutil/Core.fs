@@ -844,7 +844,6 @@ let internal mount app ((op,eref) : MountPoint) =
 
     match op with
     | AppendTo ->
-        DomHelpers.clear node
         build app (makeContext node)
 
     | InsertAfter ->

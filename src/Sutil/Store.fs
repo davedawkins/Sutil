@@ -174,15 +174,17 @@ module Store =
     let getMap callback store = store |> get |> callback
 
     /// <summary>
-    /// Calls the callback upon initialization and whenever the store is updated. This is the same as subscribe
-    /// and ignoring the unsubscription callback
+    /// Invoke callback for each observed value from source
     /// </summary>
     /// <example>
     /// <code>
-    ///     Store.subscribe (fun value -> printfn $"{value}") intStore
+    ///    source |> Store.iter (fun v -> printfn $"New value: {v}")
     /// </code>
     /// </example>
-    let write<'A> (callback: 'A -> unit) (store: IObservable<'A>) = subscribe callback store |> ignore
+    let iter<'A> (callback: 'A -> unit) (source: IObservable<'A>) = source |> Observable.map  callback |> ignore
+
+    [<Obsolete("Use Store.iter instead")>]
+    let write<'A> (callback: 'A -> unit) (store: IObservable<'A>) = iter callback store
 
     /// <summary>Modify the store by mapping its current value with a callback</summary>
     /// <example>

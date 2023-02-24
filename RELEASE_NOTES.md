@@ -1,3 +1,8 @@
+### 2.0.4
+- Added Program.unmount to allow elements to be removed and cleaned up
+- Only clear existing children for Program.mount( el : SutilElement ), the default case. 
+- Deprecate Store.write in favour of more intuitive new function Store.iter
+
 ### 2.0.3
 - Rename problematic overload of Bind.attr( name, init, dispatch ) to Bind.attrInit. This should be OK, since it was introduced in 2.0 to move sc/App/Todos.fs away from Bindings.attrNotify
 - Don't allow log functions to build strings when logging is disabled (reported performance issue)

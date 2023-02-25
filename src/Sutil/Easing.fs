@@ -33,7 +33,7 @@ let backOut t =
     let t' = t - 1.0
     t' * t' * ((s + 1.0) * t' + s) + 1.0
 
-let cubicIn t = t * t * t
+let cubicIn (t : float) = t * t * t
 
 let cubicOut t =
     let f = t - 1.0
@@ -51,7 +51,7 @@ let quadInOut t =
         let tout = tin - 1.0  // Out: t>= 0.5, tout = 0 .. 1
         -0.5 * (tout * (tout - 2.0) - 1.0)
 
-let quadIn t =
+let quadIn (t : float) =
     t * t
 
 let quadOut t =

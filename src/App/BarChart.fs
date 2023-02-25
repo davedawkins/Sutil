@@ -180,9 +180,9 @@ let view() =
                         let mutable i = 0
                         for point in points do
                             Svg.rect [
-                                Svg.x $"{m.XScale(i) + 2}"
-                                Svg.y $"{m.YScale(point.Birthrate)}"
-                                Svg.width $"{m.BarWidth - 4.0}"
+                                Svg.x $"{m.XScale(i) + 2}px"
+                                Svg.y $"{m.YScale(point.Birthrate)}px"
+                                Svg.width $"{m.BarWidth - 4.0}px"
                                 Svg.height $"{m.YScale(0.0) - m.YScale(point.Birthrate)}"
                             ]
                             i <- i + 1

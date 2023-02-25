@@ -1,3 +1,7 @@
+// An experiment with a D3-like approach to drawing SVG items. So far, it's interesting but not
+// yet seeing an advantage over what I've created over just using Svg.cirle, Svg.rect etc. The
+// transition function is neat, at least. This isn't a judgment of D3 itself.
+//
 module Draw
 
 open Sutil

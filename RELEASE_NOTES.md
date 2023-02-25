@@ -1,6 +1,9 @@
+### 2.0.5
+- Better support for SVG
+
 ### 2.0.4
 - Added Program.unmount to allow elements to be removed and cleaned up
-- Only clear existing children for Program.mount( el : SutilElement ), the default case. 
+- Only clear existing children for Program.mount( el : SutilElement ), the default case.
 - Deprecate Store.write in favour of more intuitive new function Store.iter
 
 ### 2.0.3

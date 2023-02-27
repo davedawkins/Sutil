@@ -32,7 +32,7 @@ let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (c
     SutilElement.Define( "bindElementC",
     fun ctx ->
     let mutable node = SideEffect
-    let group = SutilEffect.MakeGroup("bind",ctx.Parent,ctx.Previous)
+    let group = SutilEffect.MakeGroup("bindc",ctx.Parent,ctx.Previous)
     let bindNode = Group group
 
     if logEnabled() then log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
@@ -53,6 +53,7 @@ let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (c
         )
         group.RegisterUnsubscribe ( fun () ->
             if logEnabled() then log($"dispose: Bind.el: {group}")
+            node.Dispose()
             disposable.Dispose())
 
     run()
@@ -63,7 +64,7 @@ let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> Su
     SutilElement.Define( "bindElementCO",
     fun ctx ->
     let mutable node = SideEffect
-    let group = SutilEffect.MakeGroup("bind",ctx.Parent,ctx.Previous)
+    let group = SutilEffect.MakeGroup("bindco",ctx.Parent,ctx.Previous)
     let bindNode = Group group
 
     if logEnabled() then log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
@@ -82,6 +83,7 @@ let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> Su
         )
         group.RegisterUnsubscribe ( fun () ->
             if logEnabled() then log($"dispose: Bind.el: {group}")
+            node.Dispose()
             disposable.Dispose())
 
 

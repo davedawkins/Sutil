@@ -7,9 +7,9 @@ open Browser.Types
 module Program =
     open System
 
-    let internal _mount ((_,eref) as mp : MountPoint) (view : SutilElement) =
+    let internal _mount ((_,eref) as mp : MountPoint) (view : SutilElement) : IDisposable =
         ObservableStore.Registry.initialise eref.AsElement.ownerDocument
-        Core.mount view mp |> ignore
+        Core.mount view mp
 
     // -----------------------------------------------------------------------------------------------------------------------------
 
@@ -37,6 +37,7 @@ module Program =
     let mountElementAfter (prev : HTMLElement) (app : SutilElement) =
         app |> _mount (MountOp.InsertAfter,ElementRef.Element prev)
 
+open System
 /// <summary>
 /// Main entry points for a Sutil program
 /// </summary>
@@ -48,35 +49,39 @@ module Program =
 /// </example>
 type Program() =
     ///<summary>
-    /// Mount application on element with given id.
+    /// Mount application on element with given id. Return value can be disposed to unmount and clean up.
     ///</summary>
-    static member mount (id : string, app : SutilElement) =
+    static member mount (id : string, app : SutilElement) : IDisposable =
         app |> Program._mount (MountOp.AppendTo, Id id)
 
     ///<summary>
-    /// Mount application on given HTMLElement
+    /// Mount application on given HTMLElement. Return value can be disposed to unmount and clean up.
     ///</summary>
-    static member mount (host : HTMLElement, app : SutilElement) =
+    static member mount (host : HTMLElement, app : SutilElement) : IDisposable=
         app |> Program._mount (MountOp.AppendTo, ElementRef.Element host)
 
     ///<summary>
-    /// Mount application on element with id "sutil-app"
+    /// Mount application on element with id "sutil-app". Return value is <c>unit</c>, so use alternate version <c>mount( id, app )</c>
+    /// if you need to unmount explicitly.
     ///</summary>
-    static member mount (app : SutilElement) =
-        Program.mount( "sutil-app", app )
+    static member mount (app : SutilElement) : unit =
+        Program.mount( "sutil-app", app ) |> ignore
 
     ///<summary>
-    /// Mount application on element with given id from specific document
+    /// Mount application on element with given id from specific document. Return value can be disposed to unmount and clean up.
     ///</summary>
-    static member mount (doc : Document, id : string, app : SutilElement) =
+    static member mount (doc : Document, id : string, app : SutilElement) : IDisposable =
         let host = doc.querySelector($"#{id}") :?> HTMLElement
         Program.mount( host, app )
 
     ///<summary>
-    /// Mount application after given HTMLElement
+    /// Mount application after given HTMLElement. Return value can be disposed to unmount and clean up.
     ///</summary>
-    static member mountAfter (prev : HTMLElement, app : SutilElement) =
+    static member mountAfter (prev : HTMLElement, app : SutilElement) : IDisposable =
         app |> CoreElements.exclusive |> Program._mount (MountOp.InsertAfter, ElementRef.Element prev)
 
-    static member unmount( el : HTMLElement ) =
-        DomHelpers.unmount el
+    ///<summary>
+    /// Remove this node, cleaning up all related Sutil resources
+    ///</summary>
+    static member unmount( node : Node ) =
+        DomHelpers.unmount node

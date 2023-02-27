@@ -194,9 +194,7 @@ let inject (elements: SutilElement seq) (element: SutilElement) =
         |> List.iter (fun n ->
             ctx
             |> ContextHelpers.withParent (DomNode n)
-            |> buildChildren elements
-            |> ignore)
-
+            |> buildChildren elements)
         e
     )
 

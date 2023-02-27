@@ -194,7 +194,7 @@ type SutilEffect =
     member node.Dispose() =
         match node with
         | Group v -> v.Dispose()
-        | DomNode n -> cleanupDeep n
+        | DomNode n ->  unmount n // cleanupDeep n
         | _ -> ()
 
     static member RegisterDisposable(node: Node, d: IDisposable) : unit =
@@ -293,6 +293,9 @@ type SutilEffect =
 
     static member internal MakeGroup(name: string, parent: SutilEffect, prevInit: SutilEffect) =
         SutilGroup.Create(name, parent, prevInit)
+
+    interface IDisposable with
+        member __.Dispose() = __.Dispose()
 
 and SutilGroup private (_name, _parent, _prevInit) as this =
     let mutable id = domId () |> string

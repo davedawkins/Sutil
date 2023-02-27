@@ -1,5 +1,6 @@
 ### 2.0.5
 - Better support for SVG
+- Return value from Program.mount can be disposed to perform an unmount. See docs for Program.mount
 
 ### 2.0.4
 - Added Program.unmount to allow elements to be removed and cleaned up

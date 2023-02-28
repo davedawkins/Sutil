@@ -1,3 +1,6 @@
+### 2.0.6
+- Improved packaging for SourceLink (include .snupkg etc). Template from Fable.Promise.
+
 ### 2.0.5
 - Better support for SVG
 - Return value from Program.mount can be disposed to perform an unmount. See docs for Program.mount

@@ -127,6 +127,17 @@ Target.create "build:app" (fun _ ->
     run "dotnet fable src/App --run webpack --mode production"
 )
 
+
+Target.create "clean" (fun _ ->
+    run("dotnet fable clean --yes")
+    run("dotnet clean")
+)
+
+
+Target.create "pack" (fun _ ->
+    run("dotnet pack -c Release src/Sutil/Sutil.fsproj")
+)
+
 "fsdocs"
     ==> "publish:website"
     |> ignore
@@ -137,5 +148,12 @@ Target.create "build:app" (fun _ ->
     ==> "deploy:linode"
     |> ignore
 
+"clean"
+    ==> "publish:package"
+    |> ignore
+
+"clean"
+    ==> "pack"
+    |> ignore
 
 Target.runOrDefault "usage"

@@ -17,6 +17,8 @@
     "fsdocs:local": "dotnet fsi build.fsx --target fsdocs:local",
     "xdeploy:linode": "bash deployToLinode.sh ./public sutil '' deploy@213.52.129.104 /home/deploy/apps",
     "deploy:linode": "dotnet fsi build.fsx --target deploy:linode",
+    "clean": "dotnet fsi build.fsx --target clean",
+    "pack": "dotnet fsi build.fsx --target pack",
     "test": "cd tests; npm run test"
   },
   "dependencies": {

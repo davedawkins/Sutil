@@ -1,3 +1,6 @@
+### 2.0.7
+- Latest version of fable-publish-utils needed for nuget push with snupkg
+
 ### 2.0.6
 - Improved packaging for SourceLink (include .snupkg etc). Template from Fable.Promise.
 

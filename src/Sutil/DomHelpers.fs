@@ -187,7 +187,7 @@ let internal nodeStr (node: Node) =
     if isNull node then
         "null"
     else
-        let mutable tc = node.textContent
+        let mutable tc = node.textContent.Replace("\n", "\\n").Replace("\r", "")
 
         if tc.Length > 80 then
             tc <- tc.Substring(0, 80)
@@ -261,6 +261,10 @@ let private clearDisposables (node: Node) : unit = Interop.delete node NodeKey.D
 
 // Call all registered disposables on this node
 let private cleanup (node: Node) : unit =
+    node |> applyIfElement (fun el ->
+        Fable.Core.JS.console.log ("cleanup", nodeStr el)
+    )
+
     let safeDispose (d: IDisposable) =
         try
             d.Dispose()

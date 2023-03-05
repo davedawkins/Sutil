@@ -1,3 +1,9 @@
+### 2.0.8
+- Fix for broken REPL links in docs
+- Added Program.mountAppend
+- Additional docs for other Program.mount variants
+- Additional <tag>c variants like divc
+
 ### 2.0.7
 - Latest version of fable-publish-utils needed for nuget push with snupkg
 

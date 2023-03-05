@@ -229,7 +229,7 @@ let init() =
     }, []
 
 let update msg model : Model * Cmd<Message> =
-    Browser.Dom.console.log($"update {msg}")
+    //Browser.Dom.console.log($"update {msg}")
     match msg with
     | SetIsMobile m ->
         { model with IsMobile = m }, Cmd.none

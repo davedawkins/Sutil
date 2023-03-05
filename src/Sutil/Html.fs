@@ -71,6 +71,11 @@ type SutilEventEngine() =
 /// </example>
 type SutilHtmlEngine() as this =
     inherit HtmlEngine<SutilElement>( el, text, (fun () -> fragment []) )
+
+    let _clsch cls ch = [ attr("class",cls); yield! ch ]
+
+    do ()
+
     member _.app (xs : seq<SutilElement>) : SutilElement = fragment xs
     member _.body (xs: seq<SutilElement>) =
         SutilElement.Define( "Html.body",
@@ -86,9 +91,36 @@ type SutilHtmlEngine() as this =
         ctx |> ContextHelpers.withParent (DomNode (ctx.Document.querySelector selector)) |> buildChildren xs
         () )
 
-    member __.divc (cls : string) (children : seq<SutilElement>) = __.div [ attr("class",cls); yield! children ]
-    member __.buttonc (cls : string) (children : seq<SutilElement>) = __.button [ attr("class",cls); yield! children ]
-    member __.spanc (cls : string) (children : seq<SutilElement>) = __.span [ attr("class",cls); yield! children ]
+    member __.divc (cls : string) (children : seq<SutilElement>) = __.div (_clsch cls children)
+    member __.buttonc (cls : string) (children : seq<SutilElement>) = __.button (_clsch cls children)
+    member __.spanc (cls : string) (children : seq<SutilElement>) = __.span (_clsch cls children)
+    member __.imgc (cls : string) (children : seq<SutilElement>) = __.img (_clsch cls children)
+    member __.ic (cls : string) (children : seq<SutilElement>) = __.i (_clsch cls children)
+    member __.tablec (cls : string) (children : seq<SutilElement>) = __.table (_clsch cls children)
+    member __.theadc (cls : string) (children : seq<SutilElement>) = __.thead (_clsch cls children)
+    member __.trc (cls : string) (children : seq<SutilElement>) = __.tr (_clsch cls children)
+    member __.tdc (cls : string) (children : seq<SutilElement>) = __.td (_clsch cls children)
+    member __.inputc (cls : string) (children : seq<SutilElement>) = __.input (_clsch cls children)
+    member __.labelc (cls : string) (children : seq<SutilElement>) = __.label (_clsch cls children)
+    member __.sectionc (cls : string) (children : seq<SutilElement>) = __.section (_clsch cls children)
+    member __.navc (cls : string) (children : seq<SutilElement>) = __.nav (_clsch cls children)
+    member __.headerc (cls : string) (children : seq<SutilElement>) = __.header (_clsch cls children)
+    member __.footerc (cls : string) (children : seq<SutilElement>) = __.footer (_clsch cls children)
+    member __.articlec (cls : string) (children : seq<SutilElement>) = __.article (_clsch cls children)
+    member __.asidec (cls : string) (children : seq<SutilElement>) = __.aside (_clsch cls children)
+    member __.ulc (cls : string) (children : seq<SutilElement>) = __.ul (_clsch cls children)
+    member __.lic (cls : string) (children : seq<SutilElement>) = __.li (_clsch cls children)
+    member __.dlc (cls : string) (children : seq<SutilElement>) = __.dl (_clsch cls children)
+    member __.dtc (cls : string) (children : seq<SutilElement>) = __.dt (_clsch cls children)
+    member __.ddc (cls : string) (children : seq<SutilElement>) = __.dd (_clsch cls children)
+    member __.pc (cls : string) (children : seq<SutilElement>) = __.p (_clsch cls children)
+    member __.h1c (cls : string) (children : seq<SutilElement>) = __.h1 (_clsch cls children)
+    member __.h2c (cls : string) (children : seq<SutilElement>) = __.h2 (_clsch cls children)
+    member __.h3c (cls : string) (children : seq<SutilElement>) = __.h3 (_clsch cls children)
+    member __.h4c (cls : string) (children : seq<SutilElement>) = __.h4 (_clsch cls children)
+    member __.h5c (cls : string) (children : seq<SutilElement>) = __.h5 (_clsch cls children)
+    member __.h6c (cls : string) (children : seq<SutilElement>) = __.h6 (_clsch cls children)
+
 
     member _.text (v : IObservable<string>) = Bind.el (v |> Store.distinct, CoreElements.text)
     member _.text (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, CoreElements.text)

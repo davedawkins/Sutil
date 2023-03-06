@@ -1,6 +1,11 @@
+Sutil provides two templates:
+- `sutil-hello` : A simple hello world program
+- `sutil-app` : A full app with some commonly required features of an SPA
+
 - Install Sutil templates
+
 ```shell
-% dotnet new --install Fable.Sutil.Templates
+% dotnet new install Fable.Sutil.Templates
 ```
 
 - Create a new Sutil project:
@@ -14,12 +19,3 @@
 
 View your new app at http://localhost:8080
 
-Other templates:
-
-- sutil-app
-
-A full app that demonstrates some commonly required features in an SPA
-
-```shell
-dotnet new sutil-app
-```

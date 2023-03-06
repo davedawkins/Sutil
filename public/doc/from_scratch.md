@@ -3,12 +3,14 @@ Follow these steps to create a new Sutil project starting from scratch:
 - Install Fable template if you haven't already (check for latest template at [https://www.nuget.org/packages/Fable.Template/](https://www.nuget.org/packages/Fable.Template/)):
 
 ```shell
-% dotnet new --install Fable.Template::3.2.1
+% dotnet new --install Fable.Template
 ```
 
 - Create a new Fable project:
 
 ```shell
+% mkdir myapp
+% cd myapp
 % dotnet new fable
 ```
 
@@ -16,9 +18,16 @@ Follow these steps to create a new Sutil project starting from scratch:
 
 ```shell
 % cd src
-% dotnet add package Sutil --version 2.0.0
+% dotnet add package Sutil
 ```
-Note: Check https://www.nuget.org/packages/Sutil/ for latest version.
+
+If you experience build errors, then you may need to bring the Fable template packages up-to-date with those being referenced by
+Sutil, or even just remove them (again from the `src` directory):
+
+```shell
+% dotnet remove package Fable.Browser.Dom
+% dotnet remove package Fable.Core
+```
 
 - Edit `public/index.html` and change `body` element to read as follows:
 
@@ -41,3 +50,12 @@ let app() =
 
 app() |> Program.mount
 ```
+
+- Build and run from the project root folder
+
+```shell
+npm install
+npm run start
+```
+
+- View the app at http://localhost:8080

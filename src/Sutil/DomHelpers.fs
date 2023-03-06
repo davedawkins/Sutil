@@ -261,10 +261,6 @@ let private clearDisposables (node: Node) : unit = Interop.delete node NodeKey.D
 
 // Call all registered disposables on this node
 let private cleanup (node: Node) : unit =
-    node |> applyIfElement (fun el ->
-        Fable.Core.JS.console.log ("cleanup", nodeStr el)
-    )
-
     let safeDispose (d: IDisposable) =
         try
             d.Dispose()

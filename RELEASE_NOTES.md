@@ -1,3 +1,6 @@
+### 2.0.9
+- Remove cleanup diagnostics
+
 ### 2.0.8
 - Fix for broken REPL links in docs
 - Added Program.mountAppend

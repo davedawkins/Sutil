@@ -1,6 +1,6 @@
 - Install Sutil templates
 ```shell
-% dotnet new install Sutil.Templates
+% dotnet new --install Fable.Sutil.Templates
 ```
 
 - Create a new Sutil project:

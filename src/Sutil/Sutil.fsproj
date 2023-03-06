@@ -2,8 +2,8 @@
   <PropertyGroup>
     <Description>Front-end framework for Fable</Description>
     <Authors>David Dawkins</Authors>
-    <Version>2.0.8</Version>
-    <PackageVersion>2.0.8</PackageVersion>
+    <Version>2.0.9</Version>
+    <PackageVersion>2.0.9</PackageVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RepositoryType>git</RepositoryType>
     <UsesMarkdownComments>false</UsesMarkdownComments>

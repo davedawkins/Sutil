@@ -1,4 +1,4 @@
-Follow these steps to create a new Sutil project starting from scratch:
+Follow these steps to create a new Sutil project starting from scratch. (Note that it's easier to use the [templates](https://sutil.dev/#documentation-from-a-template)).
 
 - Install Fable template if you haven't already (check for latest template at [https://www.nuget.org/packages/Fable.Template/](https://www.nuget.org/packages/Fable.Template/)):
 

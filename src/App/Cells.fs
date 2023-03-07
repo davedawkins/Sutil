@@ -14,16 +14,16 @@ open Sutil.Core
 open Sutil.CoreElements
 open Fable.Core.JsInterop
 open Evaluator
-//open Browser.Dom
-//open Browser.Types
 open System
 
-let log s = () //console.log(s)
+let log s = ()// Fable.Core.JS.console.log(s)
+let formatPosition (p: Position) = sprintf "[%A:%A]" (fst p) (snd p)
+let formatPositions (positions : Position seq) = "[" + (positions |> Seq.map formatPosition |> String.concat ",") + "]"
 
 let filterSome (source : IObservable<'T option>) =
     source |> Observable.filter (fun x -> x.IsSome) |> Observable.map (fun x -> x.Value)
 
-let nodeOfCell pos = Browser.Dom.document.querySelector($"[x-id='{positionStr pos}'") :> Browser.Types.Node
+let nodeOfCell pos = Browser.Dom.document.querySelector($"[x-id='{positionStr pos}'") :?> Browser.Types.HTMLElement
 
 type Message =
   | UpdateValue of Position * string
@@ -38,37 +38,75 @@ type Message =
 //         RefreshCell is a message we might receive from the database
 //
 
-type Sheet = Map<Position, Sutil.IStore<string> >
-
 module Cells =
-    let mutable cellDb : Sheet = Map.empty
+    type CellValue<'T> = {
+        mutable Value : 'T
+    }
+    with
+        static member Create (init : 'T) = { Value = init }
+        member __.Set( v : 'T ) = __.Value <- v
 
-    let valAt pos =
-        match cellDb.TryFind pos with
+    // A cell's value
+    let mutable cellValues : Map<Position, CellValue<string> > = Map.empty
+
+    // A cell's input cells
+    let mutable cellInputs : Map<Position,Position array> = Map.empty
+
+    // A cell's output cells
+    let mutable cellOutputs : Map<Position, Position array> = Map.empty
+
+    let cellGet pos =
+        match cellValues.TryFind pos with
         | None -> ""
         | Some s -> s.Value
 
-    let cellSet pos value =
-        cellDb.[pos] <~ value
+    let private cellInitialise pos =
+        if not (cellValues.ContainsKey pos) then
+            cellValues <- cellValues.Add(pos,CellValue.Create(""))
 
-    let cellListen toPos dispatch =
-        let store = cellDb.[toPos]
-        let unsub = store |> Store.subscribe dispatch
-        ()
+    let private cellSet pos value =
+        cellInitialise pos
+        cellValues.[pos].Set(value)
 
-    let cellNotify pos =
-        valAt pos |> cellSet pos
+    let private cellCollectCells pos  =
+        let mutable cells : Map<Position,int> = Map [ (pos,1) ]
+        let rec f p =
+            cellOutputs.TryFind p
+            |> Option.defaultValue [| |]
+            |> Array.iter (fun outCell ->
+                //if not (cells.Contains outCell) then
+                cells <- cells.Add(outCell,1)
+                f outCell
+            )
+        f pos
+        cells |> Map.keys |> Seq.toArray
 
-    let cellInitialise (dispatch : Position -> unit) pos =
-        if not (cellDb.ContainsKey pos) then
-            cellDb <- cellDb.Add(pos,Store.make "")
+    let private cellNotify pos dispatch  =
+        let cells = cellCollectCells pos
+        log($"notify: {formatPositions cells}")
+        cells |> Array.iter dispatch
 
-let bindCellRefresh pos whenPosUpdated dispatch =
-    Cells.cellListen whenPosUpdated (fun _ -> pos |> dispatch)
+    let private cellSetInputs (pos : Position) (inputs : Position list) =
+        log($"Cell {formatPosition pos} is dependent on {formatPositions inputs}")
 
-let bindRefresh targetCell dependsOnCells dispatch =
-    for dep in dependsOnCells do
-        bindCellRefresh targetCell dep dispatch
+        cellInputs <- cellInputs.Add( pos, inputs |> Array.ofList )
+
+        // Build outputs. FIXME: Never removes an output
+        inputs |> List.iter (fun inputPos ->
+            let outs = cellOutputs.TryFind inputPos |> Option.defaultValue [| |]
+            let outs' =
+                if outs |> Array.contains pos then outs else (outs |> Array.append [| pos |])
+            cellOutputs <- cellOutputs.Add( inputPos, outs' )
+            log($"Outputs for {formatPosition inputPos} -> {formatPositions outs'}")
+        )
+
+    let cellUpdate pos value dispatch =
+        log ("----------------------------------------------------------")
+        log($"updateValue {pos} = {value}")
+
+        cellSetInputs pos (findTriggerCells value)
+        cellSet pos value // Finally update the sheet
+        cellNotify pos (dispatch << RefreshCell)
 
 type Model =
   { Rows : int list
@@ -108,7 +146,7 @@ let styleSheet = [
     ]
 ]
 
-let sample = [
+let sample_full = [
     ('B',1), "Fibonacci"
     ('B',2), "1"
     ('B',3), "1"
@@ -121,64 +159,56 @@ let sample = [
     ('E',3), "Convert:" ; ('F',3), "0"                ; ('G',3), "°C";
     ('E',4), "Result:"  ; ('F',4), "=32 + F3 * 9 / 5" ; ('G',4), "°F" ]
 
-let sample2 = [
-    ('A',1), "Fibonacci"
+let sample_test = [
+    ('B',2), "1"
+    ('B',3), "1"
+    ('B',4), "=B2 + B3"
+    ('B',5), "=B3 + B4"
 ]
 
-let init() =
+let sample = sample_full
+
+let init data  =
     log("init()")
+
+    data |> List.iter (fun (p,v) -> Cells.cellUpdate p v ignore)
+
     {  Rows = [1 .. 15]
        Cols = ['A'.. 'K' ]
        Active = None
-       NeedsRefresh = None }, Cmd.batch (sample |> List.map (UpdateValue >> Cmd.ofMsg))
-
-let updateValue pos value d =
-    log("updateValue")
-    let tcells = findTriggerCells value // Examine expression for cells pos is dependent on
-    let refresh = (d << RefreshCell)
-    (pos :: tcells) |> List.iter (Cells.cellInitialise refresh) // Make sure all cells involved have stores
-    bindRefresh pos tcells refresh // Make sure pos gets a refresh when any of tcells update
-    Cells.cellSet pos value // Finally update the sheet
-    refresh pos
+       NeedsRefresh = None
+    }, Cmd.batch (data |> List.map (fst >> RefreshCell >> Cmd.ofMsg))
 
 let update (message : Message) (model : Model) : Model * Cmd<Message> =
     log $"{message}"
     match message with
 
     | RefreshCell p ->
-        { model with NeedsRefresh = Some p }, [fun _ -> Cells.cellNotify p]
+        { model with NeedsRefresh = Some p }, Cmd.none //[fun d -> Cells.cellNotify p (d <<RefreshCell)]
 
     | UpdateValue (p,v) ->
-        { model with Active = None; NeedsRefresh = None }, [updateValue p v]
+        { model with Active = None; NeedsRefresh = None }, [Cells.cellUpdate p v]
 
     | StartEdit p ->
         { model with Active = Some p; NeedsRefresh = None }, []
 
-let makeStore = Store.makeElmish init update ignore
-
-//
-// Render a NodeFactory at a given cell
-//
 let renderCellAt (renderfn: Position -> SutilElement) (ctx : BuildContext) (cell:Position) =
-    log($"renderCellAt {cell}")
-
-    // Broken until I understand and then fix the following. API has changed
-    //let defineSutilElement = renderfn >> exclusive
-    //build (defineSutilElement cell) (ctx |> ContextHelpers.withParent (DomNode (nodeOfCell cell))) |> ignore
+    let cellElement = cell |> renderfn
+    Program.mount( nodeOfCell cell, cellElement ) |> ignore
 
 let view () : SutilElement =
 
-    let model, dispatch = makeStore()
+    let model, dispatch = sample |> Store.makeElmish init update ignore
 
     let renderPlainCell pos =
-        let content = Cells.valAt pos
+        let content = Cells.cellGet pos
         fragment [
             onClick (fun _ -> StartEdit pos |> dispatch) []
-            evalCellAsString Cells.valAt content |> text
+            evalCellAsString Cells.cellGet content |> text
         ]
 
     let renderActiveCell pos =
-        let content = Cells.valAt pos
+        let content = Cells.cellGet pos
         Html.div [
             Html.input [
                 type' "text"
@@ -194,6 +224,7 @@ let view () : SutilElement =
     Html.div [
         let rowsXcols = Observable.zip (model .> rows) (model .> cols) |> Observable.distinctUntilChanged
 
+        // Respond to change in dimensions of spreadsheet
         Bind.el(rowsXcols, fun (rows,cols) -> Html.table [
             Html.thead [
                 Html.tr [
@@ -214,8 +245,6 @@ let view () : SutilElement =
                         ) |> fragment
                     ])
                 )
-
-            log("Installing bindings for active cell")
 
             //
             // It's hard to make this section look beautiful. I'll keep working at it

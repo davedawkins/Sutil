@@ -80,6 +80,7 @@ let evalCellAsString sheet content =
     | ParseResult.Error _ -> content // TODO: Show errors if '= <junk>' seen
 
 
+/// Find cells that are inputs to the value of expr
 let findTriggerCells expr =
     let ast = Parser.run parseCellExpr expr
     match ast with
@@ -88,7 +89,7 @@ let findTriggerCells expr =
         let rec walk e result =
             match e with
             | Number _ -> result
-            | Reference p -> p :: result
+            | Reference p -> p :: result  // Found a triggering (input) cell
             | Sub e -> walk e result
             | Binary (left,_,right) -> walk left (walk right result)
         walk e []

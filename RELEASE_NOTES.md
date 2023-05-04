@@ -2,7 +2,7 @@
 - Expose DomHelpers.nodeStrShort, nodeStr, DomEdit
 - Added more `c` helpers (ac, hrc, tbodyc, olc)
 - Fix for Store.iter
--
+
 
 ### 2.0.9
 - Remove cleanup diagnostics

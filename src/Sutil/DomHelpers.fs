@@ -199,7 +199,7 @@ let internal nodeStr (node: Node) =
         | TextNodeType -> $"\"{tc}\"#{svId node}"
         | _ -> $"?'{tc}'#{svId node}"
 
-let internal nodeStrShort (node: Node) =
+let nodeStrShort (node: Node) =
     if isNull node then
         "null"
     else
@@ -285,7 +285,7 @@ let internal cleanupDeep (node: Node) : unit =
 
     cleanup node
 
-module internal DomEdit =
+module DomEdit =
 
     let log s =
         if Interop.exists window "domeditlog" then

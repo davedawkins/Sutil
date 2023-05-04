@@ -15,7 +15,7 @@ open WebTestRunner
 let mountTestApp app =
     use container = Container.New()
     currentEl <- container.El
-    (currentEl,app) |> Sutil.Program.mount
+    (currentEl,app) |> Sutil.Program.mount |> ignore
 
 #else
 
@@ -69,7 +69,7 @@ let TestAppId = "test-app"
 let mountTestApp app =
     let host = document.querySelector("#" + TestAppId) :?> HTMLElement
     host.innerHTML <- ""
-    Sutil.Program.mountDomElement host app |> ignore // Sutil.Core.mountOn app host
+    Sutil.Program.mount(host,app) |> ignore // Sutil.Core.mountOn app host
     currentEl <- host
 
 #endif

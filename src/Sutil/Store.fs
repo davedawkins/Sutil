@@ -181,10 +181,11 @@ module Store =
     ///    source |> Store.iter (fun v -> printfn $"New value: {v}")
     /// </code>
     /// </example>
-    let iter<'A> (callback: 'A -> unit) (source: IObservable<'A>) = source |> Observable.map  callback |> ignore
+    let iter<'A> (callback: 'A -> unit) (source: IObservable<'A>) =
+        subscribe callback source
 
     [<Obsolete("Use Store.iter instead")>]
-    let write<'A> (callback: 'A -> unit) (store: IObservable<'A>) = iter callback store
+    let write<'A> (callback: 'A -> unit) (store: IObservable<'A>) = iter callback store |> ignore
 
     /// <summary>Modify the store by mapping its current value with a callback</summary>
     /// <example>

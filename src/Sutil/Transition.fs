@@ -253,6 +253,8 @@ let private deleteRule (node:HTMLElement) (name:string) =
         numActiveAnimations <- numActiveAnimations - deleted
         if (numActiveAnimations = 0) then clearRules()
 
+let private rectToStr (c : ClientRect ) =
+    sprintf "[%f,%f -> %f,%f]" c.left c.top c.right c.bottom
 
 let flip (node:Element) (animation:Animation) props =
     let tr = applyProps props  {
@@ -267,7 +269,7 @@ let flip (node:Element) (animation:Animation) props =
     let dx = (animation.From.left - animation.To.left) / scaleX
     let dy = (animation.From.top - animation.To.top) / scaleY
     let d = Math.Sqrt(dx * dx + dy * dy)
-    if logEnabled() then log $"flip: {dx},{dy} {transform} {animation.From} -> {animation.To}"
+    if logEnabled() then log( sprintf "flip: %A,%A %A %A -> %A" dx dy transform (rectToStr animation.From) (rectToStr animation.To))
     {
         tr with
             Duration = match tr.DurationFn with
@@ -282,7 +284,11 @@ let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element ->
     //    return noop;
     let tgt (* to *) = node.getBoundingClientRect()
 
-    let shouldCreate = not (isNull from) && not (from.left = tgt.left && from.right = tgt.right && from.top = tgt.top && from.bottom = tgt.bottom)
+    let shouldCreate =
+        not (isNull from) &&
+        not (from.width = 0) &&
+        not (from.height = 0) &&
+        not (from.left = tgt.left && from.right = tgt.right && from.top = tgt.top && from.bottom = tgt.bottom)
     //    return noop;
 
     //let { delay = 0, duration = 300, easing = identity,

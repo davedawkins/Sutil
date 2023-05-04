@@ -33,6 +33,12 @@ type Bind =
     static member selectOptional<'T when 'T : equality>( store : Store<'T option> ) = Sutil.Bindings.bindSelectOptional store
     static member selectSingle<'T when 'T : equality>( store : Store<'T> ) = Sutil.Bindings.bindSelectSingle store
 
+    static member selectSingle<'T when 'T : equality>( value : System.IObservable<'T>, dispatch : 'T -> unit ) =
+        bindSelected (value .> List.singleton) (List.exactlyOne >> dispatch)
+
+    static member selectMultiple<'T  when 'T : equality>( value : System.IObservable<'T list>, dispatch: 'T list -> unit ) =
+        bindSelected value dispatch
+
     ///<summary>
     /// Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
     /// attribute's current value to the given function. This form is useful for view templates

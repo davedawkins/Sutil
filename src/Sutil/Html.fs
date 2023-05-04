@@ -121,6 +121,11 @@ type SutilHtmlEngine() as this =
     member __.h5c (cls : string) (children : seq<SutilElement>) = __.h5 (_clsch cls children)
     member __.h6c (cls : string) (children : seq<SutilElement>) = __.h6 (_clsch cls children)
 
+    member __.ac (cls : string) (children : seq<SutilElement>) = __.a (_clsch cls children)
+    member __.hrc (cls : string) (children : seq<SutilElement>) = __.hr (_clsch cls children)
+    member __.tbodyc (cls : string) (children : seq<SutilElement>) = __.tbody (_clsch cls children)
+    member __.olc (cls : string) (children : seq<SutilElement>) = __.ol (_clsch cls children)
+
 
     member _.text (v : IObservable<string>) = Bind.el (v |> Store.distinct, CoreElements.text)
     member _.text (v : IObservable<int>) = Bind.el (v .> string |> Store.distinct, CoreElements.text)

@@ -1,3 +1,7 @@
+### 2.0.11
+- New interface IReadOnlyStore, like an IObservable where you can query the current value
+- Unprotect a few core functions and modules to enable development of new SutilElements (ContextHelpers, build, SutilEffect.MakeGroup, SutilGroup.RegisterUnsubscribe, SutilCore.ContextHelpers, SutilCore.build)
+-
 ### 2.0.10
 - Expose DomHelpers.nodeStrShort, nodeStr, DomEdit
 - Added more `c` helpers (ac, hrc, tbodyc, olc)

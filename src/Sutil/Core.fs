@@ -291,7 +291,7 @@ type SutilEffect =
 
     member internal this.Clear() = this.iter clear
 
-    static member internal MakeGroup(name: string, parent: SutilEffect, prevInit: SutilEffect) =
+    static member MakeGroup(name: string, parent: SutilEffect, prevInit: SutilEffect) =
         SutilGroup.Create(name, parent, prevInit)
 
     interface IDisposable with
@@ -599,7 +599,7 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
 
         member internal _.Children = _children
 
-        member internal _.RegisterUnsubscribe d =
+        member _.RegisterUnsubscribe d =
             _dispose <- _dispose @ [ d ]
 
         member _.Dispose() =
@@ -752,7 +752,7 @@ let private makeShadowContext (customElement: Node) =
     }
 
 
-module internal ContextHelpers =
+module ContextHelpers =
     let withStyleSheet sheet ctx : BuildContext = ctx //{ ctx with StyleSheet = Some sheet }
 
     let withDebug ctx : BuildContext = { ctx with Debug = true }
@@ -783,7 +783,7 @@ let internal errorNode (parent: SutilEffect) message : Node =
 /// <summary>
 /// Instantiate a <c>SutilElement</c>.
 /// </summary>
-let internal build (f: SutilElement) (ctx: BuildContext) =
+let build (f: SutilElement) (ctx: BuildContext) =
     (ctx, f.Builder ctx)
     |> ctx.Pipeline
     |> snd

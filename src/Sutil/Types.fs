@@ -154,15 +154,16 @@ module DevToolsControl =
 type Unsubscribe = unit -> unit
 
 ///  <exclude />
+type IReadOnlyStore<'T> =
+    inherit IObservable<'T>
+    inherit IDisposable
+    abstract Value : 'T
+
 type IStore<'T> =
-    interface
-        inherit IObservable<'T>
-        inherit IDisposable
-        abstract Update : f: ('T -> 'T) -> unit
-        abstract Value : 'T
-        abstract Debugger : IStoreDebugger
-        abstract Name : string with get, set
-    end
+    inherit IReadOnlyStore<'T>
+    abstract Update : f: ('T -> 'T) -> unit
+    abstract Debugger : IStoreDebugger
+    abstract Name : string with get, set
 
 ///  <exclude />
 type Store<'T> = IStore<'T>

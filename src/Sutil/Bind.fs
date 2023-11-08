@@ -67,9 +67,15 @@ type Bind =
     static member style (attrs : IObservable<#seq<string * obj>>) =
         Bind.attr("style", attrs |> Store.map cssAttrsToString)
 
+    static member booleanAttr(name : string, isTrue : IObservable<bool>) =
+        bindBoolAttr isTrue name
+        
     /// One way binding from custom values to style updater function. This allows updating of the element's <c>style</c> property rather than the style attribute string.
     static member style<'T>( values : IObservable<'T>, updater : CSSStyleDeclaration -> 'T -> unit ) =
         bindStyle values updater
+
+    static member effect<'T,'E when 'E :> HTMLElement>( values : IObservable<'T>, updater : 'E -> 'T -> unit ) =
+        bindElementEffect values updater
 
     static member leftTop( xy : IObservable<float*float>) =
         bindLeftTop xy
@@ -138,11 +144,17 @@ type Bind =
 
     /// Bind keyed lists to a simple template, with transitions
     static member each (items:IObservable<list<'T>>, view : IObservable<'T> -> SutilElement, key:'T -> 'K, trans : TransitionAttribute list) : SutilElement =
-        eachiko (listWrapO items) (snd>>view) (snd>>key) trans
+        //eachiko (listWrapO items) (snd>>view) (snd>>key) trans
+        eachiko (listWrapO items) (Live view) (snd>>key) trans
 
     /// Bind keyed lists to a simple template, with transitions
     static member each (items:IObservable<list<'T>>, view : IObservable<'T> -> SutilElement, key:'T -> 'K) : SutilElement =
-        eachiko (listWrapO items) (snd>>view) (snd>>key) []
+        //eachiko (listWrapO items) (snd>>view) (snd>>key) []
+        eachiko (listWrapO items) (Live view) (snd>>key) []
+
+    static member each (items:IObservable<list<'T>>, view : IReadOnlyStore<'T> -> SutilElement, key:'T -> 'K) : SutilElement =
+        //eachiko (listWrapO items) (snd>>view) (snd>>key) []
+        eachiko (listWrapO items) (LiveStore view) (snd>>key) []
 
     // -- Indexed Lists --------------------------------------------
 
@@ -160,10 +172,12 @@ type Bind =
         eachio (listWrapO items) view []
 
     static member eachi (items:IObservable<list<'T>>,view : IObservable<int> * IObservable<'T> -> SutilElement,key:int*'T->'K,trans : TransitionAttribute list) : SutilElement =
-        eachiko (listWrapO items) view key trans
+        //eachiko (listWrapO items) view key trans
+        eachiko (listWrapO items) (LiveIndexed view) key trans
 
     static member eachi (items:IObservable<list<'T>>,view : IObservable<int> * IObservable<'T> -> SutilElement,key:int*'T->'K) : SutilElement =
-        eachiko (listWrapO items) view key []
+        //eachiko (listWrapO items) view key []
+        eachiko (listWrapO items) (LiveIndexed view) key []
 
     static member promises (items : IObservable<JS.Promise<'T>>, view : 'T  -> SutilElement, waiting: SutilElement, error : Exception -> SutilElement)=
         Bind.el( items, fun p -> Bind.promise(p, view, waiting, error) )
@@ -206,11 +220,15 @@ type BindArray =
 
     /// Bind keyed arrays to a simple template, with transitions
     static member each (items:IObservable<array<'T>>, view : IObservable<'T> -> SutilElement, key:'T -> 'K, trans : TransitionAttribute list) : SutilElement =
-        eachiko (arrayWrapO items) (snd>>view) (snd>>key) trans
+        eachiko (arrayWrapO items) (Live view) (snd>>key) trans
 
     /// Bind keyed arrays to a simple template, with transitions
     static member each (items:IObservable<array<'T>>, view : IObservable<'T> -> SutilElement, key:'T -> 'K) : SutilElement =
-        eachiko (arrayWrapO items) (snd>>view) (snd>>key) []
+        eachiko (arrayWrapO items) (Live view) (snd>>key) []
+
+    /// Bind keyed arrays to a simple template, with transitions
+    static member eachs (items:IObservable<array<'T>>, view : IReadOnlyStore<'T> -> SutilElement, key:'T -> 'K) : SutilElement =
+        eachiko (arrayWrapO items) (LiveStore view) (snd>>key) []
 
     // -- Indexed Arrays --------------------------------------------
 

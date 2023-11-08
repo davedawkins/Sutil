@@ -112,10 +112,12 @@ type Animation = {
     To: ClientRect
 }
 
+type AnimationBuilder = TransitionProp list -> HTMLElement -> Animation -> Transition
+
 let mergeProps newerProps existingProps : TransitionProp list =
     existingProps @ newerProps
 
-let withProps (userProps : TransitionProp list) (f : TransitionBuilder) : TransitionBuilder =
+let withProps (userProps : TransitionProp list) (f : TransitionProp list -> 'a) : TransitionProp list -> 'a =
     fun (initProps : TransitionProp list) ->
         initProps |> mergeProps userProps |> f
 
@@ -123,6 +125,7 @@ type TransitionAttribute =
     | InOut of TransitionBuilder
     | In of TransitionBuilder
     | Out of TransitionBuilder
+    | Animate of AnimationBuilder
 
 let private overrideDuration d = if Sutil.DevToolsControl.Options.SlowAnimations then 10.0 * d else d
 let private overrideDurationFn fo = if Sutil.DevToolsControl.Options.SlowAnimations then (fo |> Option.map (fun f -> ((*)10.0 << f))) else fo
@@ -256,7 +259,7 @@ let private deleteRule (node:HTMLElement) (name:string) =
 let private rectToStr (c : ClientRect ) =
     sprintf "[%f,%f -> %f,%f]" c.left c.top c.right c.bottom
 
-let flip (node:Element) (animation:Animation) props =
+let flip props (node:Element) (animation:Animation) =
     let tr = applyProps props  {
             Transition.Default with
                 Delay = 0.0
@@ -279,7 +282,7 @@ let flip (node:Element) (animation:Animation) props =
             CssGen = Some (fun t u -> sprintf "transform: %s translate(%fpx, %fpx);`" transform (u * dx) (u * dy))
     }
 
-let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element -> Animation -> TransitionProp list -> Transition) props =
+let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : AnimationBuilder) props =
     //if (!from)
     //    return noop;
     let tgt (* to *) = node.getBoundingClientRect()
@@ -298,7 +301,7 @@ let createAnimation (node:HTMLElement) (from:ClientRect) (animateFn : Element ->
     // TODO : Tick loop
 
     if (shouldCreate) then
-        let a = animateFn node { From = from; To = tgt } props
+        let a = animateFn props node { From = from; To = tgt }
         let r = { a with Duration = if (a.Duration = 0.0 && a.DurationFn.IsNone) then 300.0 else a.Duration }
         createRule node 0.0 1.0 r 0
     else
@@ -310,9 +313,9 @@ let private waitAnimationEnd (el : HTMLElement) (f : unit -> unit) =
         f()
     el.addEventListener("animationend", cb)
 
-let animateNode (node : HTMLElement) from =
+let animateNode (node : HTMLElement) from (animator : AnimationBuilder) =
     waitAnimationFrame <| fun () ->
-        let name = createAnimation node from flip []
+        let name = createAnimation node from animator []
         waitAnimationEnd node <| fun _ ->
             deleteRule node name
 

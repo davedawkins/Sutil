@@ -11,7 +11,7 @@ open CoreElements
 
 let private logEnabled() = Logging.isEnabled "bind"
 let private log s = Logging.log "bind" s
-let private bindId = Helpers.makeIdGenerator()
+let logEachEnabled key = Logging.isEnabled key
 
 // Binding helper
 let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit) =
@@ -275,6 +275,12 @@ let bindClassToggle (toggle:IObservable<bool>) (classesWhenTrue:string) (classes
             ctx.ParentElement |> ClassHelpers.removeFromClasslist classesWhenTrue
             ctx.ParentElement |> ClassHelpers.addToClasslist classesWhenFalse
 
+let bindBoolAttr (toggle:IObservable<bool>) (boolAttr : string) =
+    bindSub toggle <| fun ctx active ->
+        match active with
+        | true -> ctx.ParentElement.setAttribute(boolAttr,boolAttr)
+        | false -> ctx.ParentElement.removeAttribute(boolAttr)
+
 // Deprecated
 let bindClass (toggle:IObservable<bool>) (classes:string) = bindClassToggle toggle classes ""
 
@@ -401,7 +407,7 @@ type KeyedStoreItem<'T,'K> = {
     SvId : int
     Position : IStore<int>
     Value: IStore<'T>
-    Rect: ClientRect
+    //Rect: ClientRect
 }
 
 let private findCurrentNode doc (current:Node) (id:int) =
@@ -461,8 +467,29 @@ let private asDomElement (element: SutilEffect) (ctx: BuildContext) : HTMLElemen
         ctx.Parent.AppendChild span
         span
 
-let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObservable<int> * IObservable<'T> -> SutilElement) (key:int*'T->'K) (trans : TransitionAttribute list) : SutilElement =
-    let log s = Logging.log "each" s
+type EachItemRenderer<'T> =
+    | Static of ('T -> SutilElement)
+    | LiveStore of (IReadOnlyStore<'T> -> SutilElement)
+    | Live of (IObservable<'T> -> SutilElement)
+    | StaticIndexed of (int * 'T -> SutilElement)
+    | LiveIndexed of (IObservable<int> * IObservable<'T> -> SutilElement)
+
+let private eachItemRender (renderer : EachItemRenderer<'T>) (index : IStore<int>) (item : IStore<'T>) : SutilElement =
+    match renderer with 
+    | Static v -> v (item.Value)
+    | StaticIndexed v -> v (index.Value, item.Value)
+    | Live v -> v item
+    | LiveStore v -> v item
+    | LiveIndexed v -> v (index,item)
+
+let getAnimator (trans : TransitionAttribute list)  =
+    trans 
+    |> List.tryFind (fun p -> match p with Animate a -> true|_ -> false)
+    |> Option.bind (fun x -> match x with Animate a -> Some a | _ -> None)
+
+let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItemRenderer<'T>) (key:int*'T->'K) (trans : TransitionAttribute list) : SutilElement =
+    //let log (s:string) = Fable.Core.JS.console.log("each", s) // Logging.log "each" s
+    let animator =getAnimator trans
 
     SutilElement.Define("eachiko_wrapper",
     fun ctx ->
@@ -492,21 +519,19 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
 #endif
 
         let unsub = items |> Store.subscribe (fun newItems ->
-            let wantAnimate = true
 
-            if Logging.isEnabled "each" then
+            if logEachEnabled "each" then
                 log("-- Each Block Render -------------------------------------")
                 log($"caching rects for render. Previous: {state |> CollectionWrapper.length} items. Current {newItems |> CollectionWrapper.length} items")
 
-            state <- state |> CollectionWrapper.map (fun ki ->
-                let el = findCurrentElement ctx.Document (*ki.Element*)null ki.SvId
-                { ki with (*Element = el; *)Rect = el.getBoundingClientRect() })
-
-            //logItems newItems
-            //logState state
+            // state <- state |> CollectionWrapper.map (fun ki ->
+            //     let el = findCurrentElement ctx.Document (*ki.Element*)null ki.SvId
+            //     //{ ki with Rect = el.getBoundingClientRect() }
+            //     ki
+            // )
 
             // Last child that doesn't have our eachId
-            if Logging.isEnabled "each" then log($"Previous = {ctx.Previous}")
+            if logEachEnabled "each" then log($"Previous = {ctx.Previous}")
             //let prevNodeInit : Node = vnode.PrevDomNode
             let mutable prevNode = SideEffect
 
@@ -518,47 +543,48 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
                     let storePos = Store.make itemIndex
                     let storeVal = Store.make item
                     let ctx2 = eachCtx |> ContextHelpers.withPrevious prevNode
-                    if Logging.isEnabled "each" then log $"++ creating new item '{item}' (key={itemKey}) with prev='{prevNode}' action={ctx2.Action}"
-                    let sutilNode = ctx2 |> build (view (storePos,storeVal))
+                    if logEachEnabled "each" then log $"++ creating new item '{item}' (key={itemKey}) with prev='{prevNode}' action={ctx2.Action}"
+                    let sutilNode = ctx2 |> build (eachItemRender view storePos storeVal)
                     let itemNode = ctx2 |> asDomElement sutilNode
-                    if Logging.isEnabled "each" then log $"-- created #{svId itemNode} with prev='{nodeStrShort (itemNode.previousSibling)}'"
+                    if logEachEnabled "each" then log $"-- created #{svId itemNode} with prev='{nodeStrShort (itemNode.previousSibling)}'"
                     setEid itemNode
                     SutilEffect.RegisterDisposable(sutilNode,storePos)
                     SutilEffect.RegisterDisposable(sutilNode,storeVal)
                     transitionNode itemNode trans [Key (string itemKey)] true ignore ignore
+
                     let newKi = {
                         SvId = svId itemNode
                         Key = itemKey
                         Node = sutilNode
-                        //CachedElement = itemNode
                         Position = storePos
-                        Rect = itemNode.getBoundingClientRect()
                         Value = storeVal
                     }
 
                     let prevEl = itemNode.previousSibling :?> HTMLElement
-                    if Logging.isEnabled "each" then log $"new item #{newKi.SvId} eid={eachIdOf itemNode} {itemKey} {rectStr newKi.Rect} prevNode={prevNode} prevSibling={nodeStr prevEl}"
+                    if logEachEnabled "each" then log $"new item #{newKi.SvId} eid={eachIdOf itemNode} {itemKey} prevNode={prevNode} prevSibling={nodeStr prevEl}"
                     prevNode <- sutilNode
                     newKi
                 | Some ki ->
                     ki.Position |> Store.modify (fun _ -> itemIndex)
                     ki.Value |> Store.modify (fun _ -> item)
                     let el = findCurrentElement ctx.Document null ki.SvId (*ki.Element*)
-                    if Logging.isEnabled "each" then log $"existing item {ki.SvId} {ki.Key} {rectStr ki.Rect}"
-                    if wantAnimate then
+                    if logEachEnabled "each" then log $"existing item {ki.SvId} {ki.Key}" //" {rectStr ki.Rect}"
+                    match animator with 
+                    | Some a->
                         clearAnimations el
-                        animateNode el (ki.Rect)
+                        animateNode el (el.getBoundingClientRect()) a
+                    | None -> ()
                     prevNode <- ki.Node
                     ki
             )
 
             //logState newState
 
-            if Logging.isEnabled "each" then log("Remove old items")
+            if logEachEnabled "each" then log("Remove old items")
             // Remove old items
             for oldItem in state do
                 if not (newState |> CollectionWrapper.exists (fun x -> x.Key = oldItem.Key)) then
-                    if Logging.isEnabled "each" then log($"removing key {oldItem.Key}")
+                    if logEachEnabled "each" then log($"removing key {oldItem.Key}")
                     let el = findCurrentElement ctx.Document null oldItem.SvId (*oldItem.Element*)
                     fixPosition el
                     //ctx.Parent.RemoveChild(el) |> ignore
@@ -572,12 +598,12 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : IObserva
             // Reorder
             let mutable prevDomNode = eachGroup.PrevDomNode
             for ki in newState do
-                if Logging.isEnabled "each" then log($"Checking order: #{ki.SvId}")
+                if logEachEnabled "each" then log($"Checking order: #{ki.SvId}")
                 let el = findCurrentElement ctx.Document null ki.SvId (*ki.Element*)
                 if not (isNull el) then
                     if not(isSameNode prevDomNode el.previousSibling) then
-                        if Logging.isEnabled "each" then log($"reordering: ki={nodeStr el} prevNode={nodeStr prevDomNode}")
-                        if Logging.isEnabled "each" then log($"reordering key {ki.Key} {nodeStrShort el} parent={el.parentNode}")
+                        if logEachEnabled "each" then log($"reordering: ki={nodeStr el} prevNode={nodeStr prevDomNode}")
+                        if logEachEnabled "each" then log($"reordering key {ki.Key} {nodeStrShort el} parent={el.parentNode}")
                         //ctx.Parent.RemoveChild(el) |> ignore
                         ctx.Parent.InsertAfter(el, prevDomNode)
                     prevDomNode <- el
@@ -596,18 +622,22 @@ let private duc = Observable.distinctUntilChanged
 let eachiko = eachiko_wrapper
 
 let each (items:IObservable<ICollectionWrapper<'T>>) (view : 'T -> SutilElement) (trans : TransitionAttribute list) =
-    eachiko_wrapper items (fun (_,item) -> bindElement (duc item) view) (fun (i,v) -> i,v.GetHashCode()) trans
+    //eachiko_wrapper items (fun (_,item) -> bindElement (duc item) view) (fun (i,v) -> i,v.GetHashCode()) trans
+    eachiko_wrapper items (Static view) (fun (i,v) -> i,v.GetHashCode()) trans
 
 let eachi (items:IObservable<ICollectionWrapper<'T>>) (view : (int*'T) -> SutilElement)  (trans : TransitionAttribute list) : SutilElement =
-    eachiko items (fun (index,item) -> bindElement2 (duc index) (duc item) view) fst trans
+    //eachiko items (fun (index,item) -> bindElement2 (duc index) (duc item) view) fst trans
+    eachiko items (StaticIndexed view) fst trans
 
 let eachio (items:IObservable<ICollectionWrapper<'T>>) (view : (IObservable<int>*IObservable<'T>) -> SutilElement)  (trans : TransitionAttribute list) =
-    eachiko items view fst trans
+    //eachiko items view fst trans
+    eachiko items (LiveIndexed view) fst trans
 
 let eachk (items:IObservable<ICollectionWrapper<'T>>) (view : 'T -> SutilElement)  (key:'T -> 'K) (trans : TransitionAttribute list) =
     eachiko
         items
-        (fun (_,item) -> bindElement (duc item) view)
+        //(fun (_,item) -> bindElement (duc item) view)
+        (Static view)
         (snd>>key)
         trans
 
@@ -647,6 +677,14 @@ let bindStyle<'T> (value : IObservable<'T>) (f : CSSStyleDeclaration -> 'T -> un
     fun ctx ->
     let style = ctx.ParentElement.style
     let unsub = value.Subscribe(f style)
+    SutilEffect.RegisterDisposable( ctx.Parent, unsub )
+    () )
+
+let bindElementEffect<'T, 'E when 'E :> HTMLElement> (value : IObservable<'T>) (f : 'E -> 'T -> unit) =
+    SutilElement.Define( "bindElementEffect",
+    fun ctx ->
+    let el = ctx.ParentElement :?> 'E
+    let unsub = value.Subscribe(f el)
     SutilEffect.RegisterDisposable( ctx.Parent, unsub )
     () )
 

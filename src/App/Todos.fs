@@ -190,7 +190,7 @@ let todosList title (filter : Todo -> bool) tin tout model dispatch =
                     text "x"
                 ]
             ]
-        ),key,[In tin; Out tout] )
+        ),key,[In tin; Out tout; Animate flip] )
     ]
 
 let makeStore arg = Store.makeElmishSimple init update ignore arg

@@ -47,6 +47,28 @@ describe "Sutil.Observable" <| fun () ->
         Expect.areEqual(3,n2) // - a b
     }
 
+    it "map2" <| fun () -> promise {
+        let s1 = Store.make 3
+        let s2 = Store.make 5
+
+        let mutable result = 0
+        let mapped = (s1, s2) ||> Observable.map2 (fun s1 s2 -> s1 * s2)
+        use _ = Store.subscribe (fun x -> result <- x) mapped
+
+        Expect.areEqual(15, result)
+    }
+
+    it "zip" <| fun () -> promise {
+        let s1 = Store.make 3
+        let s2 = Store.make 5
+
+        let mutable result = (0,0)
+        let mapped = (s1, s2) ||> Observable.zip
+        use _ = Store.subscribe (fun x -> result <- x) mapped
+
+        Expect.areEqual((3,5), result)
+    }
+
     //it "exists" <| fun () ->
     //    let s1 = Store.make '-'
     //    let s2 =

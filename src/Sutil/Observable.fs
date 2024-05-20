@@ -24,32 +24,22 @@ module Observable =
             member x.OnCompleted () =
                 if not stopped then stopped <- true; x.Completed ()
 
-    let zip<'A,'B> (a:IObservable<'A>) (b:IObservable<'B>) : IObservable<'A*'B> =
-        { new System.IObservable<'A*'B> with
-            member _.Subscribe( h : IObserver<'A*'B> ) =
-                let mutable valueA = None
-                let mutable valueB = None
+    let map2<'A, 'B, 'Res> (f: 'A -> 'B -> 'Res) (a: IObservable<'A>) (b: IObservable<'B>) : IObservable<'Res> =
+        { new IObservable<'Res> with
+            member _.Subscribe(h: IObserver<'Res>) =
+                let mutable valueA, valueB = None, None
 
                 let notify() =
-                    // unfortunately, there's no Option.iter2
-                    Option.map2 (fun a b -> h.OnNext(a, b)) valueA valueB
-                    |> ignore
+                     if valueA.IsSome && valueB.IsSome then h.OnNext (f valueA.Value valueB.Value)
 
-                let disposeA = a.Subscribe( fun v ->
-                    valueA <- Some v
-                    notify()
-                )
+                let disposeA = a.Subscribe(fun v -> valueA <- Some v; notify())
+                let disposeB = b.Subscribe(fun v -> valueB <- Some v; notify())
 
-                let disposeB = b.Subscribe( fun v ->
-                    valueB <- Some v
-                    notify()
-                )
-
-                Helpers.disposable (fun _ ->
-                    disposeA.Dispose()
-                    disposeB.Dispose()
-                )
+                Helpers.disposable(fun _ -> disposeA.Dispose(); disposeB.Dispose())
         }
+
+    let zip<'A,'B> (a:IObservable<'A>) (b:IObservable<'B>) : IObservable<'A*'B> =
+        map2<'A, 'B, 'A * 'B> (fun a b -> a, b) a b
 
     let distinctUntilChangedCompare<'T> (eq:'T -> 'T -> bool) (source:IObservable<'T>) : IObservable<'T> =
         { new System.IObservable<'T> with

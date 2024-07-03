@@ -91,6 +91,21 @@ module Store =
     let map<'A, 'B> (callback: 'A -> 'B) (store: IObservable<'A>) = store |> Observable.map callback
 
     /// <summary>
+    /// Returns an observable that will resolve to the result of said callback applied to two observables
+    /// </summary>
+    /// <example>
+    /// <code>
+    ///     let subscription: IObservable&lt;int&gt; =
+    ///         Store.map2 (fun value1 value2 -> value1 * value2) intStore1 intStore2
+    ///
+    ///     (* after you are done with the subscription *)
+    ///
+    ///     subscription.Dispose()
+    /// </code>
+    /// </example>
+    let map2<'A, 'B, 'Res> (callback: 'A -> 'B -> 'Res) (storeA: IObservable<'A>) (storeB: IObservable<'B>) = Observable.map2<'A, 'B, 'Res> callback storeA storeB
+
+    /// <summary>
     /// Applies a predicate function to obtain an observable of the elements that evaluated to true
     /// </summary>
     /// <example>

@@ -78,7 +78,7 @@ let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> Su
                 node <- build (element(store)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
             with
             | x ->
-                JS.console.error(x)
+                JS.console.error("sutil.bindElementCO:parentNode: ", ctx.ParentNode, "exception:", x)
                 node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
         )
         group.RegisterUnsubscribe ( fun () ->

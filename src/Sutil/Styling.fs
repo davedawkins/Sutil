@@ -86,34 +86,69 @@ let private framesToText (frames : KeyFrames) =
 
 let private isSutilRule (nm:string,v) = nm.StartsWith("sutil")
 
-let private ruleToText (styleName : string) (rule:StyleRule) =
+let private ruleToText (classMap : Map<string,StyleRule>) (styleName : string) (rule:StyleRule) =
     //rule.SelectorSpec + (styleListToText rule.Style)
-    let styleText = String.Join ("\n", rule.Style |> Seq.filter (not << isSutilRule) |> Seq.map (fun (nm,v) -> $"    {nm}: {v};"))
+
+    let rec styleText (r : StyleRule) = 
+        r.Style 
+        |> Seq.filter (not << isSutilRule) 
+        |> Seq.map (fun (nm,v) -> 
+            if (nm.EndsWith("()")) then
+                match classMap.TryFind nm[0..-3] with
+                | Some subrule ->  
+                    styleText subrule
+                | _ -> 
+                    Fable.Core.JS.console.warn("No class found for substitution: ", nm[0..-3])
+                    ""
+            else
+                $"    {nm}: {v};")
+        |> String.concat "\n"
+
     [
         specifySelector styleName rule.SelectorSpec
         " {\n"
-        styleText
+        styleText rule
         "}\n"
     ] |> String.concat ""
 
-let rec mediaRuleToText styleName rule =
-    sprintf "@media %s {\n%s\n}\n" (rule.Condition) (rule.Rules |> List.map (entryToText styleName) |> String.concat "\n")
+let rec mediaRuleToText classMap styleName rule =
+    sprintf "@media %s {\n%s\n}\n" (rule.Condition) (rule.Rules |> List.map (entryToText classMap styleName) |> String.concat "\n")
 
-and entryToText (styleName : string) = function
+and entryToText classMap (styleName : string) = function
     | Rule rule ->
-        ruleToText styleName rule
+        ruleToText classMap styleName rule
     | KeyFrames frames ->
         framesToText frames
     | MediaRule rule ->
-        mediaRuleToText styleName rule
+        mediaRuleToText classMap styleName rule
+
+let private isClassChar c = Char.IsLetterOrDigit(c) || c = '-' || c = '_'
+
+let private isClassName (s : string) =
+    s.ToCharArray() |> Array.forall isClassChar
+
+let private isClassOnly (s : string) = 
+    s.Length >= 2 && s[0] = '.' && isClassName (s.Substring(1))
+
+
+let getClassMap (styleSheet) =
+    styleSheet 
+    |> List.choose (fun d -> match d with Rule r when isClassOnly r.SelectorSpec -> Some (r.SelectorSpec.Substring(1),r) | _ -> None)
+    |> (fun items -> Fable.Core.JS.console.log("Class map: ", items |> List.map fst |> String.concat ","); items)
+    |> Map
+
+
+let includeRule (name : string) = (name + "()"), ("" :> obj)
 
 let private styleSheetAsText (styleSheet : StyleSheetDefinitions) =
-    System.String.Join("\n", styleSheet |> List.map (entryToText ""))
+    let classMap : Map<string,StyleRule > = getClassMap styleSheet
+
+    System.String.Join("\n", styleSheet |> List.map (entryToText classMap ""))
 
 let private addStyleSheet (doc:Document) styleName (styleSheet : StyleSheetDefinitions) =
     let style = newStyleElement doc
     for entry in styleSheet do
-        entryToText styleName entry |> doc.createTextNode |> style.appendChild |> ignore
+        entryToText (getClassMap styleSheet) styleName entry |> doc.createTextNode |> style.appendChild |> ignore
     (fun () -> style.parentElement.removeChild(style) |> ignore)
 
 let addGlobalStyleSheet (doc:Document) (styleSheet : StyleSheetDefinitions) =
@@ -125,10 +160,9 @@ let addGlobalStyleSheet (doc:Document) (styleSheet : StyleSheetDefinitions) =
 let rule selector style =
     let result = Rule {
         SelectorSpec = selector
-        //Selector = parseSelector selector
         Style = style
     }
-    //log($"%s{selector} -> %A{result.Selector}")
+
     result
 
 /// <summary>

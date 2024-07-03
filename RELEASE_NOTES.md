@@ -1,3 +1,7 @@
+### 2.0.12
+- Slightly more helpful error message to console when Bind throws
+- Added `includeRule` for CSS style sheets. For example, `includeRule "wh100"` will look for and include CSS definitions for `rule ".wh100"` from the same style sheet
+
 ### 2.0.11
 - New interface IReadOnlyStore, like an IObservable where you can query the current value
 - Unprotect a few core functions and modules to enable development of new SutilElements (ContextHelpers, build, SutilEffect.MakeGroup, SutilGroup.RegisterUnsubscribe, SutilCore.ContextHelpers, SutilCore.build)
@@ -6,7 +10,6 @@
 - Expose DomHelpers.nodeStrShort, nodeStr, DomEdit
 - Added more `c` helpers (ac, hrc, tbodyc, olc)
 - Fix for Store.iter
-
 
 ### 2.0.9
 - Remove cleanup diagnostics

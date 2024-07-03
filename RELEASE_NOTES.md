@@ -1,3 +1,6 @@
+### 2.0.13
+- Merged PR #84: Added Observable.map2 and Store.map2 functions (thanks to sajagi)
+
 ### 2.0.12
 - Slightly more helpful error message to console when Bind throws
 - Added `includeRule` for CSS style sheets. For example, `includeRule "wh100"` will look for and include CSS definitions for `rule ".wh100"` from the same style sheet

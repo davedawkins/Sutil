@@ -13,7 +13,11 @@ In addition, Sutil inherits all the benefits of both Fable (F# with excellent JS
 
 Sutil was heavily inspired by Svelte, and imports several of its design features, such as stores and component styling. Some parts of Sutil are direct ports from Svelte.
 
-## Development
+## Getting Started
+
+See the documentation [here](https://sutil.dev/#documentation-about-sutil). This will show you how to start your own Sutil project in a variety of ways, and explain the basic concepts. You'll also many examples [here](https://sutil.dev/#examples-hello-world).
+
+## Development (of Sutil)
 
 To compile Sutil and build the main Sutil app in watch mode:
 

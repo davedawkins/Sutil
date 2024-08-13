@@ -10,7 +10,7 @@ Follow these steps to install and use the templates.
 - Install Sutil templates
 
 ```shell
-% dotnet new install Fable.Sutil.Templates
+% dotnet new --install Fable.Sutil.Templates
 ```
 
 - Create a new Sutil project:

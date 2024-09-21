@@ -307,3 +307,4 @@ tests/build
 .vscode/settings.json
 public/apidocs
 .fsdocs/cache
+src/Sutil/Sutil.fable-temp.csproj

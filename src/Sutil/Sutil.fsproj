@@ -54,7 +54,7 @@
   </ItemGroup>
   <!-- Add source files to "fable" folder in Nuget package -->
   <ItemGroup>
-    <Content Include="*.fsproj; **\*.fs; webcomponentinterop.js;" PackagePath="fable" />
+    <Content Include="*.fsproj; **\*.fs; webcomponentinterop.js; adoptedStyleSheets.js;" PackagePath="fable" />
   </ItemGroup>
   <Target Name="ReallyClean" AfterTargets="Clean">
     <!-- Remove obj folder -->

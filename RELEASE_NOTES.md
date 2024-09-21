@@ -1,3 +1,6 @@
+### 2.0.15
+- Added missing file "adoptedStyleSheets.js"
+
 ### 2.0.14
 - Issue #91: "Attr.readOnly false" fixed
 - Removed diagnostic output to console

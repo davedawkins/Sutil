@@ -1,3 +1,11 @@
+### 2.0.14
+- Issue #91: "Attr.readOnly false" fixed
+- Removed diagnostic output to console
+- Observable.init: Provide the initial value for a sequence so that new subscribers will receive an immediate update of the current value. Probably only useful for IObservables that are not derived from an initial IStore
+- IReadOnlyStore.Dispose(f), IStore.Dispose(f) : Call f() when the store is disposed
+- Removed dependency on ConstructStyleSheetsPolyfill and included directly
+- Fixed some warnings in the App (not part of the nuget pkg)
+
 ### 2.0.13
 - Merged PR #84: Added Observable.map2 and Store.map2 functions (thanks to sajagi)
 

@@ -79,6 +79,10 @@ type Expect =
         if not cond then
             failwith message
 
+    static member assertFalse (cond:bool) (message:string) =
+        if cond then
+            failwith message
+
     static member areEqual<'T when 'T:equality>(actual : 'T, expected: 'T, message : string ) =
         Expect.assertTrue (expected=actual) $"{message}: areEqual: expected: '{expected}' actual: '{actual}'"
 

@@ -66,6 +66,28 @@ module Observable =
     let distinctUntilChanged<'T when 'T : equality> (source:IObservable<'T>) : IObservable<'T> =
         source |> distinctUntilChangedCompare (=)
 
+    /// Provide the initial value for a sequence so that new subscribers will receive an 
+    /// immediate update of the current value
+    let init (v : 'T) (source: IObservable<'T>) =
+        let mutable current = v
+        { new System.IObservable<'T> with
+            member _.Subscribe( h : IObserver<'T> ) =
+            
+                let notify() =
+                    try h.OnNext (current)
+                    with ex -> h.OnError ex
+
+                let disposeA = source.Subscribe( fun x ->
+                    current <- x
+                    notify()
+                )
+
+                notify()
+
+                Helpers.disposable (fun _ -> disposeA.Dispose() )
+        }
+
+
     /// Determines whether an observable sequence contains a specified value
     /// which satisfies the given predicate
     let exists predicate (source: IObservable<'T>) =

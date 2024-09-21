@@ -302,6 +302,7 @@ examples/HelloWorld/package-lock.json
 examples/HelloWorld/public/bundle.js
 devtools/js/bundle.js
 tests/public/test-bundle.js
+tests/test/**/*.js
 tests/build
 .vscode/settings.json
 public/apidocs

@@ -134,7 +134,7 @@ let private isClassOnly (s : string) =
 let getClassMap (styleSheet) =
     styleSheet 
     |> List.choose (fun d -> match d with Rule r when isClassOnly r.SelectorSpec -> Some (r.SelectorSpec.Substring(1),r) | _ -> None)
-    |> (fun items -> Fable.Core.JS.console.log("Class map: ", items |> List.map fst |> String.concat ","); items)
+    //|> (fun items -> Fable.Core.JS.console.log("Class map: ", items |> List.map fst |> String.concat ","); items)
     |> Map
 
 

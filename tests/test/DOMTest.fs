@@ -532,6 +532,46 @@ describe "DOM" <| fun () ->
         return ()
     }
 
+    // Issue #91
+    it "input readonly=false is writable" <| fun _ -> promise {
+        let mutable readOnly = true
+
+        let app =
+            Html.input [
+                Attr.readOnly false
+                Ev.onMount( fun e ->
+                    let ipEl = e.target :?> Browser.Types.HTMLInputElement
+                    readOnly <- ipEl.readOnly
+                )
+            ]
+
+        mountTestApp app
+
+        Expect.assertFalse readOnly "input should not be readonly"
+
+        return ()
+    }
+
+    it "input readonly=true is read-only" <| fun _ -> promise {
+        let mutable readOnly = false
+
+        let app =
+            Html.input [
+                Attr.readOnly true
+                Ev.onMount( fun e ->
+                    let ipEl = e.target :?> Browser.Types.HTMLInputElement
+                    readOnly <- ipEl.readOnly
+                )
+            ]
+
+        mountTestApp app
+
+        Expect.assertTrue readOnly "input should be readonly"
+
+        return ()
+    }
+
+
     //testCaseP "400ms" <| fun () ->
     //    promise {
     //        do! Promise.sleep(400)

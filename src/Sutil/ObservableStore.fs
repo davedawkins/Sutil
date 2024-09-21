@@ -130,6 +130,14 @@ module ObservableStore =
         let mutable name = "store-" + (string storeId)
         let mutable _modelInitialized = false
         let mutable _model = Unchecked.defaultof<_>
+        let mutable disposeListeners : (unit -> unit) list = []
+
+        let onDispose f = disposeListeners <- f :: disposeListeners
+
+        let notifyDispose() =
+            disposeListeners |> List.iter (fun f -> f())
+            disposeListeners <- []
+
         let model() =
             if not _modelInitialized then
                 _model <- init()
@@ -174,17 +182,22 @@ module ObservableStore =
 
         member this.Name with get() = name and set (v) = name <- v
 
+        member this.OnDispose( f : unit -> unit ) =
+            onDispose f
+
         member this.Dispose() =
             subscribers.Values |> Seq.iter (fun x -> x.OnCompleted())
             subscribers.Clear()
             dispose (model())
             _model <- Unchecked.defaultof<_>
             Registry.notifyDisposeStore this
+            notifyDispose()
 
         interface IStore<'Model> with
             member this.Subscribe(observer: IObserver<'Model>) = this.Subscribe(observer)
             member this.Update(f) = this.Update(f)
             member this.Value = this.Value
+            member this.OnDispose( f : unit -> unit ) = this.OnDispose(f)
             member this.Name with get() = this.Name and set (v:string) = this.Name <- v
             member this.Debugger = {
                     new IStoreDebugger with

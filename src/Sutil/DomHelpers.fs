@@ -405,13 +405,22 @@ module ClassHelpers =
 
 let internal nullToEmpty s = if isNull s then "" else s
 
+let private booleanAttributes = 
+    [   "hidden"
+        "disabled"
+        "readonly"
+        "required"
+        "checked" ] |> Set
+
+let private isBooleanAttribute (name : string) = booleanAttributes.Contains (name.ToLower())
+
+let private toBool (v : obj) = 
+        if v :? bool then
+            v :?> bool
+        else
+            string v <> "false"
+
 let internal setAttribute (el: HTMLElement) (name: string) (value: obj) =
-    let isBooleanAttribute name =
-        (name = "hidden"
-         || name = "disabled"
-         || name = "readonly"
-         || name = "required"
-         || name = "checked")
 
     let svalue = string value
 
@@ -422,14 +431,9 @@ let internal setAttribute (el: HTMLElement) (name: string) (value: obj) =
         el |> ClassHelpers.addToClasslist svalue
     else if name = "class-" then
         el |> ClassHelpers.removeFromClasslist svalue
-    else if isBooleanAttribute name then
-        let bValue =
-            if value :? bool then
-                value :?> bool
-            else
-                svalue <> "false"
+    else if isBooleanAttribute (name) then
         // we'd call el.toggleAttribute( name, bValue) if it was available
-        if bValue then
+        if toBool value then
             el.setAttribute (name, "")
         else
             el.removeAttribute name
@@ -442,9 +446,6 @@ let internal setAttribute (el: HTMLElement) (name: string) (value: obj) =
     else
         el.setAttribute (name, svalue)
 
-
-let private idSelector = sprintf "#%s"
-let private classSelector = sprintf ".%s"
 let private findElement (doc: Document) selector = doc.querySelector (selector)
 
 let rec private visitChildren (parent: Node) (f: Node -> bool) =

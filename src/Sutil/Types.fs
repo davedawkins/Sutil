@@ -158,6 +158,7 @@ type IReadOnlyStore<'T> =
     inherit IObservable<'T>
     inherit IDisposable
     abstract Value : 'T
+    abstract OnDispose: (unit -> unit) -> unit
 
 type IStore<'T> =
     inherit IReadOnlyStore<'T>

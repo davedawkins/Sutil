@@ -483,7 +483,7 @@ let viewPage (view:System.IObservable<BookPageView>) =
                     // eliminate this.
                     | Url url -> Html.a [ Attr.href url; text url ]
                 with
-                    |x -> Html.div[ text $"Creating example {page.Title}: {x.Message}" ]
+                    |x -> Html.div [ text $"Creating example {page.Title}: {x.Message}" ]
             | _ -> viewSource view)
     ]
 

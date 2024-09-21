@@ -1,7 +1,7 @@
 var path = require("path");
 
 module.exports = {
-    entry: "./tests/AllTests.fs.js",
+    entry: "./tests/AllTests.js",
     output: {
         path: path.join(__dirname, "./tests/public"),
         filename: "test-bundle.js",

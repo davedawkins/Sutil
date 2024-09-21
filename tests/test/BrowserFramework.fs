@@ -1,10 +1,8 @@
 module BrowserFramework
 
-open System
 open Browser.Dom
 open Browser.Types
 open Fable.Core
-
 
 let testAppId = "test-app"
 let mutable currentEl : HTMLElement = Unchecked.defaultof<_>
@@ -43,14 +41,16 @@ let logH s = log "heading" s
 let logI s = log "info" s
 
 let private rafu f =
-    window.requestAnimationFrame (fun _ -> f()) |> ignore
+    // Supported in @web-test-runner from 0.17, but >=0.18 causes ENOENT server errors. Latest is 0.19 at this time (Sep 2024)
+    window.requestAnimationFrame (fun _ ->  f()) |> ignore
 
 let waitAnimationFrame () : JS.Promise<unit> =
-    Fable.Core.JS.Constructors.Promise.Create <|
-        fun accept _ -> rafu accept
+    Fable.Core.JS.Constructors.Promise.Create(
+        fun accept _ -> 
+            rafu accept
+    )
 
 let mountTestApp app =
-    Fable.Core.JS.console.log("mountTestApp")
     let el = document.querySelector("#" + testAppId)
     el.innerHTML <- ""
     (testAppId, app) |> Sutil.Program.mount

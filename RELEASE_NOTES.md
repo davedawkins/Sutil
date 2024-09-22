@@ -1,3 +1,9 @@
+### 2.0.16
+- Fix for Ev.onUnmount (issue #93) with unit test
+- Fixed FSharp.Core dependency to 5.0.2
+- Removed build.fsx (Fake), replaced with EasyBuild CLI - thanks to Maxime for this
+- Fixes to Cells.fs and Draw.fs in App examples since 5.0.2 doesn't seem to have Map.keys / Map.values
+
 ### 2.0.15
 - Added missing file "adoptedStyleSheets.js"
 

@@ -254,7 +254,7 @@ module SvgCanvas =
         //     Bind.el( this.UpdateTick, fun _ -> el() )
 
         member internal _.UpdateTick = updateTick
-        member internal _.ChildElements = (attrMap |> Map.values)
+        member internal _.ChildElements = (attrMap |> Seq.map (fun kv -> kv.Value))
         member internal _.FindEvent( name : string ) = eventMap.TryFind name
         member internal _.EventElements = eventMap
         member internal _.Redraw() = redraw()

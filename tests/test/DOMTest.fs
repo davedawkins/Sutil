@@ -399,6 +399,43 @@ describe "DOM" <| fun () ->
         return ()
     }
 
+    it "onUnmount called" <| fun _ -> promise {
+        let switch = Store.make true
+
+        let mutable unmounted0 = false
+        let mutable unmounted1 = false
+
+        let app =
+            Bind.el( switch, fun flag ->
+                if flag then
+                    Html.div [
+                        Ev.onUnmount (fun _ -> 
+                            Fable.Core.JS.console.log("Unmount 0")
+                            unmounted0 <- true)
+
+                        Html.div [
+                            Ev.onUnmount (fun _ -> 
+                                Fable.Core.JS.console.log("Unmount 1")
+                                unmounted1 <- true)
+                        ]
+                    ]
+                else
+                    fragment []
+            )
+
+        mountTestApp app
+
+        Expect.assertFalse unmounted0 "unmounted0 is false"
+        Expect.assertFalse unmounted1 "unmounted1 is false"
+
+        switch |> Store.modify not
+
+        Expect.assertTrue unmounted0 "unmounted0 is true"
+        Expect.assertTrue unmounted1 "unmounted1 is true"
+
+        return ()
+    }    
+
     it "cleans up div"<| fun _ -> promise {
         let mutable node1 = Unchecked.defaultof<_>
         let mutable node2 = Unchecked.defaultof<_>

@@ -2,16 +2,16 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "paket": {
-      "version": "5.257.0",
-      "commands": [
-        "paket"
-      ]
-    },
     "fable": {
-      "version": "4.19.3",
+      "version": "4.21.0",
       "commands": [
         "fable"
+      ]
+    },
+    "fsdocs-tool": {
+      "version": "20.0.1",
+      "commands": [
+        "fsdocs"
       ]
     }
   }

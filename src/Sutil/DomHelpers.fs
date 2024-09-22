@@ -261,6 +261,8 @@ let private clearDisposables (node: Node) : unit = Interop.delete node NodeKey.D
 
 // Call all registered disposables on this node
 let private cleanup (node: Node) : unit =
+    dispatchSimple node Event.Unmount
+
     let safeDispose (d: IDisposable) =
         try
             d.Dispose()
@@ -274,7 +276,6 @@ let private cleanup (node: Node) : unit =
 
     clearDisposables node
 
-    dispatchSimple node Event.Unmount
 
 let internal assertTrue condition message = if not condition then failwith message
 

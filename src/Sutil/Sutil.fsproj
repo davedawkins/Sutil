@@ -41,8 +41,7 @@
     <Compile Include="Bulma.fs" />
   </ItemGroup>
   <ItemGroup>
-    <!-- <PackageReference Include="FSharp.Core" Version="5.0.2" /> -->
-    <PackageReference Include="Feliz.Engine.Bulma" Version="1.0.0-*" />
+    <PackageReference Include="Feliz.Engine.Bulma" Version="1.*" />
     <PackageReference Include="Feliz.Engine" Version="1.0.0-beta-004" />
     <PackageReference Include="Feliz.Engine.Event" Version="1.0.0-beta-004" />
     <PackageReference Include="Fable.Browser.Css" Version="2.*" />
@@ -51,6 +50,9 @@
     <PackageReference Include="Fable.Core" Version="3.*" />
     <PackageReference Include="Fable.Promise" Version="3.*" />
     <PackageReference Include="Fable.Browser.MediaQueryList" Version="1.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="5.0.2" />
   </ItemGroup>
   <!-- Add source files to "fable" folder in Nuget package -->
   <ItemGroup>

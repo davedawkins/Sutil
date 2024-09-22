@@ -1,3 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 
-dotnet fsi build.fsx "$@"
+dotnet tool restore
+dotnet run --project EasyBuild/EasyBuild.fsproj -- $@

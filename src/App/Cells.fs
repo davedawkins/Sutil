@@ -79,7 +79,7 @@ module Cells =
                 f outCell
             )
         f pos
-        cells |> Map.keys |> Seq.toArray
+        cells |> Seq.map (fun kv -> kv.Key) |> Seq.toArray
 
     let private cellNotify pos dispatch  =
         let cells = cellCollectCells pos

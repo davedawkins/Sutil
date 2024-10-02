@@ -407,11 +407,32 @@ module ClassHelpers =
 let internal nullToEmpty s = if isNull s then "" else s
 
 let private booleanAttributes = 
-    [   "hidden"
+    // List based on HTML Standard specs (without ReadOnly attributes from ShadowRoot)
+    // https://html.spec.whatwg.org/multipage/indices.html#attributes-3
+    [   "allowfullscreen"
+        "async"
+        "autofocus"
+        "autoplay"
+        "checked"
+        "controls"
+        "default"
+        "defer"
         "disabled"
+        "formnovalidate"
+        "inert"
+        "ismap"
+        "itemscope"
+        "loop"
+        "multiple"
+        "muted"
+        "nomodule"
+        "novalidate"
+        "open"
+        "playsinline"
         "readonly"
         "required"
-        "checked" ] |> Set
+        "reversed"
+        "selected" ] |> Set
 
 let private isBooleanAttribute (name : string) = booleanAttributes.Contains (name.ToLower())
 

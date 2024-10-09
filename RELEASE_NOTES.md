@@ -1,3 +1,6 @@
+### 2.0.17
+- Merged PR #95 from Maxime Mangel, providing a full set of boolean attributes (thank you!)
+
 ### 2.0.16
 - Fix for Ev.onUnmount (issue #93) with unit test
 - Fixed FSharp.Core dependency to 5.0.2

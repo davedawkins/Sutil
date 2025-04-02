@@ -51,6 +51,10 @@ open Browser.MediaQueryListExtensions
 [<Emit("typeof window !== 'undefined'")>]
 let windowIsDefined : bool = jsNative
 
+let addEventListener (el : Browser.Types.EventTarget, name : string, f : Browser.Types.Event -> unit) =
+//    console.log("Sutil: addEventListener: " + name )
+    el.addEventListener( name, f )
+
 type Window() =
     do ()
     with
@@ -61,7 +65,7 @@ type Window() =
         static member location =
             if windowIsDefined then window.location else null
         static member addEventListener(typ,listener) =
-            if windowIsDefined then window.addEventListener(typ,listener)
+            if windowIsDefined then addEventListener(window, typ,listener)
         static member getComputedStyle(elt) =
             if windowIsDefined then window.getComputedStyle(elt) else null
         static member getComputedStyle(elt,pseudoElt) =

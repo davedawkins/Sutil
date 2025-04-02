@@ -36,7 +36,7 @@ module ObservableStore =
         let fastEquals (x: 'T) (y: 'T): bool = jsNative
 
         let cmdHandler (dispatch: 'Msg -> unit): CmdHandler<'Msg> =
-            new CmdHandler<_>(List.iter (fun cmd -> JS.setTimeout (fun _ -> cmd dispatch) 0 |> ignore))
+            new CmdHandler<_>(List.iter (fun cmd ->   Sutil.DomHelpers._setTimeout (fun _ -> cmd dispatch) 0 |> ignore))
     #else
         let fastEquals (x: 'T) (y: 'T): bool = Unchecked.equals x y
 

@@ -311,7 +311,7 @@ let private waitAnimationEnd (el : HTMLElement) (f : unit -> unit) =
     let rec cb _ =
         el.removeEventListener("animationend",cb)
         f()
-    el.addEventListener("animationend", cb)
+    Interop.addEventListener(el, "animationend", cb)
 
 let animateNode (node : HTMLElement) from (animator : AnimationBuilder) =
     waitAnimationFrame <| fun () ->

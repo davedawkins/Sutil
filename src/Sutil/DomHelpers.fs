@@ -333,7 +333,7 @@ let clear (node: Node) =
 
 /// Add event listener using e.addEventListener. Return value is a (unit -> unit) function that will remove the event listener
 let listen (event: string) (e: EventTarget) (fn: (Event -> unit)) : (unit -> unit) =
-    e.addEventListener (event, fn)
+    Interop.addEventListener (e, event, fn )
     (fun () -> e.removeEventListener (event, fn) |> ignore)
 
 /// Wrapper for Window.requestAnimationFrame
@@ -380,10 +380,13 @@ let interval handler (delayMs: int) =
 
     fun () -> Fable.Core.JS.clearInterval id
 
+let _setTimeout (handler: unit -> unit) (delayMs: int) =
+    Fable.Core.JS.setTimeout handler delayMs
+
 /// Call handler after delayMs. Return value is a function that will cancel the timeout (if it hasn't occurred yet)
 let timeout handler (delayMs: int) =
     let id =
-        Fable.Core.JS.setTimeout handler delayMs
+        _setTimeout handler delayMs
 
     fun () -> Fable.Core.JS.clearTimeout id
 

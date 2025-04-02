@@ -355,7 +355,7 @@ let private _on (event : string) (fn : Event -> unit) (options : EventModifier l
             | StopPropagation -> e.stopPropagation()
             | StopImmediatePropagation -> e.stopImmediatePropagation()
         fn(e)
-    el.addEventListener(event, h)
+    Interop.addEventListener(el , event,  h )
     SutilEffect.RegisterUnsubscribe( ctx.Parent,  fun _ -> el.removeEventListener(event,h) )
 
 let on (event : string) (fn : Event -> unit) (options : EventModifier list) =

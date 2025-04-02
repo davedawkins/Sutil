@@ -607,17 +607,78 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
             _dispose |> List.iter (fun d -> d ())
             _dispose <- []
 
+module internal MountListenersInternal =
+    let mutable private nextOnMountId = 0
+    let mutable private onMountListeners : Map<int, Node -> unit> = Map.empty
+
+    let internal notifyOnMountListeners (node : Node) =
+        onMountListeners |> Seq.toArray |> Array.iter (fun kv -> kv.Value(node))
+
+    let internal onMount (f : Node -> unit) : (unit -> unit) =
+        let _id = nextOnMountId
+        nextOnMountId <- nextOnMountId + 1
+        onMountListeners <- onMountListeners.Add(_id, f)
+        (fun _ ->
+            if onMountListeners.ContainsKey _id then
+                onMountListeners <- onMountListeners.Remove(_id)
+        )
+
+[<Erase>]
+type MountListeners() =
+    static member OnMount( f : Node -> unit ) : (unit -> unit) =
+        MountListenersInternal.onMount f
+
+    /// findNode takes the just-mounted node and returns either null or the matching node
+    /// None will be passed 
+    static member WaitUntil( matcher : Node -> Node option, f : Node -> unit ) : (unit -> unit) =
+        let mutable stop = ignore
+        let mutable disposed = false
+
+        let dispose() = 
+            if not disposed then
+                stop()
+                disposed <- true
+
+        let matched (node : Node) =
+            if not disposed then
+                dispose()
+                f node
+                
+        let tryMatch (mounted : Node) (succ : Node -> unit) = 
+            matcher mounted |> Option.iter succ
+
+        stop <- MountListenersInternal.onMount( fun mounted -> tryMatch mounted matched )
+        dispose
+
+    static member WaitUntil( selector : string, f : Node -> unit ) : (unit -> unit) =
+
+        let findNode( _ ) : Node option =
+            let node = document.querySelector(selector)
+            if isNull node then None else Some node
+        
+        match findNode(null) with
+        | Some matched -> 
+            f matched
+            ignore
+        | None ->
+            MountListeners.WaitUntil( findNode, f )
+
 let private notifySutilEvents (parent : SutilEffect) (node : SutilEffect) =
     if (parent.IsConnected()) then
         node.collectDomNodes ()
         |> List.iter (fun n ->
                 CustomDispatch<_>.dispatch(n,Event.Connected)
                 CustomDispatch<_>.dispatch(n,Event.Mount)
+                MountListenersInternal.notifyOnMountListeners n
 
                 n
                 |> DomHelpers.descendants
                 |> Seq.filter DomHelpers.isElementNode
-                |> Seq.iter (fun n ->  CustomDispatch<_>.dispatch(n,Event.Mount))
+                |> Seq.toArray
+                |> Array.iter (fun n ->  
+                    CustomDispatch<_>.dispatch(n,Event.Mount)
+                    MountListenersInternal.notifyOnMountListeners n
+                )
 
             )
 

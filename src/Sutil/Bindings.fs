@@ -92,8 +92,35 @@ let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> Su
     bindNode )
 
 let bindElement<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) : SutilElement=
-    bindElementCO store (Store.current >> element) (fun _ _-> false)
+    SutilElement.Define( "bindElementCO",
+    fun ctx ->
+    let mutable node = SideEffect
+    let group = SutilEffect.MakeGroup("bind",ctx.Parent,ctx.Previous)
+    let bindNode = Group group
 
+    if logEnabled() then log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
+    ctx.AddChild bindNode
+
+    let run() =
+        let bindCtx = { ctx with Parent = bindNode }
+        let disposable = store |> Store.subscribe (fun next ->
+            try
+                if logEnabled() then log($"bind: rebuild {group.Id} with {next}")
+                node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+            with
+            | x ->
+                JS.console.error("sutil.bindElement:parentNode: ", ctx.ParentNode, "exception:", x)
+                node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+        )
+        group.RegisterUnsubscribe ( fun () ->
+            if logEnabled() then log($"dispose: Bind.el: {group}")
+            node.Dispose()
+            disposable.Dispose())
+
+
+    run()
+
+    bindNode )
 /// Backwards compatibility
 let bindFragment = bindElement
 

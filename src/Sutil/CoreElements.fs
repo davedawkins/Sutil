@@ -309,7 +309,6 @@ let subscribe (source : System.IObservable<'T>) (handler : BuildContext -> 'T ->
         SutilEffect.RegisterDisposable(ctx.Parent,unsub)
     )
 
-
 open Fable.Core.JsInterop
 
 let autofocus =
@@ -347,6 +346,7 @@ type EventModifier =
 
 let private _on (event : string) (fn : Event -> unit) (options : EventModifier list) (ctx : BuildContext) =
     let el = ctx.ParentNode
+
     let rec h (e:Event) =
         for opt in options do
             match opt with
@@ -355,8 +355,22 @@ let private _on (event : string) (fn : Event -> unit) (options : EventModifier l
             | StopPropagation -> e.stopPropagation()
             | StopImmediatePropagation -> e.stopImmediatePropagation()
         fn(e)
-    Interop.addEventListener(el , event,  h )
-    SutilEffect.RegisterUnsubscribe( ctx.Parent,  fun _ -> el.removeEventListener(event,h) )
+
+    let handler = 
+        match options with
+        | [] -> fn
+        | _ -> h
+
+    // let handler=
+    //     fun (e : Event) ->
+    //         handler e
+    //         Fable.Core.JS.console.log(event, ctx.ParentElement )
+    //         if e.defaultPrevented then
+    //             Fable.Core.JS.console.log(" - " + event + ": default prevented", ctx.ParentElement )
+
+    Interop.addEventListener(el , event,  handler )
+
+    SutilEffect.RegisterUnsubscribe( ctx.Parent,  fun _ -> el.removeEventListener(event,handler) )
 
 let on (event : string) (fn : Event -> unit) (options : EventModifier list) =
     SutilElement.Define( sprintf "on%s" event, _on event fn options)
@@ -394,7 +408,9 @@ let onMouseMove fn options  = onMouse "mousemove" fn options
 
 let subscribeOnMount (f : unit -> (unit -> unit)) = onMount (fun e -> SutilEffect.RegisterUnsubscribe(asElement<Node>(e.target),f())) [Once]
 
-
+let hookMountedElement (hook: HTMLElement -> unit) =
+    onMount (fun e -> hook (unbox e.target)) []
+     
 /// <summary>
 /// A collection of <c>SutilElement</c>s as a single <c>SutilElement</c>. This is useful when we have a collection of
 /// <c>SutilElements</c> that we don't want to wrap in their own containing DOM element.
@@ -419,6 +435,12 @@ let fragment (elements: SutilElement seq) =
         childCtx |> buildChildren elements
 
         fragmentNode
+    )
+
+let lift (element : HTMLElement) =
+    SutilElement.Define( "lift",
+    fun ctx ->
+        domResult element
     )
 
 let internal declareResource<'T when 'T :> IDisposable> (init: unit -> 'T) (f: 'T -> unit) =

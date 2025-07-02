@@ -195,6 +195,18 @@ type Bind =
         let e (x : Exception) = el "div" [ CoreElements.class' "promise-error"; text x.Message ]
         Bind.promise(p, view, w, e )
 
+    static member delay (view : HTMLElement -> SutilElement) =
+        bindDelay view
+
+    static member delay (view : SutilElement) =
+        bindDelay (fun _ -> view)
+
+    static member some (t : IObservable<'T option>, view: 'T -> SutilElement, none: SutilElement) =
+        Bind.el( t, function Some v -> view v | None -> none )
+
+    static member some (t : IObservable<'T option>, view: 'T -> SutilElement) =
+        Bind.some( t, view, el "div" [] )
+
 /// <summary>
 /// Bindings for array observables and the Core. For example, <c>IObservable&lt;int[]></c>. The <c>Bind</c> class already handles lists. <c>BindArray</c> exists to eliminate compilation errors related to overloading of the <c>each</c> method.
 /// </summary>

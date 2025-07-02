@@ -28,6 +28,44 @@ let elementFromException (x : exn) =
         text ("sutil: exception in bind: " + x.Message)
     ]
 
+
+let bindDelay<'T>  (view : HTMLElement -> SutilElement)=
+    SutilElement.Define( 
+        "bindElementC",
+        fun ctx ->
+            let group = SutilEffect.MakeGroup("bindDelay",ctx.Parent,ctx.Previous)
+            let bindNode = Group group
+
+            ctx.AddChild bindNode
+
+            let run() =
+                let mutable node = SideEffect
+                let bindCtx = { ctx with Parent = bindNode }
+
+                let updateView (se : SutilElement) =
+                    try
+                        node <- build se (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+                    with
+                    | x ->
+                        //Logging.error $"Exception in bindo: {x.StackTrace}: parent={ctx.Parent} node={node.ToString()}"
+                        JS.console.error(x)
+                        node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+
+                updateView 
+                    (el "div" [
+                        onMount (fun _ -> updateView (view ctx.ParentElement)) []
+                    ])
+
+                group.RegisterUnsubscribe ( fun () ->
+                    node.Dispose()
+                    // disposable.Dispose()
+                )
+
+            run()
+
+            bindNode 
+    )
+
 let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (compare : 'T -> 'T -> bool)=
     SutilElement.Define( "bindElementC",
     fun ctx ->

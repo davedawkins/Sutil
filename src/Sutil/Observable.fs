@@ -2,6 +2,23 @@ namespace Sutil
 
 open System
 
+module private Helpers =
+    open Fable.Core
+
+    [<Emit("performance.now()")>]
+    let performanceNow() : double = jsNative
+
+    type TimeoutFn = int -> (unit -> unit) -> unit
+
+    let createTimeout() : TimeoutFn =
+        let mutable delayHandle = -1
+
+        fun (timeoutMs : int) (f : unit -> unit) ->
+            if delayHandle >= 0 then
+                Fable.Core.JS.clearTimeout delayHandle
+                delayHandle <- -1
+            delayHandle <- Sutil.DomHelpers._setTimeout f timeoutMs
+
 /// <summary>
 /// Helper functions for <c>IObservables</c>
 /// </summary>
@@ -53,9 +70,9 @@ module Observable =
 
                 let disposeA = source.Subscribe( fun next ->
                     if not (safeEq next) then
-                        h.OnNext next
                         value <- next
                         init <- true
+                        h.OnNext next
                 )
 
                 Helpers.disposable (fun _ ->
@@ -107,6 +124,48 @@ module Observable =
                 let disposeA = source.Subscribe( fun x ->
                     try if predicate x then h.OnNext x
                     with ex -> h.OnError ex
+                )
+                Helpers.disposable (fun _ -> disposeA.Dispose() )
+        }
+
+    /// A filter based on elapsed time since last update. Will only allow updates if a specified minimum duration
+    /// has passed. An incoming value that arrives too soon will start a timer. When the timer expires, the last
+    /// recorded value will be sent (not necessarily the value that started the timer!)
+    let throttle (minIntervalMs : int) (source : IObservable<'T>) =
+        { new System.IObservable<'T> with
+            member _.Subscribe( h : IObserver<'T> ) =
+
+                let now() = int (Helpers.performanceNow())
+
+                let mutable _value : 'T option = None
+                let mutable _notified = now() - minIntervalMs
+                let mutable _timer = -1
+
+                let notify () =
+                    Fable.Core.JS.console.log("Notifying at: ", now(), " elapsed ", (now() - _notified), _value.Value )
+                    _notified <- now()
+                    _timer <- -1
+                    h.OnNext( _value.Value )
+
+                let attempt (x : 'T) =
+                    _value <- Some x
+
+                    let elapsed = now() - _notified
+
+                    if _timer <> -1 then 
+                        ()
+                    elif elapsed >= minIntervalMs then
+                        notify()
+                    else
+                        _timer <- DomHelpers._setTimeout notify (minIntervalMs - elapsed)
+
+                let disposeA = source.Subscribe( fun x ->
+
+                    try 
+                        attempt x
+                    with 
+                        ex -> h.OnError ex
+
                 )
                 Helpers.disposable (fun _ -> disposeA.Dispose() )
         }

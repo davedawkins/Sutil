@@ -767,6 +767,15 @@ let bindLeftTop (xy : IObservable<float*float>) =
             style.top <- y.ToString() + "px"
     )
 
+let bindXYWH (wh: IObservable<float*float*float*float>) =
+    bindStyle wh (fun style (x,y,w,h) ->
+        if w <> 0.0 && h <> 0.0 then
+            style.left <- x.ToString() + "px"
+            style.top <- y.ToString() + "px"
+            style.width <- w.ToString() + "px"
+            style.height <- h.ToString() + "px"
+    )
+
 let (|=>) store element = bindElement store element
 
 let cssAttrsToString (cssAttrs) =

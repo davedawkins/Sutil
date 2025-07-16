@@ -83,6 +83,9 @@ type Bind =
     static member widthHeight( xy : IObservable<float*float>) =
         bindWidthHeight xy
 
+    static member xywh( xywh : IObservable<float*float*float*float>) =
+        bindXYWH xywh
+
     static member toggleClass (toggle:IObservable<bool>, activeClass : string, inactiveClass : string) =
         bindClassToggle toggle activeClass inactiveClass
 

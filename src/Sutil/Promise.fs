@@ -14,6 +14,7 @@ module ObservablePromise =
         | Waiting
         | Result of 'T
         | Error of Exception
+        with override __.ToString() = match __ with Waiting -> "Waiting" | Result _ -> "Result" | Error x -> "Error " + x.Message
 
     type ObservablePromise<'T>(p : JS.Promise<'T>) =
         let store = Store.make PromiseState.Waiting

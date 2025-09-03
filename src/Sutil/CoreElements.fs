@@ -398,7 +398,7 @@ let onInput (fn : InputEvent -> unit) options =
 let onClick fn options = on "click" fn options
 
 let onElementReady fn options = on Event.ElementReady fn options
-let onMount fn options = on Event.Mount fn options
+let onMount fn options = on Event.Mount fn (EventModifier.Once :: options)
 let onUnmount fn options = on Event.Unmount fn options
 let onShow fn options = on Event.Show fn options
 let onHide fn options = on Event.Hide fn options

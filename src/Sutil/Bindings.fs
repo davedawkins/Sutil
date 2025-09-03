@@ -31,7 +31,7 @@ let elementFromException (x : exn) =
 
 let bindDelay<'T>  (view : HTMLElement -> SutilElement)=
     SutilElement.Define( 
-        "bindElementC",
+        "bindDelay",
         fun ctx ->
             let group = SutilEffect.MakeGroup("bindDelay",ctx.Parent,ctx.Previous)
             let bindNode = Group group
@@ -47,7 +47,6 @@ let bindDelay<'T>  (view : HTMLElement -> SutilElement)=
                         node <- build se (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
                     with
                     | x ->
-                        //Logging.error $"Exception in bindo: {x.StackTrace}: parent={ctx.Parent} node={node.ToString()}"
                         JS.console.error(x)
                         node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
 
@@ -58,7 +57,6 @@ let bindDelay<'T>  (view : HTMLElement -> SutilElement)=
 
                 group.RegisterUnsubscribe ( fun () ->
                     node.Dispose()
-                    // disposable.Dispose()
                 )
 
             run()
@@ -135,6 +133,7 @@ let bindElement<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) : 
     let mutable node = SideEffect
     let group = SutilEffect.MakeGroup("bind",ctx.Parent,ctx.Previous)
     let bindNode = Group group
+    let mutable _init = false
 
     if logEnabled() then log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
     ctx.AddChild bindNode
@@ -142,9 +141,14 @@ let bindElement<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) : 
     let run() =
         let bindCtx = { ctx with Parent = bindNode }
         let disposable = store |> Store.subscribe (fun next ->
+
+            if _init && not (nodeIsConnected ctx.ParentElement) then
+                Fable.Core.JS.console.error($"NOT CONNECTED: {group} ", ctx.ParentElement)
+
             try
                 if logEnabled() then log($"bind: rebuild {group.Id} with {next}")
                 node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+                _init <- true
             with
             | x ->
                 JS.console.error("sutil.bindElement:parentNode: ", ctx.ParentNode, "exception:", x)
@@ -152,8 +156,10 @@ let bindElement<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) : 
         )
         group.RegisterUnsubscribe ( fun () ->
             if logEnabled() then log($"dispose: Bind.el: {group}")
+            disposable.Dispose()
             node.Dispose()
-            disposable.Dispose())
+            // disposable.Dispose()
+        )
 
 
     run()
@@ -552,8 +558,9 @@ let getAnimator (trans : TransitionAttribute list)  =
     |> List.tryFind (fun p -> match p with Animate a -> true|_ -> false)
     |> Option.bind (fun x -> match x with Animate a -> Some a | _ -> None)
 
-let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItemRenderer<'T>) (key:int*'T->'K) (trans : TransitionAttribute list) : SutilElement =
+let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItemRenderer<'T>) (key:int*'T->'K) (options : EachOptions) : SutilElement =
     //let log (s:string) = Fable.Core.JS.console.log("each", s) // Logging.log "each" s
+    let trans  = options.Transition
     let animator =getAnimator trans
 
     SutilElement.Define("eachiko_wrapper",
@@ -584,6 +591,7 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItem
 #endif
 
         let unsub = items |> Store.subscribe (fun newItems ->
+            options.PreRender()
 
             if logEachEnabled "each" then
                 log("-- Each Block Render -------------------------------------")
@@ -676,6 +684,10 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItem
             //ctx.Parent.PrettyPrint("each #" + vnode.Id + ": after reorder")
 
             state <- newState
+
+            // let ev = Interop.customEvent Event.BindUpdated {|  |}
+            // ctx.ParentElement.dispatchEvent(ev) |> ignore
+            options.PostRender()
         )
 
         eachGroup.RegisterUnsubscribe (Helpers.unsubify unsub)
@@ -687,24 +699,25 @@ let private duc = Observable.distinctUntilChanged
 let eachiko = eachiko_wrapper
 
 let each (items:IObservable<ICollectionWrapper<'T>>) (view : 'T -> SutilElement) (trans : TransitionAttribute list) =
-    //eachiko_wrapper items (fun (_,item) -> bindElement (duc item) view) (fun (i,v) -> i,v.GetHashCode()) trans
-    eachiko_wrapper items (Static view) (fun (i,v) -> i,v.GetHashCode()) trans
+    eachiko_wrapper items (Static view) (fun (i,v) -> i,v.GetHashCode()) (EachOptions.From trans)
 
 let eachi (items:IObservable<ICollectionWrapper<'T>>) (view : (int*'T) -> SutilElement)  (trans : TransitionAttribute list) : SutilElement =
     //eachiko items (fun (index,item) -> bindElement2 (duc index) (duc item) view) fst trans
-    eachiko items (StaticIndexed view) fst trans
+    eachiko items (StaticIndexed view) fst (EachOptions.From trans)
 
 let eachio (items:IObservable<ICollectionWrapper<'T>>) (view : (IObservable<int>*IObservable<'T>) -> SutilElement)  (trans : TransitionAttribute list) =
     //eachiko items view fst trans
-    eachiko items (LiveIndexed view) fst trans
+    eachiko items (LiveIndexed view) fst (EachOptions.From trans)
 
-let eachk (items:IObservable<ICollectionWrapper<'T>>) (view : 'T -> SutilElement)  (key:'T -> 'K) (trans : TransitionAttribute list) =
+let internal eachk_options (items:IObservable<ICollectionWrapper<'T>>) (view : 'T -> SutilElement)  (key:'T -> 'K) (options : EachOptions) =
     eachiko
         items
-        //(fun (_,item) -> bindElement (duc item) view)
         (Static view)
         (snd>>key)
-        trans
+        options
+
+let eachk (items:IObservable<ICollectionWrapper<'T>>) (view : 'T -> SutilElement)  (key:'T -> 'K) (trans : TransitionAttribute list) =
+    eachk_options items view key (EachOptions.From trans)
 
 #if false
 let each_seq (items:IObservable<seq<'T>>) (view : 'T -> SutilElement) (trans : TransitionAttribute list) =
@@ -742,6 +755,14 @@ let bindStyle<'T> (value : IObservable<'T>) (f : CSSStyleDeclaration -> 'T -> un
     fun ctx ->
     let style = ctx.ParentElement.style
     let unsub = value.Subscribe(f style)
+    SutilEffect.RegisterDisposable( ctx.Parent, unsub )
+    () )
+
+let bindElementStyle<'T> (value : IObservable<'T>) (f : HTMLElement -> CSSStyleDeclaration -> 'T -> unit) =
+    SutilElement.Define( "bindStyle",
+    fun ctx ->
+    let style = ctx.ParentElement.style
+    let unsub = value.Subscribe(f ctx.ParentElement style)
     SutilEffect.RegisterDisposable( ctx.Parent, unsub )
     () )
 

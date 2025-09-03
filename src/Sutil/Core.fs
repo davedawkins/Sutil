@@ -614,10 +614,10 @@ module internal MountListenersInternal =
     let internal notifyOnMountListeners (node : Node) =
         onMountListeners |> Seq.toArray |> Array.iter (fun kv -> kv.Value(node))
 
-    let internal onMount (f : Node -> unit) : (unit -> unit) =
+    let internal onMount<'T when 'T :> Node> (f : 'T -> unit) : (unit -> unit) =
         let _id = nextOnMountId
         nextOnMountId <- nextOnMountId + 1
-        onMountListeners <- onMountListeners.Add(_id, f)
+        onMountListeners <- onMountListeners.Add(_id, unbox f)
         (fun _ ->
             if onMountListeners.ContainsKey _id then
                 onMountListeners <- onMountListeners.Remove(_id)
@@ -625,12 +625,12 @@ module internal MountListenersInternal =
 
 [<Erase>]
 type MountListeners() =
-    static member OnMount( f : Node -> unit ) : (unit -> unit) =
+    static member OnMount<'T when 'T :> Node>( f : 'T -> unit ) : (unit -> unit) =
         MountListenersInternal.onMount f
 
     /// findNode takes the just-mounted node and returns either null or the matching node
     /// None will be passed 
-    static member WaitUntil( matcher : Node -> Node option, f : Node -> unit ) : (unit -> unit) =
+    static member WaitUntil<'T when 'T :> Node>( matcher : 'T -> 'T option, f : 'T -> unit ) : (unit -> unit) =
         let mutable stop = ignore
         let mutable disposed = false
 
@@ -639,12 +639,12 @@ type MountListeners() =
                 stop()
                 disposed <- true
 
-        let matched (node : Node) =
+        let matched (node : 'T) =
             if not disposed then
                 dispose()
                 f node
                 
-        let tryMatch (mounted : Node) (succ : Node -> unit) = 
+        let tryMatch (mounted : 'T) (succ : 'T -> unit) = 
             matcher mounted |> Option.iter succ
 
         stop <- MountListenersInternal.onMount( fun mounted -> tryMatch mounted matched )

@@ -61,6 +61,8 @@ module internal Event =
     let Hide = "sutil-hide"
     let Updated = "sutil-updated"
     let Connected = "sutil-connected"
+    let BindUpdated = "sutil-bind-updated"
+    
     //let NewStore = "sutil-new-store"
     //let DisposeStore = "sutil-dispose-store"
 
@@ -144,6 +146,12 @@ type Node with
     member __.asTextNode = if isTextNode __ then (Some (__ :?> Text)) else None
     member __.asHtmlElement = if isElementNode __ then (Some (__ :?> HTMLElement)) else None
 
+type EventTarget with
+    member __.asHtmlElement = (__ :?> HTMLElement)
+
+type Event with
+    member __.targetHtmlElement = __.target.asHtmlElement
+    
 let internal applyIfElement (f: HTMLElement -> unit) (n: Node) =
     if isElementNode n then
         f (n :?> HTMLElement)
@@ -353,7 +361,6 @@ let rafu (f: unit -> unit) =
         | x -> Logging.error $"rafu: {x.Message}")
     |> ignore
 
-
 /// Listen for the first occurrence of a list of events. fn will be called for the winning event
 let anyof (events: string list) (target: EventTarget) (fn: Event -> Unit) : unit =
     let rec inner e =
@@ -389,6 +396,29 @@ let timeout handler (delayMs: int) =
         _setTimeout handler delayMs
 
     fun () -> Fable.Core.JS.clearTimeout id
+
+let waitUntil (wait: (unit -> unit) -> unit) (pred : unit -> bool) (f : unit -> unit) =
+    let mutable cancelled = false
+    let rec run() =
+        if pred() then f()
+        else wait run
+    run()
+    (fun () -> cancelled <- true)
+
+let rec waitUntilDebug (name:string) (wait: (unit -> unit) -> unit) (pred : unit -> bool) (f : unit -> unit) : unit -> unit =
+    let _log(s:string) = Fable.Core.JS.console.log(sprintf "waitUntil|%s|%s" name s)
+    let _pred = fun _ -> _log("pred"); pred()
+    let _wait = fun f -> _log("wait"); wait f
+    let _cont = fun _ -> _log("cont"); f()
+    let cancel = waitUntil _wait _pred _cont
+    fun _ ->
+        _log("cancelled")
+        cancel()
+
+let rafUntil = waitUntil rafu
+
+let rafUntilDebug name pred f =
+    waitUntilDebug name rafu pred f
 
 let internal nodeIsConnected (node: Node) : bool = node?isConnected
 

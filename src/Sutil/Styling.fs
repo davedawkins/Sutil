@@ -145,6 +145,12 @@ let private styleSheetAsText (styleSheet : StyleSheetDefinitions) =
 
     System.String.Join("\n", styleSheet |> List.map (entryToText classMap ""))
 
+let private addStyleSheetText (doc:Document) styleName css =
+    let style = newStyleElement doc
+    css |> doc.createTextNode |> style.appendChild |> ignore
+    (fun () -> style.parentElement.removeChild(style) |> ignore)
+
+
 let private addStyleSheet (doc:Document) styleName (styleSheet : StyleSheetDefinitions) =
     let style = newStyleElement doc
     for entry in styleSheet do
@@ -153,6 +159,9 @@ let private addStyleSheet (doc:Document) styleName (styleSheet : StyleSheetDefin
 
 let addGlobalStyleSheet (doc:Document) (styleSheet : StyleSheetDefinitions) =
     addStyleSheet doc "" styleSheet
+
+let addGlobalCss (doc:Document) (name : string) (css : string) =
+    addStyleSheetText doc name css
 
 /// <summary>
 /// Define a CSS styling rule

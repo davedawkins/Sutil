@@ -7,6 +7,15 @@ open Browser.Types
 open Interop
 open Sutil.DomHelpers
 
+type DebugTrackedObject =
+    abstract stack: string[]
+    abstract creationSite: string
+
+module DebugTrackedObject =
+    open Fable.Core
+
+    let [<Import("createDebugTrackedObject", "./jshelpers.js")>] createDebugTrackedObject() : DebugTrackedObject = jsNative
+
 /// <summary>
 /// Stores are values that can
 /// - be updated
@@ -51,46 +60,45 @@ module ObservableStore =
 
             new CmdHandler<_>(List.iter (fun cmd -> cmd mb.Post), fun _ -> cts.Cancel())
     #endif
-
+    
     module Registry =
         open Fable.Core
         open Fable.Core.JsInterop
 
-        let mutable nextId = 0
-        let idToStore = new Dictionary<int,obj>()
-        let storeToId = new Dictionary<obj,int>()
+        // let mutable nextId = 0
+        let idToStore = new Dictionary<int,IStore<obj>>()
+        // let storeToId = new Dictionary<obj,int>()
         //let disposed = new Dictionary<obj,int>()
 
-        let notifyUpdateStore s v =
+        let notifyUpdateStore (s : IStore<'t>) v =
             CustomDispatch<_>.dispatch(Window.document,DomHelpers.Event.UpdateStore,{| Value = v |})
 
-        let notifyMakeStore s =
-            if storeToId.ContainsKey(s) then failwith "Store is already registered!"
-            let id = nextId
+        let notifyMakeStore<'t> (s : IStore<'t>) =
+            let id = s.Id
+            if idToStore.ContainsKey(s.Id) then failwith "Store is already registered!"
             if logEnabled() then log $"make store #{id}"
-            nextId <- nextId + 1
-            idToStore.[id] <- s
-            storeToId.[s] <- id
+            idToStore[id] <- unbox s
+            // storeToId.[s] <- id
             CustomDispatch<_>.dispatch(Window.document,DomHelpers.Event.NewStore)
 
-        let notifyDisposeStore (s:obj) =
+        let notifyDisposeStore<'t> (s:IStore<'t>) =
             //if not (storeToId.ContainsKey(s)) then
             //    if disposed.ContainsKey(s) then
             //        failwith $"Store {disposed.[s]} has already been disposed"
             //    else
             //        failwith "Store is unknown to registry"
 
-            let id = storeToId.[s]
+            let id = s.Id
             if logEnabled() then log($"dispose store #{id}")
             try
                 idToStore.Remove(id) |> ignore
-                storeToId.Remove(s) |> ignore
+                // storeToId.Remove(s) |> ignore
                 //disposed.[s] <- id
             with
             | x -> Logging.error $"disposing store {id}: {x.Message}"
 
         let getStoreById id : IStoreDebugger =
-            (idToStore.[id] :?> IStore<obj>).Debugger
+            (idToStore[id]).Debugger
 
         let controlBlock () : DevToolsControl.IControlBlock = {
             new DevToolsControl.IControlBlock with
@@ -98,7 +106,7 @@ module ObservableStore =
                 member _.Version = { Major = 0; Minor = 1; Patch = 0 }
                 member _.GetOptions() = DevToolsControl.Options
                 member _.SetOptions(op) = DevToolsControl.Options <- op
-                member _.GetStores() = storeToId.Values |> Seq.toArray
+                member _.GetStores() = idToStore.Values |> Seq.map _.Id |> Seq.toArray
                 member _.GetStoreById(id) = getStoreById id
                 member _.GetLogCategories() = Logging.enabled |> Seq.map (fun k -> k.Key , k.Value) |> Seq.toArray
                 member _.SetLogCategories(states) =
@@ -131,6 +139,8 @@ module ObservableStore =
         let mutable _modelInitialized = false
         let mutable _model = Unchecked.defaultof<_>
         let mutable disposeListeners : (unit -> unit) list = []
+        let mutable _disposed = false
+        let mutable dbgtracker = DebugTrackedObject.createDebugTrackedObject()
 
         let onDispose f = disposeListeners <- f :: disposeListeners
 
@@ -186,6 +196,11 @@ module ObservableStore =
             onDispose f
 
         member this.Dispose() =
+            if storeId = 56 then 
+                Fable.Core.JS.console.log( dbgtracker.creationSite, dbgtracker.stack )
+                Fable.Core.JS.debugger()
+            if _disposed then failwithf "Store already disposed: %s:%d" name storeId
+            _disposed <- true
             subscribers.Values |> Seq.iter (fun x -> x.OnCompleted())
             subscribers.Clear()
             dispose (model())
@@ -199,6 +214,7 @@ module ObservableStore =
             member this.Value = this.Value
             member this.OnDispose( f : unit -> unit ) = this.OnDispose(f)
             member this.Name with get() = this.Name and set (v:string) = this.Name <- v
+            member this.Id = storeId
             member this.Debugger = {
                     new IStoreDebugger with
                         member _.Value = upcast this.Value

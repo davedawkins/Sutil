@@ -142,7 +142,7 @@ module Observable =
                 let mutable _timer = -1
 
                 let notify () =
-                    Fable.Core.JS.console.log("Notifying at: ", now(), " elapsed ", (now() - _notified), _value.Value )
+                    // Fable.Core.JS.console.log("Notifying at: ", now(), " elapsed ", (now() - _notified), _value.Value )
                     _notified <- now()
                     _timer <- -1
                     h.OnNext( _value.Value )
@@ -163,6 +163,45 @@ module Observable =
 
                     try 
                         attempt x
+                    with 
+                        ex -> h.OnError ex
+
+                )
+                Helpers.disposable (fun _ -> disposeA.Dispose() )
+        }
+
+    // (Re)start timer on each update, and only fire once the timeout duration has expired
+    let debounce (timeoutMs : int) (source : IObservable<'T>) =
+        { new System.IObservable<'T> with
+            member _.Subscribe( h : IObserver<'T> ) =
+
+                let timer = Helpers.createTimeout()
+                let mutable _value : 'T option = None
+
+                let notify () =
+                    h.OnNext( _value.Value )
+
+                let attempt (x : 'T) =
+                    _value <- Some x
+                    timer timeoutMs notify
+
+                let disposeA = source.Subscribe( fun x ->
+                    try 
+                        attempt x
+                    with 
+                        ex -> h.OnError ex
+
+                )
+                Helpers.disposable (fun _ -> disposeA.Dispose() )
+        }
+
+    let wait (waitService : (unit -> unit) -> unit) (source : IObservable<'T>) =
+        { new System.IObservable<'T> with
+            member _.Subscribe( h : IObserver<'T> ) =
+                let disposeA = source.Subscribe( fun x ->
+                    try 
+                        let local = x
+                        waitService (fun () -> h.OnNext local)
                     with 
                         ex -> h.OnError ex
 

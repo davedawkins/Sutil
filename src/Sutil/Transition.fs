@@ -59,73 +59,12 @@ module private LoopTasks =
             Abort = fun _ -> tasks.Remove (task) |> ignore
         }
 
-type TransitionProp =
-    | Key of string
-    | X of float
-    | Y of float
-    | Opacity of float
-    | Delay of float
-    | Duration of float
-    | DurationFn of (float -> float)
-    | Ease of (float -> float)
-    | CssGen of (float -> float -> string )
-    | Tick of (float -> float -> unit)
-    | Speed of float
-    | Fallback of TransitionBuilder
-
-and Transition =
-    {
-        Key : string
-        X : float
-        Y : float
-        Opacity : float
-        Delay : float
-        Duration : float
-        DurationFn : (float->float) option
-        Speed : float
-        Ease : (float -> float)
-        CssGen : (float -> float -> string ) option
-        Tick: (float -> float -> unit) option
-        Fallback: TransitionBuilder option
-    } with
-            static member Default = {
-                Key =""
-                X = 0.0
-                Y = 0.0
-                Delay = 0.0
-                Opacity = 0.0
-                Duration = 0.0
-                DurationFn = None
-                Speed = 0.0
-                Ease = Easing.linear
-                CssGen = None
-                Fallback = None
-                Tick = None }
-
-and CreateTransition =
-     unit -> Transition
-
-and TransitionBuilder = TransitionProp list -> HTMLElement -> CreateTransition
-
-type Animation = {
-    From: ClientRect
-    To: ClientRect
-}
-
-type AnimationBuilder = TransitionProp list -> HTMLElement -> Animation -> Transition
-
 let mergeProps newerProps existingProps : TransitionProp list =
     existingProps @ newerProps
 
 let withProps (userProps : TransitionProp list) (f : TransitionProp list -> 'a) : TransitionProp list -> 'a =
     fun (initProps : TransitionProp list) ->
         initProps |> mergeProps userProps |> f
-
-type TransitionAttribute =
-    | InOut of TransitionBuilder
-    | In of TransitionBuilder
-    | Out of TransitionBuilder
-    | Animate of AnimationBuilder
 
 let private overrideDuration d = if Sutil.DevToolsControl.Options.SlowAnimations then 10.0 * d else d
 let private overrideDurationFn fo = if Sutil.DevToolsControl.Options.SlowAnimations then (fo |> Option.map (fun f -> ((*)10.0 << f))) else fo

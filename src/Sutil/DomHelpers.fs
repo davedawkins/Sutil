@@ -397,7 +397,7 @@ let timeout handler (delayMs: int) =
 
     fun () -> Fable.Core.JS.clearTimeout id
 
-let waitUntil (wait: (unit -> unit) -> unit) (pred : unit -> bool) (f : unit -> unit) =
+let waitUntil name (wait: (unit -> unit) -> unit) (pred : unit -> bool) (f : unit -> unit) =
     let mutable cancelled = false
     let rec run() =
         if pred() then f()
@@ -410,15 +410,15 @@ let rec waitUntilDebug (name:string) (wait: (unit -> unit) -> unit) (pred : unit
     let _pred = fun _ -> _log("pred"); pred()
     let _wait = fun f -> _log("wait"); wait f
     let _cont = fun _ -> _log("cont"); f()
-    let cancel = waitUntil _wait _pred _cont
+    let cancel = waitUntil name _wait _pred _cont
     fun _ ->
         _log("cancelled")
         cancel()
 
-let rafUntil = waitUntil rafu
+// let rafUntil = waitUntil rafu
 
-let rafUntilDebug name pred f =
-    waitUntilDebug name rafu pred f
+// let rafUntilDebug name pred f =
+//     waitUntilDebug name rafu pred f
 
 let internal nodeIsConnected (node: Node) : bool = node?isConnected
 

@@ -252,11 +252,18 @@ type TransitionAttribute =
     | Out of TransitionBuilder
     | Animate of AnimationBuilder
 
+[<RequireQualifiedAccess>]
+type ExitOption = 
+    | Default
+    | Custom of (Browser.Types.HTMLElement -> unit)
+
 type EachOptions = 
     {
         Transition : TransitionAttribute list
         PreRender : unit -> unit
         PostRender : unit -> unit
+        Exit: ExitOption
     }
-    static member Default = { Transition = []; PreRender = ignore; PostRender = ignore }
+    static member Default = { Transition = []; PreRender = ignore; PostRender = ignore; Exit = ExitOption.Default }
     static member From( trans : TransitionAttribute list ) = { EachOptions.Default with Transition = trans }
+    member __.WithExit( exit ) = { __ with Exit = exit }

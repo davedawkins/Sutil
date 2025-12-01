@@ -658,13 +658,15 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItem
             for oldItem in state do
                 if not (newState |> CollectionWrapper.exists (fun x -> x.Key = oldItem.Key)) then
                     if logEachEnabled "each" then log($"removing key {oldItem.Key}")
-                    let el = findCurrentElement ctx.Document null oldItem.SvId (*oldItem.Element*)
-                    fixPosition el
-                    //ctx.Parent.RemoveChild(el) |> ignore
-                    ctx.Parent.InsertBefore(el,null) |> ignore
-                    //oldItem.Node.Dispose()
-                    transitionNode el trans [Key (string oldItem.Key)] false
-                        ignore (fun e -> eachGroup.RemoveChild(oldItem.Node))
+                    match options.Exit with
+                    | ExitOption.Default ->
+                        let el = findCurrentElement ctx.Document null oldItem.SvId (*oldItem.Element*)
+                        fixPosition el
+                        ctx.Parent.InsertBefore(el,null) |> ignore
+                        transitionNode el trans [Key (string oldItem.Key)] false
+                            ignore (fun e -> eachGroup.RemoveChild(oldItem.Node))
+                    | ExitOption.Custom f ->
+                        f (oldItem.Node.AsDomNode :?> Browser.Types.HTMLElement)
 
             //ctx.Parent.PrettyPrint("each #" + vnode.Id + ": before reorder")
 

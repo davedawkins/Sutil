@@ -196,9 +196,6 @@ module ObservableStore =
             onDispose f
 
         member this.Dispose() =
-            if storeId = 56 then 
-                Fable.Core.JS.console.log( dbgtracker.creationSite, dbgtracker.stack )
-                Fable.Core.JS.debugger()
             if _disposed then failwithf "Store already disposed: %s:%d" name storeId
             _disposed <- true
             subscribers.Values |> Seq.iter (fun x -> x.OnCompleted())

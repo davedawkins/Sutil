@@ -205,7 +205,7 @@ type TransitionProp =
     | Speed of float
     | Fallback of TransitionBuilder
 
-and Transition =
+and TransitionProps =
     {
         Key : string
         X : float
@@ -235,7 +235,7 @@ and Transition =
                 Tick = None }
 
 and CreateTransition =
-     unit -> Transition
+     unit -> TransitionProps
 
 and TransitionBuilder = TransitionProp list -> Browser.Types.HTMLElement -> CreateTransition
 
@@ -244,7 +244,7 @@ type Animation = {
     To:  Browser.Types.ClientRect
 }
 
-type AnimationBuilder = TransitionProp list ->  Browser.Types.HTMLElement -> Animation -> Transition
+type AnimationBuilder = TransitionProp list ->  Browser.Types.HTMLElement -> Animation -> TransitionProps
 
 type TransitionAttribute =
     | InOut of TransitionBuilder

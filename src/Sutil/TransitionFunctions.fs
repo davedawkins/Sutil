@@ -24,13 +24,13 @@ let parseFloat (s:string, name) =
 
 let fade (initProps : TransitionProp list) (node : HTMLElement) =
         fun () ->
-        let tr = applyProps initProps { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.linear }
+        let tr = applyProps initProps { TransitionProps.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.linear }
         {
             tr with CssGen = Some (fun t _ -> sprintf "opacity: %f" (t* computedStyleOpacity node))
         }
 
 let slide (props : TransitionProp list) = fun (node : HTMLElement) ->
-    let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut }
+    let tr = applyProps props { TransitionProps.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut }
 
     let style = Window.getComputedStyle(node)
 
@@ -61,7 +61,7 @@ let slide (props : TransitionProp list) = fun (node : HTMLElement) ->
     }
 
 let draw (props : TransitionProp list) = fun (node : SVGPathElement) ->
-    let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 800.0; Ease = Easing.cubicInOut }
+    let tr = applyProps props { TransitionProps.Default with Delay = 0.0; Duration = 800.0; Ease = Easing.cubicInOut }
 
     let len = node.getTotalLength()
 
@@ -78,7 +78,7 @@ let draw (props : TransitionProp list) = fun (node : SVGPathElement) ->
                     CssGen = Some <| fun t u -> sprintf "stroke-dasharray: %f %f" (t*len) (u*len) }
 
 let fly (props : TransitionProp list) (node : Element) =
-    let tr = applyProps props { Transition.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut; X = 0.0; Y = 0.0 }
+    let tr = applyProps props { TransitionProps.Default with Delay = 0.0; Duration = 400.0; Ease = Easing.cubicOut; X = 0.0; Y = 0.0 }
 
     let style = Window.getComputedStyle(node)
     let targetOpacity = computedStyleOpacity node
@@ -97,7 +97,7 @@ let fly (props : TransitionProp list) (node : Element) =
     }
 
 let crossfade (userProps : TransitionProp list) =
-    let fallback = (applyProps userProps Transition.Default).Fallback
+    let fallback = (applyProps userProps TransitionProps.Default).Fallback
 
     let toReceive = Dictionary<string,ClientRect>()
     let toSend = Dictionary<string,ClientRect>()
@@ -109,7 +109,7 @@ let crossfade (userProps : TransitionProp list) =
 
     let crossfadeInner ( from : ClientRect, node : Element, props, intro) =
         let tr =
-                { Transition.Default with Ease = Easing.cubicOut; DurationFn = Some (fun d -> System.Math.Sqrt(d) * 30.0) }
+                { TransitionProps.Default with Ease = Easing.cubicOut; DurationFn = Some (fun d -> System.Math.Sqrt(d) * 30.0) }
                 |> applyProps props
                 |> applyProps userProps
         //log($"crossfade props: {tr} from {props}")
@@ -151,7 +151,7 @@ let crossfade (userProps : TransitionProp list) =
             // At this stage, I think props will only contain a Key
 
             //log $"crossfade.transition props {props}"
-            let initProps = applyProps props Transition.Default // Just to retrieve key
+            let initProps = applyProps props TransitionProps.Default // Just to retrieve key
             let key = initProps.Key
 
             let r = node.getBoundingClientRect()

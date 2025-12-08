@@ -69,7 +69,7 @@ let withProps (userProps : TransitionProp list) (f : TransitionProp list -> 'a) 
 let private overrideDuration d = if Sutil.DevToolsControl.Options.SlowAnimations then 10.0 * d else d
 let private overrideDurationFn fo = if Sutil.DevToolsControl.Options.SlowAnimations then (fo |> Option.map (fun f -> ((*)10.0 << f))) else fo
 
-let private applyProp (r:Transition) (prop : TransitionProp) =
+let private applyProp (r:TransitionProps) (prop : TransitionProp) =
     match prop with
     | Delay d -> { r with Delay = d }
     | Duration d -> { r with Duration = d; DurationFn = None }
@@ -84,9 +84,9 @@ let private applyProp (r:Transition) (prop : TransitionProp) =
     | Key f -> { r with Key = f }
     | Fallback f -> { r with Fallback = Some f }
 
-let applyProps (props : TransitionProp list) (tr:Transition) = props |> List.fold applyProp tr
-let makeTransition (props : TransitionProp list) = applyProps props Transition.Default
-let mapTrans (f: Transition -> TransitionProp list) t = applyProps (f t) t
+let applyProps (props : TransitionProp list) (tr:TransitionProps) = props |> List.fold applyProp tr
+let makeTransition (props : TransitionProp list) = applyProps props TransitionProps.Default
+let mapTrans (f: TransitionProps -> TransitionProp list) t = applyProps (f t) t
 
 let element (doc:Document) tag = doc.createElement(tag)
 
@@ -200,7 +200,7 @@ let private rectToStr (c : ClientRect ) =
 
 let flip props (node:Element) (animation:Animation) =
     let tr = applyProps props  {
-            Transition.Default with
+            TransitionProps.Default with
                 Delay = 0.0
                 DurationFn = Some (fun d -> System.Math.Sqrt(d) * 60.0)
                 Ease = Easing.quintOut }

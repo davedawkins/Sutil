@@ -167,9 +167,9 @@ let internal setSvId (n: Node) id =
     Interop.set map (string id) n
     Interop.set n SvIdKey id
 
-    if (isElementNode n) then
-        (n :?> HTMLElement)
-            .setAttribute (SvIdKey, (string id))
+    // if (isElementNode n) then
+    //     (n :?> HTMLElement)
+    //         .setAttribute (SvIdKey, (string id))
 
 let internal svId (n: Node) = Interop.get n SvIdKey
 

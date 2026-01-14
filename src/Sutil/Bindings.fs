@@ -790,6 +790,13 @@ let bindLeftTop (xy : IObservable<float*float>) =
             style.top <- y.ToString() + "px"
     )
 
+let bindRightTop (xy : IObservable<float*float>) =
+    bindStyle xy (fun style (x,y) ->
+        if x <> 0.0 && y <> 0.0 then
+            style.right <- x.ToString() + "px"
+            style.top <- y.ToString() + "px"
+    )
+
 let bindXYWH (wh: IObservable<float*float*float*float>) =
     bindStyle wh (fun style (x,y,w,h) ->
         if w <> 0.0 && h <> 0.0 then

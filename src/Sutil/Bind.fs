@@ -83,6 +83,9 @@ type Bind =
     static member leftTop( xy : IObservable<float*float>) =
         bindLeftTop xy
 
+    static member rightTop( xy : IObservable<float*float>) =
+        bindRightTop xy
+
     static member widthHeight( xy : IObservable<float*float>) =
         bindWidthHeight xy
 

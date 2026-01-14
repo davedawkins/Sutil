@@ -58,6 +58,32 @@ module Observable =
     let zip<'A,'B> (a:IObservable<'A>) (b:IObservable<'B>) : IObservable<'A*'B> =
         map2<'A, 'B, 'A * 'B> (fun a b -> a, b) a b
 
+    let sequence<'A> (sources: IObservable<'A>[]) : IObservable<'A[]> =
+        { new IObservable<'A[]> with
+            member _.Subscribe(observer: IObserver<'A[]>) =
+                let count = sources.Length
+                let values = Array.zeroCreate<'A option> count
+                let mutable ready = 0
+                let disposables = ResizeArray<IDisposable>(count)
+
+                let update i v =
+                    match values[i] with
+                    | None -> ready <- ready + 1
+                    | Some _ -> ()
+                    values[i] <- Some v
+                    if ready = count then
+                        observer.OnNext(values |> Array.map Option.get)
+
+                for i = 0 to count - 1 do
+                    sources[i].Subscribe(fun v -> update i v) 
+                    |> disposables.Add
+
+                { new System.IDisposable with
+                    member _.Dispose() =
+                        for d in disposables do d.Dispose()
+                }
+        }
+
     let distinctUntilChangedCompare<'T> (eq:'T -> 'T -> bool) (source:IObservable<'T>) : IObservable<'T> =
         { new System.IObservable<'T> with
             member _.Subscribe( h : IObserver<'T> ) =
@@ -128,6 +154,20 @@ module Observable =
                 Helpers.disposable (fun _ -> disposeA.Dispose() )
         }
 
+    let flatten (source: IObservable<IObservable<'T>>) : IObservable<'T> =
+        { new System.IObservable<'T> with
+            member _.Subscribe( h : IObserver<'T> ) =
+                let mutable disposeInner = { new System.IDisposable with member _.Dispose() = () }
+                let disposeOuter = source.Subscribe( fun innerOb ->
+                    disposeInner.Dispose()
+                    disposeInner <- innerOb.Subscribe( fun actualT ->
+                        try h.OnNext actualT
+                        with ex -> h.OnError ex
+                    )
+                )
+                Helpers.disposable (fun _ -> disposeInner.Dispose(); disposeOuter.Dispose() )
+        }
+
     /// A filter based on elapsed time since last update. Will only allow updates if a specified minimum duration
     /// has passed. An incoming value that arrives too soon will start a timer. When the timer expires, the last
     /// recorded value will be sent (not necessarily the value that started the timer!)
@@ -157,7 +197,7 @@ module Observable =
                     elif elapsed >= minIntervalMs then
                         notify()
                     else
-                        _timer <- DomHelpers._setTimeout notify (minIntervalMs - elapsed)
+                        _timer <- DomHelpers._setTimeout notify (minIntervalMs - (elapsed - minIntervalMs))
 
                 let disposeA = source.Subscribe( fun x ->
 

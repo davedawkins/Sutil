@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "install": "dotnet tool restore",
-    "clean": "dotnet fable clean --yes",
+    "clean": "dotnet fable clean --yes && dotnet fable clean --yes -o test",
     "bundle": "cd src/Fable.Expect && esbuild queries.js --bundle --outfile=queries.bundle.js --format=esm",
     "publish": "dotnet fsi build.fsx publish",
     "test": "dotnet fable test -o test --define HEADLESS --run web-test-runner test/*Test.js --node-resolve",

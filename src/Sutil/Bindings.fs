@@ -52,7 +52,7 @@ let bindDelay<'T>  (view : HTMLElement -> SutilElement)=
 
                 updateView 
                     (el "div" [
-                        onMount (fun _ -> updateView (view ctx.ParentElement)) []
+                        onMount (fun _ -> rafu2 (fun _ -> updateView (view ctx.ParentElement))) []
                     ])
 
                 group.RegisterUnsubscribe ( fun () ->

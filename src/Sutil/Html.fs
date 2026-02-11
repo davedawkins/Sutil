@@ -30,7 +30,15 @@ type [<Fable.Core.Erase>] NodeAttr = NodeAttr of SutilElement
 /// </example>
 type SutilEventEngine() =
     inherit EventEngine<SutilElement>( fun (event:string) handler -> on (event.ToLower()) handler [] )
+
     member __.onMount( handler ) = onMount handler []
+    
+    /// <summary>
+    /// Wait an additional 2 animation frames before calling handler. This should allow at least one
+    /// DOM layout to have occurred
+    /// </summary>
+    member __.onMountDelayed( handler ) = onMountDelayed handler []
+
     member __.onUnmount( handler ) = onUnmount handler []
 
 /// <summary>

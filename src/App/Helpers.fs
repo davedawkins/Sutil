@@ -1,4 +1,4 @@
-module Helpers
+module AppHelpers
 
 open Fetch
 

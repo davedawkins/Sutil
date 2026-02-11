@@ -609,12 +609,12 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
 
 module internal MountListenersInternal =
     let mutable private nextOnMountId = 0
-    let mutable private onMountListeners : Map<int, Node -> unit> = Map.empty
+    let mutable private onMountListeners : Map<int, Node -> bool -> unit> = Map.empty
 
-    let internal notifyOnMountListeners (node : Node) =
-        onMountListeners |> Seq.toArray |> Array.iter (fun kv -> kv.Value(node))
+    let internal notifyOnMountListeners (node : Node, isRoot : bool) =
+        onMountListeners |> Seq.toArray |> Array.iter (fun kv -> kv.Value (node) isRoot)
 
-    let internal onMount<'T when 'T :> Node> (f : 'T -> unit) : (unit -> unit) =
+    let internal onMount<'T when 'T :> Node> (f : 'T -> bool -> unit) : (unit -> unit) =
         let _id = nextOnMountId
         nextOnMountId <- nextOnMountId + 1
         onMountListeners <- onMountListeners.Add(_id, unbox f)
@@ -625,8 +625,11 @@ module internal MountListenersInternal =
 
 [<Erase>]
 type MountListeners() =
-    static member OnMount<'T when 'T :> Node>( f : 'T -> unit ) : (unit -> unit) =
+    static member OnMountWithIsRoot<'T when 'T :> Node>( f : 'T -> bool -> unit ) : (unit -> unit) =
         MountListenersInternal.onMount f
+
+    static member OnMount<'T when 'T :> Node>( f : 'T -> unit ) : (unit -> unit) =
+        MountListeners.OnMountWithIsRoot( fun node isRoot -> f node )
 
     /// findNode takes the just-mounted node and returns either null or the matching node
     /// None will be passed 
@@ -647,7 +650,7 @@ type MountListeners() =
         let tryMatch (mounted : 'T) (succ : 'T -> unit) = 
             matcher mounted |> Option.iter succ
 
-        stop <- MountListenersInternal.onMount( fun mounted -> tryMatch mounted matched )
+        stop <- MountListenersInternal.onMount( fun mounted _ -> tryMatch mounted matched )
         dispose
 
     static member WaitUntil( selector : string, f : Node -> unit ) : (unit -> unit) =
@@ -669,7 +672,7 @@ let private notifySutilEvents (parent : SutilEffect) (node : SutilEffect) =
         |> List.iter (fun n ->
                 CustomDispatch<_>.dispatch(n,Event.Connected)
                 CustomDispatch<_>.dispatch(n,Event.Mount)
-                MountListenersInternal.notifyOnMountListeners n
+                MountListenersInternal.notifyOnMountListeners(n, true)
 
                 n
                 |> DomHelpers.descendants
@@ -677,7 +680,7 @@ let private notifySutilEvents (parent : SutilEffect) (node : SutilEffect) =
                 |> Seq.toArray
                 |> Array.iter (fun n ->  
                     CustomDispatch<_>.dispatch(n,Event.Mount)
-                    MountListenersInternal.notifyOnMountListeners n
+                    MountListenersInternal.notifyOnMountListeners(n,false)
                 )
 
             )

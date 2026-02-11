@@ -460,7 +460,7 @@ module SvgCanvas =
             group.Update([],[],events)
 
     [<AutoOpen>]
-    module Helpers =
+    module SvgCanvasExt =
         type Circle with
             member __.Transition() = CircleTransition(__)
         type Rect with

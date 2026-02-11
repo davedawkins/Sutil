@@ -361,6 +361,9 @@ let rafu (f: unit -> unit) =
         | x -> Logging.error $"rafu: {x.Message}")
     |> ignore
 
+let rafu2 (f: unit -> unit) =
+    (fun _ -> f |> rafu) |> rafu
+
 /// Listen for the first occurrence of a list of events. fn will be called for the winning event
 let anyof (events: string list) (target: EventTarget) (fn: Event -> Unit) : unit =
     let rec inner e =

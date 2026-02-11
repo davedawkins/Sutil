@@ -2,17 +2,19 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "fable": {
-      "version": "4.21.0",
-      "commands": [
-        "fable"
-      ]
-    },
     "fsdocs-tool": {
       "version": "20.0.1",
       "commands": [
         "fsdocs"
-      ]
+      ],
+      "rollForward": false
+    },
+    "fable": {
+      "version": "4.28.0",
+      "commands": [
+        "fable"
+      ],
+      "rollForward": false
     }
   }
 }

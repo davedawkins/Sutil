@@ -399,6 +399,7 @@ let onClick fn options = on "click" fn options
 
 let onElementReady fn options = on Event.ElementReady fn options
 let onMount fn options = on Event.Mount fn (EventModifier.Once :: options)
+let onMountDelayed fn options = on Event.Mount (fun e -> rafu2 (fun _ -> fn e)) (EventModifier.Once :: options)
 let onUnmount fn options = on Event.Unmount fn options
 let onShow fn options = on Event.Show fn options
 let onHide fn options = on Event.Hide fn options

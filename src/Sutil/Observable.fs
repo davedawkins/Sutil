@@ -2,7 +2,7 @@ namespace Sutil
 
 open System
 
-module private Helpers =
+module private ObservableHelpers =
     open Fable.Core
 
     [<Emit("performance.now()")>]
@@ -168,24 +168,30 @@ module Observable =
                 Helpers.disposable (fun _ -> disposeInner.Dispose(); disposeOuter.Dispose() )
         }
 
+    let mutable _next = 0
     /// A filter based on elapsed time since last update. Will only allow updates if a specified minimum duration
     /// has passed. An incoming value that arrives too soon will start a timer. When the timer expires, the last
     /// recorded value will be sent (not necessarily the value that started the timer!)
     let throttle (minIntervalMs : int) (source : IObservable<'T>) =
         { new System.IObservable<'T> with
             member _.Subscribe( h : IObserver<'T> ) =
-
-                let now() = int (Helpers.performanceNow())
+                let _id = _next + 1
+                _next <- _next + 1
+                Fable.Core.JS.console.log(sprintf "throttle %d: Subscribing " _id)
+                let now() = int (ObservableHelpers.performanceNow())
 
                 let mutable _value : 'T option = None
                 let mutable _notified = now() - minIntervalMs
                 let mutable _timer = -1
+                let mutable _disposed = false
 
                 let notify () =
-                    // Fable.Core.JS.console.log("Notifying at: ", now(), " elapsed ", (now() - _notified), _value.Value )
-                    _notified <- now()
-                    _timer <- -1
-                    h.OnNext( _value.Value )
+                    if not _disposed then
+                        if minIntervalMs > 2000 then
+                            Fable.Core.JS.console.log(sprintf "throttle %d: Notifying at: " _id, now(), " elapsed ", (now() - _notified), _value.Value )
+                        _notified <- now()
+                        _timer <- -1
+                        h.OnNext( _value.Value )
 
                 let attempt (x : 'T) =
                     _value <- Some x
@@ -197,7 +203,10 @@ module Observable =
                     elif elapsed >= minIntervalMs then
                         notify()
                     else
-                        _timer <- DomHelpers._setTimeout notify (minIntervalMs - (elapsed - minIntervalMs))
+                        let delay = (minIntervalMs - elapsed)
+                        if minIntervalMs > 2000 then
+                            Fable.Core.JS.console.log(sprintf "throttle %d: Setting timer for %d: elapsed=%d mininterval=%d " _id  delay elapsed minIntervalMs )
+                        _timer <- DomHelpers._setTimeout notify delay
 
                 let disposeA = source.Subscribe( fun x ->
 
@@ -207,7 +216,11 @@ module Observable =
                         ex -> h.OnError ex
 
                 )
-                Helpers.disposable (fun _ -> disposeA.Dispose() )
+                Helpers.disposable (fun _ -> 
+                    _disposed <- true
+                    Fable.Core.JS.console.log(sprintf "throttle %d: Disposing" _id)
+                    disposeA.Dispose()
+                )
         }
 
     // (Re)start timer on each update, and only fire once the timeout duration has expired
@@ -215,7 +228,7 @@ module Observable =
         { new System.IObservable<'T> with
             member _.Subscribe( h : IObserver<'T> ) =
 
-                let timer = Helpers.createTimeout()
+                let timer = ObservableHelpers.createTimeout()
                 let mutable _value : 'T option = None
 
                 let notify () =

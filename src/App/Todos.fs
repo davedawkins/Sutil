@@ -48,7 +48,7 @@ let makeExampleTodos() = [
     { Id = 6; Done = false; Description = "fix some bugs" }
 ]
 
-let newUid = Helpers.makeIdGeneratorFrom(7)
+let newUid = Sutil.Helpers.makeIdGeneratorFrom(7)
 
 let styleSheet = [
     rule ".new-todo" [

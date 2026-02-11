@@ -102,7 +102,7 @@ module Devtools =
         let tabId : int = jsNative
 
 ///  <exclude />
-module Helpers =
+module DevToolHelpers =
     let inject<'T,'A> (fn : 'A -> 'T) (arg:'A) : JS.Promise<'T> =
         //console.log($"({fn})({JS.JSON.stringify arg})")
         Promise.create( fun fulfil fail ->

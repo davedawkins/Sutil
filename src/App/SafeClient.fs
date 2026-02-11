@@ -93,7 +93,7 @@ open Sutil.Bulma
 open System
 
 [<AutoOpen>]
-module Helpers =
+module private Helpers =
     let (|>>) store f = store |> Store.map f
     let mInput m = m.Input
     let mTodos m = m.Todos

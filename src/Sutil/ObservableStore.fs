@@ -31,7 +31,7 @@ module ObservableStore =
 
     type StoreCons<'Model, 'Store> = (unit -> 'Model) -> ('Model -> unit) -> 'Store * Update<'Model>
 
-    module internal Helpers =
+    module internal StoreHelpers =
         type CmdHandler<'Msg>(handler, ?dispose) =
             member _.Handle(cmd: Cmd<'Msg>): unit = handler cmd
             member _.Dispose() = match dispose with Some d -> d () | None -> ()
@@ -228,7 +228,7 @@ module ObservableStore =
 
         let mutable _storeDispatch: ('Store * Dispatch<'Msg>) option = None
 
-        let mutable _cmdHandler = Unchecked.defaultof<Helpers.CmdHandler<'Msg>>
+        let mutable _cmdHandler = Unchecked.defaultof<StoreHelpers.CmdHandler<'Msg>>
             //new Helpers.CmdHandler<'Msg>(ignore)
 
         fun props ->
@@ -254,7 +254,7 @@ module ObservableStore =
                         model)
                     _cmdHandler.Handle _cmds
 
-                _cmdHandler <- Helpers.cmdHandler dispatch
+                _cmdHandler <- StoreHelpers.cmdHandler dispatch
                 _storeDispatch <- Some(store, dispatch)
                 store, dispatch
 

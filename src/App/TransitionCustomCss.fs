@@ -15,7 +15,7 @@ open Sutil.Styling
 
 let spin (options : TransitionProp list) node =
     fun () ->
-        let user = applyProps options Transition.Default
+        let user = applyProps options TransitionProps.Default
         {
             user with
                 CssGen = Some (fun t _ ->

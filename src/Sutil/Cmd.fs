@@ -51,21 +51,21 @@ module Cmd =
     let batch (cmds: Cmd<'Msg> list) : Cmd<'Msg> = cmds |> List.concat
 
     module OfFunc =
-        let either (task: 'args -> _) (a: 'args) (success: _ -> 'msg') (error: _ -> 'msg') =
+        let either (task: 'args -> _) (a: 'args) (success: _ -> 'msg) (error: _ -> 'msg) =
             [ fun d ->
                   try
                       task a |> (success >> d)
                   with
                   | x -> x |> (error >> d) ]
 
-        let perform (task: 'args -> _) (a: 'args) (success: _ -> 'msg') =
+        let perform (task: 'args -> _) (a: 'args) (success: _ -> 'msg) =
             [ fun d ->
                   try
                       task a |> (success >> d)
                   with
                   | _ -> () ]
 
-        let attempt (task: 'args -> unit) (a: 'args) (error: _ -> 'msg') =
+        let attempt (task: 'args -> unit) (a: 'args) (error: _ -> 'msg) =
             [ fun d ->
                   try
                       task a

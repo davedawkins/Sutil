@@ -376,6 +376,20 @@ let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : SutilElement =
     SutilEffect.RegisterDisposable(ctx.Parent,unsub)
     () )
 
+/// Bind a store value to an element property.
+let bindPropIn<'T> (propName:string) (store : IObservable<'T>) : SutilElement =
+    SutilElement.Define("bindPropIn",
+    fun ctx ->
+    let unsub =
+        if propName = "class" then
+            store |> Store.subscribe (fun cls -> ctx.ParentElement.className <- (string cls))
+        else
+            store |> Store.subscribe (fun v -> Interop.set ctx.ParentElement propName v )
+    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
+    () )
+
+// This is mis-named, but I'm going to leave it alone. It doesn't get attribute values. I think
+// I was a bit of a DOM noob when I wrote this... :-/
 let bindAttrOut<'T> (attrName:string) (onchange : 'T -> unit) : SutilElement =
     SutilElement.Define( "bindAttrOut",
     fun ctx ->
@@ -470,6 +484,12 @@ let listenToProp<'T> (attrName:string) (dispatch: 'T -> unit) : SutilElement =
 
 let bindPropOut<'T> (attrName:string) (store : Store<'T>) : SutilElement =
     listenToProp attrName (Store.set store)
+
+let bindPropBoth<'T> (propName:string) (value : IObservable<'T>) (onchange : 'T -> unit) : SutilElement =
+    fragment [
+        bindPropIn propName value
+        listenToProp propName onchange
+    ]
 
 type KeyedStoreItem<'T,'K> = {
     Key : 'K

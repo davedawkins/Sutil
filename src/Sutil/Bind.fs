@@ -50,6 +50,18 @@ type Bind =
     static member attr<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) =
         bindAttrBoth name value dispatch
 
+    /// Two-way binding from value to property and from property to dispatch function
+    /// Uses "input" and resize events (if it's a size related property) to determine need for dispatch
+    static member prop<'T> (name:string, value: IObservable<'T>, dispatch: 'T -> unit) =
+        bindPropBoth name value dispatch
+
+    /// Binds to "checked" property, but that's a reserved word :-/
+    static member isChecked(value: IObservable<bool>, dispatch: bool -> unit) =
+        Bind.prop<bool>( "checked", value, dispatch )
+
+    static member value<'T>(value: IObservable<'T>, dispatch: 'T -> unit) =
+        Bind.prop<'T>( "value", value, dispatch )
+
     /// Dual-binding for a given attribute. Changes to value are written to the attribute, while
     /// changes to the attribute are written back to the store. Note that an IStore is also
     /// an IObservable, for which a separate overload exists.

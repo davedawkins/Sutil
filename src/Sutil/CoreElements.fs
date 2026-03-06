@@ -369,6 +369,10 @@ let private _on (event : string) (fn : Event -> unit) (options : EventModifier l
     //             Fable.Core.JS.console.log(" - " + event + ": default prevented", ctx.ParentElement )
 
     Interop.addEventListener(el , event,  handler )
+    if (event = Event.Mount) then 
+        // Fable.Core.JS.console.log("_onMount")
+        ctx.OnMount.Add(ctx.ParentElement)
+        Interop.set  ctx.ParentElement  "_onmount"  true  
 
     SutilEffect.RegisterUnsubscribe( ctx.Parent,  fun _ -> el.removeEventListener(event,handler) )
 

@@ -666,23 +666,23 @@ type MountListeners() =
         | None ->
             MountListeners.WaitUntil( findNode, f )
 
-let private notifySutilEvents (parent : SutilEffect) (node : SutilEffect) =
+let private notifySutilEvents (parent : SutilEffect) (node : SutilEffect) (onMountElements : ResizeArray<HTMLElement>) =
     if (parent.IsConnected()) then
-        node.collectDomNodes ()
-        |> List.iter (fun n ->
+        let _nodes = onMountElements.ToArray()
+        onMountElements.Clear()
+        _nodes |> Array.iter (fun n ->
                 CustomDispatch<_>.dispatch(n,Event.Connected)
                 CustomDispatch<_>.dispatch(n,Event.Mount)
                 MountListenersInternal.notifyOnMountListeners(n, true)
 
-                n
-                |> DomHelpers.descendants
-                |> Seq.filter DomHelpers.isElementNode
-                |> Seq.toArray
-                |> Array.iter (fun n ->  
-                    CustomDispatch<_>.dispatch(n,Event.Mount)
-                    MountListenersInternal.notifyOnMountListeners(n,false)
-                )
-
+                // n
+                // |> DomHelpers.descendants
+                // |> Seq.filter DomHelpers.isElementNode
+                // |> Seq.toArray
+                // |> Array.iter (fun n ->  
+                //     CustomDispatch<_>.dispatch(n,Event.Mount)
+                //     MountListenersInternal.notifyOnMountListeners(n,false)
+                // )
             )
 
 /// <exclude/>
@@ -701,6 +701,7 @@ and  BuildContext =
       Action: DomAction
       MakeName: (string -> string)
       Class: string option
+      OnMount: ResizeArray<HTMLElement>
       Debug: bool
       Pipeline : PipelineFn
       }
@@ -716,13 +717,13 @@ and  BuildContext =
             if logEnabled() then log $"ctx.Append '{node}' to '{ctx.Parent}' after {ctx.Previous}"
             ctx.Parent.InsertAfter(node, ctx.Previous)
 
-            notifySutilEvents ctx.Parent node
+            notifySutilEvents ctx.Parent node (ctx.OnMount)
 
         | Replace (existing, insertBefore) ->
             if logEnabled() then log $"ctx.Replace '{existing}' with '{node}' before '{nodeStrShort insertBefore}'"
             ctx.Parent.ReplaceGroup(node, existing, insertBefore)
 
-            notifySutilEvents ctx.Parent node
+            notifySutilEvents ctx.Parent node (ctx.OnMount)
         ()
 
 
@@ -785,6 +786,7 @@ let private defaultContext (parent : Node) =
       Action = Append
 //      StyleSheet = None
       Class = None
+      OnMount = Unchecked.defaultof<_>
       Debug = false
       MakeName = fun baseName -> sprintf "%s-%d" baseName (gen ())
       Pipeline = id
@@ -800,7 +802,8 @@ let private makeContext (parent: Node) =
         classes
 
     { defaultContext parent with
-          //Pipeline = pipeline
+
+          OnMount = new ResizeArray<_>()
 
           // Ensures that if we create and mount DOM nodes onto a styled element, then
           // we inherit the stylesheet class on the mounted nodes
@@ -812,6 +815,7 @@ let private makeContext (parent: Node) =
 
 let private makeShadowContext (customElement: Node) =
     { defaultContext customElement with
+        OnMount = new ResizeArray<_>()
         Action = Nothing
     }
 

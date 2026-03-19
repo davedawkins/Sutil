@@ -344,13 +344,13 @@ type EventModifier =
     | StopImmediatePropagation
 
 
-let private _on (event : string) (fn : Event -> unit) (options : EventModifier list) (ctx : BuildContext) =
+let private _on<'E when 'E :> Browser.Types.Event> (event : string) (fn : 'E -> unit) (options : EventModifier list) (ctx : BuildContext) =
     let el = ctx.ParentNode
 
-    let rec h (e:Event) =
+    let rec h (e:'E) =
         for opt in options do
             match opt with
-            | Once -> el.removeEventListener(event,h)
+            | Once -> el.removeEventListener(event,unbox h)
             | PreventDefault -> e.preventDefault()
             | StopPropagation -> e.stopPropagation()
             | StopImmediatePropagation -> e.stopImmediatePropagation()
@@ -374,9 +374,9 @@ let private _on (event : string) (fn : Event -> unit) (options : EventModifier l
         ctx.OnMount.Add(ctx.ParentElement)
         Interop.set  ctx.ParentElement  "_onmount"  true  
 
-    SutilEffect.RegisterUnsubscribe( ctx.Parent,  fun _ -> el.removeEventListener(event,handler) )
+    SutilEffect.RegisterUnsubscribe( ctx.Parent,  fun _ -> el.removeEventListener(event,unbox handler) )
 
-let on (event : string) (fn : Event -> unit) (options : EventModifier list) =
+let on<'E when 'E :> Browser.Types.Event> (event : string) (fn : 'E -> unit) (options : EventModifier list) =
     SutilElement.Define( sprintf "on%s" event, _on event fn options)
 
 let onCustomEvent<'T> (event: string) (fn: CustomEvent<'T> -> unit) (options: EventModifier list) =

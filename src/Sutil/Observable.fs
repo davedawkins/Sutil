@@ -248,6 +248,20 @@ module Observable =
                 Helpers.disposable (fun _ -> disposeA.Dispose() )
         }
 
+
+    // Unsubscribe after first event
+    let once (cb : 'T -> unit) (source : IObservable<'T>) =
+        let mutable disposeA = ignore
+        
+        disposeA <- source.Subscribe( fun x ->
+            cb x
+            disposeA()
+            disposeA <- ignore
+        ) |> fun d -> fun () -> d.Dispose()
+        
+        Helpers.disposable (fun _ -> disposeA() )
+
+
     let wait (waitService : (unit -> unit) -> unit) (source : IObservable<'T>) =
         { new System.IObservable<'T> with
             member _.Subscribe( h : IObserver<'T> ) =

@@ -151,6 +151,7 @@ type EventTarget with
 
 type Event with
     member __.targetHtmlElement = __.target.asHtmlElement
+    member __.currentHtmlElement = __.currentTarget.asHtmlElement
     
 let internal applyIfElement (f: HTMLElement -> unit) (n: Node) =
     if isElementNode n then

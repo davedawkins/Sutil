@@ -239,10 +239,6 @@ and CreateTransition =
 
 and TransitionBuilder = TransitionProp list -> Browser.Types.HTMLElement -> CreateTransition
 
-/// Allow Legacy code (pre-Jan 2026) to still compile
-module Transition =
-    let Default = TransitionProps.Default
-
 type Animation = {
     From:  Browser.Types.ClientRect
     To:  Browser.Types.ClientRect

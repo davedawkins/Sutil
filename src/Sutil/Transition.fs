@@ -85,6 +85,8 @@ let private applyProp (r:TransitionProps) (prop : TransitionProp) =
     | Fallback f -> { r with Fallback = Some f }
 
 let applyProps (props : TransitionProp list) (tr:TransitionProps) = props |> List.fold applyProp tr
+/// Legacy alias (pre-Jan 2026): Sutil.Transition.Default
+let Default = TransitionProps.Default
 let makeTransition (props : TransitionProp list) = applyProps props TransitionProps.Default
 let mapTrans (f: TransitionProps -> TransitionProp list) t = applyProps (f t) t
 

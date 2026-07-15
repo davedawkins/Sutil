@@ -663,10 +663,10 @@ let viewportHeight () =
 /// <exclude/>
 type NodeListOf<'T> with
     /// Produce a seq<'T> from a NodeListOf<'T>. This is useful when working with document.querySelectorAll, for example
-    member nodes.toSeq() =
+    member nodes.toSeq<'E when 'E :> Element>() =
         seq {
             for i in [ 0 .. nodes.length - 1 ] do
-                yield nodes.[i]
+                yield (unbox<'E>(nodes[i]))
         }
 
 /// <exclude/>

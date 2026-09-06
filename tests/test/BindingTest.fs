@@ -10,6 +10,7 @@ open WebTestRunner
 open Sutil
 open Sutil.Core
 open Sutil.CoreElements
+open Fable.Core.JsInterop
 
 type Record = {
     Id : int
@@ -23,6 +24,17 @@ let viewItem (r : Record) =
 
 let viewItemO (r : System.IObservable<Record>) =
     Bind.el( r, viewItem )
+
+// #895: SutilGroup members are internal, so tests reach the compiled instance fields dynamically
+let private groupOfNode (n : Browser.Types.Node) : obj =
+    let g : obj = n?__sutil_snode
+    Expect.assertTrue (jsTypeof g <> "undefined" && not (isNull g)) "__sutil_snode missing on node"
+    g
+
+let private childrenOfGroup (g : obj) : SutilEffect list =
+    let cs : obj = g?_children
+    Expect.assertTrue (jsTypeof cs <> "undefined" && not (isNull cs)) "_children field missing on group"
+    unbox<SutilEffect list> cs
 
 describe "Sutil.Binding" <| fun () ->
 
@@ -258,6 +270,112 @@ describe "Sutil.Binding" <| fun () ->
         Expect.areEqual(storeOuter.Debugger.NumSubscribers,1,"NumSubscribers")
         Expect.areEqual(disposed,3,"disposed")
         Expect.areEqual(numRenders,2,"numRenders #4")
+    }
+
+    it "Replaces the bind group child when the bind is last in its parent (#895)" <| fun () -> promise {
+        let store = Store.make 0
+
+        let app =
+            Html.div [
+                Bind.el(store, fun n -> Html.span [ text (string n) ])
+            ]
+
+        mountTestApp app
+
+        for i in 1 .. 3 do
+            i |> Store.set store
+
+        Expect.queryText "div>span" "3"
+        Expect.queryNumChildren "div" 1
+
+        let group = groupOfNode (currentEl.querySelector("div>span"))
+        let children = childrenOfGroup group
+        Expect.areEqual(children.Length, 1, "bind group child count after updates")
+
+        match children with
+        | [ DomNode n ] ->
+            Expect.assertTrue (not (isNull n.parentNode)) "bind child is attached to the DOM"
+            Expect.areEqual(n.textContent, "3", "bind child is the live node")
+        | _ -> failwith "expected a single DomNode child in the bind group"
+
+        return ()
+    }
+
+    it "Keeps replacing by id when the bind has a following sibling (#895)" <| fun () -> promise {
+        let store = Store.make 0
+
+        let app =
+            Html.div [
+                Bind.el(store, fun n -> Html.span [ text (string n) ])
+                Html.span [ text "after" ]
+            ]
+
+        mountTestApp app
+
+        for i in 1 .. 3 do
+            i |> Store.set store
+
+        Expect.queryText "div>span:nth-child(1)" "3"
+        Expect.queryText "div>span:nth-child(2)" "after"
+        Expect.queryNumChildren "div" 2
+
+        let group = groupOfNode (currentEl.querySelector("div>span:nth-child(1)"))
+        let children = childrenOfGroup group
+        Expect.areEqual(children.Length, 1, "bind group child count with sibling")
+
+        match children with
+        | [ DomNode n ] ->
+            Expect.areEqual(n.textContent, "3", "bind child is the live node")
+        | _ -> failwith "expected a single DomNode child in the bind group"
+
+        return ()
+    }
+
+    it "Replaces a group-valued bind child when the bind is last in its parent (#895)" <| fun () -> promise {
+        let store = Store.make 0
+
+        let app =
+            Html.div [
+                Bind.el(store, fun n ->
+                    fragment [
+                        Html.span [ text (string n) ]
+                        Html.span [ text (string (n * 10)) ]
+                    ])
+            ]
+
+        mountTestApp app
+
+        for i in 1 .. 3 do
+            i |> Store.set store
+
+        Expect.queryText "div>span:nth-child(1)" "3"
+        Expect.queryText "div>span:nth-child(2)" "30"
+        Expect.queryNumChildren "div" 2
+
+        // the live spans belong to the fragment group; its _parent effect is the bind group
+        let fragGroup = groupOfNode (currentEl.querySelector("div>span"))
+        let parentEffect : obj = fragGroup?_parent
+        Expect.assertTrue (jsTypeof parentEffect <> "undefined" && not (isNull parentEffect)) "_parent field missing on group"
+
+        let bindChildren =
+            match unbox<SutilEffect> parentEffect with
+            | Group g -> childrenOfGroup (box g)
+            | _ -> failwith "expected the fragment group's parent to be the bind group"
+
+        Expect.areEqual(bindChildren.Length, 1, "bind group child count for fragment view")
+
+        match bindChildren with
+        | [ Group g ] ->
+            let fragChildren = childrenOfGroup (box g)
+            Expect.areEqual(fragChildren.Length, 2, "fragment group child count")
+
+            for c in fragChildren do
+                match c with
+                | DomNode n -> Expect.assertTrue (not (isNull n.parentNode)) "fragment child is attached to the DOM"
+                | _ -> failwith "expected DomNode children in the fragment group"
+        | _ -> failwith "expected a single Group child in the bind group"
+
+        return ()
     }
 
 let init() = ()

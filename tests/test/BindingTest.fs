@@ -25,7 +25,7 @@ let viewItem (r : Record) =
 let viewItemO (r : System.IObservable<Record>) =
     Bind.el( r, viewItem )
 
-// #895: SutilGroup members are internal, so tests reach the compiled instance fields dynamically
+// fsimgo#895: SutilGroup members are internal, so tests reach the compiled instance fields dynamically
 let private groupOfNode (n : Browser.Types.Node) : obj =
     let g : obj = n?__sutil_snode
     Expect.assertTrue (jsTypeof g <> "undefined" && not (isNull g)) "__sutil_snode missing on node"
@@ -272,7 +272,7 @@ describe "Sutil.Binding" <| fun () ->
         Expect.areEqual(numRenders,2,"numRenders #4")
     }
 
-    it "Replaces the bind group child when the bind is last in its parent (#895)" <| fun () -> promise {
+    it "Replaces the bind group child when the bind is last in its parent (fsimgo#895)" <| fun () -> promise {
         let store = Store.make 0
 
         let app =
@@ -301,7 +301,7 @@ describe "Sutil.Binding" <| fun () ->
         return ()
     }
 
-    it "Keeps replacing by id when the bind has a following sibling (#895)" <| fun () -> promise {
+    it "Keeps replacing by id when the bind has a following sibling (fsimgo#895)" <| fun () -> promise {
         let store = Store.make 0
 
         let app =
@@ -331,7 +331,7 @@ describe "Sutil.Binding" <| fun () ->
         return ()
     }
 
-    it "Replaces a group-valued bind child when the bind is last in its parent (#895)" <| fun () -> promise {
+    it "Replaces a group-valued bind child when the bind is last in its parent (fsimgo#895)" <| fun () -> promise {
         let store = Store.make 0
 
         let app =

@@ -195,8 +195,9 @@ let inject (elements: SutilElement seq) (element: SutilElement) =
         e
     )
 
-/// Create a TextNode
-let internal text value : SutilElement =
+/// Create a TextNode. Public because fsimgo's teardown tests reference it directly, and
+/// dotnet build enforces the accessibility that Fable's whole-graph compilation does not (fsimgo #896).
+let text value : SutilElement =
     SutilElement.Define( "text", [],
         fun ctx ->
             let tn = DomHelpers.textNode ctx.Document value

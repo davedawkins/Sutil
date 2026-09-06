@@ -35,15 +35,23 @@ let private bindAnchor (name : string) (ctx : BuildContext) : Node =
     ctx.AddChild (anchor :> Node)
     upcast anchor
 
-// Replace the binding's rendered nodes: remove the previous set, build the new content
-// immediately before the anchor, and record the new set on the anchor (#896).
+// Replace the binding's rendered nodes: build the new content immediately before the anchor,
+// record it, then remove the previous set — insert-before-delete, as ReplaceChild did (#896).
 let private rebuildAt (anchor : Node) (ctx : BuildContext) (se : SutilElement) : unit =
-    match getBindNodes anchor with
-    | Some nodes -> nodes |> Array.iter removeNode
-    | None -> ()
+    if isNull anchor.parentNode then
+        // Non-Sutil DOM code destroyed the anchor: the binding is dead. Dispose it on the next
+        // frame (not inside this store notification) so sibling subscribers keep working (#896).
+        Fable.Core.JS.console.error("sutil: binding anchor was removed by non-Sutil code; disposing binding", ctx.ParentNode)
+        rafu (fun () -> cleanupDeep anchor)
+    else
+        let previous = getBindNodes anchor
 
-    let nodes = build se (ctx |> ContextHelpers.withAnchor anchor)
-    setBindNodes anchor nodes
+        let nodes = build se (ctx |> ContextHelpers.withAnchor anchor)
+        setBindNodes anchor nodes
+
+        match previous with
+        | Some old -> old |> Array.iter removeNode
+        | None -> ()
 
 let bindDelay<'T>  (view : HTMLElement -> SutilElement)=
     SutilElement.Define(
@@ -471,7 +479,8 @@ let private genEachId = Helpers.makeIdGenerator()
 
 
 let private asDomNode (nodes: Node[]) (ctx: BuildContext) : Node =
-    match resolveNodes nodes with
+    // Markers and empty anchors are bookkeeping, not content (#896).
+    match resolveNodes nodes |> Array.filter (fun n -> n.nodeType <> 8.0) with
     | [| n |] -> n
     | [||] -> errorNode ctx.Parent $"Error: Empty node"
     | xs ->

@@ -51,7 +51,11 @@ let exclusive (f: SutilElement) =
         "exclusive",
         fun ctx ->
             if logEnabled() then log $"exclusive {nodeStrShort ctx.Parent}"
-            clear ctx.ParentNode
+            // Spare the enclosing binding's own anchor; everything else goes (#896).
+            DomHelpers.children ctx.ParentNode
+            |> Array.ofSeq
+            |> Array.filter (fun n -> not (isSameNode n ctx.Before))
+            |> Array.iter unmount
             ctx |> build f
     )
 
@@ -249,10 +253,7 @@ let attr (name, value: obj) : SutilElement =
 let html (text : string) : SutilElement =
     SutilElement.Define( "html",
     fun ctx ->
-        ctx.ParentNode
-        |> applyIfElement (fun el ->
-            el.innerHTML <- text.Trim()
-
+        let applyClasses (el : HTMLElement) =
             ctx.Class
             |> Option.iter (fun cls -> visitElementChildren el (fun ch -> ClassHelpers.addToClasslist cls ch ))
 
@@ -264,9 +265,25 @@ let html (text : string) : SutilElement =
                     //applyCustomRules ns ch
                 )
 
-            Event.notifyUpdated ctx.Document)
+        if isNull ctx.Before then
+            ctx.ParentNode
+            |> applyIfElement (fun el ->
+                el.innerHTML <- text.Trim()
+                applyClasses el
+                Event.notifyUpdated ctx.Document)
 
-        ctx.ParentNode.childNodes.toSeq() |> Seq.toArray
+            ctx.ParentNode.childNodes.toSeq() |> Seq.toArray
+        else
+            // Anchored build: writing the parent's innerHTML would destroy the enclosing
+            // binding's anchor, so parse in a scratch element and insert the results (#896).
+            let scratch = ctx.Document.createElement "div"
+            scratch.innerHTML <- text.Trim()
+            applyClasses scratch
+            Event.notifyUpdated ctx.Document
+
+            let nodes = scratch.childNodes.toSeq() |> Seq.toArray
+            nodes |> Array.iter ctx.AddChild
+            nodes
     )
 
 //
@@ -417,10 +434,9 @@ let fragment (elements: SutilElement seq) =
     SutilElement.Define( "fragment",
     fun ctx ->
         // The marker owns fragment-level registrations, giving them the lifetime the old
-        // fragment group had; it sits last in the array so removal runs its disposables
-        // after the content's, matching the old group disposal order (#896).
+        // fragment group had; it sits after the content in DOM and array alike, so removal
+        // runs its disposables after the content's, matching the old disposal order (#896).
         let marker : Node = upcast ctx.Document.createComment "fragment"
-        ctx.AddChild marker
 
         let childCtx = { ctx with Host = marker }
 
@@ -428,6 +444,8 @@ let fragment (elements: SutilElement seq) =
             elements
             |> Seq.map (fun e -> build e childCtx)
             |> Array.concat
+
+        ctx.AddChild marker
 
         Array.append childNodes [| marker |]
     )

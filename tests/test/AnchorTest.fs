@@ -187,6 +187,69 @@ describe "Sutil.Anchor" <| fun () ->
         return ()
     }
 
+    it "a foreign wipe of one binding's region leaves sibling subscribers alive" <| fun () -> promise {
+        // Red-team finding: destroying an anchor with non-Sutil DOM code must not turn
+        // later store updates into exceptions that starve the store's other subscribers.
+        let store = Store.make 0
+
+        let app =
+            Html.div [
+                Html.div [ Attr.id "regionA"; Bind.el (store, fun n -> Html.p [ text (sprintf "A%d" n) ]) ]
+                Html.div [ Attr.id "regionB"; Bind.el (store, fun n -> Html.p [ text (sprintf "B%d" n) ]) ]
+            ]
+
+        mountTestApp app
+
+        Expect.queryText "#regionA p" "A0"
+        Expect.queryText "#regionB p" "B0"
+
+        (currentEl.querySelector ("#regionA") :?> Browser.Types.HTMLElement).innerHTML <- ""
+
+        Store.set store 1
+        Expect.queryText "#regionB p" "B1"
+
+        Store.set store 2
+        Expect.queryText "#regionB p" "B2"
+        return ()
+    }
+
+    it "showIf works over fragment-rooted content" <| fun () -> promise {
+        let visible = Store.make true
+
+        let app = Html.div [ Transition.showIf visible (fragment [ Html.p [ text "frag" ] ]) ]
+
+        mountTestApp app
+
+        let display () =
+            (currentEl.querySelector ("p") :?> Browser.Types.HTMLElement).style.display
+
+        Expect.queryText "div p" "frag"
+        Expect.areEqual (display (), "")
+
+        Store.set visible false
+        Expect.areEqual (display (), "none")
+
+        Store.set visible true
+        Expect.areEqual (display (), "")
+        return ()
+    }
+
+    it "each renders a single-child fragment item root without an error node" <| fun () -> promise {
+        let items = Store.make [| 1; 2 |]
+
+        let app =
+            Html.div [
+                BindArray.each (items, (fun (n: int) -> fragment [ Html.p [ text (string n) ] ]), (fun (n: int) -> n))
+            ]
+
+        mountTestApp app
+
+        Expect.assertFalse (Expect.getInnerText().Contains("sutil-error")) "no error node rendered"
+        Expect.queryText "div :nth-child(1)" "1"
+        Expect.queryText "div :nth-child(2)" "2"
+        return ()
+    }
+
     it "showIf toggles visibility both ways on the built node" <| fun () -> promise {
         let visible = Store.make true
 

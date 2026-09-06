@@ -434,7 +434,8 @@ let transitionList (list : Hideable list) : SutilElement =
 
             if (rt.cache <> show) then
                 rt.cache <- show
-                resolveNodes rt.target |> Array.iter (fun node ->
+                // Only elements can animate; markers, anchors and text pass through resolveNodes (#896).
+                resolveNodes rt.target |> Array.filter isElementNode |> Array.iter (fun node ->
                         transitionNode (node :?> HTMLElement) rt.hideable.transOpt [] show ignore ignore )
         )
 
@@ -484,10 +485,10 @@ let transitionOpt   (trans : TransitionAttribute list)
             cache <- isVisible
             let trans' = if wantTransition then trans else []
 
-            resolveNodes target |> Array.iter (fun node ->
+            resolveNodes target |> Array.filter isElementNode |> Array.iter (fun node ->
                 transitionNode (node :?> HTMLElement) trans' [] isVisible ignore ignore
             )
-            resolveNodes targetElse |> Array.iter (fun node ->
+            resolveNodes targetElse |> Array.filter isElementNode |> Array.iter (fun node ->
                 transitionNode (node :?> HTMLElement) trans' [] (not isVisible) ignore ignore
             )
     )

@@ -580,7 +580,8 @@ and SutilGroup private (_name, _parent, _prevInit) as this =
             | Group g -> g.Dispose()
             | _ -> ()
 
-            if isNull insertBefore || oldChild = SideEffect then
+            // A null insertBefore only means we are last in our parent; a real oldChild must still be replaced (fsimgo#895)
+            if oldChild = SideEffect then
                 this.AddChild child
             else
                 this.OwnX child

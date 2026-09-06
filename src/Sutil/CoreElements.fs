@@ -30,7 +30,7 @@ let disposeOnUnmount (ds: IDisposable list) =
         "disposeOnUnmount",
         fun ctx ->
             ds
-            |> List.iter (fun d -> SutilEffect.RegisterDisposable(ctx.Parent, d))
+            |> List.iter (fun d -> SutilEffect.RegisterDisposable(ctx.Host, d))
     )
 
 /// <summary>
@@ -40,7 +40,7 @@ let unsubscribeOnUnmount (ds: (unit -> unit) list) =
     SutilElement.Define(
         "unsubscribeOnUnmount",
         fun ctx ->
-            ds |> List.iter (fun d -> SutilEffect.RegisterUnsubscribe(ctx.Parent, d))
+            ds |> List.iter (fun d -> SutilEffect.RegisterUnsubscribe(ctx.Host, d))
     )
 
 /// <summary>
@@ -295,7 +295,7 @@ let subscribe (source : System.IObservable<'T>) (handler : BuildContext -> 'T ->
     SutilElement.Define( "subscribe",
     fun ctx ->
         let unsub = source.Subscribe( handler ctx )
-        SutilEffect.RegisterDisposable(ctx.Parent,unsub)
+        SutilEffect.RegisterDisposable(ctx.Host,unsub)
     )
 
 open Fable.Core.JsInterop
@@ -339,7 +339,7 @@ let private _on<'E when 'E :> Browser.Types.Event> (event : string) (fn : 'E -> 
     let rec h (e:'E) =
         for opt in options do
             match opt with
-            | Once -> el.removeEventListener(event,unbox h)
+            | Once -> Interop.removeEventListener(el, event, h)
             | PreventDefault -> e.preventDefault()
             | StopPropagation -> e.stopPropagation()
             | StopImmediatePropagation -> e.stopImmediatePropagation()
@@ -363,7 +363,7 @@ let private _on<'E when 'E :> Browser.Types.Event> (event : string) (fn : 'E -> 
         ctx.OnMount.Add(ctx.ParentElement)
         Interop.set  ctx.ParentElement  "_onmount"  true  
 
-    SutilEffect.RegisterUnsubscribe( ctx.Parent,  fun _ -> el.removeEventListener(event,unbox handler) )
+    SutilEffect.RegisterUnsubscribe( ctx.Host,  fun _ -> Interop.removeEventListener(el, event, handler) )
 
 let on<'E when 'E :> Browser.Types.Event> (event : string) (fn : 'E -> unit) (options : EventModifier list) =
     SutilElement.Define( sprintf "on%s" event, _on event fn options)
@@ -415,11 +415,20 @@ let hookMountedElement (hook: HTMLElement -> unit) =
 let fragment (elements: SutilElement seq) =
     SutilElement.Define( "fragment",
     fun ctx ->
-        // No group: children build at the current insertion point and the fragment's
-        // top-level nodes are the concatenation of theirs (#896).
-        elements
-        |> Seq.map (fun e -> build e ctx)
-        |> Array.concat
+        // The marker owns fragment-level registrations, giving them the lifetime the old
+        // fragment group had; it sits last in the array so removal runs its disposables
+        // after the content's, matching the old group disposal order (#896).
+        let marker : Node = upcast ctx.Document.createComment "fragment"
+        ctx.AddChild marker
+
+        let childCtx = { ctx with Host = marker }
+
+        let childNodes =
+            elements
+            |> Seq.map (fun e -> build e childCtx)
+            |> Array.concat
+
+        Array.append childNodes [| marker |]
     )
 
 let lift (element : HTMLElement) =
@@ -432,7 +441,7 @@ let internal declareResource<'T when 'T :> IDisposable> (init: unit -> 'T) (f: '
     SutilElement.Define( "declareResource",
         fun ctx ->
             let r = init ()
-            SutilEffect.RegisterDisposable(ctx.Parent, r)
+            SutilEffect.RegisterDisposable(ctx.Host, r)
             f (r)
     )
 

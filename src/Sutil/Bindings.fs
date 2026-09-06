@@ -18,7 +18,7 @@ let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit
     SutilElement.Define( "bindSub",
     fun ctx ->
     let unsub = source.Subscribe( handler ctx )
-    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
+    SutilEffect.RegisterDisposable(ctx.Host,unsub)
     () )
 
 let elementFromException (x : exn) =
@@ -216,9 +216,9 @@ let bindSelected<'T when 'T : equality> (selection:IObservable<List<'T>>) (dispa
     // in case 'value' hasn't been set yet
     once Event.ElementReady selectElement <| fun _ ->
         let unsub = selection |> Store.subscribe (updateSelected)
-        SutilEffect.RegisterDisposable(ctx.Parent, unsub)
+        SutilEffect.RegisterDisposable(ctx.Host, unsub)
 
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,unsubInput)
     ()
     )
 
@@ -268,8 +268,8 @@ let bindGroup<'T> (store:Store<List<string>>) : SutilElement =
     // When store changes make sure check status is synced
     let unsub = store |> Store.subscribe (updateChecked)
 
-    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
+    SutilEffect.RegisterDisposable(ctx.Host,unsub)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,unsubInput)
     () )
 
 // T can realistically only be numeric or a string. We're relying (I think!) on JS's ability
@@ -300,8 +300,8 @@ let bindRadioGroup<'T> (store:Store<'T>) : SutilElement =
     // When store changes make sure check status is synced
     let unsub = store |> Store.subscribe updateChecked
 
-    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,inputUnsub)
+    SutilEffect.RegisterDisposable(ctx.Host,unsub)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,inputUnsub)
 
     () )
 
@@ -341,7 +341,7 @@ let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : SutilElement =
             store |> Store.subscribe (fun cls -> ctx.ParentElement.className <- (string cls))
         else
             store |> Store.subscribe (DomHelpers.setAttribute ctx.ParentElement attrName)
-    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
+    SutilEffect.RegisterDisposable(ctx.Host,unsub)
     () )
 
 /// Bind a store value to an element property.
@@ -353,7 +353,7 @@ let bindPropIn<'T> (propName:string) (store : IObservable<'T>) : SutilElement =
             store |> Store.subscribe (fun cls -> ctx.ParentElement.className <- (string cls))
         else
             store |> Store.subscribe (fun v -> Interop.set ctx.ParentElement propName v )
-    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
+    SutilEffect.RegisterDisposable(ctx.Host,unsub)
     () )
 
 // This is mis-named, but I'm going to leave it alone. It doesn't get attribute values. I think
@@ -364,7 +364,7 @@ let bindAttrOut<'T> (attrName:string) (onchange : 'T -> unit) : SutilElement =
     let parent = ctx.ParentNode
     let unsubInput = listen "input" parent <| fun _ ->
         Interop.get parent attrName |> onchange
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,unsubInput)
     () )
 
 // Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
@@ -377,7 +377,7 @@ let attrNotify<'T> (attrName:string) (value :'T) (onchange : 'T -> unit) : Sutil
     let unsubInput = listen "input" parent  <| fun _ ->
         Interop.get parent attrName |> onchange
     Interop.set parent attrName value
-    SutilEffect.RegisterUnsubscribe(ctx.Parent, unsubInput)
+    SutilEffect.RegisterUnsubscribe(ctx.Host, unsubInput)
     () )
 
 // Bind an observable value to an element attribute. Listen for onchange events and dispatch the
@@ -394,8 +394,8 @@ let bindListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (h
     let parent = ctx.ParentNode
     let unsubA = DomHelpers.listen event parent handler
     let unsubB = store |> Store.subscribe ( Interop.set parent attrName )
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubA)
-    SutilEffect.RegisterDisposable(ctx.Parent,unsubB)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,unsubA)
+    SutilEffect.RegisterDisposable(ctx.Host,unsubB)
     () )
 
 // Bind a store value to an element attribute. Listen for onchange events write the converted
@@ -427,7 +427,7 @@ let bindAttrStoreOut<'T> (attrName:string) (store : Store<'T>) : SutilElement =
     let unsubInput = DomHelpers.listen "input" parent <| fun _ ->
         Interop.get parent attrName |> convertObj<'T> |> Store.set store
     //(asEl parent).addEventListener("input", (fun _ -> Interop.get parent attrName |> convertObj<'T> |> Store.set store ))
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,unsubInput)
     ()
     )
 
@@ -685,7 +685,7 @@ let bindStore<'T> (init:'T) (app:Store<'T> -> Core.SutilElement) : Core.SutilEle
     SutilElement.Define( "bindStore",
     fun ctx ->
     let s = Store.make init
-    SutilEffect.RegisterDisposable(ctx.Parent,s)
+    SutilEffect.RegisterDisposable(ctx.Host,s)
     ctx |> (s |> app |> build)
     )
 
@@ -699,7 +699,7 @@ let bindStyle<'T> (value : IObservable<'T>) (f : CSSStyleDeclaration -> 'T -> un
     fun ctx ->
     let style = ctx.ParentElement.style
     let unsub = value.Subscribe(f style)
-    SutilEffect.RegisterDisposable( ctx.Parent, unsub )
+    SutilEffect.RegisterDisposable( ctx.Host, unsub )
     () )
 
 let bindElementStyle<'T> (value : IObservable<'T>) (f : HTMLElement -> CSSStyleDeclaration -> 'T -> unit) =
@@ -707,7 +707,7 @@ let bindElementStyle<'T> (value : IObservable<'T>) (f : HTMLElement -> CSSStyleD
     fun ctx ->
     let style = ctx.ParentElement.style
     let unsub = value.Subscribe(f ctx.ParentElement style)
-    SutilEffect.RegisterDisposable( ctx.Parent, unsub )
+    SutilEffect.RegisterDisposable( ctx.Host, unsub )
     () )
 
 let bindElementEffect<'T, 'E when 'E :> HTMLElement> (value : IObservable<'T>) (f : 'E -> 'T -> unit) =
@@ -715,7 +715,7 @@ let bindElementEffect<'T, 'E when 'E :> HTMLElement> (value : IObservable<'T>) (
     fun ctx ->
     let el = ctx.ParentElement :?> 'E
     let unsub = value.Subscribe(f el)
-    SutilEffect.RegisterDisposable( ctx.Parent, unsub )
+    SutilEffect.RegisterDisposable( ctx.Host, unsub )
     () )
 
 let bindWidthHeight (wh: IObservable<float*float>) =

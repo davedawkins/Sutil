@@ -106,6 +106,10 @@ and  BuildContext =
       /// New content inserts immediately before this node; null appends. A binding passes its
       /// anchor here, which is the whole replacement for the old sibling-walking arithmetic (#896).
       Before: Node
+      /// The node owning registrations made at this build position: the parent element normally,
+      /// a fragment's marker or a binding's anchor inside those, so registrations keep the
+      /// lifetime the old group tree gave them (#896).
+      Host: Node
       MakeName: (string -> string)
       Class: string option
       OnMount: ResizeArray<HTMLElement>
@@ -174,6 +178,7 @@ let private defaultContext (parent : Node) =
     { Document = parent.ownerDocument
       Parent = parent
       Before = null
+      Host = parent
       Class = None
       OnMount = Unchecked.defaultof<_>
       Debug = false
@@ -213,7 +218,8 @@ module ContextHelpers =
     let withParent (parent: Node) ctx : BuildContext =
         { ctx with
             Parent = parent
-            Before = null }
+            Before = null
+            Host = parent }
 
     let withParentNode (parent: Node) ctx : BuildContext = withParent parent ctx
 
@@ -222,7 +228,8 @@ module ContextHelpers =
     let withAnchor (anchor: Node) ctx : BuildContext =
         { ctx with
             Parent = anchor.parentNode
-            Before = anchor }
+            Before = anchor
+            Host = anchor }
 
 let internal errorNode (parent: Node) message : Node =
     let doc = documentOf parent

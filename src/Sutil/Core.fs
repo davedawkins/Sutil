@@ -17,7 +17,7 @@ let private log s = Logging.log "core" s
 /// <summary>
 /// Registration points for per-node cleanup. Disposables registered here run when the node
 /// unmounts. This is the only survivor of the old <c>SutilEffect</c> DU: bindings now anchor on a
-/// comment node and build results are plain <c>Node[]</c>, so effects no longer need a type (#896).
+/// comment node and build results are plain <c>Node[]</c>, so effects no longer need a type (fsimgo #896).
 /// </summary>
 [<AbstractClass; Sealed>]
 type SutilEffect =
@@ -104,11 +104,11 @@ and  BuildContext =
       /// The DOM node new content inserts into.
       Parent: Node
       /// New content inserts immediately before this node; null appends. A binding passes its
-      /// anchor here, which is the whole replacement for the old sibling-walking arithmetic (#896).
+      /// anchor here, which is the whole replacement for the old sibling-walking arithmetic (fsimgo #896).
       Before: Node
       /// The node owning registrations made at this build position: the parent element normally,
       /// a fragment's marker or a binding's anchor inside those, so registrations keep the
-      /// lifetime the old group tree gave them (#896).
+      /// lifetime the old group tree gave them (fsimgo #896).
       Host: Node
       MakeName: (string -> string)
       Class: string option
@@ -221,15 +221,19 @@ module ContextHelpers =
             Before = null
             Host = parent }
 
-    let withParentNode (parent: Node) ctx : BuildContext = withParent parent ctx
-
     /// Position subsequent builds immediately before the binding's anchor. Reads the anchor's
-    /// parent at call time, so a moved anchor (shadow root, external re-parenting) stays correct (#896).
+    /// parent at call time, so a moved anchor (shadow root, external re-parenting) stays correct (fsimgo #896).
     let withAnchor (anchor: Node) ctx : BuildContext =
         { ctx with
             Parent = anchor.parentNode
             Before = anchor
             Host = anchor }
+
+/// Create a binding's comment anchor at the current build position (fsimgo #896).
+let bindingAnchor (name : string) (ctx : BuildContext) : Node =
+    let anchor : Node = upcast ctx.Document.createComment name
+    ctx.AddChild anchor
+    anchor
 
 let internal errorNode (parent: Node) message : Node =
     let doc = documentOf parent
@@ -242,7 +246,7 @@ let internal errorNode (parent: Node) message : Node =
 /// <summary>
 /// Instantiate a <c>SutilElement</c>, returning the top-level DOM nodes it produced. Anchors in
 /// the result stand for bindings and hold their rendered content (see <c>DomHelpers.getBindNodes</c>).
-/// Every node in the result keeps its identity for the lifetime of its binding or mount (#896).
+/// Every node in the result keeps its identity for the lifetime of its binding or mount (fsimgo #896).
 /// </summary>
 let build (f: SutilElement) (ctx: BuildContext) : Node[] =
     (ctx, f.Builder ctx)
@@ -262,8 +266,7 @@ type ShadowRoot() =
     member internal this.appendChild(el: Browser.Types.Node) = jsNative
 
 let internal mountOnShadowRoot app (host: Node) : (unit -> unit) =
-    // Build into a fragment so nothing attaches to the host itself; anchors move with
-    // their content, so later rebinds still position correctly inside the shadow root (#896).
+    // A fragment keeps the host clean; anchors move with their content into the shadow root (fsimgo #896).
     let frag = host.ownerDocument.createDocumentFragment ()
     let nodes = build app { defaultContext host with Parent = (frag :> Node); OnMount = ResizeArray<_>() }
 

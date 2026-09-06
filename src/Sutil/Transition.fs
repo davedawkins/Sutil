@@ -415,10 +415,8 @@ let createHideableRuntime h =
 let transitionList (list : Hideable list) : SutilElement =
     SutilElement.Define( "transitionList",
     fun ctx ->
-    // The anchor pins the list's position: predicates can first fire long after siblings
-    // were appended, when the original insertion point would be stale (#896).
-    let anchor : Node = upcast ctx.Document.createComment "transitionList"
-    ctx.AddChild anchor
+    // The anchor pins the position for predicates that first fire after siblings appended (fsimgo #896).
+    let anchor = bindingAnchor "transitionList" ctx
 
     let runtimes = list |> List.map createHideableRuntime
 
@@ -434,7 +432,7 @@ let transitionList (list : Hideable list) : SutilElement =
 
             if (rt.cache <> show) then
                 rt.cache <- show
-                // Only elements can animate; markers, anchors and text pass through resolveNodes (#896).
+                // Only elements can animate; markers, anchors and text pass through resolveNodes (fsimgo #896).
                 resolveNodes rt.target |> Array.filter isElementNode |> Array.iter (fun node ->
                         transitionNode (node :?> HTMLElement) rt.hideable.transOpt [] show ignore ignore )
         )
@@ -461,10 +459,8 @@ let transitionOpt   (trans : TransitionAttribute list)
                     (elseElement : SutilElement option) : SutilElement =
     SutilElement.Define("transitionOpt",
     fun ctx ->
-    // Branches build once, lazily, and only toggle visibility after that; the anchor keeps
-    // their position stable however late the first store emission arrives (#896).
-    let anchor : Node = upcast ctx.Document.createComment "transition"
-    ctx.AddChild anchor
+    // Branches build once at the anchor, then only toggle visibility (fsimgo #896).
+    let anchor = bindingAnchor "transition" ctx
 
     let mutable target : Node[] = [||]
     let mutable cache = false

@@ -93,5 +93,5 @@ type Program() =
     /// the content and visibility of the modal.
     ///</summary>
     static member unmount( node : Node ) =
-        // removeNode also clears a binding anchor's rendered nodes (#896).
+        // removeNode also clears a binding anchor's rendered nodes (fsimgo #896).
         DomHelpers.removeNode node

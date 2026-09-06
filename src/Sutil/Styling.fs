@@ -279,7 +279,7 @@ let private applyCustomRulesToElement (rules : StyleRule list) (e: HTMLElement) 
 
 
 let private applyCustomRules (rules : StyleSheetDefinitions) (ctx: BuildContext, result : Node[]) =
-    // Idempotent per element; anchors and text nodes pass through applyIfElement untouched (#896).
+    // Idempotent per element; anchors and text nodes pass through applyIfElement untouched (fsimgo #896).
     result |> Array.iter (applyIfElement (rulesOf rules |> applyCustomRulesToElement))
     (ctx, result)
 

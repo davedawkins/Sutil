@@ -29,18 +29,10 @@ let elementFromException (x : exn) =
     ]
 
 
-// Create the binding's comment anchor at the current build position (#896).
-let private bindAnchor (name : string) (ctx : BuildContext) : Node =
-    let anchor = ctx.Document.createComment name
-    ctx.AddChild (anchor :> Node)
-    upcast anchor
-
-// Replace the binding's rendered nodes: build the new content immediately before the anchor,
-// record it, then remove the previous set — insert-before-delete, as ReplaceChild did (#896).
+// Insert the new content before the anchor, then delete the old set, as ReplaceChild did (fsimgo #896).
 let private rebuildAt (anchor : Node) (ctx : BuildContext) (se : SutilElement) : unit =
     if isNull anchor.parentNode then
-        // Non-Sutil DOM code destroyed the anchor: the binding is dead. Dispose it on the next
-        // frame (not inside this store notification) so sibling subscribers keep working (#896).
+        // Foreign code destroyed the anchor: dispose next frame so sibling subscribers keep working (fsimgo #896).
         Fable.Core.JS.console.error("sutil: binding anchor was removed by non-Sutil code; disposing binding", ctx.ParentNode)
         rafu (fun () -> cleanupDeep anchor)
     else
@@ -53,19 +45,22 @@ let private rebuildAt (anchor : Node) (ctx : BuildContext) (se : SutilElement) :
         | Some old -> old |> Array.iter removeNode
         | None -> ()
 
+// Rebuild, showing the standard error element when the view function throws (fsimgo #896).
+let private tryRebuild (anchor : Node) (ctx : BuildContext) (se : unit -> SutilElement) : unit =
+    try
+        rebuildAt anchor ctx (se ())
+    with
+    | x ->
+        JS.console.error("sutil: exception in bind: ", ctx.ParentNode, x)
+        rebuildAt anchor ctx (elementFromException x)
+
 let bindDelay<'T>  (view : HTMLElement -> SutilElement)=
     SutilElement.Define(
         "bindDelay",
         fun ctx ->
-            let anchor = bindAnchor "bindDelay" ctx
+            let anchor = bindingAnchor "bindDelay" ctx
 
-            let updateView (se : SutilElement) =
-                try
-                    rebuildAt anchor ctx se
-                with
-                | x ->
-                    JS.console.error(x)
-                    rebuildAt anchor ctx (elementFromException x)
+            let updateView (se : SutilElement) = tryRebuild anchor ctx (fun () -> se)
 
             updateView
                 (el "div" [
@@ -78,16 +73,11 @@ let bindDelay<'T>  (view : HTMLElement -> SutilElement)=
 let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (compare : 'T -> 'T -> bool)=
     SutilElement.Define( "bindElementC",
     fun ctx ->
-    let anchor = bindAnchor "bindc" ctx
+    let anchor = bindingAnchor "bindc" ctx
 
     let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
-        try
-            if logEnabled() then log($"bind: rebuild bindc with {next}")
-            rebuildAt anchor ctx (element next)
-        with
-        | x ->
-            JS.console.error(x)
-            rebuildAt anchor ctx (elementFromException x)
+        if logEnabled() then log($"bind: rebuild bindc with {next}")
+        tryRebuild anchor ctx (fun () -> element next)
     )
 
     SutilEffect.RegisterUnsubscribe( anchor, fun () ->
@@ -99,16 +89,11 @@ let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (c
 let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> SutilElement) (compare : 'T -> 'T -> bool)=
     SutilElement.Define( "bindElementCO",
     fun ctx ->
-    let anchor = bindAnchor "bindco" ctx
+    let anchor = bindingAnchor "bindco" ctx
 
     let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
-        try
-            if logEnabled() then log($"bind: rebuild bindco with {next}")
-            rebuildAt anchor ctx (element store)
-        with
-        | x ->
-            JS.console.error("sutil.bindElementCO:parentNode: ", ctx.ParentNode, "exception:", x)
-            rebuildAt anchor ctx (elementFromException x)
+        if logEnabled() then log($"bind: rebuild bindco with {next}")
+        tryRebuild anchor ctx (fun () -> element store)
     )
 
     SutilEffect.RegisterUnsubscribe( anchor, fun () ->
@@ -120,24 +105,18 @@ let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> Su
 let bindElement<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) : SutilElement=
     SutilElement.Define( "bindElement",
     fun ctx ->
-    let anchor = bindAnchor "bind" ctx
+    let anchor = bindingAnchor "bind" ctx
     let mutable _init = false
 
     let disposable = store |> Store.subscribe (fun next ->
 
-        // Diagnostic trail for rebuilds against a detached parent; the anchor is the
-        // binding's one stable node, so its connectedness is the truth (#895, #896).
+        // The anchor is the binding's one stable node, so its connectedness is the truth (fsimgo #895).
         if _init && not (nodeIsConnected anchor) then
             Fable.Core.JS.console.error($"NOT CONNECTED: bind ", ctx.ParentElement)
 
-        try
-            if logEnabled() then log($"bind: rebuild with {next}")
-            rebuildAt anchor ctx (element next)
-            _init <- true
-        with
-        | x ->
-            JS.console.error("sutil.bindElement:parentNode: ", ctx.ParentNode, "exception:", x)
-            rebuildAt anchor ctx (elementFromException x)
+        if logEnabled() then log($"bind: rebuild with {next}")
+        tryRebuild anchor ctx (fun () -> element next)
+        _init <- true
     )
 
     SutilEffect.RegisterUnsubscribe( anchor, fun () ->
@@ -152,7 +131,7 @@ let bindFragment = bindElement
 let bindElement2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> SutilElement) =
     SutilElement.Define("bindElement2",
     fun ctx ->
-    let anchor = bindAnchor "bind2" ctx
+    let anchor = bindingAnchor "bind2" ctx
 
     let d = Store.subscribe2 a b (fun next ->
         try
@@ -469,7 +448,7 @@ let bindPropBoth<'T> (propName:string) (value : IObservable<'T>) (onchange : 'T 
 
 type KeyedStoreItem<'T,'K> = {
     Key : 'K
-    // The item's stable top-level nodes: anchors for binding-rooted views, elements otherwise (#896).
+    // The item's stable top-level nodes: anchors for binding-rooted views, elements otherwise (fsimgo #896).
     Nodes : Node[]
     Position : IStore<int>
     Value: IStore<'T>
@@ -479,8 +458,8 @@ let private genEachId = Helpers.makeIdGenerator()
 
 
 let private asDomNode (nodes: Node[]) (ctx: BuildContext) : Node =
-    // Markers and empty anchors are bookkeeping, not content (#896).
-    match resolveNodes nodes |> Array.filter (fun n -> n.nodeType <> 8.0) with
+    // Markers and empty anchors are bookkeeping, not content (fsimgo #896).
+    match resolveNodes nodes |> Array.filter (fun n -> not (isCommentNode n)) with
     | [| n |] -> n
     | [||] -> errorNode ctx.Parent $"Error: Empty node"
     | xs ->
@@ -537,16 +516,14 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItem
 
     SutilElement.Define("eachiko_wrapper",
     fun ctx ->
-        let anchor : Node = upcast ctx.Document.createComment "each"
-        ctx.AddChild anchor
+        let anchor = bindingAnchor "each" ctx
 
         let mutable state = ([| |] : KeyedStoreItem<'T,'K> array) .ToCollectionWrapper()
         let eachId = genEachId() + 1
         let idKey = "svEachId"
         let setEid n = Interop.set n idKey eachId
 
-        // The item's current single element, resolved through any binding anchors at use time,
-        // which is what keeps this correct after inner rebinds replace the element (#896).
+        // Resolve at use time so inner rebinds that replaced the element stay visible (fsimgo #896).
         let itemElement (ki : KeyedStoreItem<'T,'K>) : HTMLElement =
             resolveNodes ki.Nodes
             |> Array.tryPick (fun n -> if isElementNode n then Some (n :?> HTMLElement) else None)
@@ -573,8 +550,7 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItem
                     let itemNode = asDomElement sutilNodes eachCtx
                     setEid itemNode
 
-                    // Keep the stable identities: a wrapped or empty result is owned by its
-                    // wrapper element, plus any anchors that need their subscriptions removed (#896).
+                    // A wrapped or empty result is owned by its wrapper, plus any anchors for disposal (fsimgo #896).
                     let nodes =
                         match resolveNodes sutilNodes with
                         | [| n |] when isSameNode n (itemNode :> Node) -> sutilNodes
@@ -625,8 +601,7 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItem
                     | ExitOption.Custom f ->
                         f (itemElement oldItem)
 
-            // Reorder against the anchor: walk the new state in reverse, moving each item's
-            // whole node set in front of the previously placed item (#896).
+            // Reorder by reverse walk from the anchor, moving whole item node sets (fsimgo #896).
             let itemsArr = newState.ToArray()
             let mutable nextRef : Node = anchor
             for i in itemsArr.Length-1 .. -1 .. 0 do

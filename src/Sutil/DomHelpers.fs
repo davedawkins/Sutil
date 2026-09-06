@@ -134,6 +134,12 @@ let isTextNode (n: Node) = n <> null && n.nodeType = TextNodeType
 /// Return true if n is an Element node (nodeType = 1)
 let isElementNode (n: Node) = n <> null && n.nodeType = ElementNodeType
 
+[<Literal>]
+let internal CommentNodeType = 8.0
+
+/// Return true if n is a Comment node (nodeType = 8)
+let isCommentNode (n: Node) = n <> null && n.nodeType = CommentNodeType
+
 // let asTryElement (n: Node) =
 //     if isElementNode n then
 //         Some(n :?> HTMLElement)
@@ -340,13 +346,13 @@ let clear (node: Node) =
     children node |> Array.ofSeq |> Array.iter unmount
 
 /// A binding anchor's current top-level nodes. Anchors are comment nodes that stand for a
-/// binding in the DOM for its whole life; their rendered output lives in this property (#896).
+/// binding in the DOM for its whole life; their rendered output lives in this property (fsimgo #896).
 let getBindNodes (node: Node) : (Node[]) option = NodeKey.get node NodeKey.BindNodes
 
-/// Record a binding anchor's current top-level nodes (#896).
+/// Record a binding anchor's current top-level nodes (fsimgo #896).
 let setBindNodes (node: Node) (nodes: Node[]) : unit = Interop.set node NodeKey.BindNodes nodes
 
-/// Remove a bound node: an anchor removes its rendered nodes first, then itself (#896).
+/// Remove a bound node: an anchor removes its rendered nodes first, then itself (fsimgo #896).
 let rec removeNode (node: Node) : unit =
     match getBindNodes node with
     | Some nodes -> nodes |> Array.iter removeNode
@@ -354,7 +360,7 @@ let rec removeNode (node: Node) : unit =
 
     unmount node
 
-/// Resolve anchors to their current rendered nodes; plain nodes pass through (#896).
+/// Resolve anchors to their current rendered nodes; plain nodes pass through (fsimgo #896).
 let rec internal resolveNodes (nodes: Node[]) : Node[] =
     nodes
     |> Array.collect (fun n ->
@@ -362,7 +368,7 @@ let rec internal resolveNodes (nodes: Node[]) : Node[] =
         | Some inner -> resolveNodes inner
         | None -> [| n |])
 
-/// Every DOM node a build result occupies, content before its anchor, for whole-set moves (#896).
+/// Every DOM node a build result occupies, content before its anchor, for whole-set moves (fsimgo #896).
 let rec internal expandNodes (nodes: Node[]) : Node[] =
     nodes
     |> Array.collect (fun n ->
@@ -564,43 +570,6 @@ let rec private findNode<'T> (parent: Node) (f: Node -> 'T option) : 'T option =
             | Some x -> null
 
     result
-
-let private prevSibling (node: Node) : Node =
-    match node with
-    | null -> null
-    | _ -> node.previousSibling
-
-let rec private lastSibling (node: Node) : Node =
-    if (isNull node || isNull node.nextSibling) then
-        node
-    else
-        lastSibling node.nextSibling
-
-let private lastChild (node: Node) : Node = lastSibling (node.firstChild)
-
-let rec private firstSiblingWhere (node: Node) (condition: Node -> bool) =
-    if isNull node then
-        null
-    else if condition node then
-        node
-    else
-        firstSiblingWhere (node.nextSibling) condition
-
-let private firstChildWhere (node: Node) (condition: Node -> bool) =
-    firstSiblingWhere node.firstChild condition
-
-let rec private lastSiblingWhere (node: Node) (condition: Node -> bool) =
-    if isNull node then
-        null
-    else if (condition node
-             && (isNull node.nextSibling
-                 || not (condition node.nextSibling))) then
-        node
-    else
-        lastSiblingWhere node.nextSibling condition
-
-let private lastChildWhere (node: Node) (condition: Node -> bool) =
-    lastSiblingWhere node.firstChild condition
 
 let rec internal visitElementChildren (parent: Node) (f: HTMLElement -> unit) =
     visitChildren parent (fun child ->

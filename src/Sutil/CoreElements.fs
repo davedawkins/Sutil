@@ -51,7 +51,7 @@ let exclusive (f: SutilElement) =
         "exclusive",
         fun ctx ->
             if logEnabled() then log $"exclusive {nodeStrShort ctx.Parent}"
-            // Spare the enclosing binding's own anchor; everything else goes (#896).
+            // Spare the enclosing binding's own anchor; everything else goes (fsimgo #896).
             DomHelpers.children ctx.ParentNode
             |> Array.ofSeq
             |> Array.filter (fun n -> not (isSameNode n ctx.Before))
@@ -199,8 +199,7 @@ let inject (elements: SutilElement seq) (element: SutilElement) =
         e
     )
 
-/// Create a TextNode. Public because fsimgo's teardown tests reference it directly, and
-/// dotnet build enforces the accessibility that Fable's whole-graph compilation does not (fsimgo #896).
+/// Create a TextNode. Public: fsimgo's teardown tests use it and dotnet build enforces accessibility (fsimgo #896).
 let text value : SutilElement =
     SutilElement.Define( "text", [],
         fun ctx ->
@@ -217,9 +216,9 @@ let setProperty<'T> (key: string) (value: 'T) =
 let setValue = setProperty
 
 /// <summary>
-/// An empty element. This could be considered the <c>unit</c> value for a <c>SutilElement</c>. It is very similar in effect <c>fragment []</c>, since
-/// neither will add any HTMLElements. The main difference is that <c>nothing</c> will make no changes at all to the DOM, while <c>fragment</c> will
-/// create an internal <c>SutilGroup</c> that is registered on the parent element as a property.
+/// An empty element. This could be considered the <c>unit</c> value for a <c>SutilElement</c>. It is very similar in effect to <c>fragment []</c>, since
+/// neither will add any HTMLElements. The main difference is that <c>nothing</c> makes no changes at all to the DOM, while <c>fragment</c> inserts
+/// a marker comment node that owns the fragment's registrations (fsimgo #896).
 /// </summary>
 let nothing =
     SutilElement.Define( "nothing", ignore )
@@ -274,8 +273,7 @@ let html (text : string) : SutilElement =
 
             ctx.ParentNode.childNodes.toSeq() |> Seq.toArray
         else
-            // Anchored build: writing the parent's innerHTML would destroy the enclosing
-            // binding's anchor, so parse in a scratch element and insert the results (#896).
+            // Anchored: parent innerHTML would destroy the enclosing binding's anchor (fsimgo #896).
             let scratch = ctx.Document.createElement "div"
             scratch.innerHTML <- text.Trim()
             applyClasses scratch
@@ -433,9 +431,7 @@ let hookMountedElement (hook: HTMLElement -> unit) =
 let fragment (elements: SutilElement seq) =
     SutilElement.Define( "fragment",
     fun ctx ->
-        // The marker owns fragment-level registrations, giving them the lifetime the old
-        // fragment group had; it sits after the content in DOM and array alike, so removal
-        // runs its disposables after the content's, matching the old disposal order (#896).
+        // The marker hosts fragment-level registrations and dies after the content, like the old group (fsimgo #896).
         let marker : Node = upcast ctx.Document.createComment "fragment"
 
         let childCtx = { ctx with Host = marker }

@@ -54,8 +54,7 @@ let windowIsDefined : bool = jsNative
 [<Emit("$0.addEventListener($1, $2)")>]
 let addEventListener (el : Browser.Types.EventTarget, name : string, f : obj) : unit = jsNative
 
-// Same-reference removal: the Browser.Types binding eta-expands an unboxed handler into a
-// fresh lambda, which removeEventListener silently ignores (fsimgo #896).
+// The Browser.Types binding eta-expands the handler, so removal never matches (fsimgo #896).
 [<Emit("$0.removeEventListener($1, $2)")>]
 let removeEventListener (el : Browser.Types.EventTarget, name : string, f : obj) : unit = jsNative
 

@@ -32,7 +32,7 @@ type private TrackedObservable<'T>(source: IObservable<'T>) =
 
 let private findBindAnchor (parent: Browser.Types.Node) : Browser.Types.Node =
     DomHelpers.children parent
-    |> Seq.tryFind (fun n -> n.nodeType = 8.0 && n.textContent = "bind")
+    |> Seq.tryFind (fun n -> DomHelpers.isCommentNode n && n.textContent = "bind")
     |> Option.defaultValue null
 
 describe "Sutil.Anchor" <| fun () ->
@@ -51,12 +51,50 @@ describe "Sutil.Anchor" <| fun () ->
         mountTestApp app
 
         Expect.queryNumChildren "div" 2
+        let baselineNodes = (currentEl.querySelector "div").childNodes.length
 
         for _ in 1..3 do
             store |> Store.modify ((+) 1)
 
+        // Comments and text count too: no node of any kind may accumulate (fsimgo #895).
         Expect.queryNumChildren "div" 2
+        Expect.areEqual ((currentEl.querySelector "div").childNodes.length, baselineNodes)
         Expect.queryText "div div" "3"
+        return ()
+    }
+
+    it "a timed fade completes and hides the node" <| fun () -> promise {
+        let visible = Store.make true
+
+        let app =
+            Html.div [
+                Transition.transition
+                    [ InOut (Transition.withProps [ Duration 40.0 ] TransitionFunctions.fade) ]
+                    visible
+                    (Html.p [ text "fady" ])
+            ]
+
+        // Animations only run on attached elements, so this test mounts into document.body.
+        let host = Browser.Dom.document.createElement "div"
+        Browser.Dom.document.body.appendChild host |> ignore
+        currentEl <- host
+        let mounted = Sutil.Program.mount (host, app)
+
+        let display () =
+            (host.querySelector ("p") :?> Browser.Types.HTMLElement).style.display
+
+        Expect.areEqual (display (), "")
+
+        Store.set visible false
+        do! Promise.sleep 500
+        Expect.areEqual (display (), "none")
+
+        Store.set visible true
+        do! Promise.sleep 500
+        Expect.areEqual (display (), "")
+
+        mounted.Dispose()
+        Browser.Dom.document.body.removeChild host |> ignore
         return ()
     }
 

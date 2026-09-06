@@ -50,8 +50,8 @@ let exclusive (f: SutilElement) =
     SutilElement.Define(
         "exclusive",
         fun ctx ->
-            if logEnabled() then log $"exclusive {ctx.Parent}"
-            ctx.Parent.Clear()
+            if logEnabled() then log $"exclusive {nodeStrShort ctx.Parent}"
+            clear ctx.ParentNode
             ctx |> build f
     )
 
@@ -105,13 +105,12 @@ let elns ns tag (xs: seq<SutilElement>) : SutilElement =
         fun ctx ->
             let e: Element = makeElementWithSutilId ctx.Document tag ns
     //        Fable.Core.JS.console.log(buildLevelStr(), "++ making ", nodeStrShort e)
-            let snodeEl = DomNode e
 
             ctx
-            |> ContextHelpers.withParent snodeEl
+            |> ContextHelpers.withParent (e :> Node)
             |> buildChildren xs
 
-            ctx.AddChild(DomNode e)
+            ctx.AddChild(e :> Node)
 
             // Effect 5
             //dispatchSimple e Event.ElementReady
@@ -139,7 +138,7 @@ let keyedEl (tag: string) (key: string) (init: seq<SutilElement>) (update: seq<S
                     let e' = ctx.Document.createElement (tag)
 
                     ctx
-                    |> ContextHelpers.withParent (DomNode e')
+                    |> ContextHelpers.withParent (e' :> Node)
                     |> buildChildren init
 
                     setSvId e' svid
@@ -152,12 +151,12 @@ let keyedEl (tag: string) (key: string) (init: seq<SutilElement>) (update: seq<S
 
             // Effect 1
             ctx
-            |> ContextHelpers.withParent (DomNode e)
+            |> ContextHelpers.withParent (e :> Node)
             |> buildChildren update
 
             if e.parentElement = null then
                 // Effect 40
-                ctx.AddChild(DomNode e)
+                ctx.AddChild(e :> Node)
                 // Effect 5
                 CustomDispatch<_>.dispatch(e,Event.ElementReady)
 
@@ -172,14 +171,12 @@ let internal elAppend selector (xs: seq<SutilElement>) : SutilElement =
         if isNull e then
             failwith ("Not found " + selector)
 
-        let snodeEl = DomNode e
-
         let id = domId ()
         if logEnabled() then log ("append <" + selector + "> #" + string id)
         setSvId e id
 
         ctx
-        |> ContextHelpers.withParent snodeEl
+        |> ContextHelpers.withParent (e :> Node)
         |> buildChildren xs
         ()
     )
@@ -190,10 +187,10 @@ let inject (elements: SutilElement seq) (element: SutilElement) =
     fun ctx ->
         let e = build element ctx
 
-        e.collectDomNodes ()
-        |> List.iter (fun n ->
+        resolveNodes e
+        |> Array.iter (fun n ->
             ctx
-            |> ContextHelpers.withParent (DomNode n)
+            |> ContextHelpers.withParent n
             |> buildChildren elements)
         e
     )
@@ -203,7 +200,7 @@ let internal text value : SutilElement =
     SutilElement.Define( "text", [],
         fun ctx ->
             let tn = DomHelpers.textNode ctx.Document value
-            ctx.AddChild(DomNode tn)
+            ctx.AddChild(tn)
             tn
     )
 
@@ -225,7 +222,7 @@ let nothing =
 let attr (name, value: obj) : SutilElement =
     SutilElement.Define( sprintf "attr %s=%A" name value,
         fun ctx ->
-        let parent = ctx.Parent.AsDomNode
+        let parent = ctx.ParentNode
 
         try
             let e = parent :?> HTMLElement
@@ -251,7 +248,7 @@ let attr (name, value: obj) : SutilElement =
 let html (text : string) : SutilElement =
     SutilElement.Define( "html",
     fun ctx ->
-        ctx.Parent.AsDomNode
+        ctx.ParentNode
         |> applyIfElement (fun el ->
             el.innerHTML <- text.Trim()
 
@@ -268,27 +265,19 @@ let html (text : string) : SutilElement =
 
             Event.notifyUpdated ctx.Document)
 
-        let nodes = ctx.ParentNode.childNodes.toSeq() |> Seq.toArray
-
-        if nodes.Length = 1 then
-            nodes.[0] |> DomNode |> sutilResult
-        else
-            let group = SutilEffect.MakeGroup( "html", ctx.Parent, ctx.Previous )
-            nodes |> Seq.iter (fun n -> group.AddChild(DomNode n))
-            group |> Group |> sutilResult
+        ctx.ParentNode.childNodes.toSeq() |> Seq.toArray
     )
 
 //
 // Builds the element and passes to post-processing function
 //
-let postProcess (f : SutilEffect -> SutilEffect) (view : SutilElement) : SutilElement =
+let postProcess (f : Node[] -> Node[]) (view : SutilElement) : SutilElement =
     SutilElement.Define( "postProcess", fun ctx -> ctx |> build view |> f )
 
 let postProcessElements (f : HTMLElement -> unit) (view : SutilElement) : SutilElement =
-    let helper (se : SutilEffect) =
-        Fable.Core.JS.console.log("post", se.ToString())
-        se.AsDomNode |> applyIfElement f
-        se
+    let helper (nodes : Node[]) =
+        nodes |> Array.iter (applyIfElement f)
+        nodes
     view |> postProcess helper
 
 let listenToResize (dispatch: HTMLElement -> unit) : SutilElement =
@@ -426,20 +415,11 @@ let hookMountedElement (hook: HTMLElement -> unit) =
 let fragment (elements: SutilElement seq) =
     SutilElement.Define( "fragment",
     fun ctx ->
-        let group =
-            SutilEffect.MakeGroup("fragment", ctx.Parent, ctx.Previous)
-
-        let fragmentNode = Group group
-        ctx.AddChild fragmentNode
-
-        let childCtx =
-            { ctx with
-                Parent = fragmentNode
-                Action = Append }
-
-        childCtx |> buildChildren elements
-
-        fragmentNode
+        // No group: children build at the current insertion point and the fragment's
+        // top-level nodes are the concatenation of theirs (#896).
+        elements
+        |> Seq.map (fun e -> build e ctx)
+        |> Array.concat
     )
 
 let lift (element : HTMLElement) =

@@ -112,7 +112,7 @@ module ObservableStore =
                 member _.SetLogCategories(states) =
                     Logging.initWith states
                 member _.PrettyPrint(id) =
-                    (DomHelpers.findNodeWithSvId Window.document id) |> Option.iter (fun n -> (Core.DomNode n).PrettyPrint("Node #" + string id))
+                    (DomHelpers.findNodeWithSvId Window.document id) |> Option.iter (fun n -> Fable.Core.JS.console.log("Node #" + string id, n))
                 member _.GetMountPoints() = [| |]
                     //Core.allMountPoints()
                     //    |> List.map (fun mp -> { new DevToolsControl.IMountPoint with

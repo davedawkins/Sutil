@@ -245,7 +245,7 @@ let adoptStyleSheet (styleSheet : StyleSheetDefinitions) =
 
         rootNode.adoptedStyleSheets <- Array.concat [ rootNode.adoptedStyleSheets; [| sheet |] ]
 
-    if ctx.Parent.IsConnected() then
+    if nodeIsConnected ctx.ParentNode then
         run()
     else
         rafu run
@@ -278,11 +278,9 @@ let private applyCustomRulesToElement (rules : StyleRule list) (e: HTMLElement) 
                 e.style.setProperty( nm, string v )
 
 
-let private applyCustomRules (rules : StyleSheetDefinitions) (ctx: BuildContext, result : SutilEffect) =
-    match result with
-    | DomNode n ->
-        n |> applyIfElement (rulesOf rules |> applyCustomRulesToElement)
-    | _ -> ()
+let private applyCustomRules (rules : StyleSheetDefinitions) (ctx: BuildContext, result : Node[]) =
+    // Idempotent per element; anchors and text nodes pass through applyIfElement untouched (#896).
+    result |> Array.iter (applyIfElement (rulesOf rules |> applyCustomRulesToElement))
     (ctx, result)
 
 /// <summary>
@@ -295,16 +293,14 @@ let withCustomRules (rules : StyleSheetDefinitions) (element : SutilElement) =
     |> ContextHelpers.withPostProcess (applyCustomRules rules)
     |> build element )
 
-let private applyStyleSheet (namedSheet : NamedStyleSheet) (ctx: BuildContext, result : SutilEffect)=
-    match result with
-    | DomNode _ ->
-        result.AsDomNode
-        |> applyIfElement
+let private applyStyleSheet (namedSheet : NamedStyleSheet) (ctx: BuildContext, result : Node[])=
+    result
+    |> Array.iter (
+        applyIfElement
             (fun el ->
                 if not (Interop.exists el NodeKey.StyleClass) then
                     Interop.set el (NodeKey.StyleClass) namedSheet.Name
-                    ClassHelpers.addToClasslist namedSheet.Name el)
-    | _ -> ()
+                    ClassHelpers.addToClasslist namedSheet.Name el))
     (ctx, result)
 
 let withStyle styleSheet (element : SutilElement) : SutilElement =

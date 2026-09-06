@@ -26,7 +26,7 @@ module internal NodeKey =
     let TickTask = "__sutil_tickTask"
     let Promise = "__sutil_promise"
     let NodeMap = "__sutil_nodes"
-    let Groups = "__sutil_groups"
+    let BindNodes = "__sutil_bind_nodes"
     let StyleClass = "__sutil_styleclass"
 
     let clear (node: Node) (key: string) = Interop.delete node key
@@ -338,6 +338,37 @@ let internal unmount (node: Node) : unit =
 /// Remove all children of this node, cleaning up Sutil resources and dispatching "unmount" events
 let clear (node: Node) =
     children node |> Array.ofSeq |> Array.iter unmount
+
+/// A binding anchor's current top-level nodes. Anchors are comment nodes that stand for a
+/// binding in the DOM for its whole life; their rendered output lives in this property (#896).
+let getBindNodes (node: Node) : (Node[]) option = NodeKey.get node NodeKey.BindNodes
+
+/// Record a binding anchor's current top-level nodes (#896).
+let setBindNodes (node: Node) (nodes: Node[]) : unit = Interop.set node NodeKey.BindNodes nodes
+
+/// Remove a bound node: an anchor removes its rendered nodes first, then itself (#896).
+let rec removeNode (node: Node) : unit =
+    match getBindNodes node with
+    | Some nodes -> nodes |> Array.iter removeNode
+    | None -> ()
+
+    unmount node
+
+/// Resolve anchors to their current rendered nodes; plain nodes pass through (#896).
+let rec internal resolveNodes (nodes: Node[]) : Node[] =
+    nodes
+    |> Array.collect (fun n ->
+        match getBindNodes n with
+        | Some inner -> resolveNodes inner
+        | None -> [| n |])
+
+/// Every DOM node a build result occupies, content before its anchor, for whole-set moves (#896).
+let rec internal expandNodes (nodes: Node[]) : Node[] =
+    nodes
+    |> Array.collect (fun n ->
+        match getBindNodes n with
+        | Some inner -> Array.append (expandNodes inner) [| n |]
+        | None -> [| n |])
 
 /// Add event listener using e.addEventListener. Return value is a (unit -> unit) function that will remove the event listener
 let listen (event: string) (e: EventTarget) (fn: (Event -> unit)) : (unit -> unit) =

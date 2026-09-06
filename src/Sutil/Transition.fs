@@ -399,7 +399,7 @@ type Hideable = {
 
 type HideableRuntime = {
     hideable : Hideable
-    mutable target : SutilEffect
+    mutable target : Node[]
     mutable cache : bool
     mutable unsubscribe : System.IDisposable
 }
@@ -407,30 +407,41 @@ type HideableRuntime = {
 let createHideableRuntime h =
     {
         hideable = h
-        target = SideEffect
+        target = [||]
         cache = false
         unsubscribe = null
     }
 
-
-let collectNodes (sn : SutilEffect option) = sn |> Option.map (fun n -> n.collectDomNodes()) |> Option.defaultValue []
-
 let transitionList (list : Hideable list) : SutilElement =
     SutilElement.Define( "transitionList",
     fun ctx ->
+    // The anchor pins the list's position: predicates can first fire long after siblings
+    // were appended, when the original insertion point would be stale (#896).
+    let anchor : Node = upcast ctx.Document.createComment "transitionList"
+    ctx.AddChild anchor
+
     let runtimes = list |> List.map createHideableRuntime
+
+    let syncBindNodes () =
+        setBindNodes anchor (runtimes |> Seq.collect (fun rt -> rt.target) |> Array.ofSeq)
+
     for rt in runtimes do
         rt.unsubscribe <- rt.hideable.predicate |> Store.subscribe ( fun show ->
-            if (rt.target.IsEmpty) then
-                rt.target <- build  rt.hideable.element ctx
+            if (Array.isEmpty rt.target) then
+                rt.target <- build rt.hideable.element (ctx |> ContextHelpers.withAnchor anchor)
                 rt.cache <- not show
+                syncBindNodes ()
 
             if (rt.cache <> show) then
                 rt.cache <- show
-                rt.target.collectDomNodes() |> List.iter (fun node ->
+                resolveNodes rt.target |> Array.iter (fun node ->
                         transitionNode (node :?> HTMLElement) rt.hideable.transOpt [] show ignore ignore )
         )
-    () )
+
+    SutilEffect.RegisterUnsubscribe( anchor, fun () ->
+        runtimes |> List.iter (fun rt -> if not (isNull rt.unsubscribe) then rt.unsubscribe.Dispose()) )
+
+    [| anchor |] )
 
 type MatchOption<'T> = ('T -> bool) *  SutilElement * TransitionAttribute list
 
@@ -449,38 +460,41 @@ let transitionOpt   (trans : TransitionAttribute list)
                     (elseElement : SutilElement option) : SutilElement =
     SutilElement.Define("transitionOpt",
     fun ctx ->
-    let transResult = SutilEffect.MakeGroup( "transition", ctx.Parent, ctx.Previous ) |> Group
-    ctx.AddChild transResult
-    let transCtx = ctx |> ContextHelpers.withParent transResult
+    // Branches build once, lazily, and only toggle visibility after that; the anchor keeps
+    // their position stable however late the first store emission arrives (#896).
+    let anchor : Node = upcast ctx.Document.createComment "transition"
+    ctx.AddChild anchor
 
-    let mutable target : SutilEffect = SideEffect
+    let mutable target : Node[] = [||]
     let mutable cache = false
-    let mutable targetElse : SutilEffect = SideEffect
+    let mutable targetElse : Node[] = [||]
 
     let unsub = store |> Store.subscribe (fun isVisible ->
-        let wantTransition = not target.IsEmpty
+        let wantTransition = not (Array.isEmpty target)
 
-        if target.IsEmpty then
-            target <- build element transCtx
+        if Array.isEmpty target then
+            target <- build element (ctx |> ContextHelpers.withAnchor anchor)
             cache <- not isVisible
             match elseElement with
-            | Some e -> targetElse <- build e transCtx
+            | Some e -> targetElse <- build e (ctx |> ContextHelpers.withAnchor anchor)
             | None -> ()
+            setBindNodes anchor (Array.append target targetElse)
 
         if cache <> isVisible then
             cache <- isVisible
             let trans' = if wantTransition then trans else []
 
-            target.collectDomNodes() |> List.iter (fun node ->
+            resolveNodes target |> Array.iter (fun node ->
                 transitionNode (node :?> HTMLElement) trans' [] isVisible ignore ignore
             )
-            targetElse.collectDomNodes() |> List.iter (fun node ->
+            resolveNodes targetElse |> Array.iter (fun node ->
                 transitionNode (node :?> HTMLElement) trans' [] (not isVisible) ignore ignore
             )
-            //if not (isNull targetElse) then transitionNode (targetElse :?> HTMLElement) trans' [] (not isVisible) ignore ignore
     )
 
-    transResult )
+    SutilEffect.RegisterUnsubscribe( anchor, fun () -> unsub.Dispose() )
+
+    [| anchor |] )
 
 /// Show or hide according to an IObservable&lt;bool> using a transition
 let transition (options : TransitionAttribute list) visibility element =

@@ -14,198 +14,15 @@ open Fable.Core
 let private logEnabled() = Logging.isEnabled "core"
 let private log s = Logging.log "core" s
 
-//let log s = Fable.Core.JS.console.log(s)
-
 /// <summary>
-/// A SutilEffect is the result of evaluating a SutilElement, and can be one of the following:
-/// <dl>
-///     <dt><code>SideEffect</code></dt>
-///     <dd>This usually means the SutilElement was an attribute, and its evaluation resulted in a DOM call such as setAttribute, or classlist.add, etc </dd>
-/// </dl>
-/// <dl>
-///     <dt><code>DomNode of Node</code></dt>
-///     <dd>The SutilElement created a DOM Node. This is usually a Text or an HTMLElement</dd>
-/// </dl>
-/// <dl>
-///     <dt><code>Group of SutilGroup</code></dt>
-///     <dd>A SutilGroup has been created</dd>
-/// </dl>
+/// Registration points for per-node cleanup. Disposables registered here run when the node
+/// unmounts. This is the only survivor of the old <c>SutilEffect</c> DU: bindings now anchor on a
+/// comment node and build results are plain <c>Node[]</c>, so effects no longer need a type (fsimgo #896).
 /// </summary>
+[<AbstractClass; Sealed>]
 type SutilEffect =
-    | SideEffect // Not set
-    | DomNode of Node // A real browser DOM node
-    | Group of SutilGroup // A group of SutilEffects
-    member private this.mapDefault f defaultValue =
-        match this with
-        | DomNode n -> f n
-        | Group n -> n.MapParent(f)
-        | _ -> defaultValue
-
-    member private this.iter f = this.mapDefault f ()
-
-    member internal this.IsConnected() =
-        match this with
-        | SideEffect -> false
-        | DomNode n -> nodeIsConnected n
-        | Group g -> g.IsConnected()
-
-    static member private GetGroups(node: Node) =
-        let groups: (SutilGroup list) option = NodeKey.get node NodeKey.Groups
-        groups
-
-    static member private GetCreateGroups(node: Node) =
-        let groups: (SutilGroup list) =
-            NodeKey.getCreate node NodeKey.Groups (fun () -> [])
-
-        groups
-
-    static member private CleanupGroups(n: Node) =
-        let groups = SutilEffect.GetGroups(n)
-
-        groups
-        |> Option.iter (
-            List.iter (fun g -> g.Dispose())
-        )
-
-        NodeKey.clear n NodeKey.Groups
-
-    member this.Register(childGroup: SutilGroup) =
-        match this with
-        | SideEffect -> ()
-        | DomNode n ->
-            let groups = SutilEffect.GetCreateGroups(n)
-
-            if List.isEmpty groups then
-                SutilEffect.RegisterUnsubscribe(n, (fun _ -> SutilEffect.CleanupGroups n))
-
-            Interop.set n NodeKey.Groups (groups @ [ childGroup ])
-        | Group g -> g.Register(childGroup)
-
-    member internal this.PrettyPrint(label: string) =
-        let rec pr level deep node =
-            let indent l = String(' ', l * 4)
-            let log l s = log ((indent l) + s)
-
-            let rec prDomNode l (dn: Node) =
-                let groups = SutilGroup.GroupsOf dn
-                let l' = l + groups.Length
-
-                groups
-                |> List.iteri (fun i g -> log (l + i) $"<'{g.Name}'> #{g.Id}")
-
-                match dn with
-                | null -> log l "(null)"
-                | t when isTextNode (t) -> log l $"'{t.textContent}'"
-                | _ ->
-                    let e = dn :?> HTMLElement
-                    log l' ("<" + e.tagName + "> #" + (string (svId e)))
-
-                    if deep then
-                        children e |> Seq.iter (prDomNode (l' + 1))
-
-                        if Interop.exists e NodeKey.Groups then
-                            let groups: SutilGroup list = (Interop.get e NodeKey.Groups)
-
-                            for g in groups do
-                                prVNode (l' + 1) g
-
-            and prVNode level v =
-                let ch =
-                    String.Join(
-                        ",",
-                        v.Children
-                        |> List.map (fun (c: SutilEffect) -> "#" + c.Id)
-                    )
-
-                log
-                    level
-                    ("group '"
-                     + v.Name
-                     + "' #"
-                     + (v.Id)
-                     + " children=["
-                     + ch
-                     + "]")
-
-            match node with
-            | SideEffect -> log level "-"
-            | DomNode n -> prDomNode level n
-            | Group v -> prVNode level v
-
-        Browser.Dom.console.groupCollapsed (label)
-        pr 0 true this
-        Browser.Dom.console.groupEnd ()
-
-    member internal this.Id
-        with get (): string =
-            match this with
-            | SideEffect -> "-"
-            | DomNode n -> svId n
-            | Group v -> v.Id
-        and set id =
-            match this with
-            | SideEffect -> ()
-            | DomNode n -> setSvId n id
-            | Group v -> v.Id <- id
-
-    member internal this.IsSameNode(node: SutilEffect) =
-        match this, node with
-        | SideEffect, SideEffect -> true
-        | DomNode a, DomNode b -> a.isSameNode (b)
-        | Group a, Group b -> a.Id = b.Id
-        | _ -> false
-
-    member internal this.Document =
-        match this with
-        | SideEffect -> window.document
-        | DomNode n -> n.ownerDocument
-        | Group v -> v.Document
-
-    member internal this.IsEmpty = this = SideEffect
-
-    member internal this.PrevNode =
-        match this with
-        | SideEffect -> SideEffect
-        | DomNode n -> DomNode(n.previousSibling)
-        | Group v -> v.PrevNode
-
-    member private this.NextDomNode =
-        match this with
-        | SideEffect -> null
-        | DomNode node ->
-            if isNull node then
-                null
-            else
-                node.nextSibling
-        | Group g -> g.NextDomNode
-
-    // All descendant DOM nodes of this SutilEffect. Only groups recurse to their children,
-    // we only want the first (parent) DOM node.
-    member internal this.collectDomNodes() = this.DomNodes()
-
-    member internal this.DomNodes() =
-        match this with
-        | SideEffect -> []
-        | DomNode n -> [ n ]
-        | Group v -> v.DomNodes()
-
-    member public this.AsDomNode = this.mapDefault id null
-
-    member node.Dispose() =
-        match node with
-        | Group v -> v.Dispose()
-        | DomNode n ->  unmount n // cleanupDeep n
-        | _ -> ()
-
     static member RegisterDisposable(node: Node, d: IDisposable) : unit =
         Interop.set node NodeKey.Disposables (d :: getDisposables (node))
-
-    static member RegisterDisposable(node: SutilEffect, d: IDisposable) : unit =
-        if logEnabled() then log $"register disposable on {node}"
-        match node with
-        | SideEffect -> ()
-        | DomNode n -> SutilEffect.RegisterDisposable(n, d)
-        | Group v -> v.RegisterUnsubscribe(fun _ -> d.Dispose())
 
     static member RegisterUnsubscribe(node: Node, d: unit -> unit) : unit =
         SutilEffect.RegisterDisposable(node, Helpers.disposable d)
@@ -633,12 +450,12 @@ type MountListeners() =
         MountListeners.OnMountWithIsRoot( fun node isRoot -> f node )
 
     /// findNode takes the just-mounted node and returns either null or the matching node
-    /// None will be passed 
+    /// None will be passed
     static member WaitUntil<'T when 'T :> Node>( matcher : 'T -> 'T option, f : 'T -> unit ) : (unit -> unit) =
         let mutable stop = ignore
         let mutable disposed = false
 
-        let dispose() = 
+        let dispose() =
             if not disposed then
                 stop()
                 disposed <- true
@@ -647,8 +464,8 @@ type MountListeners() =
             if not disposed then
                 dispose()
                 f node
-                
-        let tryMatch (mounted : 'T) (succ : 'T -> unit) = 
+
+        let tryMatch (mounted : 'T) (succ : 'T -> unit) =
             matcher mounted |> Option.iter succ
 
         stop <- MountListenersInternal.onMount( fun mounted _ -> tryMatch mounted matched )
@@ -659,47 +476,38 @@ type MountListeners() =
         let findNode( _ ) : Node option =
             let node = document.querySelector(selector)
             if isNull node then None else Some node
-        
+
         match findNode(null) with
-        | Some matched -> 
+        | Some matched ->
             f matched
             ignore
         | None ->
             MountListeners.WaitUntil( findNode, f )
 
-let private notifySutilEvents (parent : SutilEffect) (node : SutilEffect) (onMountElements : ResizeArray<HTMLElement>) =
-    if (parent.IsConnected()) then
+let private notifySutilEvents (parent : Node) (onMountElements : ResizeArray<HTMLElement>) =
+    if not (isNull (box onMountElements)) && nodeIsConnected parent then
         let _nodes = onMountElements.ToArray()
         onMountElements.Clear()
         _nodes |> Array.iter (fun n ->
                 CustomDispatch<_>.dispatch(n,Event.Connected)
                 CustomDispatch<_>.dispatch(n,Event.Mount)
                 MountListenersInternal.notifyOnMountListeners(n, true)
-
-                // n
-                // |> DomHelpers.descendants
-                // |> Seq.filter DomHelpers.isElementNode
-                // |> Seq.toArray
-                // |> Array.iter (fun n ->  
-                //     CustomDispatch<_>.dispatch(n,Event.Mount)
-                //     MountListenersInternal.notifyOnMountListeners(n,false)
-                // )
             )
 
-/// <exclude/>
-type DomAction =
-    | Append // appendChild
-    | Replace of SutilEffect * Node // bindings use this to replace the previous DOM fragment
-    | Nothing
-
-type PipelineFn = (BuildContext*SutilEffect) ->  (BuildContext*SutilEffect)
+type PipelineFn = (BuildContext * Node[]) ->  (BuildContext * Node[])
 
 /// <exclude/>
 and  BuildContext =
     { Document: Browser.Types.Document
-      Parent: SutilEffect
-      Previous: SutilEffect
-      Action: DomAction
+      /// The DOM node new content inserts into.
+      Parent: Node
+      /// New content inserts immediately before this node; null appends. A binding passes its
+      /// anchor here, which is the whole replacement for the old sibling-walking arithmetic (fsimgo #896).
+      Before: Node
+      /// The node owning registrations made at this build position: the parent element normally,
+      /// a fragment's marker or a binding's anchor inside those, so registrations keep the
+      /// lifetime the old group tree gave them (fsimgo #896).
+      Host: Node
       MakeName: (string -> string)
       Class: string option
       OnMount: ResizeArray<HTMLElement>
@@ -707,48 +515,32 @@ and  BuildContext =
       Pipeline : PipelineFn
       }
 
-    member this.ParentElement: HTMLElement = this.Parent.AsDomNode :?> HTMLElement
-    member this.ParentNode: Node = this.Parent.AsDomNode
+    member this.ParentElement: HTMLElement = this.Parent :?> HTMLElement
+    member this.ParentNode: Node = this.Parent
 
-    member ctx.AddChild(node: SutilEffect) : unit =
-        match ctx.Action with
-        | Nothing -> ()
+    member ctx.AddChild(node: Node) : unit =
+        if logEnabled() then log $"ctx.AddChild '{nodeStrShort node}' to '{nodeStrShort ctx.Parent}' before {nodeStrShort ctx.Before}"
+        DomEdit.insertBefore ctx.Parent node ctx.Before
+        notifySutilEvents ctx.Parent (ctx.OnMount)
 
-        | Append ->
-            if logEnabled() then log $"ctx.Append '{node}' to '{ctx.Parent}' after {ctx.Previous}"
-            ctx.Parent.InsertAfter(node, ctx.Previous)
+let internal domResult (node: Node) : Node[] = [| node |]
 
-            notifySutilEvents ctx.Parent node (ctx.OnMount)
-
-        | Replace (existing, insertBefore) ->
-            if logEnabled() then log $"ctx.Replace '{existing}' with '{node}' before '{nodeStrShort insertBefore}'"
-            ctx.Parent.ReplaceGroup(node, existing, insertBefore)
-
-            notifySutilEvents ctx.Parent node (ctx.OnMount)
-        ()
-
-
-let internal domResult (node: Node) = DomNode node
-let internal sutilResult (node: SutilEffect) = node
-
-let internal sideEffect (ctx, name) =
-    let text () =
+let internal sideEffect (ctx, name) : Node[] =
+    if ctx.Debug then
         let tn = ctx.Document.createTextNode name
         let d = ctx.Document.createElement ("div")
         DomEdit.appendChild d tn
-        ctx.AddChild(DomNode d)
-        d
-
-    if ctx.Debug then
-        DomNode(text ())
+        ctx.AddChild(d :> Node)
+        [| d :> Node |]
     else
-        SideEffect
+        [||]
+
 /// <summary>
 /// Sutil's element type. This is an abstraction of DOM elements, attributes, events, etc.
-/// The type itself is a function that maps <c>BuildContext</c> to a <c>SutilEffect</c>,
+/// The type itself is a function that maps <c>BuildContext</c> to the top-level DOM nodes produced,
 /// wrapped in a private record to isolate users from implementation details as much as possible:
 /// <code>
-/// type SutilElement = private { Builder: BuildContext -> SutilEffect }
+/// type SutilElement = private { Builder: BuildContext -> Node[] }
 /// </code>
 ///
 /// Examples of SutilElements:
@@ -762,19 +554,19 @@ let internal sideEffect (ctx, name) =
 /// </ul>
 ///
 /// </summary>
-type SutilElement private (name : string, children : seq<SutilElement>, builder : BuildContext -> SutilEffect) =
+type SutilElement private (name : string, children : seq<SutilElement>, builder : BuildContext -> Node[]) =
     do ()
-    static member Define( builder : BuildContext -> SutilEffect ) =
+    static member Define( builder : BuildContext -> Node[] ) =
         SutilElement( "", [], builder )
 
-    static member Define( name : string, builder : BuildContext -> SutilEffect ) =
+    static member Define( name : string, builder : BuildContext -> Node[] ) =
         SutilElement( name, [], builder )
 
     static member Define( name : string, builder : BuildContext -> unit ) =
         SutilElement( name, [], (fun ctx -> ctx |> builder;  sideEffect(ctx, name)) )
 
     static member Define( name : string, children : seq<SutilElement>, builder : BuildContext -> Node ) =
-        SutilElement( name, children, fun ctx -> ctx |> builder |> DomNode )
+        SutilElement( name, children, fun ctx -> [| ctx |> builder |] )
 
     member internal __.Builder = builder
 
@@ -782,10 +574,9 @@ let private defaultContext (parent : Node) =
     let gen = Helpers.makeIdGenerator ()
 
     { Document = parent.ownerDocument
-      Parent = DomNode parent
-      Previous = SideEffect
-      Action = Append
-//      StyleSheet = None
+      Parent = parent
+      Before = null
+      Host = parent
       Class = None
       OnMount = Unchecked.defaultof<_>
       Debug = false
@@ -814,13 +605,6 @@ let private makeContext (parent: Node) =
             |> Option.bind (fun e -> getSutilClasses e |> List.tryHead)
     }
 
-let private makeShadowContext (customElement: Node) =
-    { defaultContext customElement with
-        OnMount = new ResizeArray<_>()
-        Action = Nothing
-    }
-
-
 module ContextHelpers =
     let withStyleSheet sheet ctx : BuildContext = ctx //{ ctx with StyleSheet = Some sheet }
 
@@ -829,63 +613,50 @@ module ContextHelpers =
     let withPreProcess f (ctx:BuildContext) = { ctx with Pipeline = (f>>ctx.Pipeline) }
     let withPostProcess f (ctx:BuildContext) = { ctx with Pipeline = (ctx.Pipeline>>f) }
 
-    let withParent parent ctx : BuildContext =
+    let withParent (parent: Node) ctx : BuildContext =
         { ctx with
             Parent = parent
-            Action = Append }
+            Before = null
+            Host = parent }
 
-    let withPrevious prev ctx : BuildContext = { ctx with Previous = prev }
+    /// Position subsequent builds immediately before the binding's anchor. Reads the anchor's
+    /// parent at call time, so a moved anchor (shadow root, external re-parenting) stays correct (fsimgo #896).
+    let withAnchor (anchor: Node) ctx : BuildContext =
+        { ctx with
+            Parent = anchor.parentNode
+            Before = anchor
+            Host = anchor }
 
-    let withParentNode parent ctx : BuildContext = withParent (DomNode parent) ctx
+/// Create a binding's comment anchor at the current build position (fsimgo #896).
+let bindingAnchor (name : string) (ctx : BuildContext) : Node =
+    let anchor : Node = upcast ctx.Document.createComment name
+    ctx.AddChild anchor
+    anchor
 
-    let withReplace (toReplace: SutilEffect, before: Node) ctx =
-        { ctx with Action = Replace(toReplace, before) }
-
-let internal errorNode (parent: SutilEffect) message : Node =
-    let doc = parent.Document
+let internal errorNode (parent: Node) message : Node =
+    let doc = documentOf parent
     let d = doc.createElement ("div")
     DomEdit.appendChild d (doc.createTextNode ($"sutil-error: {message}"))
-    parent.AppendChild(d)
+    DomEdit.appendChild parent d
     d.setAttribute ("style", "color: red; padding: 4px; font-size: 10px;")
     upcast d
 
 /// <summary>
-/// Instantiate a <c>SutilElement</c>.
+/// Instantiate a <c>SutilElement</c>, returning the top-level DOM nodes it produced. Anchors in
+/// the result stand for bindings and hold their rendered content (see <c>DomHelpers.getBindNodes</c>).
+/// Every node in the result keeps its identity for the lifetime of its binding or mount (fsimgo #896).
 /// </summary>
-let build (f: SutilElement) (ctx: BuildContext) =
+let build (f: SutilElement) (ctx: BuildContext) : Node[] =
     (ctx, f.Builder ctx)
     |> ctx.Pipeline
     |> snd
 
-let internal buildOnly (f: SutilElement) (ctx: BuildContext) =
+let internal buildOnly (f: SutilElement) (ctx: BuildContext) : Node[] =
     f.Builder ctx
 
-let private pipelineDispatchMount (ctx : BuildContext, result : SutilEffect) =
-    match result with
-    | DomNode n -> CustomDispatch<_>.dispatch(n,Event.Mount)
-    | _ -> ()
-    (ctx,result)
-
-let private pipelineAddClass (ctx: BuildContext, result : SutilEffect) =
-    match ctx.Class, result with
-    | Some cls, DomNode _ ->
-        result.AsDomNode
-        |> applyIfElement (ClassHelpers.addToClasslist cls)
-    | _ -> ()
-    (ctx, result)
-
 let internal buildChildren (xs: seq<SutilElement>) (ctx: BuildContext) : unit =
-    let e = ctx.Parent
-
-    let mutable prev = SideEffect
-
     for x in xs do
-        //log($"  buildChildren: prev={prev}")
-        match ctx |> ContextHelpers.withPrevious prev |> build x with
-        | SideEffect -> ()
-        | r -> prev <- r
-
-    ()
+        build x ctx |> ignore
 
 /// <exclude/>
 [<Global>]
@@ -893,30 +664,32 @@ type ShadowRoot() =
     member internal this.appendChild(el: Browser.Types.Node) = jsNative
 
 let internal mountOnShadowRoot app (host: Node) : (unit -> unit) =
-    let el = build app (makeShadowContext host)
+    // A fragment keeps the host clean; anchors move with their content into the shadow root (fsimgo #896).
+    let frag = host.ownerDocument.createDocumentFragment ()
+    let nodes = build app { defaultContext host with Parent = (frag :> Node); OnMount = ResizeArray<_>() }
 
-    match el with
-    | DomNode node ->
-        let shadowRoot: ShadowRoot = host?shadowRoot
-        shadowRoot.appendChild (node)
-    | Group group ->
-        let shadowRoot: ShadowRoot = host?shadowRoot
+    if Array.isEmpty nodes then
+        failwith "Custom components must return at least one node"
 
-        for node in group.DomNodes() do
-            shadowRoot.appendChild (node)
-    | SideEffect -> failwith "Custom components must return at least one node"
+    let shadowRoot: ShadowRoot = host?shadowRoot
+
+    while not (isNull frag.firstChild) do
+        shadowRoot.appendChild (frag.firstChild)
 
     let dispose () =
-        el.Dispose()
+        nodes |> Array.iter removeNode
 
     dispose
 
-let internal mount app ((op,eref) : MountPoint) =
+let internal mount app ((op,eref) : MountPoint) : IDisposable =
     let node = eref.AsElement
 
-    match op with
-    | AppendTo ->
-        build app (makeContext node)
+    let nodes =
+        match op with
+        | AppendTo ->
+            build app (makeContext node)
 
-    | InsertAfter ->
-        build app { (makeContext node.parentElement) with Previous = DomNode node }
+        | InsertAfter ->
+            build app { (makeContext node.parentElement) with Before = node.nextSibling }
+
+    Helpers.disposable (fun () -> nodes |> Array.iter removeNode)

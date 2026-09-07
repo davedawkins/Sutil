@@ -18,7 +18,7 @@ let bindSub<'T> (source : IObservable<'T>) (handler : BuildContext -> 'T -> unit
     SutilElement.Define( "bindSub",
     fun ctx ->
     let unsub = source.Subscribe( handler ctx )
-    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
+    SutilEffect.RegisterDisposable(ctx.Host,unsub)
     () )
 
 let elementFromException (x : exn) =
@@ -29,165 +29,120 @@ let elementFromException (x : exn) =
     ]
 
 
+// Insert the new content before the anchor, then delete the old set, as ReplaceChild did (fsimgo #896).
+let private rebuildAt (anchor : Node) (ctx : BuildContext) (se : SutilElement) : unit =
+    if isNull anchor.parentNode then
+        // Foreign code destroyed the anchor: dispose next frame so sibling subscribers keep working (fsimgo #896).
+        Fable.Core.JS.console.error("sutil: binding anchor was removed by non-Sutil code; disposing binding", ctx.ParentNode)
+        rafu (fun () -> cleanupDeep anchor)
+    else
+        let previous = getBindNodes anchor
+
+        let nodes = build se (ctx |> ContextHelpers.withAnchor anchor)
+        setBindNodes anchor nodes
+
+        match previous with
+        | Some old -> old |> Array.iter removeNode
+        | None -> ()
+
+// Rebuild, showing the standard error element when the view function throws (fsimgo #896).
+let private tryRebuild (anchor : Node) (ctx : BuildContext) (se : unit -> SutilElement) : unit =
+    try
+        rebuildAt anchor ctx (se ())
+    with
+    | x ->
+        JS.console.error("sutil: exception in bind: ", ctx.ParentNode, x)
+        rebuildAt anchor ctx (elementFromException x)
+
 let bindDelay<'T>  (view : HTMLElement -> SutilElement)=
-    SutilElement.Define( 
+    SutilElement.Define(
         "bindDelay",
         fun ctx ->
-            let group = SutilEffect.MakeGroup("bindDelay",ctx.Parent,ctx.Previous)
-            let bindNode = Group group
+            let anchor = bindingAnchor "bindDelay" ctx
 
-            ctx.AddChild bindNode
+            let updateView (se : SutilElement) = tryRebuild anchor ctx (fun () -> se)
 
-            let run() =
-                let mutable node = SideEffect
-                let bindCtx = { ctx with Parent = bindNode }
+            updateView
+                (el "div" [
+                    onMount (fun _ -> rafu2 (fun _ -> updateView (view ctx.ParentElement))) []
+                ])
 
-                let updateView (se : SutilElement) =
-                    try
-                        node <- build se (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
-                    with
-                    | x ->
-                        JS.console.error(x)
-                        node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
-
-                updateView 
-                    (el "div" [
-                        onMount (fun _ -> rafu2 (fun _ -> updateView (view ctx.ParentElement))) []
-                    ])
-
-                group.RegisterUnsubscribe ( fun () ->
-                    node.Dispose()
-                )
-
-            run()
-
-            bindNode 
+            [| anchor |]
     )
 
 let bindElementC<'T>  (store : IObservable<'T>) (element: 'T -> SutilElement) (compare : 'T -> 'T -> bool)=
     SutilElement.Define( "bindElementC",
     fun ctx ->
-    let mutable node = SideEffect
-    let group = SutilEffect.MakeGroup("bindc",ctx.Parent,ctx.Previous)
-    let bindNode = Group group
+    let anchor = bindingAnchor "bindc" ctx
 
-    if logEnabled() then log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
-    ctx.AddChild bindNode
+    let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
+        if logEnabled() then log($"bind: rebuild bindc with {next}")
+        tryRebuild anchor ctx (fun () -> element next)
+    )
 
-    let run() =
-        let bindCtx = { ctx with Parent = bindNode }
-        let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
-            try
-                if logEnabled() then log($"bind: rebuild {group.Id} with {next}")
-                node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
-            with
-            | x ->
-                //Logging.error $"Exception in bindo: {x.StackTrace}: parent={ctx.Parent} node={node.ToString()}"
-                JS.console.error(x)
-                node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+    SutilEffect.RegisterUnsubscribe( anchor, fun () ->
+        if logEnabled() then log($"dispose: Bind.el (bindc)")
+        disposable.Dispose())
 
-        )
-        group.RegisterUnsubscribe ( fun () ->
-            if logEnabled() then log($"dispose: Bind.el: {group}")
-            node.Dispose()
-            disposable.Dispose())
-
-    run()
-
-    bindNode )
+    [| anchor |] )
 
 let bindElementCO<'T>  (store : IObservable<'T>) (element: IObservable<'T> -> SutilElement) (compare : 'T -> 'T -> bool)=
     SutilElement.Define( "bindElementCO",
     fun ctx ->
-    let mutable node = SideEffect
-    let group = SutilEffect.MakeGroup("bindco",ctx.Parent,ctx.Previous)
-    let bindNode = Group group
+    let anchor = bindingAnchor "bindco" ctx
 
-    if logEnabled() then log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
-    ctx.AddChild bindNode
+    let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
+        if logEnabled() then log($"bind: rebuild bindco with {next}")
+        tryRebuild anchor ctx (fun () -> element store)
+    )
 
-    let run() =
-        let bindCtx = { ctx with Parent = bindNode }
-        let disposable = store |> Observable.distinctUntilChangedCompare compare |> Store.subscribe (fun next ->
-            try
-                if logEnabled() then log($"bind: rebuild {group.Id} with {next}")
-                node <- build (element(store)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
-            with
-            | x ->
-                JS.console.error("sutil.bindElementCO:parentNode: ", ctx.ParentNode, "exception:", x)
-                node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
-        )
-        group.RegisterUnsubscribe ( fun () ->
-            if logEnabled() then log($"dispose: Bind.el: {group}")
-            node.Dispose()
-            disposable.Dispose())
+    SutilEffect.RegisterUnsubscribe( anchor, fun () ->
+        if logEnabled() then log($"dispose: Bind.el (bindco)")
+        disposable.Dispose())
 
-
-    run()
-
-    bindNode )
+    [| anchor |] )
 
 let bindElement<'T>  (store : IObservable<'T>)  (element: 'T -> SutilElement) : SutilElement=
-    SutilElement.Define( "bindElementCO",
+    SutilElement.Define( "bindElement",
     fun ctx ->
-    let mutable node = SideEffect
-    let group = SutilEffect.MakeGroup("bind",ctx.Parent,ctx.Previous)
-    let bindNode = Group group
+    let anchor = bindingAnchor "bind" ctx
     let mutable _init = false
 
-    if logEnabled() then log($"bind: {group.Id} ctx={ctx.Action} prev={ctx.Previous}")
-    ctx.AddChild bindNode
+    let disposable = store |> Store.subscribe (fun next ->
 
-    let run() =
-        let bindCtx = { ctx with Parent = bindNode }
-        let disposable = store |> Store.subscribe (fun next ->
+        // The anchor is the binding's one stable node, so its connectedness is the truth (fsimgo #895).
+        if _init && not (nodeIsConnected anchor) then
+            Fable.Core.JS.console.error($"NOT CONNECTED: bind ", ctx.ParentElement)
 
-            if _init && not (nodeIsConnected ctx.ParentElement) then
-                Fable.Core.JS.console.error($"NOT CONNECTED: {group} ", ctx.ParentElement)
+        if logEnabled() then log($"bind: rebuild with {next}")
+        tryRebuild anchor ctx (fun () -> element next)
+        _init <- true
+    )
 
-            try
-                if logEnabled() then log($"bind: rebuild {group.Id} with {next}")
-                node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
-                _init <- true
-            with
-            | x ->
-                JS.console.error("sutil.bindElement:parentNode: ", ctx.ParentNode, "exception:", x)
-                node <- build (elementFromException x) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
-        )
-        group.RegisterUnsubscribe ( fun () ->
-            if logEnabled() then log($"dispose: Bind.el: {group}")
-            disposable.Dispose()
-            node.Dispose()
-            // disposable.Dispose()
-        )
+    SutilEffect.RegisterUnsubscribe( anchor, fun () ->
+        if logEnabled() then log($"dispose: Bind.el")
+        disposable.Dispose()
+    )
 
-
-    run()
-
-    bindNode )
+    [| anchor |] )
 /// Backwards compatibility
 let bindFragment = bindElement
 
 let bindElement2<'A,'B> (a : IObservable<'A>) (b : IObservable<'B>)  (element: ('A*'B) -> SutilElement) =
     SutilElement.Define("bindElement2",
     fun ctx ->
-    let mutable node : SutilEffect = SideEffect
-    let group = SutilEffect.MakeGroup("bind2",ctx.Parent,ctx.Previous)
-    let bindNode = Group group
-    ctx.AddChild bindNode
-
-    let bindCtx = { ctx with Parent = bindNode }
+    let anchor = bindingAnchor "bind2" ctx
 
     let d = Store.subscribe2 a b (fun next ->
         try
-            node <- build (element(next)) (bindCtx |> ContextHelpers.withReplace (node,group.NextDomNode))
+            rebuildAt anchor ctx (element next)
         with
         | x -> Logging.error $"Exception in bind: {x.Message}"
     )
 
-    group.RegisterUnsubscribe (Helpers.unsubify d)
+    SutilEffect.RegisterUnsubscribe( anchor, Helpers.unsubify d )
 
-    bindNode
+    [| anchor |]
     )
 
 let bindElementKO<'T,'K when 'K : equality> (store : IObservable<'T>) (element: IObservable<'T> -> SutilElement) (key : 'T -> 'K) : SutilElement =
@@ -248,9 +203,9 @@ let bindSelected<'T when 'T : equality> (selection:IObservable<List<'T>>) (dispa
     // in case 'value' hasn't been set yet
     once Event.ElementReady selectElement <| fun _ ->
         let unsub = selection |> Store.subscribe (updateSelected)
-        SutilEffect.RegisterDisposable(ctx.Parent, unsub)
+        SutilEffect.RegisterDisposable(ctx.Host, unsub)
 
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,unsubInput)
     ()
     )
 
@@ -300,8 +255,8 @@ let bindGroup<'T> (store:Store<List<string>>) : SutilElement =
     // When store changes make sure check status is synced
     let unsub = store |> Store.subscribe (updateChecked)
 
-    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
+    SutilEffect.RegisterDisposable(ctx.Host,unsub)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,unsubInput)
     () )
 
 // T can realistically only be numeric or a string. We're relying (I think!) on JS's ability
@@ -332,8 +287,8 @@ let bindRadioGroup<'T> (store:Store<'T>) : SutilElement =
     // When store changes make sure check status is synced
     let unsub = store |> Store.subscribe updateChecked
 
-    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,inputUnsub)
+    SutilEffect.RegisterDisposable(ctx.Host,unsub)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,inputUnsub)
 
     () )
 
@@ -373,7 +328,7 @@ let bindAttrIn<'T> (attrName:string) (store : IObservable<'T>) : SutilElement =
             store |> Store.subscribe (fun cls -> ctx.ParentElement.className <- (string cls))
         else
             store |> Store.subscribe (DomHelpers.setAttribute ctx.ParentElement attrName)
-    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
+    SutilEffect.RegisterDisposable(ctx.Host,unsub)
     () )
 
 /// Bind a store value to an element property.
@@ -385,7 +340,7 @@ let bindPropIn<'T> (propName:string) (store : IObservable<'T>) : SutilElement =
             store |> Store.subscribe (fun cls -> ctx.ParentElement.className <- (string cls))
         else
             store |> Store.subscribe (fun v -> Interop.set ctx.ParentElement propName v )
-    SutilEffect.RegisterDisposable(ctx.Parent,unsub)
+    SutilEffect.RegisterDisposable(ctx.Host,unsub)
     () )
 
 // This is mis-named, but I'm going to leave it alone. It doesn't get attribute values. I think
@@ -396,7 +351,7 @@ let bindAttrOut<'T> (attrName:string) (onchange : 'T -> unit) : SutilElement =
     let parent = ctx.ParentNode
     let unsubInput = listen "input" parent <| fun _ ->
         Interop.get parent attrName |> onchange
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,unsubInput)
     () )
 
 // Bind a scalar value to an element attribute. Listen for onchange events and dispatch the
@@ -409,7 +364,7 @@ let attrNotify<'T> (attrName:string) (value :'T) (onchange : 'T -> unit) : Sutil
     let unsubInput = listen "input" parent  <| fun _ ->
         Interop.get parent attrName |> onchange
     Interop.set parent attrName value
-    SutilEffect.RegisterUnsubscribe(ctx.Parent, unsubInput)
+    SutilEffect.RegisterUnsubscribe(ctx.Host, unsubInput)
     () )
 
 // Bind an observable value to an element attribute. Listen for onchange events and dispatch the
@@ -426,8 +381,8 @@ let bindListen<'T> (attrName:string) (store : IObservable<'T>) (event:string) (h
     let parent = ctx.ParentNode
     let unsubA = DomHelpers.listen event parent handler
     let unsubB = store |> Store.subscribe ( Interop.set parent attrName )
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubA)
-    SutilEffect.RegisterDisposable(ctx.Parent,unsubB)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,unsubA)
+    SutilEffect.RegisterDisposable(ctx.Host,unsubB)
     () )
 
 // Bind a store value to an element attribute. Listen for onchange events write the converted
@@ -459,7 +414,7 @@ let bindAttrStoreOut<'T> (attrName:string) (store : Store<'T>) : SutilElement =
     let unsubInput = DomHelpers.listen "input" parent <| fun _ ->
         Interop.get parent attrName |> convertObj<'T> |> Store.set store
     //(asEl parent).addEventListener("input", (fun _ -> Interop.get parent attrName |> convertObj<'T> |> Store.set store ))
-    SutilEffect.RegisterUnsubscribe(ctx.Parent,unsubInput)
+    SutilEffect.RegisterUnsubscribe(ctx.Host,unsubInput)
     ()
     )
 
@@ -493,69 +448,45 @@ let bindPropBoth<'T> (propName:string) (value : IObservable<'T>) (onchange : 'T 
 
 type KeyedStoreItem<'T,'K> = {
     Key : 'K
-    //CachedElement : HTMLElement
-    Node : SutilEffect
-    SvId : int
+    // The item's stable top-level nodes: anchors for binding-rooted views, elements otherwise (fsimgo #896).
+    Nodes : Node[]
     Position : IStore<int>
     Value: IStore<'T>
-    //Rect: ClientRect
 }
-
-let private findCurrentNode doc (current:Node) (id:int) =
-    if (isNull current || isNull current.parentNode) then
-        if logEnabled() then log($"each: Find node with id {id}")
-        match DomHelpers.findNodeWithSvId doc id with
-        | None ->
-            if logEnabled() then log("each: Disaster: cannot find node")
-            null
-        | Some n ->
-            if logEnabled() then log($"each: Found it: {n}")
-            n
-    else
-        //log($"Cannot find node with id {id}")
-        current
-
-let private findCurrentElement doc (current:Node) (id:int) =
-    let node = findCurrentNode doc current id
-    match node with
-    | null -> null
-    | n when isElementNode n -> n :?> HTMLElement
-    | x ->  if logEnabled() then log $"each: Disaster: found node but it's not an HTMLElement"
-            null
 
 let private genEachId = Helpers.makeIdGenerator()
 
 
-let private asDomNode (element: SutilEffect) (ctx: BuildContext) : Node =
-    //let result = (ctx |> build element)
-    match element.collectDomNodes () with
-    | [ n ] -> n
-    | [] -> errorNode ctx.Parent $"Error: Empty node from {element} #{element.Id}"
+let private asDomNode (nodes: Node[]) (ctx: BuildContext) : Node =
+    // Markers and empty anchors are bookkeeping, not content (fsimgo #896).
+    match resolveNodes nodes |> Array.filter (fun n -> not (isCommentNode n)) with
+    | [| n |] -> n
+    | [||] -> errorNode ctx.Parent $"Error: Empty node"
     | xs ->
         let doc = ctx.Document
         let tmpDiv = doc.createElement ("div")
 
         let en =
-            errorNode (DomNode tmpDiv) "'fragment' not allowed as root for 'each' blocks"
+            errorNode (tmpDiv :> Node) "'fragment' not allowed as root for 'each' blocks"
 
         DomEdit.appendChild tmpDiv en
-        ctx.Parent.AppendChild tmpDiv
+        ctx.AddChild (tmpDiv :> Node)
 
         xs
-        |> List.iter (fun x -> DomEdit.appendChild tmpDiv x)
+        |> Array.iter (fun x -> DomEdit.appendChild tmpDiv x)
 
         upcast tmpDiv
 
-let private asDomElement (element: SutilEffect) (ctx: BuildContext) : HTMLElement =
-    let node = asDomNode element ctx
+let private asDomElement (nodes: Node[]) (ctx: BuildContext) : HTMLElement =
+    let node = asDomNode nodes ctx
 
     if isElementNode node then
         downcast node
     else
         let doc = ctx.Document
         let span = doc.createElement ("span")
+        ctx.AddChild (span :> Node)
         DomEdit.appendChild span node
-        ctx.Parent.AppendChild span
         span
 
 type EachItemRenderer<'T> =
@@ -585,48 +516,27 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItem
 
     SutilElement.Define("eachiko_wrapper",
     fun ctx ->
-        log($"eachiko: Previous = {ctx.Previous}")
-        let eachGroup = SutilEffect.MakeGroup("each",ctx.Parent,ctx.Previous)
-        let eachNode = Group eachGroup
-        ctx.AddChild eachNode
+        let anchor = bindingAnchor "each" ctx
 
         let mutable state = ([| |] : KeyedStoreItem<'T,'K> array) .ToCollectionWrapper()
         let eachId = genEachId() + 1
         let idKey = "svEachId"
-        let hasEid (n : Node) = Interop.exists n idKey
-        let eachIdOf n : int = if hasEid n then  Interop.get n idKey else -1
         let setEid n = Interop.set n idKey eachId
-        let eachCtx = ctx |> ContextHelpers.withParent eachNode
 
-#if LOGGING_ENABLED
-        let logState state' =
-            Browser.Dom.console.groupCollapsed("each state #" + eachGroup.Id)
-            state' |> List.map (fun s -> sprintf "%s %f,%f" (string s.Key) s.Rect.left s.Rect.top) |> List.iter (fun s -> log(s))
-            Browser.Dom.console.groupEnd()
-
-        let logItems (items : list<'T>) =
-            Browser.Dom.console.groupCollapsed("each items #" + eachGroup.Id)
-            items |> List.mapi (fun i s -> sprintf "%s" (string (key(i,s)))) |> List.iter (fun s -> log(s))
-            Browser.Dom.console.groupEnd()
-#endif
+        // Resolve at use time so inner rebinds that replaced the element stay visible (fsimgo #896).
+        let itemElement (ki : KeyedStoreItem<'T,'K>) : HTMLElement =
+            resolveNodes ki.Nodes
+            |> Array.tryPick (fun n -> if isElementNode n then Some (n :?> HTMLElement) else None)
+            |> Option.defaultValue null
 
         let unsub = items |> Store.subscribe (fun newItems ->
             options.PreRender()
 
             if logEachEnabled "each" then
                 log("-- Each Block Render -------------------------------------")
-                log($"caching rects for render. Previous: {state |> CollectionWrapper.length} items. Current {newItems |> CollectionWrapper.length} items")
+                log($"Previous: {state |> CollectionWrapper.length} items. Current {newItems |> CollectionWrapper.length} items")
 
-            // state <- state |> CollectionWrapper.map (fun ki ->
-            //     let el = findCurrentElement ctx.Document (*ki.Element*)null ki.SvId
-            //     //{ ki with Rect = el.getBoundingClientRect() }
-            //     ki
-            // )
-
-            // Last child that doesn't have our eachId
-            if logEachEnabled "each" then log($"Previous = {ctx.Previous}")
-            //let prevNodeInit : Node = vnode.PrevDomNode
-            let mutable prevNode = SideEffect
+            let eachCtx = ctx |> ContextHelpers.withAnchor anchor
 
             let newState = newItems |> CollectionWrapper.mapi (fun itemIndex item ->
                 let itemKey = key(itemIndex,item)
@@ -635,43 +545,43 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItem
                 | None ->
                     let storePos = Store.make itemIndex
                     let storeVal = Store.make item
-                    let ctx2 = eachCtx |> ContextHelpers.withPrevious prevNode
-                    if logEachEnabled "each" then log $"++ creating new item '{item}' (key={itemKey}) with prev='{prevNode}' action={ctx2.Action}"
-                    let sutilNode = ctx2 |> build (eachItemRender view storePos storeVal)
-                    let itemNode = ctx2 |> asDomElement sutilNode
-                    if logEachEnabled "each" then log $"-- created #{svId itemNode} with prev='{nodeStrShort (itemNode.previousSibling)}'"
+                    if logEachEnabled "each" then log $"++ creating new item '{item}' (key={itemKey})"
+                    let sutilNodes = eachCtx |> build (eachItemRender view storePos storeVal)
+                    let itemNode = asDomElement sutilNodes eachCtx
                     setEid itemNode
-                    SutilEffect.RegisterDisposable(sutilNode,storePos)
-                    SutilEffect.RegisterDisposable(sutilNode,storeVal)
+
+                    // A wrapped or empty result is owned by its wrapper, plus any anchors for disposal (fsimgo #896).
+                    let nodes =
+                        match resolveNodes sutilNodes with
+                        | [| n |] when isSameNode n (itemNode :> Node) -> sutilNodes
+                        | _ ->
+                            Array.append
+                                (sutilNodes |> Array.filter (fun n -> (getBindNodes n).IsSome))
+                                [| itemNode :> Node |]
+
+                    SutilEffect.RegisterDisposable(nodes.[0],storePos)
+                    SutilEffect.RegisterDisposable(nodes.[0],storeVal)
                     transitionNode itemNode trans [Key (string itemKey)] true ignore ignore
 
-                    let newKi = {
-                        SvId = svId itemNode
+                    {
                         Key = itemKey
-                        Node = sutilNode
+                        Nodes = nodes
                         Position = storePos
                         Value = storeVal
                     }
-
-                    let prevEl = itemNode.previousSibling :?> HTMLElement
-                    if logEachEnabled "each" then log $"new item #{newKi.SvId} eid={eachIdOf itemNode} {itemKey} prevNode={prevNode} prevSibling={nodeStr prevEl}"
-                    prevNode <- sutilNode
-                    newKi
                 | Some ki ->
                     ki.Position |> Store.modify (fun _ -> itemIndex)
                     ki.Value |> Store.modify (fun _ -> item)
-                    let el = findCurrentElement ctx.Document null ki.SvId (*ki.Element*)
-                    if logEachEnabled "each" then log $"existing item {ki.SvId} {ki.Key}" //" {rectStr ki.Rect}"
-                    match animator with 
+                    if logEachEnabled "each" then log $"existing item {ki.Key}"
+                    match animator with
                     | Some a->
-                        clearAnimations el
-                        animateNode el (el.getBoundingClientRect()) a
+                        let el = itemElement ki
+                        if not (isNull el) then
+                            clearAnimations el
+                            animateNode el (el.getBoundingClientRect()) a
                     | None -> ()
-                    prevNode <- ki.Node
                     ki
             )
-
-            //logState newState
 
             if logEachEnabled "each" then log("Remove old items")
             // Remove old items
@@ -680,40 +590,36 @@ let eachiko_wrapper (items:IObservable<ICollectionWrapper<'T>>) (view : EachItem
                     if logEachEnabled "each" then log($"removing key {oldItem.Key}")
                     match options.Exit with
                     | ExitOption.Default ->
-                        let el = findCurrentElement ctx.Document null oldItem.SvId (*oldItem.Element*)
-                        fixPosition el
-                        ctx.Parent.InsertBefore(el,null) |> ignore
-                        transitionNode el trans [Key (string oldItem.Key)] false
-                            ignore (fun e -> eachGroup.RemoveChild(oldItem.Node))
+                        let el = itemElement oldItem
+                        if isNull el then
+                            oldItem.Nodes |> Array.iter removeNode
+                        else
+                            fixPosition el
+                            DomEdit.insertBefore anchor.parentNode el null
+                            transitionNode el trans [Key (string oldItem.Key)] false
+                                ignore (fun _ -> oldItem.Nodes |> Array.iter removeNode)
                     | ExitOption.Custom f ->
-                        f (oldItem.Node.AsDomNode :?> Browser.Types.HTMLElement)
+                        f (itemElement oldItem)
 
-            //ctx.Parent.PrettyPrint("each #" + vnode.Id + ": before reorder")
-
-            // Reorder
-            let mutable prevDomNode = eachGroup.PrevDomNode
-            for ki in newState do
-                if logEachEnabled "each" then log($"Checking order: #{ki.SvId}")
-                let el = findCurrentElement ctx.Document null ki.SvId (*ki.Element*)
-                if not (isNull el) then
-                    if not(isSameNode prevDomNode el.previousSibling) then
-                        if logEachEnabled "each" then log($"reordering: ki={nodeStr el} prevNode={nodeStr prevDomNode}")
-                        if logEachEnabled "each" then log($"reordering key {ki.Key} {nodeStrShort el} parent={el.parentNode}")
-                        //ctx.Parent.RemoveChild(el) |> ignore
-                        ctx.Parent.InsertAfter(el, prevDomNode)
-                    prevDomNode <- el
-
-            //ctx.Parent.PrettyPrint("each #" + vnode.Id + ": after reorder")
+            // Reorder by reverse walk from the anchor, moving whole item node sets (fsimgo #896).
+            let itemsArr = newState.ToArray()
+            let mutable nextRef : Node = anchor
+            for i in itemsArr.Length-1 .. -1 .. 0 do
+                let expanded = expandNodes itemsArr.[i].Nodes
+                if expanded.Length > 0 then
+                    if not (isSameNode ((Array.last expanded).nextSibling) nextRef) then
+                        if logEachEnabled "each" then log($"reordering key {itemsArr.[i].Key}")
+                        expanded |> Array.iter (fun n -> DomEdit.insertBefore anchor.parentNode n nextRef)
+                    nextRef <- expanded.[0]
 
             state <- newState
+            setBindNodes anchor (itemsArr |> Array.collect (fun ki -> ki.Nodes))
 
-            // let ev = Interop.customEvent Event.BindUpdated {|  |}
-            // ctx.ParentElement.dispatchEvent(ev) |> ignore
             options.PostRender()
         )
 
-        eachGroup.RegisterUnsubscribe (Helpers.unsubify unsub)
-        eachNode
+        SutilEffect.RegisterUnsubscribe (anchor, Helpers.unsubify unsub)
+        [| anchor |]
     )
 
 let private duc = Observable.distinctUntilChanged
@@ -763,7 +669,7 @@ let bindStore<'T> (init:'T) (app:Store<'T> -> Core.SutilElement) : Core.SutilEle
     SutilElement.Define( "bindStore",
     fun ctx ->
     let s = Store.make init
-    SutilEffect.RegisterDisposable(ctx.Parent,s)
+    SutilEffect.RegisterDisposable(ctx.Host,s)
     ctx |> (s |> app |> build)
     )
 
@@ -777,7 +683,7 @@ let bindStyle<'T> (value : IObservable<'T>) (f : CSSStyleDeclaration -> 'T -> un
     fun ctx ->
     let style = ctx.ParentElement.style
     let unsub = value.Subscribe(f style)
-    SutilEffect.RegisterDisposable( ctx.Parent, unsub )
+    SutilEffect.RegisterDisposable( ctx.Host, unsub )
     () )
 
 let bindElementStyle<'T> (value : IObservable<'T>) (f : HTMLElement -> CSSStyleDeclaration -> 'T -> unit) =
@@ -785,7 +691,7 @@ let bindElementStyle<'T> (value : IObservable<'T>) (f : HTMLElement -> CSSStyleD
     fun ctx ->
     let style = ctx.ParentElement.style
     let unsub = value.Subscribe(f ctx.ParentElement style)
-    SutilEffect.RegisterDisposable( ctx.Parent, unsub )
+    SutilEffect.RegisterDisposable( ctx.Host, unsub )
     () )
 
 let bindElementEffect<'T, 'E when 'E :> HTMLElement> (value : IObservable<'T>) (f : 'E -> 'T -> unit) =
@@ -793,7 +699,7 @@ let bindElementEffect<'T, 'E when 'E :> HTMLElement> (value : IObservable<'T>) (
     fun ctx ->
     let el = ctx.ParentElement :?> 'E
     let unsub = value.Subscribe(f el)
-    SutilEffect.RegisterDisposable( ctx.Parent, unsub )
+    SutilEffect.RegisterDisposable( ctx.Host, unsub )
     () )
 
 let bindWidthHeight (wh: IObservable<float*float>) =

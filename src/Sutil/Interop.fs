@@ -54,6 +54,10 @@ let windowIsDefined : bool = jsNative
 [<Emit("$0.addEventListener($1, $2)")>]
 let addEventListener (el : Browser.Types.EventTarget, name : string, f : obj) : unit = jsNative
 
+// The Browser.Types binding eta-expands the handler, so removal never matches (fsimgo #896).
+[<Emit("$0.removeEventListener($1, $2)")>]
+let removeEventListener (el : Browser.Types.EventTarget, name : string, f : obj) : unit = jsNative
+
 type Window() =
     do ()
     with

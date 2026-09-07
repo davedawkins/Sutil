@@ -88,7 +88,7 @@ type SutilHtmlEngine() as this =
     member _.body (xs: seq<SutilElement>) =
         SutilElement.Define( "Html.body",
         fun ctx ->
-            ctx |> ContextHelpers.withParent (DomNode ctx.Document.body) |> buildChildren xs
+            ctx |> ContextHelpers.withParent (ctx.Document.body :> Browser.Types.Node) |> buildChildren xs
             () )
 
     member _.parse (html : string) = CoreElements.html html
@@ -96,7 +96,7 @@ type SutilHtmlEngine() as this =
     member _.parent (selector:string) (xs: seq<SutilElement>) =
         SutilElement.Define( "Html.parent",
         fun ctx ->
-        ctx |> ContextHelpers.withParent (DomNode (ctx.Document.querySelector selector)) |> buildChildren xs
+        ctx |> ContextHelpers.withParent (ctx.Document.querySelector selector :> Browser.Types.Node) |> buildChildren xs
         () )
 
     member __.divc (cls : string) (children : seq<SutilElement>) = __.div (_clsch cls children)

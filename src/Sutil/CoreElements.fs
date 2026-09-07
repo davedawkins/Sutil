@@ -30,7 +30,7 @@ let disposeOnUnmount (ds: IDisposable list) =
         "disposeOnUnmount",
         fun ctx ->
             ds
-            |> List.iter (fun d -> SutilEffect.RegisterDisposable(ctx.Parent, d))
+            |> List.iter (fun d -> SutilEffect.RegisterDisposable(ctx.Host, d))
     )
 
 /// <summary>
@@ -40,7 +40,7 @@ let unsubscribeOnUnmount (ds: (unit -> unit) list) =
     SutilElement.Define(
         "unsubscribeOnUnmount",
         fun ctx ->
-            ds |> List.iter (fun d -> SutilEffect.RegisterUnsubscribe(ctx.Parent, d))
+            ds |> List.iter (fun d -> SutilEffect.RegisterUnsubscribe(ctx.Host, d))
     )
 
 /// <summary>
@@ -50,8 +50,12 @@ let exclusive (f: SutilElement) =
     SutilElement.Define(
         "exclusive",
         fun ctx ->
-            if logEnabled() then log $"exclusive {ctx.Parent}"
-            ctx.Parent.Clear()
+            if logEnabled() then log $"exclusive {nodeStrShort ctx.Parent}"
+            // Spare the enclosing binding's own anchor; everything else goes (fsimgo #896).
+            DomHelpers.children ctx.ParentNode
+            |> Array.ofSeq
+            |> Array.filter (fun n -> not (isSameNode n ctx.Before))
+            |> Array.iter unmount
             ctx |> build f
     )
 
@@ -105,13 +109,12 @@ let elns ns tag (xs: seq<SutilElement>) : SutilElement =
         fun ctx ->
             let e: Element = makeElementWithSutilId ctx.Document tag ns
     //        Fable.Core.JS.console.log(buildLevelStr(), "++ making ", nodeStrShort e)
-            let snodeEl = DomNode e
 
             ctx
-            |> ContextHelpers.withParent snodeEl
+            |> ContextHelpers.withParent (e :> Node)
             |> buildChildren xs
 
-            ctx.AddChild(DomNode e)
+            ctx.AddChild(e :> Node)
 
             // Effect 5
             //dispatchSimple e Event.ElementReady
@@ -139,7 +142,7 @@ let keyedEl (tag: string) (key: string) (init: seq<SutilElement>) (update: seq<S
                     let e' = ctx.Document.createElement (tag)
 
                     ctx
-                    |> ContextHelpers.withParent (DomNode e')
+                    |> ContextHelpers.withParent (e' :> Node)
                     |> buildChildren init
 
                     setSvId e' svid
@@ -152,12 +155,12 @@ let keyedEl (tag: string) (key: string) (init: seq<SutilElement>) (update: seq<S
 
             // Effect 1
             ctx
-            |> ContextHelpers.withParent (DomNode e)
+            |> ContextHelpers.withParent (e :> Node)
             |> buildChildren update
 
             if e.parentElement = null then
                 // Effect 40
-                ctx.AddChild(DomNode e)
+                ctx.AddChild(e :> Node)
                 // Effect 5
                 CustomDispatch<_>.dispatch(e,Event.ElementReady)
 
@@ -172,14 +175,12 @@ let internal elAppend selector (xs: seq<SutilElement>) : SutilElement =
         if isNull e then
             failwith ("Not found " + selector)
 
-        let snodeEl = DomNode e
-
         let id = domId ()
         if logEnabled() then log ("append <" + selector + "> #" + string id)
         setSvId e id
 
         ctx
-        |> ContextHelpers.withParent snodeEl
+        |> ContextHelpers.withParent (e :> Node)
         |> buildChildren xs
         ()
     )
@@ -190,20 +191,20 @@ let inject (elements: SutilElement seq) (element: SutilElement) =
     fun ctx ->
         let e = build element ctx
 
-        e.collectDomNodes ()
-        |> List.iter (fun n ->
+        resolveNodes e
+        |> Array.iter (fun n ->
             ctx
-            |> ContextHelpers.withParent (DomNode n)
+            |> ContextHelpers.withParent n
             |> buildChildren elements)
         e
     )
 
-/// Create a TextNode
-let internal text value : SutilElement =
+/// Create a TextNode. Public: fsimgo's teardown tests use it and dotnet build enforces accessibility (fsimgo #896).
+let text value : SutilElement =
     SutilElement.Define( "text", [],
         fun ctx ->
             let tn = DomHelpers.textNode ctx.Document value
-            ctx.AddChild(DomNode tn)
+            ctx.AddChild(tn)
             tn
     )
 
@@ -215,9 +216,9 @@ let setProperty<'T> (key: string) (value: 'T) =
 let setValue = setProperty
 
 /// <summary>
-/// An empty element. This could be considered the <c>unit</c> value for a <c>SutilElement</c>. It is very similar in effect <c>fragment []</c>, since
-/// neither will add any HTMLElements. The main difference is that <c>nothing</c> will make no changes at all to the DOM, while <c>fragment</c> will
-/// create an internal <c>SutilGroup</c> that is registered on the parent element as a property.
+/// An empty element. This could be considered the <c>unit</c> value for a <c>SutilElement</c>. It is very similar in effect to <c>fragment []</c>, since
+/// neither will add any HTMLElements. The main difference is that <c>nothing</c> makes no changes at all to the DOM, while <c>fragment</c> inserts
+/// a marker comment node that owns the fragment's registrations (fsimgo #896).
 /// </summary>
 let nothing =
     SutilElement.Define( "nothing", ignore )
@@ -225,7 +226,7 @@ let nothing =
 let attr (name, value: obj) : SutilElement =
     SutilElement.Define( sprintf "attr %s=%A" name value,
         fun ctx ->
-        let parent = ctx.Parent.AsDomNode
+        let parent = ctx.ParentNode
 
         try
             let e = parent :?> HTMLElement
@@ -251,10 +252,7 @@ let attr (name, value: obj) : SutilElement =
 let html (text : string) : SutilElement =
     SutilElement.Define( "html",
     fun ctx ->
-        ctx.Parent.AsDomNode
-        |> applyIfElement (fun el ->
-            el.innerHTML <- text.Trim()
-
+        let applyClasses (el : HTMLElement) =
             ctx.Class
             |> Option.iter (fun cls -> visitElementChildren el (fun ch -> ClassHelpers.addToClasslist cls ch ))
 
@@ -266,29 +264,36 @@ let html (text : string) : SutilElement =
                     //applyCustomRules ns ch
                 )
 
-            Event.notifyUpdated ctx.Document)
+        if isNull ctx.Before then
+            ctx.ParentNode
+            |> applyIfElement (fun el ->
+                el.innerHTML <- text.Trim()
+                applyClasses el
+                Event.notifyUpdated ctx.Document)
 
-        let nodes = ctx.ParentNode.childNodes.toSeq() |> Seq.toArray
-
-        if nodes.Length = 1 then
-            nodes.[0] |> DomNode |> sutilResult
+            ctx.ParentNode.childNodes.toSeq() |> Seq.toArray
         else
-            let group = SutilEffect.MakeGroup( "html", ctx.Parent, ctx.Previous )
-            nodes |> Seq.iter (fun n -> group.AddChild(DomNode n))
-            group |> Group |> sutilResult
+            // Anchored: parent innerHTML would destroy the enclosing binding's anchor (fsimgo #896).
+            let scratch = ctx.Document.createElement "div"
+            scratch.innerHTML <- text.Trim()
+            applyClasses scratch
+            Event.notifyUpdated ctx.Document
+
+            let nodes = scratch.childNodes.toSeq() |> Seq.toArray
+            nodes |> Array.iter ctx.AddChild
+            nodes
     )
 
 //
 // Builds the element and passes to post-processing function
 //
-let postProcess (f : SutilEffect -> SutilEffect) (view : SutilElement) : SutilElement =
+let postProcess (f : Node[] -> Node[]) (view : SutilElement) : SutilElement =
     SutilElement.Define( "postProcess", fun ctx -> ctx |> build view |> f )
 
 let postProcessElements (f : HTMLElement -> unit) (view : SutilElement) : SutilElement =
-    let helper (se : SutilEffect) =
-        Fable.Core.JS.console.log("post", se.ToString())
-        se.AsDomNode |> applyIfElement f
-        se
+    let helper (nodes : Node[]) =
+        nodes |> Array.iter (applyIfElement f)
+        nodes
     view |> postProcess helper
 
 let listenToResize (dispatch: HTMLElement -> unit) : SutilElement =
@@ -306,7 +311,7 @@ let subscribe (source : System.IObservable<'T>) (handler : BuildContext -> 'T ->
     SutilElement.Define( "subscribe",
     fun ctx ->
         let unsub = source.Subscribe( handler ctx )
-        SutilEffect.RegisterDisposable(ctx.Parent,unsub)
+        SutilEffect.RegisterDisposable(ctx.Host,unsub)
     )
 
 open Fable.Core.JsInterop
@@ -350,7 +355,7 @@ let private _on<'E when 'E :> Browser.Types.Event> (event : string) (fn : 'E -> 
     let rec h (e:'E) =
         for opt in options do
             match opt with
-            | Once -> el.removeEventListener(event,unbox h)
+            | Once -> Interop.removeEventListener(el, event, h)
             | PreventDefault -> e.preventDefault()
             | StopPropagation -> e.stopPropagation()
             | StopImmediatePropagation -> e.stopImmediatePropagation()
@@ -374,7 +379,7 @@ let private _on<'E when 'E :> Browser.Types.Event> (event : string) (fn : 'E -> 
         ctx.OnMount.Add(ctx.ParentElement)
         Interop.set  ctx.ParentElement  "_onmount"  true  
 
-    SutilEffect.RegisterUnsubscribe( ctx.Parent,  fun _ -> el.removeEventListener(event,unbox handler) )
+    SutilEffect.RegisterUnsubscribe( ctx.Host,  fun _ -> Interop.removeEventListener(el, event, handler) )
 
 let on<'E when 'E :> Browser.Types.Event> (event : string) (fn : 'E -> unit) (options : EventModifier list) =
     SutilElement.Define( sprintf "on%s" event, _on event fn options)
@@ -426,20 +431,19 @@ let hookMountedElement (hook: HTMLElement -> unit) =
 let fragment (elements: SutilElement seq) =
     SutilElement.Define( "fragment",
     fun ctx ->
-        let group =
-            SutilEffect.MakeGroup("fragment", ctx.Parent, ctx.Previous)
+        // The marker hosts fragment-level registrations and dies after the content, like the old group (fsimgo #896).
+        let marker : Node = upcast ctx.Document.createComment "fragment"
 
-        let fragmentNode = Group group
-        ctx.AddChild fragmentNode
+        let childCtx = { ctx with Host = marker }
 
-        let childCtx =
-            { ctx with
-                Parent = fragmentNode
-                Action = Append }
+        let childNodes =
+            elements
+            |> Seq.map (fun e -> build e childCtx)
+            |> Array.concat
 
-        childCtx |> buildChildren elements
+        ctx.AddChild marker
 
-        fragmentNode
+        Array.append childNodes [| marker |]
     )
 
 let lift (element : HTMLElement) =
@@ -452,7 +456,7 @@ let internal declareResource<'T when 'T :> IDisposable> (init: unit -> 'T) (f: '
     SutilElement.Define( "declareResource",
         fun ctx ->
             let r = init ()
-            SutilEffect.RegisterDisposable(ctx.Parent, r)
+            SutilEffect.RegisterDisposable(ctx.Host, r)
             f (r)
     )
 

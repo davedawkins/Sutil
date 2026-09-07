@@ -9,6 +9,7 @@
     <Compile Include="DOMTest.fs" />
     <Compile Include="BindingTest.fs" />
     <Compile Include="AnchorTest.fs" />
+    <Compile Include="BindApiTest.fs" />
     <Compile Include="ObservableTest.fs" />
     <Compile Include="StoreTest.fs" />
     <Compile Include="Main.fs" />

@@ -6,6 +6,8 @@ module Main
 HelloWorldTest.init()
 DOMTest.init()
 BindingTest.init()
+AnchorTest.init()
+BindApiTest.init()
 ObservableTest.init()
 StoreTest.init()
 

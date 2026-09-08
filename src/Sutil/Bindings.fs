@@ -192,9 +192,18 @@ let bindSelected<'T when 'T : equality> (selection:IObservable<List<'T>>) (dispa
 
     let updateSelected (v : List<'T>) =
         let ops = selectElement.options
+        let mutable anySelected = false
+
         for i in [0..ops.length-1] do
             let o = op ops i
-            o.selected <- v |> List.contains (opValue o)
+            let isSelected = v |> List.contains (opValue o)
+            o.selected <- isSelected
+            if isSelected then anySelected <- true
+
+        // A non-multiple <select> re-selects its first option the moment every option is
+        // deselected, so an empty or unmatched selection must be stated explicitly. Without
+        // this the store holds None while the user sees the first option.
+        if not anySelected then selectElement.selectedIndex <- -1
 
     let unsubInput = listen "input" selectElement <| fun _ ->
         getValueList() |> dispatch
@@ -702,34 +711,32 @@ let bindElementEffect<'T, 'E when 'E :> HTMLElement> (value : IObservable<'T>) (
     SutilEffect.RegisterDisposable( ctx.Host, unsub )
     () )
 
+// Zero is a real size and a real coordinate, so these write whatever they are given. An
+// observable that wants to withhold an unmeasured value filters it before binding.
 let bindWidthHeight (wh: IObservable<float*float>) =
     bindStyle wh (fun style (w,h) ->
-        if w <> 0.0 && h <> 0.0 then
-            style.width <- w.ToString() + "px"
-            style.height <- h.ToString() + "px"
+        style.width <- w.ToString() + "px"
+        style.height <- h.ToString() + "px"
     )
 
 let bindLeftTop (xy : IObservable<float*float>) =
     bindStyle xy (fun style (x,y) ->
-        if x <> 0.0 && y <> 0.0 then
-            style.left <- x.ToString() + "px"
-            style.top <- y.ToString() + "px"
+        style.left <- x.ToString() + "px"
+        style.top <- y.ToString() + "px"
     )
 
 let bindRightTop (xy : IObservable<float*float>) =
     bindStyle xy (fun style (x,y) ->
-        if x <> 0.0 && y <> 0.0 then
-            style.right <- x.ToString() + "px"
-            style.top <- y.ToString() + "px"
+        style.right <- x.ToString() + "px"
+        style.top <- y.ToString() + "px"
     )
 
 let bindXYWH (wh: IObservable<float*float*float*float>) =
     bindStyle wh (fun style (x,y,w,h) ->
-        if w <> 0.0 && h <> 0.0 then
-            style.left <- x.ToString() + "px"
-            style.top <- y.ToString() + "px"
-            style.width <- w.ToString() + "px"
-            style.height <- h.ToString() + "px"
+        style.left <- x.ToString() + "px"
+        style.top <- y.ToString() + "px"
+        style.width <- w.ToString() + "px"
+        style.height <- h.ToString() + "px"
     )
 
 let (|=>) store element = bindElement store element

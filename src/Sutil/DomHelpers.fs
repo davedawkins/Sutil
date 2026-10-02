@@ -265,11 +265,11 @@ let internal isSameNode (a: Node) (b: Node) =
 
 let private hasDisposables (node: Node) : bool = Interop.exists node NodeKey.Disposables
 
-let internal getDisposables (node: Node) : IDisposable list =
+let internal getDisposables (node: Node) : IDisposable[]  =
     if hasDisposables node then
         Interop.get node NodeKey.Disposables
     else
-        []
+        [||]
 
 let private clearDisposables (node: Node) : unit = Interop.delete node NodeKey.Disposables
 
@@ -286,7 +286,7 @@ let private cleanup (node: Node) : unit =
     let d = getDisposables node
     if logEnabled() then log $"cleanup {nodeStr node} - {d.Length} disposable(s)"
 
-    d |> List.iter safeDispose
+    d |> Array.iter safeDispose
 
     clearDisposables node
 

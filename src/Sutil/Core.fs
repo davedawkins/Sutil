@@ -22,7 +22,7 @@ let private log s = Logging.log "core" s
 [<AbstractClass; Sealed>]
 type SutilEffect =
     static member RegisterDisposable(node: Node, d: IDisposable) : unit =
-        Interop.set node NodeKey.Disposables (d :: getDisposables (node))
+        Interop.set node NodeKey.Disposables (Array.append [|d|] (getDisposables node))
 
     static member RegisterUnsubscribe(node: Node, d: unit -> unit) : unit =
         SutilEffect.RegisterDisposable(node, Helpers.disposable d)
@@ -160,7 +160,6 @@ let internal sideEffect (ctx, name) : Node[] =
 ///
 /// </summary>
 type SutilElement private (name : string, children : seq<SutilElement>, builder : BuildContext -> Node[]) =
-    do ()
     static member Define( builder : BuildContext -> Node[] ) =
         SutilElement( "", [], builder )
 

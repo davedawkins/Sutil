@@ -377,9 +377,12 @@ let rec internal expandNodes (nodes: Node[]) : Node[] =
         | None -> [| n |])
 
 /// Add event listener using e.addEventListener. Return value is a (unit -> unit) function that will remove the event listener
-let listen (event: string) (e: EventTarget) (fn: (Event -> unit)) : (unit -> unit) =
+let listen<'E when 'E :> Event> (event: string) (e: EventTarget) (fn: ('E -> unit)) : (unit -> unit) =
     Interop.addEventListener (e, event, fn )
-    (fun () -> e.removeEventListener (event, fn) |> ignore)
+    // Removal must pass the SAME reference that was registered. The Browser.Types binding
+    // eta-expands the handler into a fresh arrow, so it matches nothing and stop() is a no-op,
+    // leaving every gesture's mousemove handler alive past its mouseup (fsimgo #896).
+    (fun () -> Interop.removeEventListener (e, event, fn))
 
 /// Wrapper for Window.requestAnimationFrame
 let raf (f: float -> unit) =

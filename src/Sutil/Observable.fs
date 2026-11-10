@@ -109,6 +109,13 @@ module Observable =
     let distinctUntilChanged<'T when 'T : equality> (source:IObservable<'T>) : IObservable<'T> =
         source |> distinctUntilChangedCompare (=)
 
+    let lift (v : 'T) : IObservable<'T> =
+        { new IObservable<'T> with 
+            member _.Subscribe( h : IObserver<'T> ) =
+                h.OnNext(v)
+                Helpers.disposable ignore
+        }
+
     /// Provide the initial value for a sequence so that new subscribers will receive an 
     /// immediate update of the current value
     let init (v : 'T) (source: IObservable<'T>) =
